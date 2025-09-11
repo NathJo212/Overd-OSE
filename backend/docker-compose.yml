@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:16
+    container_name: overd-ose-pg
+    environment:
+      POSTGRES_USER: overd_ose_user
+      POSTGRES_PASSWORD: overd_ose_secret
+      POSTGRES_DB: overd_ose
+    ports:
+      - "5432:5432"
+    volumes:
+      - overd_ose_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U overd_ose_user -d overd_ose || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  overd_ose_pgdata:
