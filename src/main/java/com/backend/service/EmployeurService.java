@@ -14,14 +14,15 @@ public class EmployeurService {
     EmployeurRepository employeurRepository;
 
     @Transactional
-    public Employeur creerEmployeur(String email, String password, String telephone,
-                                    String nomEntreprise, String contact) {
+    public void creerEmployeur(String email, String password, String telephone,
+                               String nomEntreprise, String contact) {
         boolean employeurExistant = employeurRepository.existsByEmail(email);
         if (employeurExistant) {
             throw new EmailDejaUtilise("Un employeur avec cet email existe déjà");
         }
         Employeur employeur = new Employeur(email, password, telephone, nomEntreprise, contact);
-        return employeurRepository.save(employeur);
+        System.out.println("Création de l'employeur : " + employeur);
+        employeurRepository.save(employeur);
     }
 
 }
