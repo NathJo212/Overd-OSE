@@ -5,9 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table
+@NoArgsConstructor
 public abstract class Utilisateur {
 
     @Id
@@ -18,13 +20,13 @@ public abstract class Utilisateur {
     protected String password;
     protected String telephone;
 
-    public Utilisateur() {
-    }
 
     public Utilisateur(String email, String password, String telephone) {
         this.email = email;
         this.password = password;
         this.telephone = telephone;
     }
+
+
 
 }

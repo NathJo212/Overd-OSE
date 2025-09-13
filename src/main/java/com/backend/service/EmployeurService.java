@@ -13,8 +13,10 @@ public class EmployeurService {
     EmployeurRepository employeurRepository;
 
     @Transactional
-    public Employeur save(String nomEntreprise) {
-        return null;
+    public Employeur creerEmployeur(String email, String password, String telephone,
+                                    String nomEntreprise, String contact) {
+        Employeur employeur = new Employeur(email, password, telephone, nomEntreprise, contact);
+        return employeurRepository.save(employeur);
     }
 
 }
