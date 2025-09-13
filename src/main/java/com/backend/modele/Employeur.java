@@ -1,8 +1,12 @@
 package com.backend.modele;
 
 import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 public class Employeur extends Utilisateur {
 
     private String nomEntreprise;
