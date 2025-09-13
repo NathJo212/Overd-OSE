@@ -30,6 +30,15 @@ public class Etudiant extends Utilisateur {
 
     }
 
+    public Etudiant(String email, String password, String telephone, String nom, String prenom, String progEtude, String session, String annee) {
+        super(email, password, telephone);
+        this.nom = nom;
+        this.prenom = prenom;
+        this.progEtude = progEtude;
+        this.session = session;
+        this.annee = annee;
+    }
+
 
 
 }

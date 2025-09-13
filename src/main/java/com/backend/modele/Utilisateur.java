@@ -1,10 +1,7 @@
 package com.backend.modele;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -16,6 +13,7 @@ public abstract class Utilisateur {
     @GeneratedValue
     protected Long id;
 
+    @Column(unique = true)
     protected String email;
     protected String password;
     protected String telephone;
