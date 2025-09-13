@@ -22,9 +22,4 @@ public class Employeur extends Utilisateur {
         this.nomEntreprise = nomEntreprise;
         this.contact = contact;
     }
-
-
-
-
-
 }
