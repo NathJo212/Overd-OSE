@@ -1,7 +1,10 @@
 package com.backend.modele;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -10,7 +13,7 @@ import lombok.NoArgsConstructor;
 public abstract class Utilisateur {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     protected Long id;
 
     protected String email;
