@@ -17,6 +17,14 @@ public class BackendApplication {
     @Bean
     public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService) {
         return args -> {
+            employeurService.creerEmployeur(
+                    "mon@employeur.com",
+                    "123456789",
+                    "(514) 582-9898",
+                    "Gogole",
+                    "Jaques L'heureux"
+            );
+
             etudiantService.creerEtudiant(
                     "etudiant@example.com",
                     "etudiantpass",
