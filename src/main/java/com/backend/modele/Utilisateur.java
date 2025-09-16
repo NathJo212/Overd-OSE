@@ -2,10 +2,12 @@ package com.backend.modele;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table
+@Getter
 @NoArgsConstructor
 public abstract class Utilisateur {
 
