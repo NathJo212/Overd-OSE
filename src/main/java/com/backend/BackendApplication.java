@@ -1,5 +1,7 @@
 package com.backend;
 
+import com.backend.controller.EmployeurController;
+import com.backend.service.DTO.EmployeurDTO;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
 import org.springframework.boot.CommandLineRunner;
@@ -15,7 +17,7 @@ public class BackendApplication {
     }
 
     @Bean
-    public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService) {
+    public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService, EmployeurController employeurController) {
         return args -> {
             employeurService.creerEmployeur(
                     "mon@employeur.com",
@@ -35,6 +37,9 @@ public class BackendApplication {
                     "Automne",
                     "2025"
             );
+
+            EmployeurDTO employeurTest = employeurService.authentifierEmployeur("mon@employeur.com", "123456789");
+            System.out.println("Employeur contact: " + employeurTest.getContact());
         };
     }
 }
