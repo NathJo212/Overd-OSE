@@ -1,7 +1,7 @@
 package com.backend;
 
 import com.backend.controller.EmployeurController;
-import com.backend.service.DTO.EmployeurDTO;
+import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
 import org.springframework.boot.CommandLineRunner;
@@ -38,8 +38,8 @@ public class BackendApplication {
                     "2025"
             );
 
-            EmployeurDTO employeurTest = employeurService.authentifierEmployeur("mon@employeur.com", "123456789");
-            System.out.println("Employeur contact: " + employeurTest.getContact());
+            AuthResponseDTO employeurTest = employeurService.authentifierEmployeur("mon@employeur.com", "123456789");
+            System.out.println("Employeur contact: " + employeurTest.getEmployeurDTO().getContact());
         };
     }
 }

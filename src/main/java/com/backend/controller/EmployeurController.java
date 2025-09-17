@@ -3,6 +3,7 @@ package com.backend.controller;
 import com.backend.Exceptions.EmailDejaUtilise;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.EmployeurDTO;
+import com.backend.service.DTO.LoginDTO;
 import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.EmployeurService;
 import com.backend.config.JwtService;
@@ -19,15 +20,11 @@ import org.springframework.web.bind.annotation.*;
 public class EmployeurController {
 
     private final EmployeurService employeurService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
 
     public EmployeurController(EmployeurService employeurService,
                                AuthenticationManager authenticationManager,
                                JwtService jwtService) {
         this.employeurService = employeurService;
-        this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
     }
 
     @PostMapping("/creerCompte")
@@ -47,20 +44,17 @@ public class EmployeurController {
 
     @PostMapping("/connexion")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody EmployeurDTO request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDTO loginDTO) {
+        try {
+            AuthResponseDTO authResponse = employeurService.authentifierEmployeur(
+                    loginDTO.getEmail(),
+                    loginDTO.getPassword()
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            return ResponseEntity.ok(authResponse);
 
-        String token = jwtService.generateToken(authentication);
-
-        AuthResponseDTO response = new AuthResponseDTO(
-                token,
-                new EmployeurDTO(request.getEmail(), null, null, null, null)
-        );
-
-        return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }

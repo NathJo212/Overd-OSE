@@ -2,8 +2,10 @@ package com.backend.service;
 
 import com.backend.Exceptions.AuthentificationEchouee;
 import com.backend.Exceptions.EmailDejaUtilise;
+import com.backend.config.JwtService;
 import com.backend.modele.Employeur;
 import com.backend.persistence.EmployeurRepository;
+import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.EmployeurDTO;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -20,6 +22,7 @@ public class EmployeurService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     private final EmployeurRepository employeurRepository;
+    private final JwtService jwtService;
 
     @Transactional
     public void creerEmployeur(String email, String password, String telephone, String nomEntreprise, String contact) {
@@ -33,7 +36,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public EmployeurDTO authentifierEmployeur(String email, String password) {
+    public AuthResponseDTO authentifierEmployeur(String email, String password) {
         Optional<Employeur> employeurOptional = employeurRepository.findByEmail(email);
 
         if (employeurOptional.isEmpty()) {
@@ -46,11 +49,15 @@ public class EmployeurService {
             throw new AuthentificationEchouee("Mauvaise authentification");
         }
 
-        return EmployeurDTO.builder()
+        EmployeurDTO employeurDTO = EmployeurDTO.builder()
                 .email(employeur.getEmail())
                 .telephone(employeur.getTelephone())
                 .nomEntreprise(employeur.getNomEntreprise())
                 .contact(employeur.getContact())
                 .build();
+
+        String token = jwtService.generateTokenWithRole(employeur.getEmail(), "EMPLOYEUR");
+
+        return new AuthResponseDTO(token, employeurDTO);
     }
 }
