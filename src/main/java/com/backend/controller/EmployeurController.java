@@ -1,5 +1,6 @@
 package com.backend.controller;
 
+import com.backend.Exceptions.EmailDejaUtilise;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.EmployeurDTO;
 import com.backend.service.DTO.MessageRetourDTO;
@@ -32,11 +33,16 @@ public class EmployeurController {
     @PostMapping("/creerCompte")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> creerCompte(@RequestBody EmployeurDTO employeurDTO) {
-        employeurService.creerEmployeur(employeurDTO.getEmail(), employeurDTO.getPassword(),
-                employeurDTO.getTelephone(), employeurDTO.getNomEntreprise(),
-                employeurDTO.getContact());
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new MessageRetourDTO("Employeur créé avec succès", null));
+        try {
+            employeurService.creerEmployeur(employeurDTO.getEmail(), employeurDTO.getPassword(),
+                    employeurDTO.getTelephone(), employeurDTO.getNomEntreprise(),
+                    employeurDTO.getContact());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageRetourDTO("Employeur créé avec succès", null));
+        }catch (EmailDejaUtilise e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new MessageRetourDTO(null, e.getMessage()));
+        }
     }
 
     @PostMapping("/connexion")
