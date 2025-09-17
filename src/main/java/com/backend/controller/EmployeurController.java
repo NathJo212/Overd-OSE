@@ -1,7 +1,6 @@
 package com.backend.controller;
 
 import com.backend.Exceptions.EmailDejaUtilise;
-import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.EmployeurDTO;
 import com.backend.service.DTO.LoginDTO;
 import com.backend.service.DTO.MessageRetourDTO;
@@ -10,9 +9,6 @@ import com.backend.config.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,19 +38,4 @@ public class EmployeurController {
         }
     }
 
-    @PostMapping("/connexion")
-    @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDTO loginDTO) {
-        try {
-            AuthResponseDTO authResponse = employeurService.authentifierEmployeur(
-                    loginDTO.getEmail(),
-                    loginDTO.getPassword()
-            );
-
-            return ResponseEntity.ok(authResponse);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-    }
 }
