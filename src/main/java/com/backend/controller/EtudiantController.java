@@ -7,10 +7,10 @@ import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.EtudiantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
+@RestController
+@RequestMapping("/OSEetudiant")
 public class EtudiantController {
 
     private final EtudiantService etudiantService;

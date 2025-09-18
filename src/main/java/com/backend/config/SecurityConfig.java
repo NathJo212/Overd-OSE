@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/OSEemployeur/creerCompte", "/OSEemployeur/connexion", "/OSE/login").permitAll()
+                        .requestMatchers("/OSEemployeur/creerCompte", "/OSEetudiant/creerCompte", "/OSE/login").permitAll()
                         .anyRequest().authenticated()
                 );
 
