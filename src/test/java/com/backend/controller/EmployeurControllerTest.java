@@ -51,7 +51,6 @@ class EmployeurControllerTest {
         // Arrange
         Employeur employeur = new Employeur("mon@employeur.com","Etudiant12?","(514) 582-9898","Gogole","Jaques L'heureux");
 
-        // Act + Assert
         mockMvc.perform(post("/OSEemployeur/creerCompte")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(employeur)))
@@ -59,5 +58,55 @@ class EmployeurControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("Employeur créé avec succès"))
                 .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/creerCompte retourne 409 si email déjà utilisé")
+    void creerCompte_emailDejaUtilise_returnsConflict() throws Exception {
+        doThrow(new EmailDejaUtilise("Un employeur avec cet email existe déjà"))
+                .when(employeurService).creerEmployeur(anyString(), anyString(), anyString(), anyString(), anyString());
+
+        String json = """
+            {
+                "email": "test@employeur.com",
+                "password": "Password1!",
+                "telephone": "1234567890",
+                "nomEntreprise": "Entreprise",
+                "contact": "Contact"
+            }
+        """;
+
+        mockMvc.perform(post("/OSEemployeur/creerCompte")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur").value("Un employeur avec cet email existe déjà"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/creerCompte retourne 409 si mot de passe invalide")
+    void creerCompte_motDePassePasBon_returnsConflict() throws Exception {
+        doThrow(new EmailDejaUtilise("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."))
+                .when(employeurService).creerEmployeur(anyString(), anyString(), anyString(), anyString(), anyString());
+
+        String json = """
+            {
+                "email": "test@employeur.com",
+                "password": "abc",
+                "telephone": "1234567890",
+                "nomEntreprise": "Entreprise",
+                "contact": "Contact"
+            }
+        """;
+
+        mockMvc.perform(post("/OSEemployeur/creerCompte")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur").value("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."));
     }
 }
