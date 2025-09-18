@@ -3,13 +3,10 @@ package com.backend.controller;
 import com.backend.Exceptions.EmailDejaUtilise;
 import com.backend.Exceptions.InvalidMotPasseException;
 import com.backend.service.DTO.EmployeurDTO;
-import com.backend.service.DTO.LoginDTO;
 import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.EmployeurService;
-import com.backend.config.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,9 +15,7 @@ public class EmployeurController {
 
     private final EmployeurService employeurService;
 
-    public EmployeurController(EmployeurService employeurService,
-                               AuthenticationManager authenticationManager,
-                               JwtService jwtService) {
+    public EmployeurController(EmployeurService employeurService) {
         this.employeurService = employeurService;
     }
 
