@@ -1,6 +1,7 @@
 package com.backend.controller;
 
 import com.backend.Exceptions.EmailDejaUtilise;
+import com.backend.Exceptions.InvalidMotPasseException;
 import com.backend.service.DTO.EmployeurDTO;
 import com.backend.service.DTO.LoginDTO;
 import com.backend.service.DTO.MessageRetourDTO;
@@ -32,7 +33,7 @@ public class EmployeurController {
                     employeurDTO.getContact());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Employeur créé avec succès", null));
-        }catch (EmailDejaUtilise e) {
+        }catch (EmailDejaUtilise | InvalidMotPasseException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new MessageRetourDTO(null, e.getMessage()));
         }
