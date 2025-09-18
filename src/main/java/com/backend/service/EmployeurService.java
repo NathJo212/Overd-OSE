@@ -2,6 +2,7 @@ package com.backend.service;
 
 import com.backend.Exceptions.AuthentificationEchouee;
 import com.backend.Exceptions.EmailDejaUtilise;
+import com.backend.Exceptions.InvalidMotPasseException;
 import com.backend.config.JwtService;
 import com.backend.modele.Employeur;
 import com.backend.persistence.EmployeurRepository;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 @AllArgsConstructor
@@ -24,12 +26,16 @@ public class EmployeurService {
     private final JwtService jwtService;
 
     @Transactional
-    public void creerEmployeur(String email, String password, String telephone, String nomEntreprise, String contact) {
+    public void creerEmployeur(String email, String password, String telephone, String nomEntreprise, String contact) throws InvalidMotPasseException, EmailDejaUtilise {
         boolean employeurExistant = employeurRepository.existsByEmail(email);
-        String hashedPassword = passwordEncoder.encode(password);
         if (employeurExistant) {
             throw new EmailDejaUtilise("Un employeur avec cet email existe déjà");
         }
+        String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$";
+        if (!Pattern.matches(regex, password)) {
+            throw new InvalidMotPasseException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.");
+        }
+        String hashedPassword = passwordEncoder.encode(password);
         Employeur employeur = new Employeur(email, hashedPassword, telephone, nomEntreprise, contact);
         employeurRepository.save(employeur);
     }

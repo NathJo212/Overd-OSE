@@ -21,7 +21,7 @@ public class BackendApplication {
         return args -> {
             employeurService.creerEmployeur(
                     "mon@employeur.com",
-                    "123456789",
+                    "Employeur123%",
                     "(514) 582-9898",
                     "Gogole",
                     "Jaques L'heureux"
@@ -29,7 +29,7 @@ public class BackendApplication {
 
             etudiantService.creerEtudiant(
                     "etudiant@example.com",
-                    "etudiantpass",
+                    "Etudiant128&",
                     "987-654-3210",
                     "Martin",
                     "Durand",
@@ -38,7 +38,7 @@ public class BackendApplication {
                     "2025"
             );
 
-            AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "123456789");
+            AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");
             System.out.println("Employeur contact: " + utilisateurTest.getUtilisateurDTO().getContact());
         };
     }

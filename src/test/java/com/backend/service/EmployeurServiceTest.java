@@ -1,5 +1,6 @@
 package com.backend.service;
 
+import com.backend.Exceptions.InvalidMotPasseException;
 import com.backend.modele.Employeur;
 import com.backend.persistence.EmployeurRepository;
 import org.junit.jupiter.api.Test;
@@ -24,9 +25,9 @@ public class EmployeurServiceTest {
     private EmployeurService employeurService;
 
     @Test
-    public void testCreationEmployeur() {
+    public void testCreationEmployeur() throws InvalidMotPasseException {
         // Arrange
-        Employeur employeur = new Employeur("mon@employeur.com","123456789","(514) 582-9898","Gogole","Jaques L'heureux");
+        Employeur employeur = new Employeur("mon@employeur.com","Etudiant12?","(514) 582-9898","Gogole","Jaques L'heureux");
         when(employeurRepository.existsByEmail(employeur.getEmail())).thenReturn(false);
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("encodedPassword");
         when(employeurRepository.save(any(Employeur.class))).thenReturn(employeur);
