@@ -18,9 +18,7 @@ public class EmployeurController {
 
     private final EmployeurService employeurService;
 
-    public EmployeurController(EmployeurService employeurService,
-                               AuthenticationManager authenticationManager,
-                               JwtService jwtService) {
+    public EmployeurController(EmployeurService employeurService) {
         this.employeurService = employeurService;
     }
 
