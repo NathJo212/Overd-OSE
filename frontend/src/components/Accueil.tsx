@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import { Building, Users, ArrowRight } from 'lucide-react'
+import {NavLink} from "react-router";
 
 const Accueil = () => {
     return (
@@ -21,7 +21,7 @@ const Accueil = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                             {/* Carte Employeur - Disponible */}
-                            <Link
+                            <NavLink
                                 to="/inscription-employeur"
                                 className="group bg-white border-2 border-blue-200 hover:border-blue-400 rounded-xl p-6 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
                             >
@@ -40,7 +40,7 @@ const Accueil = () => {
                                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 </div>
-                            </Link>
+                            </NavLink>
 
                             {/* Carte Étudiant - Indisponible */}
                             <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-6 opacity-60 cursor-not-allowed">
@@ -61,9 +61,13 @@ const Accueil = () => {
                             </div>
                         </div>
                     </div>
-
-                    <div className="text-sm text-gray-500 border-t border-gray-200 pt-6">
-                        <p>Déjà inscrit ? <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">Se connecter</a></p>
+                    <div className="text-sm text-gray-500 border-t border-gray-200 pt-6 text-center mt-6">
+                        <p>
+                            Déjà inscrit ?{' '}
+                            <NavLink to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                                Se connecter
+                            </NavLink>
+                        </p>
                     </div>
                 </div>
             </div>

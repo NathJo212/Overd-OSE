@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Building, MapPin, User, Mail, Phone, Lock } from 'lucide-react'
 import * as React from "react";
 import employeurService from '../services/EmployeurService';
+import {NavLink} from "react-router";
 
 interface FormData {
     nomEntreprise: string
@@ -166,13 +167,13 @@ const InscriptionEmployeur = () => {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="mb-6">
-                    <Link
+                    <NavLink
                         to="/"
                         className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors mb-4"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Retour à l'accueil
-                    </Link>
+                    </NavLink>
 
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">
                         Inscription Employeur
