@@ -25,9 +25,7 @@ public class UtilisateurController {
                     loginDTO.getEmail(),
                     loginDTO.getPassword()
             );
-
             return ResponseEntity.ok(authResponse);
-
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
