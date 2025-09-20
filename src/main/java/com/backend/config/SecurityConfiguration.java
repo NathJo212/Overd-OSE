@@ -1,7 +1,6 @@
 package com.backend.config;
 
 import com.backend.persistence.UtilisateurRepository;
-import com.backend.auth.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -26,46 +24,49 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.springframework.http.HttpMethod.POST;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfiguration {
 
-    private final JwtService jwtService;
-    private final UtilisateurRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UtilisateurRepository utilisateurRepository;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
-    private final AuthProvider authProvider;
+
+    // Définir les chemins d'API selon ta structure
+    private static final String LOGIN_PATH = "/OSE/login";
+    private static final String EMPLOYEUR_REGISTER_PATH = "/OSEemployeur/creerCompte";
+    private static final String ETUDIANT_REGISTER_PATH = "/OSEetudiant/creerCompte"; // À ajouter si tu as ce endpoint
+    private static final String EMPLOYEUR_PATH = "/OSEemployeur/**";
+    private static final String ETUDIANT_PATH = "/OSEetudiant/**";
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
-                        // Public endpoints
-                        .requestMatchers(HttpMethod.POST, "/OSEemployeur/creerCompte").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/OSEemployeur/connexion").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/OSE/login").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        // Endpoints publics
+                        .requestMatchers(POST, LOGIN_PATH).permitAll()
+                        .requestMatchers(POST, EMPLOYEUR_REGISTER_PATH).permitAll()
+                        .requestMatchers(POST, ETUDIANT_REGISTER_PATH).permitAll()
 
-                        // Role-based access control
-                        .requestMatchers("/OSEemployeur/**").hasAuthority(Role.EMPLOYEUR.name())
-                        .requestMatchers("/OSEetudiant/**").hasAuthority(Role.ETUDIANT.name())
+                        // Endpoints protégés par rôle
+                        .requestMatchers(EMPLOYEUR_PATH).hasAuthority("EMPLOYEUR")
+                        .requestMatchers(ETUDIANT_PATH).hasAuthority("ETUDIANT")
 
-                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
-                .authenticationProvider(authProvider)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(configurer -> configurer.authenticationEntryPoint(authenticationEntryPoint));
+                .exceptionHandling(configurer ->
+                        configurer.authenticationEntryPoint(authenticationEntryPoint)
+                );
 
         return http.build();
     }
@@ -74,10 +75,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Specify allowed origins - adjust according to your frontend URL
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:4200"));
-
-        // Specify allowed HTTP methods
+        // Configuration pour ton frontend React sur port 5173
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList(
                 HttpMethod.GET.name(),
                 HttpMethod.POST.name(),
@@ -85,8 +84,6 @@ public class SecurityConfig {
                 HttpMethod.DELETE.name(),
                 HttpMethod.OPTIONS.name()
         ));
-
-        // Specify allowed headers
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Cache-Control",
@@ -95,8 +92,6 @@ public class SecurityConfig {
                 "X-Requested-With",
                 "*"
         ));
-
-        // Allow credentials
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -112,6 +107,14 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtService, userRepository);
+        return new JwtAuthenticationFilter(jwtTokenProvider, utilisateurRepository);
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
 }

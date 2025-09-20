@@ -1,5 +1,7 @@
 package com.backend.config;
 
+import com.backend.Exceptions.AuthenticationException;
+import com.backend.Exceptions.UserNotFoundException;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.modele.Utilisateur;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +16,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AuthProvider implements AuthenticationProvider {
     private final PasswordEncoder passwordEncoder;
-    private final UtilisateurRepository userRepository;
+    private final UtilisateurRepository utilisateurRepository;
 
     @Override
     public Authentication authenticate(Authentication authentication) {
         Utilisateur user = loadUserByEmail(authentication.getPrincipal().toString());
         validateAuthentication(authentication, user);
         return new UsernamePasswordAuthenticationToken(
-                user.getCredentials(), // Use credentials instead of email directly
+                user.getEmail(),
                 user.getPassword(),
                 user.getAuthorities()
         );
@@ -33,13 +35,13 @@ public class AuthProvider implements AuthenticationProvider {
     }
 
     private Utilisateur loadUserByEmail(String email) throws UsernameNotFoundException {
-        return userRepository.findByCredentialsEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+        return utilisateurRepository.findByEmail(email)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     private void validateAuthentication(Authentication authentication, Utilisateur user) {
         if (!passwordEncoder.matches(authentication.getCredentials().toString(), user.getPassword())) {
-            throw new RuntimeException("Incorrect username or password");
+            throw new AuthenticationException();
         }
     }
 }

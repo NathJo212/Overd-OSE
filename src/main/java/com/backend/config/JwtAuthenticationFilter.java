@@ -1,7 +1,8 @@
 package com.backend.config;
 
-import com.backend.persistence.UtilisateurRepository;
+import com.backend.Exceptions.UserNotFoundException;
 import com.backend.modele.Utilisateur;
+import com.backend.persistence.UtilisateurRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,20 +12,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-
-    private final JwtService jwtService;
+    private final JwtTokenProvider tokenProvider;
     private final UtilisateurRepository userRepository;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UtilisateurRepository userRepository) {
-        this.jwtService = jwtService;
+    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, UtilisateurRepository userRepository) {
+        this.tokenProvider = tokenProvider;
         this.userRepository = userRepository;
     }
 
@@ -36,20 +32,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String token = getJWTFromRequest(request);
         if (StringUtils.hasText(token)) {
-            token = token.startsWith("Bearer ") ? token.substring(7) : token;
+            token = token.startsWith("Bearer") ? token.substring(7) : token;
             try {
-                jwtService.validateToken(token);
-                String email = jwtService.getEmailFromJWT(token);
-                Utilisateur user = userRepository.findByCredentialsEmail(email)
-                        .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                tokenProvider.validateToken(token);
+                String email = tokenProvider.getEmailFromJWT(token);
+                Utilisateur user = userRepository.findByEmail(email)
+                        .orElseThrow(UserNotFoundException::new);
 
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        user.getCredentials(), null, user.getAuthorities()
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(
+                                user.getEmail(), null, user.getAuthorities()
+                        );
+                authenticationToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
                 );
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             } catch (Exception e) {
-                logger.error("Could not set user authentication in security context", e);
+                logger.error("Impossible de définir l'authentification utilisateur", e);
             }
         }
         filterChain.doFilter(request, response);
