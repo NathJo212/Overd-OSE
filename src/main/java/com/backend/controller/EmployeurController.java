@@ -1,0 +1,40 @@
+package com.backend.controller;
+
+import com.backend.Exceptions.EmailDejaUtilise;
+import com.backend.Exceptions.InvalidMotPasseException;
+import com.backend.service.DTO.EmployeurDTO;
+import com.backend.service.DTO.LoginDTO;
+import com.backend.service.DTO.MessageRetourDTO;
+import com.backend.service.EmployeurService;
+import com.backend.config.JwtService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/OSEemployeur")
+public class EmployeurController {
+
+    private final EmployeurService employeurService;
+
+    public EmployeurController(EmployeurService employeurService) {
+        this.employeurService = employeurService;
+    }
+
+    @PostMapping("/creerCompte")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> creerCompte(@RequestBody EmployeurDTO employeurDTO) {
+        try {
+            employeurService.creerEmployeur(employeurDTO.getEmail(), employeurDTO.getPassword(),
+                    employeurDTO.getTelephone(), employeurDTO.getNomEntreprise(),
+                    employeurDTO.getContact());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageRetourDTO("Employeur créé avec succès", null));
+        }catch (EmailDejaUtilise | InvalidMotPasseException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new MessageRetourDTO(null, e.getMessage()));
+        }
+    }
+
+}
