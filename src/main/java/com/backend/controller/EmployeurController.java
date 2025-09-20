@@ -5,6 +5,7 @@ import com.backend.Exceptions.InvalidMotPasseException;
 import com.backend.service.DTO.EmployeurDTO;
 import com.backend.service.DTO.LoginDTO;
 import com.backend.service.DTO.MessageRetourDTO;
+import com.backend.service.DTO.OffreDTO;
 import com.backend.service.EmployeurService;
 import com.backend.config.JwtService;
 import org.springframework.http.HttpStatus;
@@ -37,4 +38,16 @@ public class EmployeurController {
         }
     }
 
+    @PostMapping("/creerOffre")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> creerOffre(@RequestBody OffreDTO offreDTO) {
+        try{
+            employeurService.creerOffreDeStage(offreDTO.getDescription(), offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(), offreDTO.getProgEtude(), offreDTO.getLieuStage(), offreDTO.getRemuneration(), offreDTO.getDateLimite());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageRetourDTO("Offre de stage créée avec succès", null));
+        }catch (Exception  e){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new MessageRetourDTO(null, e.getMessage()));
+        }
+    }
 }

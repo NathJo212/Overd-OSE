@@ -5,8 +5,12 @@ import com.backend.Exceptions.EmailDejaUtilise;
 import com.backend.Exceptions.InvalidMotPasseException;
 import com.backend.config.JwtService;
 import com.backend.modele.Employeur;
+import com.backend.modele.Offre;
 import com.backend.persistence.EmployeurRepository;
+import com.backend.persistence.OffreRepository;
+import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.EmployeurDTO;
+import com.backend.service.DTO.OffreDTO;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,7 @@ public class EmployeurService {
     private PasswordEncoder passwordEncoder;
     private final EmployeurRepository employeurRepository;
     private final JwtService jwtService;
+    private final OffreRepository offreRepository;
 
     @Transactional
     public void creerEmployeur(String email, String password, String telephone, String nomEntreprise, String contact) throws InvalidMotPasseException, EmailDejaUtilise {
@@ -40,4 +45,11 @@ public class EmployeurService {
         employeurRepository.save(employeur);
     }
 
+    @Transactional
+    public void creerOffreDeStage(String titre, String description, String date_debut, String date_fin, String progEtude, String lieuStage, String Remuneration, String dateLimite){
+        //Vérification si user est un employeur (à faire)
+
+        Offre offre = new Offre(titre,description, date_debut, date_fin, progEtude, lieuStage, Remuneration, dateLimite);
+        offreRepository.save(offre);
+    }
 }
