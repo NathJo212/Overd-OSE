@@ -37,7 +37,7 @@ public class BackendApplication {
                     "Durand",
                     "Informatique",
                     "Automne",
-                    "2025"
+                    "3ème année"
             );
 
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");

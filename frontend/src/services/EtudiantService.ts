@@ -68,16 +68,16 @@ class EtudiantService {
      * @returns Les données formatées pour l'API
      */
     formatFormDataForAPI(formData: {
-        email: string;
-        motDePasse: string;
-        telephone: string;
         prenom: string;
         nom: string;
+        email: string;
+        telephone: string;
+        motDePasse: string;
+        confirmerMotDePasse: string;
         programmeEtudes: string;
-        anneeSession: string;
+        anneeEtude: string;
+        session: string;
     }): EtudiantData {
-        // Extraire l'année et la session depuis anneeSession
-        const { annee, session } = this.parseAnneeSession(formData.anneeSession);
 
         return {
             email: formData.email,
@@ -86,31 +86,9 @@ class EtudiantService {
             prenom: formData.prenom,
             nom: formData.nom,
             progEtude: formData.programmeEtudes,
-            session: session,
-            annee: annee
+            session: formData.session,
+            annee: formData.anneeEtude
         };
-    }
-
-    /**
-     * Parse l'année/session sélectionnée pour extraire année et session séparément
-     * @param anneeSession - La valeur sélectionnée dans le formulaire
-     * @returns Objet avec année et session
-     */
-    private parseAnneeSession(anneeSession: string): { annee: string; session: string } {
-        switch(anneeSession) {
-            case '1ere-annee':
-                return { annee: '1', session: 'Année' };
-            case '2eme-annee':
-                return { annee: '2', session: 'Année' };
-            case '3eme-annee':
-                return { annee: '3', session: 'Année' };
-            case 'session-automne':
-                return { annee: '', session: 'Automne' };
-            case 'session-hiver':
-                return { annee: '', session: 'Hiver' };
-            default:
-                return { annee: '', session: '' };
-        }
     }
 }
 

@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, User, Mail, Lock, GraduationCap, Calendar } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import {ArrowLeft, User, Mail, Lock, GraduationCap, Phone} from 'lucide-react'
 import * as React from "react";
 import etudiantService from '../services/EtudiantService';
+import {NavLink} from "react-router";
 
 interface FormData {
     prenom: string
@@ -12,7 +13,8 @@ interface FormData {
     motDePasse: string
     confirmerMotDePasse: string
     programmeEtudes: string
-    anneeSession: string
+    anneeEtude: string
+    session: string
 }
 
 const InscriptionEtudiant = () => {
@@ -25,7 +27,8 @@ const InscriptionEtudiant = () => {
         motDePasse: '',
         confirmerMotDePasse: '',
         programmeEtudes: '',
-        anneeSession: ''
+        anneeEtude: '',
+        session: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -103,7 +106,10 @@ const InscriptionEtudiant = () => {
         if (!formData.programmeEtudes.trim()) {
             validationErrors.push('Le programme d\'études est requis');
         }
-        if (!formData.anneeSession) {
+        if (!formData.anneeEtude.trim()) {
+            validationErrors.push('L\'année/session d\'étude est requise');
+        }
+        if (!formData.session.trim()) {
             validationErrors.push('L\'année/session d\'étude est requise');
         }
 
@@ -166,13 +172,13 @@ const InscriptionEtudiant = () => {
             <div className="max-w-2xl mx-auto">
                 {/* Header */}
                 <div className="mb-6">
-                    <Link
+                    <NavLink
                         to="/"
                         className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors mb-4"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Retour à l'accueil
-                    </Link>
+                    </NavLink>
 
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">
                         Inscription Étudiant
@@ -263,6 +269,7 @@ const InscriptionEtudiant = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <Phone className="inline w-4 h-4 mr-1" />
                                     Numéro de téléphone *
                                 </label>
                                 <input
@@ -299,25 +306,41 @@ const InscriptionEtudiant = () => {
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    <Calendar className="inline w-4 h-4 mr-1" />
-                                    Année/Session d'étude *
-                                </label>
-                                <select
-                                    name="anneeSession"
-                                    value={formData.anneeSession}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    disabled={loading}
-                                >
-                                    <option value="">Sélectionnez votre année/session</option>
-                                    <option value="1ere-annee">1ère année</option>
-                                    <option value="2eme-annee">2ème année</option>
-                                    <option value="3eme-annee">3ème année</option>
-                                    <option value="session-automne">Session Automne</option>
-                                    <option value="session-hiver">Session Hiver</option>
-                                </select>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Année d'étude *
+                                    </label>
+                                    <select
+                                        name="anneeEtude"
+                                        value={formData.anneeEtude || ''}
+                                        onChange={handleChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        disabled={loading}
+                                    >
+                                        <option value="">Sélectionnez votre année</option>
+                                        <option value="1ère année">1ère année</option>
+                                        <option value="2ème année">2ème année</option>
+                                        <option value="3ème année">3ème année</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Session *
+                                    </label>
+                                    <select
+                                        name="session"
+                                        value={formData.session || ''}
+                                        onChange={handleChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        disabled={loading}
+                                    >
+                                        <option value="">Sélectionnez votre session</option>
+                                        <option value="Automne">Automne</option>
+                                        <option value="Hiver">Hiver</option>
+                                        <option value="Été">Été</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -464,9 +487,9 @@ const InscriptionEtudiant = () => {
 
                             <p className="mt-4 text-center text-sm text-gray-600">
                                 Vous avez déjà un compte ?{' '}
-                                <Link to="/connexion" className="text-blue-600 hover:text-blue-700 font-medium">
+                                <NavLink to="/connexion" className="text-blue-600 hover:text-blue-700 font-medium">
                                     Se connecter
-                                </Link>
+                                </NavLink>
                             </p>
                         </div>
                     </div>
