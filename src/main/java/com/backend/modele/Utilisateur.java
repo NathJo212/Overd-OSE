@@ -26,7 +26,6 @@ public abstract class Utilisateur {
     protected String telephone;
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Détermine le rôle basé sur le type d'utilisateur
         String role = switch (this) {
             case Employeur _ -> "EMPLOYEUR";
             case Etudiant _ -> "ETUDIANT";

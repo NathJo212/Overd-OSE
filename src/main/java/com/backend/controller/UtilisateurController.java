@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/OSE")
+@CrossOrigin(origins = "*")
 public class UtilisateurController {
 
     private final UtilisateurService utilisateurService;

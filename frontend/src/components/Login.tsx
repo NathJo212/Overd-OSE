@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {NavLink} from "react-router";
+import { NavLink } from "react-router"
+import utilisateurService from '../services/UtilisateurService'
+import * as React from "react"; // Ajustez le chemin selon votre structure
 
 interface FormData {
     email: string
@@ -32,19 +34,45 @@ const Login = () => {
         e.preventDefault()
         setErrors([])
         setSuccessMessage('')
+
         const validationErrors = validateForm()
         if (validationErrors.length > 0) {
             setErrors(validationErrors)
             return
         }
+
         setLoading(true)
+
         try {
-            // Remplace par ton appel API
-            await new Promise(res => setTimeout(res, 1000))
+            // Formatage des données pour l'API
+            const loginData = utilisateurService.formatLoginDataForAPI(formData)
+
+            // Appel au service d'authentification
+            const authResponse = await utilisateurService.authentifier(loginData)
+
             setSuccessMessage('Connexion réussie !')
-            setTimeout(() => navigate('/'), 1500)
-        } catch {
-            setErrors(['Identifiants invalides'])
+
+            // Redirection selon le type d'utilisateur
+            setTimeout(() => {
+                switch (authResponse.userType) {
+                    case 'EMPLOYEUR':
+                        navigate('/dashboard-employeur') // Ajustez selon vos routes
+                        break
+                    case 'ETUDIANT':
+                        navigate('/dashboard-etudiant') // Ajustez selon vos routes
+                        break
+                    default:
+                        navigate('/')
+                        break
+                }
+            }, 1500)
+
+        } catch (error) {
+            if (error instanceof Error) {
+                setErrors([error.message])
+            } else {
+                setErrors(['Une erreur inattendue s\'est produite'])
+            }
         } finally {
             setLoading(false)
         }
@@ -54,7 +82,7 @@ const Login = () => {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Connexion</h1>
-                <p className="text-gray-600 mb-8 text-center">Connectez-vous à votre compte employeur</p>
+                <p className="text-gray-600 mb-8 text-center">Connectez-vous à votre compte</p>
 
                 {errors.length > 0 && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -120,7 +148,7 @@ const Login = () => {
                 <div className="text-sm text-gray-500 border-t border-gray-200 pt-6 text-center mt-6">
                     <p>
                         Pas encore de compte ?{' '}
-                        <NavLink to="/" className="text-blue-600 hover:text-blue-700 font-medium">
+                        <NavLink to="/inscription-employeur" className="text-blue-600 hover:text-blue-700 font-medium">
                             S'inscrire
                         </NavLink>
                     </p>
