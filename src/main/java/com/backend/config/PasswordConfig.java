@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class PasswordConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new Argon2PasswordEncoder(5, 32, 1, 66536,2);
+        // Fixed parameters: saltLength, hashLength, parallelism, memory, iterations
+        return new Argon2PasswordEncoder(16, 32, 1, 65536, 3);
     }
 }

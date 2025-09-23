@@ -1,6 +1,7 @@
 package com.backend.service;
 
-import com.backend.Exceptions.InvalidMotPasseException;
+import com.backend.Exceptions.EmailDejaUtiliseException;
+import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.modele.Employeur;
 import com.backend.persistence.EmployeurRepository;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ public class EmployeurServiceTest {
     private EmployeurService employeurService;
 
     @Test
-    public void testCreationEmployeur() throws InvalidMotPasseException {
+    public void testCreationEmployeur() throws MotPasseInvalideException {
         // Arrange
         Employeur employeur = new Employeur("mon@employeur.com","Etudiant12?","(514) 582-9898","Gogole","Jaques L'heureux");
         when(employeurRepository.existsByEmail(employeur.getEmail())).thenReturn(false);
@@ -47,13 +48,13 @@ public class EmployeurServiceTest {
 
         // Act & Assert
         org.junit.jupiter.api.Assertions.assertThrows(
-                InvalidMotPasseException.class,
+                MotPasseInvalideException.class,
                 () -> employeurService.creerEmployeur(employeur.getEmail(), employeur.getPassword(), employeur.getTelephone(), employeur.getNomEntreprise(), employeur.getContact())
         );
     }
 
     @Test
-    public void testCreationEmployeur_DeuxComptesMemeEmail() throws InvalidMotPasseException {
+    public void testCreationEmployeur_DeuxComptesMemeEmail() throws MotPasseInvalideException {
         // Arrange
         String email = "mon@employeur.com";
         Employeur employeur1 = new Employeur(email, "Etudiant12?", "(514) 582-9898", "Gogole", "Jaques L'heureux");
@@ -69,7 +70,7 @@ public class EmployeurServiceTest {
 
         // Act & Assert
         org.junit.jupiter.api.Assertions.assertThrows(
-                com.backend.Exceptions.EmailDejaUtilise.class,
+                EmailDejaUtiliseException.class,
                 () -> employeurService.creerEmployeur(email, employeur1.getPassword(), employeur1.getTelephone(), employeur1.getNomEntreprise(), employeur1.getContact())
         );
     }
