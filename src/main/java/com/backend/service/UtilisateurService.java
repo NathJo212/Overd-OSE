@@ -7,7 +7,6 @@ import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.UtilisateurDTO;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,12 +15,17 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class UtilisateurService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final UtilisateurRepository utilisateurRepository;
+
+    public UtilisateurService(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.utilisateurRepository = utilisateurRepository;
+    }
 
     @Transactional
     public AuthResponseDTO authentifierUtilisateur(String email, String password) {

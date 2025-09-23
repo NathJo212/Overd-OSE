@@ -1,21 +1,22 @@
 package com.backend.service;
 
-import com.backend.Exceptions.EmailDejaUtilise;
+import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.modele.Etudiant;
 import com.backend.persistence.EtudiantRepository;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class EtudiantService {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    EtudiantRepository etudiantRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EtudiantRepository etudiantRepository;
+
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository) {
+        this.passwordEncoder = passwordEncoder;
+        this.etudiantRepository = etudiantRepository;
+    }
 
     @Transactional
     public void creerEtudiant(String email, String password, String telephone,
@@ -23,7 +24,7 @@ public class EtudiantService {
         boolean etudiantExistant = etudiantRepository.existsByEmail(email);
         String hashedPassword = passwordEncoder.encode(password);
         if (etudiantExistant) {
-            throw new EmailDejaUtilise("Un etudiant avec cet email existe déjà");
+            throw new EmailDejaUtiliseException("Un etudiant avec cet email existe déjà");
         }
         Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, nom, prenom, progEtude, session, annee);
         etudiantRepository.save(etudiant);

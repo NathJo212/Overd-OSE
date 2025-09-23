@@ -20,7 +20,7 @@ public class Etudiant extends Utilisateur {
     private String session;
     private String annee;
 
-    public Etudiant(String email, String password, String telephone, String nom, String prenom, String progEtude, String session, String annee) {
+    public Etudiant(String email, String password, String telephone, String prenom, String nom, String progEtude, String session, String annee) {
         super(email, password, telephone);
         this.nom = nom;
         this.prenom = prenom;
