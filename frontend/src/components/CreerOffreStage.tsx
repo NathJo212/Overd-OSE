@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { employeurService } from "../services/EmployeurService";
 import type { OffreStageDTO } from "../services/EmployeurService";
 
 const CreerOffreStage = () => {
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const role = sessionStorage.getItem("userType");
+        if (role !== "EMPLOYEUR") {
+            navigate("/login");
+        }
+    }, [navigate]);
+
     const [formData, setFormData] = useState<Omit<OffreStageDTO, "utilisateur">>({
         titre: "",
         description: "",
