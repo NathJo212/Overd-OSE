@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 
 public class OffreDTO {
+    private AuthResponseDTO authResponseDTO;
     private String titre;
     private String description;
     private String date_debut;

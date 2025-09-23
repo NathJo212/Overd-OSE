@@ -31,7 +31,7 @@ public class Offre {
     private boolean approuve;
 
 
-    public Offre(String titre, String description, String date_debut, String date_fin, String progEtude, String lieuStage, String remuneration, String dateLimite) {
+    public Offre(String titre, String description, String date_debut, String date_fin, String progEtude, String lieuStage, String remuneration, String dateLimite, Employeur employeur) {
         this.titre = titre;
         this.description = description;
         this.date_debut = date_debut;
@@ -40,6 +40,7 @@ public class Offre {
         this.lieuStage = lieuStage;
         this.remuneration = remuneration;
         this.dateLimite = dateLimite;
+        this.employeur = employeur;
         this.approuve = false;
     }
 }

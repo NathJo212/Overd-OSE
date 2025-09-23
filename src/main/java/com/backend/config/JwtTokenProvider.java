@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 
 @Component
 public class JwtTokenProvider {
@@ -50,5 +52,16 @@ public class JwtTokenProvider {
                  MalformedJwtException ex) {
             throw new InvalidJwtTokenException();
         }
+    }
+
+    public boolean isEmployeur(String token, JwtTokenProvider jwtTokenProvider) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(jwtTokenProvider.key())
+                .build()
+                .parseClaimsJws(token.startsWith("Bearer ") ? token.substring(7) : token)
+                .getBody();
+
+        Object authorities = claims.get("authorities");
+        return authorities != null && authorities.toString().contains("EMPLOYEUR");
     }
 }

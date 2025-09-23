@@ -1,5 +1,6 @@
 package com.backend.controller;
 
+import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.service.DTO.EmployeurDTO;
@@ -39,10 +40,10 @@ public class EmployeurController {
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> creerOffre(@RequestBody OffreDTO offreDTO) {
         try{
-            employeurService.creerOffreDeStage(offreDTO.getDescription(), offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(), offreDTO.getProgEtude(), offreDTO.getLieuStage(), offreDTO.getRemuneration(), offreDTO.getDateLimite());
+            employeurService.creerOffreDeStage(offreDTO.getAuthResponseDTO(), offreDTO.getDescription(), offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(), offreDTO.getProgEtude(), offreDTO.getLieuStage(), offreDTO.getRemuneration(), offreDTO.getDateLimite());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Offre de stage créée avec succès", null));
-        }catch (Exception  e){
+        }catch (ActionNonAutoriseeException e){
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new MessageRetourDTO(null, e.getMessage()));
         }
