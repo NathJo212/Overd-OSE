@@ -42,23 +42,27 @@ const Accueil = () => {
                                 </div>
                             </NavLink>
 
-                            {/* Carte Étudiant - Indisponible */}
-                            <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-6 opacity-60 cursor-not-allowed">
+                            {/* Carte Étudiant - Maintenant Disponible */}
+                            <Link
+                                to="/inscription-etudiant"
+                                className="group bg-white border-2 border-green-200 hover:border-green-400 rounded-xl p-6 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
+                            >
                                 <div className="flex flex-col items-center text-center space-y-4">
-                                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                                        <Users className="w-8 h-8 text-gray-400" />
+                                    <div className="w-16 h-16 bg-green-100 group-hover:bg-green-200 rounded-full flex items-center justify-center transition-colors">
+                                        <Users className="w-8 h-8 text-green-600" />
                                     </div>
-                                    <h3 className="text-xl font-semibold text-gray-500">
+                                    <h3 className="text-xl font-semibold text-gray-800">
                                         Étudiant
                                     </h3>
-                                    <p className="text-gray-500 text-sm">
+                                    <p className="text-gray-600 text-sm">
                                         Trouvez des stages et opportunités d'emploi adaptés à votre profil.
                                     </p>
-                                    <div className="flex items-center text-gray-400 font-medium">
-                                        <span>Bientôt disponible</span>
+                                    <div className="flex items-center text-green-600 font-medium group-hover:text-green-700">
+                                        <span>S'inscrire</span>
+                                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         </div>
                     </div>
                     <div className="text-sm text-gray-500 border-t border-gray-200 pt-6 text-center mt-6">

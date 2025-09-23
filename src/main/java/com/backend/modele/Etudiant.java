@@ -28,7 +28,4 @@ public class Etudiant extends Utilisateur {
         this.session = session;
         this.annee = annee;
     }
-
-
-
 }
