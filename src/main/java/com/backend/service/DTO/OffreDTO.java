@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OffreDTO {
+    private Long id;
     private AuthResponseDTO authResponseDTO;
     private String titre;
     private String description;

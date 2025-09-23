@@ -40,8 +40,11 @@ public class SecurityConfiguration {
     private static final String LOGIN_PATH = "/OSE/login";
     private static final String EMPLOYEUR_REGISTER_PATH = "/OSEemployeur/creerCompte";
     private static final String ETUDIANT_REGISTER_PATH = "/OSEetudiant/creerCompte"; // À ajouter si tu as ce endpoint
+    private static final String GESTIONNAIRE_APPROVE_PATH = "/OSEGestionnaire/approuveOffre";
+    private static final String GESTIONNAIRE_DENY_PATH = "/OSEGestionnaire/refuseOffre";
     private static final String EMPLOYEUR_PATH = "/OSEemployeur/**";
     private static final String ETUDIANT_PATH = "/OSEetudiant/**";
+    private static final String GESTIONNAIRE_PATH = "/OSEGestionnaire/**";
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -53,10 +56,14 @@ public class SecurityConfiguration {
                         .requestMatchers(POST, LOGIN_PATH).permitAll()
                         .requestMatchers(POST, EMPLOYEUR_REGISTER_PATH).permitAll()
                         .requestMatchers(POST, ETUDIANT_REGISTER_PATH).permitAll()
+                        .requestMatchers(POST, GESTIONNAIRE_APPROVE_PATH).permitAll()
+                        .requestMatchers(POST, GESTIONNAIRE_DENY_PATH).permitAll()
+
 
                         // Endpoints protégés par rôle
                         .requestMatchers(EMPLOYEUR_PATH).hasAuthority("EMPLOYEUR")
                         .requestMatchers(ETUDIANT_PATH).hasAuthority("ETUDIANT")
+                        .requestMatchers(GESTIONNAIRE_PATH).hasAuthority("GESTIONNAIRE")
 
                         .anyRequest().authenticated()
                 )

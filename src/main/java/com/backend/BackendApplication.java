@@ -48,6 +48,18 @@ public class BackendApplication {
 
             employeurService.creerOffreDeStage(utilisateurTest, "Mon stage", "stage super cool", "un jour", "un jour", "informatique", "MTL", "10000000$", "un jour");
 
+            employeurService.creerOffreDeStage(
+                    utilisateurTest,
+                    "Développeur Java",
+                    "Stage backend sur une application Spring Boot",
+                    "2024-01-01",
+                    "2024-06-01",
+                    "Informatique",
+                    "Montréal",
+                    "15$/h",
+                    "2023-12-15"
+            );
+
         };
     }
 }

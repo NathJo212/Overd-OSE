@@ -13,18 +13,10 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GestionnaireStage {
-
-    @Id
-    @GeneratedValue
-    private Long id;
+public class GestionnaireStage extends Utilisateur {
 
     private String nom;
     private String prenom;
 
-    public GestionnaireStage(String nom, String prenom) {
-        this.nom = nom;
-        this.prenom = prenom;
-    }
 
 }
