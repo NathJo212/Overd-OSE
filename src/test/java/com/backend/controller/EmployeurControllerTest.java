@@ -1,7 +1,10 @@
 package com.backend.controller;
 
+import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.modele.Employeur;
+import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.OffreDTO;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
@@ -17,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -108,5 +112,50 @@ class EmployeurControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").doesNotExist())
                 .andExpect(jsonPath("$.erreur").value("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."));
+    }
+
+    @Test
+    void creerOffre_success_returnsCreatedAndMessage() throws Exception {
+        OffreDTO offreDTO = new OffreDTO();
+        offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer validToken"));
+        offreDTO.setTitre("titre");
+        offreDTO.setDescription("desc");
+        offreDTO.setDate_debut("2024-01-01");
+        offreDTO.setDate_fin("2024-06-01");
+        offreDTO.setProgEtude("prog");
+        offreDTO.setLieuStage("lieu");
+        offreDTO.setRemuneration("rem");
+        offreDTO.setDateLimite("2024-05-01");
+
+        mockMvc.perform(post("/OSEemployeur/creerOffre")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(offreDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Offre de stage créée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    void creerOffre_actionNonAutorisee_returnsConflict() throws Exception {
+        doThrow(new ActionNonAutoriseeException("Seul un employeur peut créer une offre de stage."))
+                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+
+        OffreDTO offreDTO = new OffreDTO();
+        offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer fakeToken"));
+        offreDTO.setTitre("titre");
+        offreDTO.setDescription("desc");
+        offreDTO.setDate_debut("2024-01-01");
+        offreDTO.setDate_fin("2024-06-01");
+        offreDTO.setProgEtude("prog");
+        offreDTO.setLieuStage("lieu");
+        offreDTO.setRemuneration("rem");
+        offreDTO.setDateLimite("2024-05-01");
+
+        mockMvc.perform(post("/OSEemployeur/creerOffre")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(offreDTO)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur").value("Seul un employeur peut créer une offre de stage."));
     }
 }

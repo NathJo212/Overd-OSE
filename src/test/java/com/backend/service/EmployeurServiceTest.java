@@ -1,9 +1,14 @@
 package com.backend.service;
 
+import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.config.JwtTokenProvider;
 import com.backend.modele.Employeur;
+import com.backend.modele.Offre;
 import com.backend.persistence.EmployeurRepository;
+import com.backend.persistence.OffreRepository;
+import com.backend.service.DTO.AuthResponseDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -21,6 +27,12 @@ public class EmployeurServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private OffreRepository offreRepository;
+
+    @Mock
+    private JwtTokenProvider jwtTokenProvider;
 
     @InjectMocks
     private EmployeurService employeurService;
@@ -73,5 +85,28 @@ public class EmployeurServiceTest {
                 EmailDejaUtiliseException.class,
                 () -> employeurService.creerEmployeur(email, employeur1.getPassword(), employeur1.getTelephone(), employeur1.getNomEntreprise(), employeur1.getContact())
         );
+    }
+
+    @Test
+    public void testCreerOffreDeStage_Succes() throws Exception {
+        AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer validToken");
+        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(true);
+        when(jwtTokenProvider.getEmailFromJWT(anyString())).thenReturn("mon@employeur.com");
+        Employeur employeur = new Employeur("mon@employeur.com", "pass", "tel", "nom", "contact");
+        when(employeurRepository.findByEmail(anyString())).thenReturn(employeur);
+
+        employeurService.creerOffreDeStage(utilisateur, "titre", "desc", "2024-01-01", "2024-06-01", "prog", "lieu", "rem", "2024-05-01");
+
+        verify(offreRepository, times(1)).save(any(Offre.class));
+    }
+
+    @Test
+    public void testCreerOffreDeStage_NonEmployeur() {
+        AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer fakeToken");
+        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(false);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.creerOffreDeStage(utilisateur, "titre", "desc", "2024-01-01", "2024-06-01", "prog", "lieu", "rem", "2024-05-01");
+        });
     }
 }

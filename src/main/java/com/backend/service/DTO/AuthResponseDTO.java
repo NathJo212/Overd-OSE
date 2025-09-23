@@ -10,5 +10,9 @@ import lombok.NoArgsConstructor;
 public class AuthResponseDTO {
     private String token;
     private UtilisateurDTO utilisateurDTO;
+
+    public AuthResponseDTO(String token) {
+        this.token = token;
+    }
 }
 

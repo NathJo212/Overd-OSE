@@ -1,9 +1,10 @@
 package com.backend.service.DTO;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-
+@Setter
 public class OffreDTO {
     private AuthResponseDTO authResponseDTO;
     private String titre;
