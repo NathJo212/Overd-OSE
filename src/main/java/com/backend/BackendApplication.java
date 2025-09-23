@@ -3,6 +3,7 @@ package com.backend;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
+import com.backend.service.GestionnaireService;
 import com.backend.service.UtilisateurService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -19,7 +20,7 @@ public class BackendApplication {
 
     @Bean
     @Profile("!test")
-    public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService, UtilisateurService utilisateurService) {
+    public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService, UtilisateurService utilisateurService, GestionnaireService gestionnaireService) {
         return args -> {
             employeurService.creerEmployeur(
                     "mon@employeur.com",
@@ -40,10 +41,13 @@ public class BackendApplication {
                     "2025"
             );
 
+
+
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");
             System.out.println("Employeur contact: " + utilisateurTest.getUtilisateurDTO().getContact());
 
             employeurService.creerOffreDeStage(utilisateurTest, "Mon stage", "stage super cool", "un jour", "un jour", "informatique", "MTL", "10000000$", "un jour");
+
         };
     }
 }
