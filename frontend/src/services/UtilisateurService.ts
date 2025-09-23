@@ -53,7 +53,7 @@ class UtilisateurService {
 
             const authResponse: AuthResponseDTO = await response.json();
 
-            // Stocker le token et les informations utilisateur dans le localStorage
+            // Stocker le token et les informations utilisateur dans le sessionStorage
             this.stockerDonneesUtilisateur(authResponse);
 
             return authResponse;
@@ -69,12 +69,12 @@ class UtilisateurService {
     }
 
     /**
-     * Stocke les données d'authentification dans le localStorage
+     * Stocke les données d'authentification dans le sessionStorage
      * @param authResponse - La réponse d'authentification
      */
     private stockerDonneesUtilisateur(authResponse: AuthResponseDTO): void {
         // Stocker le token
-        localStorage.setItem('authToken', authResponse.token);
+        sessionStorage.setItem('authToken', authResponse.token);
 
         // Extraire le userType du token JWT
         let userType: string | null = null;
@@ -94,14 +94,14 @@ class UtilisateurService {
         }
 
         if (userType) {
-            localStorage.setItem('userType', userType);
+            sessionStorage.setItem('userType', userType);
         }
 
         // Stocker les données utilisateur (structure utilisateurDTO)
         if (authResponse.utilisateurDTO) {
             // Créer un objet utilisateur nettoyé (sans le mot de passe)
             const { password, ...userDataSafe } = authResponse.utilisateurDTO;
-            localStorage.setItem('userData', JSON.stringify(userDataSafe));
+            sessionStorage.setItem('userData', JSON.stringify(userDataSafe));
         }
     }
 

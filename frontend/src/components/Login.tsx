@@ -50,11 +50,13 @@ const Login = () => {
             // Appel au service d'authentification
             const authResponse = await utilisateurService.authentifier(loginData)
 
-            setSuccessMessage('Connexion réussie !')
+            if (authResponse){
+                setSuccessMessage('Connexion réussie !')
+            }
 
             // Redirection selon le type d'utilisateur
             setTimeout(() => {
-                switch (authResponse.userType) {
+                switch (sessionStorage.getItem('userType')) {
                     case 'EMPLOYEUR':
                         navigate('/dashboard-employeur') // Ajustez selon vos routes
                         break
