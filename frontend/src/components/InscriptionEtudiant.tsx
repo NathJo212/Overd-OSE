@@ -487,7 +487,7 @@ const InscriptionEtudiant = () => {
 
                             <p className="mt-4 text-center text-sm text-gray-600">
                                 Vous avez déjà un compte ?{' '}
-                                <NavLink to="/connexion" className="text-blue-600 hover:text-blue-700 font-medium">
+                                <NavLink to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
                                     Se connecter
                                 </NavLink>
                             </p>

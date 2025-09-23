@@ -43,7 +43,7 @@ const Accueil = () => {
                             </NavLink>
 
                             {/* Carte Étudiant - Maintenant Disponible */}
-                            <Link
+                            <NavLink
                                 to="/inscription-etudiant"
                                 className="group bg-white border-2 border-green-200 hover:border-green-400 rounded-xl p-6 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
                             >
@@ -62,7 +62,7 @@ const Accueil = () => {
                                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 </div>
-                            </Link>
+                            </NavLink>
                         </div>
                     </div>
                     <div className="text-sm text-gray-500 border-t border-gray-200 pt-6 text-center mt-6">

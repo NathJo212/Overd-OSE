@@ -1,6 +1,6 @@
 package com.backend.service;
 
-import com.backend.Exceptions.InvalidMotPasseException;
+import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.modele.Etudiant;
 import com.backend.persistence.EtudiantRepository;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class EtudiantServiceTest {
     private EtudiantService etudiantService;
 
     @Test
-    public void testCreationEtudiant() throws InvalidMotPasseException {
+    public void testCreationEtudiant() throws MotPasseInvalideException {
         // Arrange
         Etudiant etudiant = new Etudiant( "etudiant@example.com", "Etudiant128&", "987-654-3210", "Martin", "Durand", "Informatique", "Automne", "2025");
         when(etudiantRepository.existsByEmail(etudiant.getEmail())).thenReturn(false);
@@ -47,13 +47,13 @@ public class EtudiantServiceTest {
 
         // Act & Assert
         org.junit.jupiter.api.Assertions.assertThrows(
-                InvalidMotPasseException.class,
+                MotPasseInvalideException.class,
                 () -> etudiantService.creerEtudiant(etudiant.getEmail(), etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  etudiant.getProgEtude(), etudiant.getSession(), etudiant.getAnnee())
         );
     }
 
     @Test
-    public void testCreationEtudiant_DeuxComptesMemeEmail() throws InvalidMotPasseException {
+    public void testCreationEtudiant_DeuxComptesMemeEmail() throws MotPasseInvalideException {
         // Arrange
         String email = "mon@etudiant.com";
         Etudiant etudiant = new Etudiant(email, "Etudiant128&", "987-654-3210", "Martin", "Durand", "Informatique", "Automne", "2025");
@@ -69,7 +69,7 @@ public class EtudiantServiceTest {
 
         // Act & Assert
         org.junit.jupiter.api.Assertions.assertThrows(
-                com.backend.Exceptions.EmailDejaUtilise.class,
+                com.backend.Exceptions.EmailDejaUtiliseException.class,
                 () -> etudiantService.creerEtudiant(email, etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  etudiant.getProgEtude(), etudiant.getSession(), etudiant.getAnnee())
         );
     }

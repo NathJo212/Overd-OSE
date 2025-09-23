@@ -1,7 +1,7 @@
 package com.backend.controller;
 
-import com.backend.Exceptions.EmailDejaUtilise;
-import com.backend.Exceptions.InvalidMotPasseException;
+import com.backend.Exceptions.EmailDejaUtiliseException;
+import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.EtudiantService;
@@ -27,7 +27,7 @@ public class EtudiantController {
                     etudiantDTO.getTelephone(), etudiantDTO.getPrenom(), etudiantDTO.getNom(), etudiantDTO.getProgEtude(), etudiantDTO.getSession(), etudiantDTO.getAnnee());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Étudiant créé avec succès", null));
-        }catch (EmailDejaUtilise | InvalidMotPasseException e) {
+        }catch (EmailDejaUtiliseException | MotPasseInvalideException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new MessageRetourDTO(null, e.getMessage()));
         }

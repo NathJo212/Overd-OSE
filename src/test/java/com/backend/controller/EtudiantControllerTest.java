@@ -1,7 +1,7 @@
 package com.backend.controller;
 
-import com.backend.Exceptions.EmailDejaUtilise;
-import com.backend.Exceptions.InvalidMotPasseException;
+import com.backend.Exceptions.EmailDejaUtiliseException;
+import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
 import com.backend.service.DTO.EtudiantDTO;
@@ -65,7 +65,7 @@ class EtudiantControllerTest {
     @Test
     @DisplayName("POST /OSEetudiant/creerCompte retourne 409 si email déjà utilisé")
     void creerCompte_emailDejaUtilise_returnsConflict() throws Exception {
-        doThrow(new EmailDejaUtilise("Un étudiant avec cet email existe déjà"))
+        doThrow(new EmailDejaUtiliseException("Un étudiant avec cet email existe déjà"))
                 .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
 
         EtudiantDTO etudiant = new EtudiantDTO();
@@ -90,7 +90,7 @@ class EtudiantControllerTest {
     @Test
     @DisplayName("POST /OSEetudiant/creerCompte retourne 409 si mot de passe invalide")
     void creerCompte_motDePassePasBon_returnsConflict() throws Exception {
-        doThrow(new InvalidMotPasseException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."))
+        doThrow(new MotPasseInvalideException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."))
                 .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
 
         EtudiantDTO etudiant = new EtudiantDTO();

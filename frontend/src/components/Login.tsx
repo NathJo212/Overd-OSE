@@ -150,7 +150,7 @@ const Login = () => {
                 <div className="text-sm text-gray-500 border-t border-gray-200 pt-6 text-center mt-6">
                     <p>
                         Pas encore de compte ?{' '}
-                        <NavLink to="/inscription-employeur" className="text-blue-600 hover:text-blue-700 font-medium">
+                        <NavLink to="/" className="text-blue-600 hover:text-blue-700 font-medium">
                             S'inscrire
                         </NavLink>
                     </p>
