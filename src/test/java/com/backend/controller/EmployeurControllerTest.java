@@ -1,6 +1,6 @@
 package com.backend.controller;
 
-import com.backend.Exceptions.EmailDejaUtilise;
+import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.modele.Employeur;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
@@ -63,7 +63,7 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/creerCompte retourne 409 si email déjà utilisé")
     void creerCompte_emailDejaUtilise_returnsConflict() throws Exception {
-        doThrow(new EmailDejaUtilise("Un employeur avec cet email existe déjà"))
+        doThrow(new EmailDejaUtiliseException("Un employeur avec cet email existe déjà"))
                 .when(employeurService).creerEmployeur(anyString(), anyString(), anyString(), anyString(), anyString());
 
         String json = """
@@ -88,7 +88,7 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/creerCompte retourne 409 si mot de passe invalide")
     void creerCompte_motDePassePasBon_returnsConflict() throws Exception {
-        doThrow(new EmailDejaUtilise("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."))
+        doThrow(new EmailDejaUtiliseException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."))
                 .when(employeurService).creerEmployeur(anyString(), anyString(), anyString(), anyString(), anyString());
 
         String json = """

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/OSE")
+@CrossOrigin(origins = "*")
 public class UtilisateurController {
 
     private final UtilisateurService utilisateurService;
@@ -25,9 +26,7 @@ public class UtilisateurController {
                     loginDTO.getEmail(),
                     loginDTO.getPassword()
             );
-
             return ResponseEntity.ok(authResponse);
-
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
