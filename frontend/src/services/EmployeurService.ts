@@ -12,6 +12,18 @@ export interface MessageRetour {
     data: any;
 }
 
+export interface OffreStageDTO {
+    titre: string;
+    description: string;
+    date_debut: string;
+    date_fin: string;
+    progEtude: string;
+    lieuStage: string;
+    remuneration: string;
+    dateLimite: string;
+    utilisateur: { token: string };
+}
+
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const EMPLOYEUR_ENDPOINT = '/OSEemployeur';
@@ -79,6 +91,48 @@ class EmployeurService {
             nomEntreprise: formData.nomEntreprise,
             contact: `${formData.prenomContact} ${formData.nomContact}`.trim()
         };
+    }
+
+    async creerOffreDeStage(offre: OffreStageDTO): Promise<MessageRetour> {
+        // Construction du DTO attendu par le backend
+        const offreDTO = {
+            authResponseDTO: { token: offre.utilisateur.token },
+            titre: offre.titre,
+            description: offre.description,
+            date_debut: offre.date_debut,
+            date_fin: offre.date_fin,
+            progEtude: offre.progEtude,
+            lieuStage: offre.lieuStage,
+            remuneration: offre.remuneration,
+            dateLimite: offre.dateLimite,
+        };
+
+        try {
+            const response = await fetch(`${this.baseUrl}/creerOffre`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${offre.utilisateur.token}`,
+                },
+                body: JSON.stringify(offreDTO),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(
+                    errorData.message ||
+                    `Erreur HTTP: ${response.status} - ${response.statusText}`
+                );
+            }
+
+            return await response.json();
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Erreur lors de la création de l'offre: ${error.message}`);
+            } else {
+                throw new Error('Erreur inconnue lors de la création de l\'offre');
+            }
+        }
     }
 }
 

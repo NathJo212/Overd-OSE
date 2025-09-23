@@ -39,6 +39,7 @@ public class EmployeurController {
     @PostMapping("/creerOffre")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> creerOffre(@RequestBody OffreDTO offreDTO) {
+        System.out.println(offreDTO);
         try{
             employeurService.creerOffreDeStage(offreDTO.getAuthResponseDTO(), offreDTO.getDescription(), offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(), offreDTO.getProgEtude(), offreDTO.getLieuStage(), offreDTO.getRemuneration(), offreDTO.getDateLimite());
             return ResponseEntity.status(HttpStatus.CREATED)

@@ -12,6 +12,6 @@ public class OffreDTO {
     private String date_fin;
     private String progEtude;
     private String lieuStage;
-    private String Remuneration;
+    private String remuneration;
     private String dateLimite;
 }
