@@ -1,10 +1,12 @@
 package com.backend.controller;
 
+import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.EmployeurDTO;
 import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.GestionnaireService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +34,12 @@ public class GestionnaireControlleur {
 
         return offreRepository.findById(id)
                 .map(offre -> {
-                    gestionnaireService.approuveOffre(offre);
+                    try {
+                        gestionnaireService.approuveOffre(offre);
+                    } catch (ActionNonAutoriseeException e) {
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                .body(new MessageRetourDTO(null, e.getMessage()));
+                    }
                     return ResponseEntity.ok(new MessageRetourDTO("Offre approuvée avec succès", null));
                 })
                 .orElse(ResponseEntity.badRequest().body(new MessageRetourDTO("Offre introuvable", null)));
@@ -48,7 +55,12 @@ public class GestionnaireControlleur {
 
         return offreRepository.findById(id)
                 .map(offre -> {
-                    gestionnaireService.refuseOffre(offre);
+                    try {
+                        gestionnaireService.refuseOffre(offre);
+                    } catch (ActionNonAutoriseeException e) {
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                .body(new MessageRetourDTO(null, e.getMessage()));
+                    }
                     return ResponseEntity.ok(new MessageRetourDTO("Offre refusée avec succès", null));
                 })
                 .orElse(ResponseEntity.badRequest().body(new MessageRetourDTO("Offre introuvable", null)));
@@ -60,7 +72,10 @@ public class GestionnaireControlleur {
         try {
             List<OffreDTO> offresEnAttente = gestionnaireService.getOffresAttente();
             return ResponseEntity.ok(offresEnAttente);
-        } catch (Exception e) {
+        }catch (ActionNonAutoriseeException e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }

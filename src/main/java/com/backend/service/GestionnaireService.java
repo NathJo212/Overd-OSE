@@ -1,6 +1,7 @@
 package com.backend.service;
 
 
+import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.modele.Employeur;
@@ -11,6 +12,9 @@ import com.backend.persistence.GestionnaireRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.OffreDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,24 +52,37 @@ public class GestionnaireService {
 
 
     @Transactional
-    public void approuveOffre(Offre offre) {
+    public void approuveOffre(Offre offre) throws ActionNonAutoriseeException {
+        checkGestionnaireStageRole();
         offre.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
         offreRepository.save(offre);
     }
 
     @Transactional
-    public void refuseOffre(Offre offre) {
+    public void refuseOffre(Offre offre) throws ActionNonAutoriseeException {
+        checkGestionnaireStageRole();
         offre.setStatutApprouve(Offre.StatutApprouve.REFUSE);
         offreRepository.save(offre);
     }
 
     @Transactional
-    public List<OffreDTO> getOffresAttente() {
+    public List<OffreDTO> getOffresAttente() throws ActionNonAutoriseeException {
+        checkGestionnaireStageRole();
         List<Offre> offresEnAttente = offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE);
 
         return offresEnAttente.stream()
                 .map(offre -> new OffreDTO().toDTO(offre))
                 .collect(Collectors.toList());
+    }
+
+    private void checkGestionnaireStageRole() throws ActionNonAutoriseeException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean hasRole = auth != null && auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(a -> a.equals("GESTIONNAIRE"));
+        if (!hasRole) {
+            throw new ActionNonAutoriseeException("Accès refusé : rôle gestionnaire requis");
+        }
     }
 
 }

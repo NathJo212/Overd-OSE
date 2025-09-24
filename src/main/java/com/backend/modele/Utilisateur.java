@@ -29,6 +29,7 @@ public abstract class Utilisateur {
         String role = switch (this) {
             case Employeur _ -> "EMPLOYEUR";
             case Etudiant _ -> "ETUDIANT";
+            case GestionnaireStage _ -> "GESTIONNAIRE";
             default -> "UTILISATEUR";
         };
         return List.of(new SimpleGrantedAuthority(role));
