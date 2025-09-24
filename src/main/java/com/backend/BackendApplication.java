@@ -41,6 +41,14 @@ public class BackendApplication {
                     "2025"
             );
 
+            gestionnaireService.creerGestionnaire(
+                    "gestionnaire@example.com",
+                    "Gestion128&",
+                    "985-657-3220",
+                    "Martine",
+                    "Legault"
+            );
+
 
 
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");

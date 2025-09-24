@@ -64,6 +64,4 @@ public class GestionnaireControlleur {
             return ResponseEntity.internalServerError().build();
         }
     }
-
-
 }

@@ -11,12 +11,15 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class GestionnaireStage extends Utilisateur {
 
     private String nom;
     private String prenom;
 
-
+    public GestionnaireStage(String email, String password, String telephone, String nom, String prenom) {
+        super(email, password, telephone);
+        this.nom = nom;
+        this.prenom = prenom;
+    }
 }
