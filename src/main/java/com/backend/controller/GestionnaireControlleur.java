@@ -8,6 +8,8 @@ import com.backend.service.GestionnaireService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/OSEGestionnaire")
 public class GestionnaireControlleur {
@@ -50,6 +52,17 @@ public class GestionnaireControlleur {
                     return ResponseEntity.ok(new MessageRetourDTO("Offre refusée avec succès", null));
                 })
                 .orElse(ResponseEntity.badRequest().body(new MessageRetourDTO("Offre introuvable", null)));
+    }
+
+    @GetMapping("/offresEnAttente")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<OffreDTO>> offreEnAttente() {
+        try {
+            List<OffreDTO> offresEnAttente = gestionnaireService.getOffresAttente();
+            return ResponseEntity.ok(offresEnAttente);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
 
