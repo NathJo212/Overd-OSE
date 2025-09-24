@@ -24,7 +24,7 @@ public class EtudiantService {
         boolean etudiantExistant = etudiantRepository.existsByEmail(email);
         String hashedPassword = passwordEncoder.encode(password);
         if (etudiantExistant) {
-            throw new EmailDejaUtiliseException("Un etudiant avec cet email existe déjà");
+            throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");
         }
         Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, nom, prenom, progEtude, session, annee);
         etudiantRepository.save(etudiant);

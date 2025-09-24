@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @WebMvcTest(controllers = GestionnaireControlleur.class)
 @AutoConfigureMockMvc(addFilters = false)
-class GestionnaireControlleurTest {
+class GestionnaireControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

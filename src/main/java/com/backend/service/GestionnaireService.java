@@ -37,7 +37,7 @@ public class GestionnaireService {
     public void creerGestionnaire(String email, String password, String telephone, String nom, String prenom) throws MotPasseInvalideException {
         boolean gestionnaireExistant = gestionnaireRepository.existsByEmail(email);
         if (gestionnaireExistant) {
-            throw new EmailDejaUtiliseException("Un employeur avec cet email existe déjà");
+            throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");
         }
         String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$";
         if (!Pattern.matches(regex, password)) {

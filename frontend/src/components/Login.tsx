@@ -58,10 +58,13 @@ const Login = () => {
             setTimeout(() => {
                 switch (sessionStorage.getItem('userType')) {
                     case 'EMPLOYEUR':
-                        navigate('/dashboard-employeur') // Ajustez selon vos routes
+                        navigate('/dashboard-employeur')
                         break
                     case 'ETUDIANT':
-                        navigate('/dashboard-etudiant') // Ajustez selon vos routes
+                        navigate('/dashboard-etudiant')
+                        break
+                    case 'GESTIONNAIRE':
+                        navigate('/offres-taches-gestionnaire')
                         break
                     default:
                         navigate('/')
