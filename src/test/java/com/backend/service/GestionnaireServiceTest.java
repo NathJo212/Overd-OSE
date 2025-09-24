@@ -37,10 +37,10 @@ public class GestionnaireServiceTest {
         List<GrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("GESTIONNAIRE")
         );
-        when(auth.getAuthorities()).thenReturn((Collection) authorities);
+        lenient().when(auth.getAuthorities()).thenReturn((Collection) authorities);
 
         SecurityContext securityContext = mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(auth);
+        lenient().when(securityContext.getAuthentication()).thenReturn(auth);
 
         SecurityContextHolder.setContext(securityContext);
     }
