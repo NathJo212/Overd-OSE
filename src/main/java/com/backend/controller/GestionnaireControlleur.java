@@ -1,8 +1,8 @@
 package com.backend.controller;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.persistence.OffreRepository;
-import com.backend.service.DTO.EmployeurDTO;
+import com.backend.Exceptions.OffreDejaVerifieException;
+import com.backend.Exceptions.OffreNonExistantException;
 import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.GestionnaireService;
@@ -17,11 +17,9 @@ import java.util.List;
 public class GestionnaireControlleur {
 
     private final GestionnaireService gestionnaireService;
-    private final OffreRepository offreRepository;
 
-    public GestionnaireControlleur(GestionnaireService gestionnaireService, OffreRepository offreRepository) {
+    public GestionnaireControlleur(GestionnaireService gestionnaireService) {
         this.gestionnaireService = gestionnaireService;
-        this.offreRepository = offreRepository;
     }
 
     @PostMapping("/approuveOffre")
@@ -31,18 +29,16 @@ public class GestionnaireControlleur {
         if (id == null) {
             return ResponseEntity.badRequest().body(new MessageRetourDTO("ID de l'offre manquant", null));
         }
-
-        return offreRepository.findById(id)
-                .map(offre -> {
-                    try {
-                        gestionnaireService.approuveOffre(offre);
-                    } catch (ActionNonAutoriseeException e) {
-                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                .body(new MessageRetourDTO(null, e.getMessage()));
-                    }
-                    return ResponseEntity.ok(new MessageRetourDTO("Offre approuvée avec succès", null));
-                })
-                .orElse(ResponseEntity.badRequest().body(new MessageRetourDTO("Offre introuvable", null)));
+        try {
+            gestionnaireService.approuveOffre(id);
+            return ResponseEntity.ok(new MessageRetourDTO("Offre approuvée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageRetourDTO(null, e.getMessage()));
+        } catch (OffreNonExistantException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageRetourDTO(null, e.getMessage()));
+        } catch (OffreDejaVerifieException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageRetourDTO(null, e.getMessage()));
+        }
     }
 
     @PostMapping("/refuseOffre")
@@ -50,20 +46,18 @@ public class GestionnaireControlleur {
     public ResponseEntity<MessageRetourDTO> refuseOffre(@RequestBody OffreDTO offreDTO) {
         Long id = offreDTO.getId();
         if (id == null) {
-            return ResponseEntity.badRequest().body(new MessageRetourDTO("ID de l'offre manquant", null));
+            return ResponseEntity.badRequest().body(new MessageRetourDTO(null, "ID de l'offre manquant"));
         }
-
-        return offreRepository.findById(id)
-                .map(offre -> {
-                    try {
-                        gestionnaireService.refuseOffre(offre);
-                    } catch (ActionNonAutoriseeException e) {
-                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                .body(new MessageRetourDTO(null, e.getMessage()));
-                    }
-                    return ResponseEntity.ok(new MessageRetourDTO("Offre refusée avec succès", null));
-                })
-                .orElse(ResponseEntity.badRequest().body(new MessageRetourDTO("Offre introuvable", null)));
+        try {
+            gestionnaireService.refuseOffre(id, offreDTO.getMessageRefus());
+            return ResponseEntity.ok(new MessageRetourDTO("Offre refusée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageRetourDTO(null, e.getMessage()));
+        } catch (OffreNonExistantException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageRetourDTO(null, e.getMessage()));
+        } catch (OffreDejaVerifieException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageRetourDTO(null, e.getMessage()));
+        }
     }
 
     @GetMapping("/offresEnAttente")
@@ -72,10 +66,9 @@ public class GestionnaireControlleur {
         try {
             List<OffreDTO> offresEnAttente = gestionnaireService.getOffresAttente();
             return ResponseEntity.ok(offresEnAttente);
-        }catch (ActionNonAutoriseeException e){
+        } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }

@@ -35,7 +35,7 @@ public class Offre {
     @ManyToOne
     @JoinColumn(name = "employeur_id")
     private Employeur employeur;
-//    private boolean approuve;
+    private String messageRefus;
 
     @Enumerated(EnumType.STRING)
     private StatutApprouve statutApprouve;

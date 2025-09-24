@@ -1,9 +1,7 @@
 package com.backend.service;
 
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.Exceptions.*;
 import com.backend.modele.Employeur;
 import com.backend.modele.Etudiant;
 import com.backend.modele.GestionnaireStage;
@@ -52,16 +50,27 @@ public class GestionnaireService {
 
 
     @Transactional
-    public void approuveOffre(Offre offre) throws ActionNonAutoriseeException {
+    public void approuveOffre(Long id) throws ActionNonAutoriseeException, OffreNonExistantException, OffreDejaVerifieException {
         checkGestionnaireStageRole();
+        Offre offre = offreRepository.findById(id)
+                .orElseThrow(() -> new OffreNonExistantException("Offre introuvable"));
+        if (offre.getStatutApprouve() != Offre.StatutApprouve.ATTENTE){
+            throw new OffreDejaVerifieException("Cette offre a déjà été vérifiée par un gestionnaire.");
+        }
         offre.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
         offreRepository.save(offre);
     }
 
     @Transactional
-    public void refuseOffre(Offre offre) throws ActionNonAutoriseeException {
+    public void refuseOffre(Long id, String messageRefus) throws ActionNonAutoriseeException, OffreNonExistantException, OffreDejaVerifieException {
         checkGestionnaireStageRole();
+        Offre offre = offreRepository.findById(id)
+                .orElseThrow(() -> new OffreNonExistantException("Offre introuvable"));
+        if (offre.getStatutApprouve() != Offre.StatutApprouve.ATTENTE){
+            throw new OffreDejaVerifieException("Cette offre a déjà été vérifiée par un gestionnaire.");
+        }
         offre.setStatutApprouve(Offre.StatutApprouve.REFUSE);
+        offre.setMessageRefus(messageRefus);
         offreRepository.save(offre);
     }
 

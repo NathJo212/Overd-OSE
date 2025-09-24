@@ -22,6 +22,7 @@ public class OffreDTO {
     private String lieuStage;
     private String remuneration;
     private String dateLimite;
+    private String messageRefus;
 
     public OffreDTO toDTO(Offre offre) {
         OffreDTO dto = new OffreDTO();

@@ -154,7 +154,7 @@ class EmployeurControllerTest {
         mockMvc.perform(post("/OSEemployeur/creerOffre")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(offreDTO)))
-                .andExpect(status().isConflict())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").doesNotExist())
                 .andExpect(jsonPath("$.erreur").value("Seul un employeur peut créer une offre de stage."));
     }
