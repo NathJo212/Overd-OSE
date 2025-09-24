@@ -39,7 +39,7 @@ public class EmployeurService {
     public void creerEmployeur(String email, String password, String telephone, String nomEntreprise, String contact) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean employeurExistant = employeurRepository.existsByEmail(email);
         if (employeurExistant) {
-            throw new EmailDejaUtiliseException("Un employeur avec cet email existe déjà");
+            throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");
         }
         String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$";
         if (!Pattern.matches(regex, password)) {

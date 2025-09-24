@@ -44,7 +44,7 @@ public class EmployeurController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Offre de stage créée avec succès", null));
         }catch (ActionNonAutoriseeException e){
-            return ResponseEntity.status(HttpStatus.CONFLICT)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, e.getMessage()));
         }
     }

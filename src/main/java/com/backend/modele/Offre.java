@@ -12,6 +12,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Offre {
 
+    public enum StatutApprouve {
+        ATTENTE,
+        APPROUVE,
+        REFUSE
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,11 +31,14 @@ public class Offre {
     private String remuneration;
     private String dateLimite;
 
+
     @ManyToOne
     @JoinColumn(name = "employeur_id")
     private Employeur employeur;
-    private boolean approuve;
+    private String messageRefus;
 
+    @Enumerated(EnumType.STRING)
+    private StatutApprouve statutApprouve;
 
     public Offre(String titre, String description, String date_debut, String date_fin, String progEtude, String lieuStage, String remuneration, String dateLimite, Employeur employeur) {
         this.titre = titre;
@@ -41,6 +50,6 @@ public class Offre {
         this.remuneration = remuneration;
         this.dateLimite = dateLimite;
         this.employeur = employeur;
-        this.approuve = false;
+        this.statutApprouve = StatutApprouve.ATTENTE;
     }
 }

@@ -26,7 +26,7 @@ public class EtudiantService {
                               String prenom, String nom, String progEtude, String session, String annee) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean etudiantExistant = etudiantRepository.existsByEmail(email);
         if (etudiantExistant) {
-            throw new EmailDejaUtiliseException("Un etudiant avec cet email existe déjà");
+            throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");
         }
         String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$";
         if (!Pattern.matches(regex, password)) {
