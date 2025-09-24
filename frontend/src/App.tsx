@@ -8,6 +8,9 @@ import InscriptionEmployeur from './components/InscriptionEmployeur.tsx';
 import Accueil from './components/Accueil.tsx';
 import Login from "./components/Login.tsx";
 import InscriptionEtudiant from "./components/InscriptionEtudiant.tsx";
+import CreerOffreStage from "./components/CreerOffreStage.tsx";
+import DashBoardEmployeur from "./components/DashBoardEmployeur.tsx";
+import DashBoardEtudiant from "./components/DashBoardEtudiant.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -16,6 +19,9 @@ const router = createBrowserRouter(
             <Route path="inscription-employeur" element={<InscriptionEmployeur/>}/>
             <Route path="inscription-etudiant" element={<InscriptionEtudiant/>}/>
             <Route path="login" element={<Login/>}/>
+            <Route path="dashboard-employeur" element={<DashBoardEmployeur/>}/>
+            <Route path="dashboard-etudiant" element={<DashBoardEtudiant/>}/>
+            <Route path="offre-stage" element={<CreerOffreStage/>}/>
         </>
 
     )

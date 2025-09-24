@@ -42,6 +42,8 @@ public class BackendApplication {
 
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");
             System.out.println("Employeur contact: " + utilisateurTest.getUtilisateurDTO().getContact());
+
+            employeurService.creerOffreDeStage(utilisateurTest, "Mon stage", "stage super cool", "un jour", "un jour", "informatique", "MTL", "10000000$", "un jour");
         };
     }
 }
