@@ -18,6 +18,13 @@ export interface AuthResponseWrapperDTO {
     utilisateurDTO?: UtilisateurDTO;
 }
 
+export interface EmployeurDTO {
+    email: String;
+    telephone: String;
+    nomEntreprise?: string;
+    contact: string;
+}
+
 export interface OffreDTO {
     id: number;
     authResponseDTO?: AuthResponseWrapperDTO;
@@ -30,6 +37,7 @@ export interface OffreDTO {
     remuneration?: string;
     dateLimite?: string;
     messageRefus?: string;
+    employeurDTO?: EmployeurDTO;
 }
 
 class GestionnaireService {

@@ -1,10 +1,7 @@
 package com.backend.service.DTO;
 
 import com.backend.modele.Offre;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -23,6 +20,7 @@ public class OffreDTO {
     private String remuneration;
     private String dateLimite;
     private String messageRefus;
+    private EmployeurDTO employeurDTO;
 
     public OffreDTO toDTO(Offre offre) {
         OffreDTO dto = new OffreDTO();
@@ -36,6 +34,7 @@ public class OffreDTO {
         dto.setLieuStage(offre.getLieuStage());
         dto.setRemuneration(offre.getRemuneration());
         dto.setDateLimite(offre.getDateLimite());
+        dto.setEmployeurDTO(new EmployeurDTO().toDTO(offre.getEmployeur()));
         return dto;
     }
 }

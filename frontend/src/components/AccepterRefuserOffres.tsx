@@ -135,16 +135,16 @@ const OffresDeStagesGestionnaire = () => {
                                     </div>
                                     <div className="mb-3 text-sm text-gray-600 bg-gray-50 rounded-md p-3 border border-gray-100">
                                         <div className="font-medium text-gray-700">Employeur:</div>
-                                        <div>{offre.authResponseDTO?.utilisateurDTO?.nomEntreprise || '—'}</div>
+                                        <div>{offre.employeurDTO?.nomEntreprise}</div>
                                         <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                                            {offre.authResponseDTO?.utilisateurDTO?.contact && (
-                                                <span className="inline-block text-xs text-gray-500">Contact: {offre.authResponseDTO.utilisateurDTO.contact}</span>
+                                            {offre.employeurDTO?.contact && (
+                                                <span className="inline-block text-xs text-gray-500">Contact: {offre.employeurDTO?.contact}</span>
                                             )}
-                                            {offre.authResponseDTO?.utilisateurDTO?.email && (
-                                                <span className="inline-block text-xs text-gray-500">Email: {offre.authResponseDTO.utilisateurDTO.email}</span>
+                                            {offre.employeurDTO?.email && (
+                                                <span className="inline-block text-xs text-gray-500">Email: {offre.employeurDTO?.email}</span>
                                             )}
-                                            {offre.authResponseDTO?.utilisateurDTO?.telephone && (
-                                                <span className="inline-block text-xs text-gray-500">Tél: {offre.authResponseDTO.utilisateurDTO.telephone}</span>
+                                            {offre.employeurDTO?.telephone && (
+                                                <span className="inline-block text-xs text-gray-500">Tél: {offre.employeurDTO?.telephone}</span>
                                             )}
                                         </div>
                                     </div>
