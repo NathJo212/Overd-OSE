@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {ArrowLeft, User, Mail, Lock, GraduationCap, Phone} from 'lucide-react'
 import * as React from "react";
 import etudiantService from '../services/EtudiantService';
+import utilisateurService from '../services/UtilisateurService'; // AJOUT IMPORTANT
 import {NavLink} from "react-router";
 
 interface FormData {
@@ -128,6 +129,7 @@ const InscriptionEtudiant = () => {
         return validationErrors;
     };
 
+    // FONCTION HANDLESUBMIT MODIFIÉE AVEC CONNEXION AUTOMATIQUE
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrors([]);
@@ -143,18 +145,50 @@ const InscriptionEtudiant = () => {
         setLoading(true);
 
         try {
-            // Formater les données pour l'API
+            // Formater les données pour l'API d'inscription
             const apiData = etudiantService.formatFormDataForAPI(formData);
 
-            // Appel à l'API
-            const response = await etudiantService.creerCompte(apiData);
+            // 1. Créer le compte étudiant
+            const inscriptionResponse = await etudiantService.creerCompte(apiData);
 
-            setSuccessMessage(response.message);
+            if (inscriptionResponse) {
+                setSuccessMessage('Compte créé avec succès !');
 
-            // Redirection après succès (optionnel)
-            setTimeout(() => {
-                navigate('/');
-            }, 2000);
+                // 2. Connexion automatique après inscription réussie
+                try {
+                    const loginData = {
+                        email: formData.email,
+                        password: formData.motDePasse
+                    };
+
+                    const authResponse = await utilisateurService.authentifier(loginData);
+
+                    if (authResponse) {
+                        setSuccessMessage('Compte créé et connexion automatique réussie !');
+
+                        // Définir le flag pour indiquer que l'utilisateur vient d'une inscription
+                        sessionStorage.setItem('fromRegistration', 'true');
+
+                        // Redirection vers le dashboard étudiant
+                        setTimeout(() => {
+                            navigate('/dashboard-etudiant');
+                        }, 2000);
+                    } else {
+                        // Si la connexion automatique échoue, rediriger vers login
+                        setSuccessMessage('Compte créé ! Veuillez vous connecter.');
+                        setTimeout(() => {
+                            navigate('/login');
+                        }, 2000);
+                    }
+
+                } catch (loginError) {
+                    console.error('Erreur lors de la connexion automatique:', loginError);
+                    setSuccessMessage('Compte créé ! Veuillez vous connecter.');
+                    setTimeout(() => {
+                        navigate('/login');
+                    }, 2000);
+                }
+            }
 
         } catch (error) {
             if (error instanceof Error) {
@@ -188,30 +222,27 @@ const InscriptionEtudiant = () => {
                     </p>
                 </div>
 
-                {/* Messages d'erreur */}
+                {/* Messages d'erreur et de succès */}
                 {errors.length > 0 && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                        <h3 className="text-red-800 font-medium mb-2">Erreurs de validation :</h3>
                         <ul className="list-disc list-inside space-y-1">
-                            {errors.map((error, index) => (
-                                <li key={index} className="text-red-700 text-sm">{error}</li>
+                            {errors.map((error, idx) => (
+                                <li key={idx} className="text-red-700 text-sm">{error}</li>
                             ))}
                         </ul>
                     </div>
                 )}
 
-                {/* Message de succès */}
                 {successMessage && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                        <p className="text-green-800 font-medium">{successMessage}</p>
-                        <p className="text-green-600 text-sm mt-1">Redirection en cours...</p>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-green-800 font-medium text-center">
+                        {successMessage}
+                        <p className="text-green-600 text-sm mt-1">Redirection...</p>
                     </div>
                 )}
 
-                {/* Form */}
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                    <div className="space-y-6">
-
+                {/* Formulaire d'inscription */}
+                <div className="bg-white rounded-xl shadow-lg p-8">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Informations personnelles */}
                         <div className="space-y-4">
                             <h2 className="text-lg font-semibold text-gray-800 flex items-center">
@@ -219,7 +250,7 @@ const InscriptionEtudiant = () => {
                                 Informations personnelles
                             </h2>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Prénom *
@@ -301,41 +332,44 @@ const InscriptionEtudiant = () => {
                                     value={formData.programmeEtudes}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="Ex: Techniques de l'informatique"
+                                    placeholder="ex: Informatique, Administration, etc."
                                     disabled={loading}
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Année d'étude *
                                     </label>
                                     <select
                                         name="anneeEtude"
-                                        value={formData.anneeEtude || ''}
+                                        value={formData.anneeEtude}
                                         onChange={handleChange}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                         disabled={loading}
                                     >
-                                        <option value="">Sélectionnez votre année</option>
+                                        <option value="">Sélectionnez...</option>
                                         <option value="1ère année">1ère année</option>
                                         <option value="2ème année">2ème année</option>
                                         <option value="3ème année">3ème année</option>
+                                        <option value="4ème année">4ème année</option>
+                                        <option value="5ème année">5ème année</option>
                                     </select>
                                 </div>
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Session *
                                     </label>
                                     <select
                                         name="session"
-                                        value={formData.session || ''}
+                                        value={formData.session}
                                         onChange={handleChange}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                         disabled={loading}
                                     >
-                                        <option value="">Sélectionnez votre session</option>
+                                        <option value="">Sélectionnez...</option>
                                         <option value="Automne">Automne</option>
                                         <option value="Hiver">Hiver</option>
                                         <option value="Été">Été</option>
@@ -348,7 +382,7 @@ const InscriptionEtudiant = () => {
                         <div className="space-y-4">
                             <h2 className="text-lg font-semibold text-gray-800 flex items-center">
                                 <Lock className="w-4 h-4 mr-2 text-blue-600" />
-                                Sécurité
+                                Sécurité du compte
                             </h2>
 
                             <div>
@@ -360,69 +394,25 @@ const InscriptionEtudiant = () => {
                                     name="motDePasse"
                                     value={formData.motDePasse}
                                     onChange={handleChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
-                                        formData.motDePasse.length > 0
-                                            ? isPasswordValid
-                                                ? 'border-green-500 focus:ring-green-500'
-                                                : 'border-red-500 focus:ring-red-500'
-                                            : 'border-gray-300 focus:ring-blue-500'
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                                        passwordErrors.length > 0 ? 'border-red-300' : 'border-gray-300'
                                     }`}
-                                    placeholder="Minimum 8 caractères"
+                                    placeholder="Votre mot de passe sécurisé"
                                     disabled={loading}
                                 />
 
-                                {/* Indicateur de force du mot de passe */}
-                                {formData.motDePasse.length > 0 && (
-                                    <div className="mt-2 flex items-center space-x-2">
-                                        <span className="text-sm text-gray-600">Force:</span>
-                                        <span className={`text-sm font-medium ${
-                                            isPasswordValid
-                                                ? 'text-green-600'
-                                                : passwordErrors.length <= 2
-                                                    ? 'text-yellow-600'
-                                                    : 'text-red-600'
-                                        }`}>
-                                            {isPasswordValid
-                                                ? 'Fort'
-                                                : passwordErrors.length <= 2
-                                                    ? 'Moyen'
-                                                    : 'Faible'
-                                            }
-                                        </span>
+                                {/* Affichage des erreurs de validation du mot de passe */}
+                                {passwordErrors.length > 0 && (
+                                    <div className="mt-2 space-y-1">
+                                        {passwordErrors.map((error, idx) => (
+                                            <p key={idx} className="text-red-600 text-xs">{error}</p>
+                                        ))}
                                     </div>
                                 )}
 
-                                {/* Critères de validation */}
-                                {formData.motDePasse.length > 0 && (
-                                    <div className="mt-3 bg-gray-50 p-3 rounded-md">
-                                        <h4 className="text-sm font-medium text-gray-700 mb-2">Critères requis :</h4>
-                                        <ul className="space-y-1 text-sm">
-                                            <li className={`flex items-center ${
-                                                formData.motDePasse.length >= 8 ? 'text-green-600' : 'text-gray-600'
-                                            }`}>
-                                                <span className="mr-2">{formData.motDePasse.length >= 8 ? '✓' : '○'}</span>
-                                                Au moins 8 caractères
-                                            </li>
-                                            <li className={`flex items-center ${
-                                                /[A-Z]/.test(formData.motDePasse) ? 'text-green-600' : 'text-gray-600'
-                                            }`}>
-                                                <span className="mr-2">{/[A-Z]/.test(formData.motDePasse) ? '✓' : '○'}</span>
-                                                Une majuscule
-                                            </li>
-                                            <li className={`flex items-center ${
-                                                /[0-9]/.test(formData.motDePasse) ? 'text-green-600' : 'text-gray-600'
-                                            }`}>
-                                                <span className="mr-2">{/[0-9]/.test(formData.motDePasse) ? '✓' : '○'}</span>
-                                                Un chiffre
-                                            </li>
-                                            <li className={`flex items-center ${
-                                                /[!@#$%^&*(),.?":{}|<>]/.test(formData.motDePasse) ? 'text-green-600' : 'text-gray-600'
-                                            }`}>
-                                                <span className="mr-2">{/[!@#$%^&*(),.?":{}|<>]/.test(formData.motDePasse) ? '✓' : '○'}</span>
-                                                Un caractère spécial
-                                            </li>
-                                        </ul>
-                                    </div>
+                                {/* Indicateur de mot de passe valide */}
+                                {isPasswordValid && (
+                                    <p className="mt-2 text-green-600 text-xs">✓ Mot de passe valide</p>
                                 )}
                             </div>
 
@@ -435,68 +425,36 @@ const InscriptionEtudiant = () => {
                                     name="confirmerMotDePasse"
                                     value={formData.confirmerMotDePasse}
                                     onChange={handleChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
-                                        formData.confirmerMotDePasse.length > 0
-                                            ? formData.motDePasse === formData.confirmerMotDePasse
-                                                ? 'border-green-500 focus:ring-green-500'
-                                                : 'border-red-500 focus:ring-red-500'
-                                            : 'border-gray-300 focus:ring-blue-500'
-                                    }`}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                     placeholder="Confirmez votre mot de passe"
                                     disabled={loading}
                                 />
-
-                                {/* Indicateur de correspondance */}
-                                {formData.confirmerMotDePasse.length > 0 && (
-                                    <div className="mt-2">
-                                        {formData.motDePasse === formData.confirmerMotDePasse ? (
-                                            <p className="text-sm text-green-600 flex items-center">
-                                                <span className="mr-1">✓</span>
-                                                Les mots de passe correspondent
-                                            </p>
-                                        ) : (
-                                            <p className="text-sm text-red-600 flex items-center">
-                                                <span className="mr-1">✗</span>
-                                                Les mots de passe ne correspondent pas
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
                             </div>
                         </div>
 
-                        {/* Submit button */}
-                        <div className="pt-4">
-                            <button
-                                onClick={handleSubmit}
-                                disabled={loading}
-                                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center"
-                            >
-                                {loading ? (
-                                    <>
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Création en cours...
-                                    </>
-                                ) : (
-                                    'Créer mon compte étudiant'
-                                )}
-                            </button>
-
-                            <p className="mt-4 text-center text-sm text-gray-600">
-                                Vous avez déjà un compte ?{' '}
-                                <NavLink to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                                    Se connecter
-                                </NavLink>
-                            </p>
-                        </div>
-                    </div>
+                        {/* Bouton de soumission */}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center"
+                        >
+                            {loading ? (
+                                <>
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Création en cours...
+                                </>
+                            ) : (
+                                'Créer mon compte'
+                            )}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default InscriptionEtudiant
+export default InscriptionEtudiant;

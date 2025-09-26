@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { NavLink } from "react-router"
 import utilisateurService from '../services/UtilisateurService'
-import * as React from "react"; // Ajustez le chemin selon votre structure
+import * as React from "react";
 
 interface FormData {
     email: string
@@ -52,25 +52,28 @@ const Login = () => {
 
             if (authResponse){
                 setSuccessMessage('Connexion réussie !')
-            }
 
-            // Redirection selon le type d'utilisateur
-            setTimeout(() => {
-                switch (sessionStorage.getItem('userType')) {
-                    case 'EMPLOYEUR':
-                        navigate('/dashboard-employeur')
-                        break
-                    case 'ETUDIANT':
-                        navigate('/dashboard-etudiant')
-                        break
-                    case 'GESTIONNAIRE':
-                        navigate('/offres-stages-gestionnaire')
-                        break
-                    default:
-                        navigate('/')
-                        break
-                }
-            }, 1500)
+                // Définir le flag pour indiquer que l'utilisateur vient d'une connexion normale
+                sessionStorage.setItem('fromLogin', 'true');
+
+                // Redirection selon le type d'utilisateur
+                setTimeout(() => {
+                    switch (sessionStorage.getItem('userType')) {
+                        case 'EMPLOYEUR':
+                            navigate('/dashboard-employeur')
+                            break
+                        case 'ETUDIANT':
+                            navigate('/dashboard-etudiant')
+                            break
+                        case 'GESTIONNAIRE':
+                            navigate('/offres-stages-gestionnaire')
+                            break
+                        default:
+                            navigate('/')
+                            break
+                    }
+                }, 1500)
+            }
 
         } catch (error) {
             if (error instanceof Error) {
