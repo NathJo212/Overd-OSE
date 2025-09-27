@@ -54,4 +54,8 @@ public class UtilisateurService {
         }
     }
 
+    @Transactional
+    public void logout(String token) {
+        jwtTokenProvider.logout(token);
+    }
 }
