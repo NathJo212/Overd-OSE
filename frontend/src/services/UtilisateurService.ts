@@ -69,6 +69,34 @@ class UtilisateurService {
     }
 
     /**
+     * Récupère tous les programmes disponibles
+     * @returns Promise avec un objet contenant les programmes (key: enum name, value: label)
+     */
+    async getAllProgrammes(): Promise<{[key: string]: string}> {
+        try {
+            const response = await fetch(`${this.baseUrl}/getProgrammes`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
+            }
+
+            return await response.json();
+
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Erreur lors de la récupération des programmes: ${error.message}`);
+            } else {
+                throw new Error('Erreur inconnue lors de la récupération des programmes');
+            }
+        }
+    }
+
+    /**
      * Stocke les données d'authentification dans le sessionStorage
      * @param authResponse - La réponse d'authentification
      */

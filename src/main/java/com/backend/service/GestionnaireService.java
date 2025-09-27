@@ -34,7 +34,7 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void creerGestionnaire(String email, String password, String telephone, String nom, String prenom) throws MotPasseInvalideException {
+    public void creerGestionnaire(String email, String password, String telephone, String prenom, String nom) throws MotPasseInvalideException {
         boolean gestionnaireExistant = gestionnaireRepository.existsByEmail(email);
         if (gestionnaireExistant) {
             throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");

@@ -34,7 +34,7 @@ public class EtudiantService {
             throw new MotPasseInvalideException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.");
         }
         String hashedPassword = passwordEncoder.encode(password);
-        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, nom, prenom, progEtude, session, annee);
+        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, prenom, nom, progEtude, session, annee);
         etudiantRepository.save(etudiant);
     }
 
