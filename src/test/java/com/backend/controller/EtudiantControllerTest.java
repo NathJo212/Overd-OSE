@@ -2,6 +2,7 @@ package com.backend.controller;
 
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
 import com.backend.service.DTO.EtudiantDTO;
@@ -16,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,7 +51,7 @@ class EtudiantControllerTest {
         etudiant.setTelephone("(514) 582-9898");
         etudiant.setPrenom("Jean");
         etudiant.setNom("Dupont");
-        etudiant.setProgEtude("Informatique");
+        etudiant.setProgEtude(ProgrammeDTO.P221_D0);
         etudiant.setSession("Automne");
         etudiant.setAnnee("2025");
 
@@ -66,7 +68,7 @@ class EtudiantControllerTest {
     @DisplayName("POST /OSEetudiant/creerCompte retourne 409 si email déjà utilisé")
     void creerCompte_emailDejaUtilise_returnsConflict() throws Exception {
         doThrow(new EmailDejaUtiliseException("Un étudiant avec cet email existe déjà"))
-                .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+                .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class), anyString(), anyString());
 
         EtudiantDTO etudiant = new EtudiantDTO();
         etudiant.setEmail("test@etudiant.com");
@@ -74,7 +76,7 @@ class EtudiantControllerTest {
         etudiant.setTelephone("1234567890");
         etudiant.setPrenom("Alice");
         etudiant.setNom("Martin");
-        etudiant.setProgEtude("Maths");
+        etudiant.setProgEtude(ProgrammeDTO.P388_A1);
         etudiant.setSession("Hiver");
         etudiant.setAnnee("2024");
 
@@ -91,7 +93,7 @@ class EtudiantControllerTest {
     @DisplayName("POST /OSEetudiant/creerCompte retourne 409 si mot de passe invalide")
     void creerCompte_motDePassePasBon_returnsConflict() throws Exception {
         doThrow(new MotPasseInvalideException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."))
-                .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+                .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class), anyString(), anyString());
 
         EtudiantDTO etudiant = new EtudiantDTO();
         etudiant.setEmail("test@etudiant.com");
@@ -99,7 +101,7 @@ class EtudiantControllerTest {
         etudiant.setTelephone("1234567890");
         etudiant.setPrenom("Alice");
         etudiant.setNom("Martin");
-        etudiant.setProgEtude("Maths");
+        etudiant.setProgEtude(ProgrammeDTO.P300_A1_ADMIN);
         etudiant.setSession("Hiver");
         etudiant.setAnnee("2024");
 

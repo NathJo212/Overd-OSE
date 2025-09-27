@@ -9,6 +9,7 @@ import com.backend.modele.Offre;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.ProgrammeDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -95,7 +96,7 @@ public class EmployeurServiceTest {
         Employeur employeur = new Employeur("mon@employeur.com", "pass", "tel", "nom", "contact");
         when(employeurRepository.findByEmail(anyString())).thenReturn(employeur);
 
-        employeurService.creerOffreDeStage(utilisateur, "titre", "desc", "2024-01-01", "2024-06-01", "prog", "lieu", "rem", "2024-05-01");
+        employeurService.creerOffreDeStage(utilisateur, "titre", "desc", "2024-01-01", "2024-06-01", ProgrammeDTO.P410_A1, "lieu", "rem", "2024-05-01");
 
         verify(offreRepository, times(1)).save(any(Offre.class));
     }
@@ -106,7 +107,7 @@ public class EmployeurServiceTest {
         when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(false);
 
         assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.creerOffreDeStage(utilisateur, "titre", "desc", "2024-01-01", "2024-06-01", "prog", "lieu", "rem", "2024-05-01");
+            employeurService.creerOffreDeStage(utilisateur, "titre", "desc", "2024-01-01", "2024-06-01", ProgrammeDTO.P500_AF, "lieu", "rem", "2024-05-01");
         });
     }
 }

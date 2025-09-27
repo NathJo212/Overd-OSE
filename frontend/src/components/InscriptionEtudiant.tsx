@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import {ArrowLeft, User, Mail, Lock, GraduationCap, Phone} from 'lucide-react'
 import * as React from "react";
@@ -36,9 +36,31 @@ const InscriptionEtudiant = () => {
     const [errors, setErrors] = useState<string[]>([]);
     const [successMessage, setSuccessMessage] = useState<string>('');
 
+    // Add state for programs
+    const [programmes, setProgrammes] = useState<{[key: string]: string}>({});
+    const [loadingProgrammes, setLoadingProgrammes] = useState(true);
+
     // États pour la validation du mot de passe
     const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
     const [isPasswordValid, setIsPasswordValid] = useState(false);
+
+    // Load programs on component mount
+    useEffect(() => {
+        const loadProgrammes = async () => {
+            try {
+                setLoadingProgrammes(true);
+                const programmesData = await utilisateurService.getAllProgrammes();
+                setProgrammes(programmesData);
+            } catch (error) {
+                console.error('Erreur lors du chargement des programmes:', error);
+                setErrors(['Erreur lors du chargement des programmes']);
+            } finally {
+                setLoadingProgrammes(false);
+            }
+        };
+
+        loadProgrammes();
+    }, []);
 
     // Fonction de validation du mot de passe
     const validatePassword = (password: string): string[] => {
@@ -129,7 +151,6 @@ const InscriptionEtudiant = () => {
         return validationErrors;
     };
 
-    // FONCTION HANDLESUBMIT MODIFIÉE AVEC CONNEXION AUTOMATIQUE
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrors([]);
@@ -326,15 +347,30 @@ const InscriptionEtudiant = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Programme d'études *
                                 </label>
-                                <input
-                                    type="text"
-                                    name="programmeEtudes"
-                                    value={formData.programmeEtudes}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="ex: Informatique, Administration, etc."
-                                    disabled={loading}
-                                />
+                                {loadingProgrammes ? (
+                                    <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center">
+                                        <svg className="animate-spin h-4 w-4 text-gray-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span className="text-gray-500 text-sm">Chargement des programmes...</span>
+                                    </div>
+                                ) : (
+                                    <select
+                                        name="programmeEtudes"
+                                        value={formData.programmeEtudes}
+                                        onChange={handleChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        disabled={loading}
+                                    >
+                                        <option value="">Sélectionnez votre programme</option>
+                                        {Object.entries(programmes).map(([key, label]) => (
+                                            <option key={key} value={key}>
+                                                {label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -432,6 +468,33 @@ const InscriptionEtudiant = () => {
                             </div>
                         </div>
 
+                        {/* Submit button */}
+                        <div className="pt-4">
+                            <button
+                                onClick={handleSubmit}
+                                disabled={loading || loadingProgrammes}
+                                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center"
+                            >
+                                {loading ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Création en cours...
+                                    </>
+                                ) : (
+                                    'Créer mon compte étudiant'
+                                )}
+                            </button>
+
+                            <p className="mt-4 text-center text-sm text-gray-600">
+                                Vous avez déjà un compte ?{' '}
+                                <NavLink to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                                    Se connecter
+                                </NavLink>
+                            </p>
+                        </div>
                         {/* Bouton de soumission */}
                         <button
                             type="submit"

@@ -3,17 +3,16 @@ package com.backend.service;
 import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.config.JwtAuthenticationFilter;
 import com.backend.config.JwtTokenProvider;
 import com.backend.modele.Employeur;
 import com.backend.modele.Offre;
+import com.backend.modele.Programme;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.ProgrammeDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +50,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, String date_debut, String date_fin, String progEtude, String lieuStage, String remuneration, String dateLimite) throws ActionNonAutoriseeException {
+    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, String date_debut, String date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, String dateLimite) throws ActionNonAutoriseeException {
         String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
@@ -59,7 +58,7 @@ public class EmployeurService {
         }
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
-        Offre offre = new Offre(titre, description, date_debut, date_fin, progEtude, lieuStage, remuneration, dateLimite, employeur);
+        Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur);
         offreRepository.save(offre);
     }
 }

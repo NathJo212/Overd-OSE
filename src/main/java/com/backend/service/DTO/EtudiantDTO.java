@@ -16,7 +16,7 @@ public class EtudiantDTO {
     private String telephone;
     private String nom;
     private String prenom;
-    private String progEtude;
+    private ProgrammeDTO progEtude;
     private String session;
     private String annee;
 }

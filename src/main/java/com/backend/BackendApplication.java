@@ -1,6 +1,7 @@
 package com.backend;
 
 import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
 import com.backend.service.GestionnaireService;
@@ -36,7 +37,7 @@ public class BackendApplication {
                     "987-654-3210",
                     "Martin",
                     "Durand",
-                    "Informatique",
+                    ProgrammeDTO.P221_A0,
                     "Automne",
                     "3ème année"
             );
@@ -54,7 +55,7 @@ public class BackendApplication {
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");
             System.out.println("Employeur contact: " + utilisateurTest.getUtilisateurDTO().getContact());
 
-            employeurService.creerOffreDeStage(utilisateurTest, "Mon stage", "stage super cool", "un jour", "un jour", "informatique", "MTL", "10000000$", "un jour");
+            employeurService.creerOffreDeStage(utilisateurTest, "Mon stage", "stage super cool", "un jour", "un jour", ProgrammeDTO.P180_A0, "MTL", "10000000$", "un jour");
 
             employeurService.creerOffreDeStage(
                     utilisateurTest,
@@ -62,11 +63,13 @@ public class BackendApplication {
                     "Stage backend sur une application Spring Boot",
                     "2024-01-01",
                     "2024-06-01",
-                    "Informatique",
+                    ProgrammeDTO.P200_B1,
                     "Montréal",
                     "15$/h",
                     "2023-12-15"
             );
+
+            System.out.println(com.backend.modele.Programme.toModele(ProgrammeDTO.P180_A0));
 
         };
     }

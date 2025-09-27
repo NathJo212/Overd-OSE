@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/OSE")
 @CrossOrigin(origins = "*")
@@ -31,4 +33,17 @@ public class UtilisateurController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    @GetMapping("/getProgrammes")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<Map<String, String>> getAllProgrammes() {
+        try {
+            Map<String, String> programmes = utilisateurService.getAllProgrammes();
+            return ResponseEntity.ok(programmes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }

@@ -4,8 +4,10 @@ import com.backend.Exceptions.AuthenticationException;
 import com.backend.config.JwtTokenProvider;
 import com.backend.modele.Employeur;
 import com.backend.modele.Etudiant;
+import com.backend.modele.Programme;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.ProgrammeDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -77,7 +79,7 @@ public class UtilisateurServiceTest {
         String password = "Password123!";
         String token = "jwt.token.here";
 
-        Etudiant etudiant = new Etudiant(email, password, "5149749308", "Jean", "Dupont", "Informatique", "Automne", "2024");
+        Etudiant etudiant = new Etudiant(email, password, "5149749308", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
@@ -94,7 +96,7 @@ public class UtilisateurServiceTest {
         assertEquals(email, result.getUtilisateurDTO().getEmail());
         assertEquals("Jean", result.getUtilisateurDTO().getPrenom());
         assertEquals("Dupont", result.getUtilisateurDTO().getNom());
-        assertEquals("Informatique", result.getUtilisateurDTO().getProgEtude());
+        assertEquals(ProgrammeDTO.P420_B0, result.getUtilisateurDTO().getProgEtude());
         assertEquals("Automne", result.getUtilisateurDTO().getSession());
         assertEquals("2024", result.getUtilisateurDTO().getAnnee());
 

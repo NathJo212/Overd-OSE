@@ -1,5 +1,7 @@
 package com.backend.modele;
 
+import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.service.DTO.ProgrammeDTOConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,8 @@ public class Offre {
         REFUSE
     }
 
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,7 +30,10 @@ public class Offre {
     private String description;
     private String date_debut;
     private String date_fin;
-    private String progEtude;
+
+    @Convert(converter = ProgrammeDTOConverter.class)
+    private Programme progEtude;
+
     private String lieuStage;
     private String remuneration;
     private String dateLimite;
@@ -40,7 +47,7 @@ public class Offre {
     @Enumerated(EnumType.STRING)
     private StatutApprouve statutApprouve;
 
-    public Offre(String titre, String description, String date_debut, String date_fin, String progEtude, String lieuStage, String remuneration, String dateLimite, Employeur employeur) {
+    public Offre(String titre, String description, String date_debut, String date_fin, Programme progEtude, String lieuStage, String remuneration, String dateLimite, Employeur employeur) {
         this.titre = titre;
         this.description = description;
         this.date_debut = date_debut;

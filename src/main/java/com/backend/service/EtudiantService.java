@@ -3,7 +3,9 @@ package com.backend.service;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.modele.Etudiant;
+import com.backend.modele.Programme;
 import com.backend.persistence.EtudiantRepository;
+import com.backend.service.DTO.ProgrammeDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,7 @@ public class EtudiantService {
 
     @Transactional
     public void creerEtudiant(String email, String password, String telephone,
-                              String prenom, String nom, String progEtude, String session, String annee) throws MotPasseInvalideException, EmailDejaUtiliseException {
+                              String prenom, String nom, ProgrammeDTO progEtude, String session, String annee) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean etudiantExistant = etudiantRepository.existsByEmail(email);
         if (etudiantExistant) {
             throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");
@@ -33,7 +35,7 @@ public class EtudiantService {
             throw new MotPasseInvalideException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.");
         }
         String hashedPassword = passwordEncoder.encode(password);
-        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, nom, prenom, progEtude, session, annee);
+        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, prenom, nom, Programme.toModele(progEtude), session, annee);
         etudiantRepository.save(etudiant);
     }
 

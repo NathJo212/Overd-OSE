@@ -5,6 +5,7 @@ import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.modele.Employeur;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.OffreDTO;
+import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
@@ -122,7 +123,7 @@ class EmployeurControllerTest {
         offreDTO.setDescription("desc");
         offreDTO.setDate_debut("2024-01-01");
         offreDTO.setDate_fin("2024-06-01");
-        offreDTO.setProgEtude("prog");
+        offreDTO.setProgEtude(ProgrammeDTO.P420_B0);
         offreDTO.setLieuStage("lieu");
         offreDTO.setRemuneration("rem");
         offreDTO.setDateLimite("2024-05-01");
@@ -138,7 +139,7 @@ class EmployeurControllerTest {
     @Test
     void creerOffre_actionNonAutorisee_returnsConflict() throws Exception {
         doThrow(new ActionNonAutoriseeException("Seul un employeur peut créer une offre de stage."))
-                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class), anyString(), anyString(), anyString());
 
         OffreDTO offreDTO = new OffreDTO();
         offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer fakeToken"));
@@ -146,7 +147,7 @@ class EmployeurControllerTest {
         offreDTO.setDescription("desc");
         offreDTO.setDate_debut("2024-01-01");
         offreDTO.setDate_fin("2024-06-01");
-        offreDTO.setProgEtude("prog");
+        offreDTO.setProgEtude(ProgrammeDTO.P200_B1);
         offreDTO.setLieuStage("lieu");
         offreDTO.setRemuneration("rem");
         offreDTO.setDateLimite("2024-05-01");
