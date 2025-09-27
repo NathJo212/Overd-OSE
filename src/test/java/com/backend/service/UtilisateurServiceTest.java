@@ -192,4 +192,23 @@ public class UtilisateurServiceTest {
         verify(jwtTokenProvider, never()).generateToken(any());
         verify(utilisateurRepository, never()).findByEmail(anyString());
     }
+
+    @Test
+    public void testLogout_callsJwtTokenProviderLogout() {
+        String token = "jwt.token.here";
+        doNothing().when(jwtTokenProvider).logout(token);
+
+        assertDoesNotThrow(() -> utilisateurService.logout(token));
+        verify(jwtTokenProvider, times(1)).logout(token);
+    }
+
+    @Test
+    public void testLogout_throwsExceptionIfProviderFails() {
+        String token = "jwt.token.here";
+        doThrow(new RuntimeException("Erreur")).when(jwtTokenProvider).logout(token);
+
+        assertThrows(RuntimeException.class, () -> utilisateurService.logout(token));
+        verify(jwtTokenProvider, times(1)).logout(token);
+    }
+
 }
