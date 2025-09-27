@@ -41,7 +41,7 @@ public class UtilisateurDTO {
             case Etudiant etudiant -> {
                 dto.setNom(etudiant.getNom());
                 dto.setPrenom(etudiant.getPrenom());
-                dto.setProgEtude(etudiant.getProgEtude());
+                dto.setProgEtude(ProgrammeDTO.toDTO(etudiant.getProgEtude()));
                 dto.setSession(etudiant.getSession());
                 dto.setAnnee(etudiant.getAnnee());
             }

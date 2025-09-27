@@ -32,7 +32,7 @@ public class Offre {
     private String date_fin;
 
     @Convert(converter = ProgrammeDTOConverter.class)
-    private ProgrammeDTO progEtude;
+    private Programme progEtude;
 
     private String lieuStage;
     private String remuneration;
@@ -47,7 +47,7 @@ public class Offre {
     @Enumerated(EnumType.STRING)
     private StatutApprouve statutApprouve;
 
-    public Offre(String titre, String description, String date_debut, String date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, String dateLimite, Employeur employeur) {
+    public Offre(String titre, String description, String date_debut, String date_fin, Programme progEtude, String lieuStage, String remuneration, String dateLimite, Employeur employeur) {
         this.titre = titre;
         this.description = description;
         this.date_debut = date_debut;

@@ -1,8 +1,10 @@
-package com.backend.service.DTO;
+package com.backend.modele;
 
-import com.backend.modele.Programme;
+import com.backend.service.DTO.ProgrammeDTO;
+import lombok.Getter;
 
-public enum ProgrammeDTO {
+@Getter
+public enum Programme {
 
     P180_A0("180.A0 Soins infirmiers"),
     P180_B0("180.B0 Soins infirmiers pour auxiliaires"),
@@ -27,10 +29,9 @@ public enum ProgrammeDTO {
     P500_AJ("500.AJ Journalisme multimédia"),
     P500_AL("500.AL Langues – profil Trilinguisme et cultures");
 
-
     private final String label;
 
-    ProgrammeDTO(String label) {
+    Programme(String label) {
         this.label = label;
     }
 
@@ -38,7 +39,7 @@ public enum ProgrammeDTO {
         return label;
     }
 
-    public static ProgrammeDTO toDTO(Programme modele) {
-        return ProgrammeDTO.valueOf(modele.name());
+    public static Programme toModele(ProgrammeDTO dto) {
+        return Programme.valueOf(dto.name());
     }
 }

@@ -2,13 +2,11 @@ package com.backend.controller;
 
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.LoginDTO;
-import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.UtilisateurService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController

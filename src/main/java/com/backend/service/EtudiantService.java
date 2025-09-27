@@ -3,6 +3,7 @@ package com.backend.service;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.modele.Etudiant;
+import com.backend.modele.Programme;
 import com.backend.persistence.EtudiantRepository;
 import com.backend.service.DTO.ProgrammeDTO;
 import jakarta.transaction.Transactional;
@@ -34,7 +35,7 @@ public class EtudiantService {
             throw new MotPasseInvalideException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.");
         }
         String hashedPassword = passwordEncoder.encode(password);
-        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, prenom, nom, progEtude, session, annee);
+        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, prenom, nom, Programme.toModele(progEtude), session, annee);
         etudiantRepository.save(etudiant);
     }
 

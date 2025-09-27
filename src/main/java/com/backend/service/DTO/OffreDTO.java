@@ -30,7 +30,7 @@ public class OffreDTO {
         dto.setDescription(offre.getDescription());
         dto.setDate_debut(offre.getDate_debut());
         dto.setDate_fin(offre.getDate_fin());
-        dto.setProgEtude(offre.getProgEtude());
+        dto.setProgEtude(ProgrammeDTO.toDTO(offre.getProgEtude()));
         dto.setLieuStage(offre.getLieuStage());
         dto.setRemuneration(offre.getRemuneration());
         dto.setDateLimite(offre.getDateLimite());
