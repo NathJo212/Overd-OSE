@@ -34,6 +34,7 @@ public class OffreDTO {
         dto.setLieuStage(offre.getLieuStage());
         dto.setRemuneration(offre.getRemuneration());
         dto.setDateLimite(offre.getDateLimite());
+        dto.setMessageRefus(offre.getMessageRefus());
         dto.setEmployeurDTO(new EmployeurDTO().toDTO(offre.getEmployeur()));
         return dto;
     }

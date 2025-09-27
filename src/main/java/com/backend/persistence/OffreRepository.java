@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface OffreRepository extends CrudRepository<Offre, Long> {
     List<Offre> findByStatutApprouve(Offre.StatutApprouve statutApprouve);
+
+    List<Offre> findOffreByEmployeurId(Long employeurId);
 }

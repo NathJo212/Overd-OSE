@@ -10,6 +10,7 @@ import com.backend.modele.Offre;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.OffreDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Service
@@ -61,5 +63,19 @@ public class EmployeurService {
         Employeur employeur = employeurRepository.findByEmail(email);
         Offre offre = new Offre(titre, description, date_debut, date_fin, progEtude, lieuStage, remuneration, dateLimite, employeur);
         offreRepository.save(offre);
+    }
+
+    @Transactional
+    public List<OffreDTO> OffrePourEmployeur(AuthResponseDTO utilisateur) throws ActionNonAutoriseeException {
+        String token = utilisateur.getToken();
+        boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
+        if (!isEmployeur) {
+            throw new ActionNonAutoriseeException("Seul un employeur peut voir ses offres de stage.");
+        }
+        String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
+        Employeur employeur = employeurRepository.findByEmail(email);
+        List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
+        OffreDTO offreDTO = new OffreDTO();
+        return offres.stream().map(offreDTO::toDTO).toList();
     }
 }
