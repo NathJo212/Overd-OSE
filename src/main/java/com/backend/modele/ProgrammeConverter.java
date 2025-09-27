@@ -1,20 +1,20 @@
-package com.backend.service.DTO;
+package com.backend.modele;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Converter(autoApply = false)
-public class ProgrammeDTOConverter implements AttributeConverter<ProgrammeDTO, String> {
+public class ProgrammeConverter implements AttributeConverter<Programme, String> {
 
     @Override
-    public String convertToDatabaseColumn(ProgrammeDTO attribute) {
+    public String convertToDatabaseColumn(Programme attribute) {
         return attribute != null ? attribute.getLabel() : null;
     }
 
     @Override
-    public ProgrammeDTO convertToEntityAttribute(String dbData) {
+    public Programme convertToEntityAttribute(String dbData) {
         if (dbData == null) return null;
-        for (ProgrammeDTO p : ProgrammeDTO.values()) {
+        for (Programme p : Programme.values()) {
             if (p.getLabel().equals(dbData)) {
                 return p;
             }

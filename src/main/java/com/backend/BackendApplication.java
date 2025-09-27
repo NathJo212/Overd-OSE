@@ -69,8 +69,6 @@ public class BackendApplication {
                     "2023-12-15"
             );
 
-            System.out.println(com.backend.modele.Programme.toModele(ProgrammeDTO.P180_A0));
-
         };
     }
 }

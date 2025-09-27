@@ -1,8 +1,6 @@
 package com.backend.modele;
 
 
-import com.backend.service.DTO.ProgrammeDTO;
-import com.backend.service.DTO.ProgrammeDTOConverter;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -20,7 +18,7 @@ public class Etudiant extends Utilisateur {
     private String nom;
     private String prenom;
 
-    @Convert(converter = ProgrammeDTOConverter.class)
+    @Convert(converter = ProgrammeConverter.class)
     private Programme progEtude;
 
 

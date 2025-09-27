@@ -1,7 +1,5 @@
 package com.backend.modele;
 
-import com.backend.service.DTO.ProgrammeDTO;
-import com.backend.service.DTO.ProgrammeDTOConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +29,7 @@ public class Offre {
     private String date_debut;
     private String date_fin;
 
-    @Convert(converter = ProgrammeDTOConverter.class)
+    @Convert(converter = ProgrammeConverter.class)
     private Programme progEtude;
 
     private String lieuStage;
