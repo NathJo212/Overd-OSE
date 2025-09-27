@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -158,5 +159,52 @@ class EmployeurControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").doesNotExist())
                 .andExpect(jsonPath("$.erreur").value("Seul un employeur peut créer une offre de stage."));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/OffresParEmployeur retourne 200 et liste d'offres avec employeur existant")
+    void getAllOffresParEmployeur() throws Exception {
+        // Arrange
+        AuthResponseDTO authResponse = new AuthResponseDTO("Bearer validToken");
+
+        OffreDTO offre1 = new OffreDTO();
+        offre1.setId(1L);
+        offre1.setTitre("Stage Développeur");
+        offre1.setDescription("Stage en développement web");
+
+        OffreDTO offre2 = new OffreDTO();
+        offre2.setId(2L);
+        offre2.setTitre("Stage Marketing");
+        offre2.setDescription("Stage en marketing digital");
+
+        when(employeurService.OffrePourEmployeur(any(AuthResponseDTO.class)))
+                .thenReturn(java.util.List.of(offre1, offre2));
+
+        // Act & Assert
+        mockMvc.perform(post("/OSEemployeur/OffresParEmployeur")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(authResponse)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].titre").value("Stage Développeur"))
+                .andExpect(jsonPath("$[1].titre").value("Stage Marketing"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/OffresParEmployeur retourne 401 si utilisateur non autorisé")
+    void getAllOffresParEmployeur_nonEmployeur() throws Exception {
+        // Arrange
+        AuthResponseDTO authResponse = new AuthResponseDTO("Bearer fakeToken");
+
+        doThrow(new ActionNonAutoriseeException("Seul un employeur peut voir ses offres de stage."))
+                .when(employeurService).OffrePourEmployeur(any(AuthResponseDTO.class));
+
+        // Act & Assert
+        mockMvc.perform(post("/OSEemployeur/OffresParEmployeur")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(authResponse)))
+                .andExpect(status().isUnauthorized());
     }
 }

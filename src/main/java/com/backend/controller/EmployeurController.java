@@ -3,6 +3,7 @@ package com.backend.controller;
 import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.EmployeurDTO;
 import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.DTO.OffreDTO;
@@ -10,6 +11,8 @@ import com.backend.service.EmployeurService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/OSEemployeur")
@@ -46,6 +49,17 @@ public class EmployeurController {
         }catch (ActionNonAutoriseeException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/OffresParEmployeur")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<OffreDTO>> getAllOffresParEmployeur(@RequestBody AuthResponseDTO utilisateur) {
+        try {
+            List<OffreDTO> offres = employeurService.OffrePourEmployeur(utilisateur);
+            return ResponseEntity.ok(offres);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }

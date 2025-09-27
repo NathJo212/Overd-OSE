@@ -94,7 +94,6 @@ class EmployeurService {
     }
 
     async creerOffreDeStage(offre: OffreStageDTO): Promise<MessageRetour> {
-        // Construction du DTO attendu par le backend
         const offreDTO = {
             authResponseDTO: { token: offre.utilisateur.token },
             titre: offre.titre,
@@ -133,6 +132,19 @@ class EmployeurService {
                 throw new Error('Erreur inconnue lors de la création de l\'offre');
             }
         }
+    }
+
+    async getOffresParEmployeur(token: string): Promise<any[]> {
+        const response = await fetch(`${this.baseUrl}/OffresParEmployeur`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ token }),
+        });
+        if (!response.ok) throw new Error('Erreur lors de la récupération des offres');
+        return await response.json();
     }
 }
 

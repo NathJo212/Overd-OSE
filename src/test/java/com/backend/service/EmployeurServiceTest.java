@@ -110,4 +110,40 @@ public class EmployeurServiceTest {
             employeurService.creerOffreDeStage(utilisateur, "titre", "desc", "2024-01-01", "2024-06-01", ProgrammeDTO.P500_AF, "lieu", "rem", "2024-05-01");
         });
     }
+
+    @Test
+    public void testOffrePourEmployeur() throws Exception {
+        // Arrange
+        AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer validToken");
+        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(true);
+        when(jwtTokenProvider.getEmailFromJWT(anyString())).thenReturn("employeur@test.com");
+
+        Employeur employeur = new Employeur("employeur@test.com", "pass", "tel", "nom", "contact");
+        when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
+
+        Offre offre1 = new Offre("Titre 1", "Description 1", "2024-01-01", "2024-06-01", "prog", "lieu", "rem", "2024-05-01", employeur);
+        Offre offre2 = new Offre("Titre 2", "Description 2", "2024-02-01", "2024-07-01", "prog", "lieu", "rem", "2024-06-01", employeur);
+        when(offreRepository.findOffreByEmployeurId(employeur.getId())).thenReturn(java.util.List.of(offre1, offre2));
+
+        // Act
+        var result = employeurService.OffrePourEmployeur(utilisateur);
+
+        // Assert
+        verify(jwtTokenProvider, times(1)).isEmployeur(anyString(), any());
+        verify(employeurRepository, times(1)).findByEmail("employeur@test.com");
+        verify(offreRepository, times(1)).findOffreByEmployeurId(employeur.getId());
+        org.junit.jupiter.api.Assertions.assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testOffrePourEmployeur_NonEmployeur() {
+        // Arrange
+        AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer fakeToken");
+        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.OffrePourEmployeur(utilisateur);
+        });
+    }
 }
