@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { employeurService } from "../services/EmployeurService";
 import type { OffreStageDTO } from "../services/EmployeurService";
 import NavBar from "./NavBar.tsx";
+import {NavLink} from "react-router";
+import {ArrowLeft} from "lucide-react";
+import * as React from "react";
 
 const CreerOffreStage = () => {
     const navigate = useNavigate();
@@ -75,7 +78,17 @@ const CreerOffreStage = () => {
     return (
         <>
         <NavBar/>
-            <div className="min-h-screen bg-gray-50 py-8 px-4 flex items-center justify-center">
+
+            <div className="min-h-screen bg-gray-50 py-8 px-4 flex items-center justify-center flex-col">
+                <div className="flex justify-center mb-4">
+                    <NavLink
+                        to="/dashboard-employeur"
+                        className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Retour au dashboard
+                    </NavLink>
+                </div>
                 <div className="max-w-lg w-full bg-white rounded-xl shadow-lg p-8">
                     <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                         Créer une offre de stage
