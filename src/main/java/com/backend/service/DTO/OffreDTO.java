@@ -20,6 +20,7 @@ public class OffreDTO {
     private String remuneration;
     private String dateLimite;
     private String messageRefus;
+    private String statutApprouve;
     private EmployeurDTO employeurDTO;
 
     public OffreDTO toDTO(Offre offre) {
@@ -35,6 +36,7 @@ public class OffreDTO {
         dto.setRemuneration(offre.getRemuneration());
         dto.setDateLimite(offre.getDateLimite());
         dto.setMessageRefus(offre.getMessageRefus());
+        dto.setStatutApprouve(offre.getStatutApprouve() != null ? offre.getStatutApprouve().toString() : "ATTENTE");
         dto.setEmployeurDTO(new EmployeurDTO().toDTO(offre.getEmployeur()));
         return dto;
     }

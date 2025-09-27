@@ -66,14 +66,20 @@ const DashBoardEmployeur = () => {
                     ) : (
                         <div className="space-y-6">
                             {offres.map((offre, index) => {
-                                const isRefused = !!offre.messageRefus;
+                                const statutApprouve = offre.statutApprouve || 'ATTENTE';
+                                const isRefused = statutApprouve === 'REFUSE';
+                                const isApproved = statutApprouve === 'APPROUVE';
+                                const isWaiting = statutApprouve === 'ATTENTE';
+
                                 return (
                                     <div
                                         key={index}
                                         className={`border-2 rounded-xl p-6 transition-all duration-300 ${
                                             isRefused 
-                                                ? 'border-red-200 bg-red-50 hover:border-red-300 cursor-pointer hover:shadow-lg' 
-                                                : 'border-blue-200 bg-blue-50 hover:border-blue-300 hover:shadow-lg'
+                                                ? 'border-red-200 bg-red-50 hover:border-red-300 cursor-pointer hover:shadow-lg'
+                                                : isApproved
+                                                ? 'border-green-200 bg-green-50 hover:border-green-300 hover:shadow-lg'
+                                                : 'border-yellow-200 bg-yellow-50 hover:border-yellow-300 hover:shadow-lg'
                                         }`}
                                         onClick={() => isRefused && handleRefuseClick(offre.messageRefus)}
                                     >
@@ -95,10 +101,12 @@ const DashBoardEmployeur = () => {
                                             </div>
                                             <span className={`px-4 py-2 rounded-full text-sm font-medium ${
                                                 isRefused 
-                                                    ? 'bg-red-200 text-red-800' 
+                                                    ? 'bg-red-200 text-red-800'
+                                                    : isApproved
+                                                    ? 'bg-green-200 text-green-800'
                                                     : 'bg-yellow-200 text-yellow-800'
                                             }`}>
-                                                {isRefused ? 'Refusée' : 'En attente'}
+                                                {isRefused ? 'Refusée' : isApproved ? 'Approuvée' : 'En attente'}
                                             </span>
                                         </div>
 
