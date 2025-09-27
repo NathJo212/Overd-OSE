@@ -57,6 +57,11 @@ public class UtilisateurService {
     }
 
     @Transactional
+    public void logout(String token) {
+        jwtTokenProvider.logout(token);
+    }
+
+    @Transactional
     public Map<String, String> getAllProgrammes() {
         return List.of(ProgrammeDTO.values())
                 .stream()

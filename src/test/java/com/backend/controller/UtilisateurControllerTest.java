@@ -20,8 +20,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -172,4 +171,39 @@ class UtilisateurControllerTest {
                         .content(objectMapper.writeValueAsString(loginDTO)))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @DisplayName("POST /OSE/logout retourne 200 sur succès")
+    void logout_success_returnsOk() throws Exception {
+        String token = "jwt.token.here";
+        // On ne vérifie pas la logique interne, juste l'appel
+        doNothing().when(utilisateurService).logout(token);
+
+        mockMvc.perform(post("/OSE/logout")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Déconnexion réussie"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("POST /OSE/logout retourne 401 si token manquant")
+    void logout_missingToken_returnsUnauthorized() throws Exception {
+        mockMvc.perform(post("/OSE/logout"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.erreur").value("Token manquant ou invalide"));
+    }
+
+    @Test
+    @DisplayName("POST /OSE/logout retourne 401 si service échoue")
+    void logout_serviceThrows_returnsUnauthorized() throws Exception {
+        String token = "jwt.token.here";
+        doThrow(new RuntimeException("Erreur")).when(utilisateurService).logout(token);
+
+        mockMvc.perform(post("/OSE/logout")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.erreur").value("Erreur lors de la déconnexion"));
+    }
+
 }

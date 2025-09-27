@@ -62,6 +62,23 @@ const InscriptionEtudiant = () => {
         loadProgrammes();
     }, []);
 
+    useEffect(() => {
+        const role = sessionStorage.getItem("userType");
+        if (role !== null) {
+            switch (sessionStorage.getItem('userType')) {
+                case 'EMPLOYEUR':
+                    navigate('/dashboard-employeur')
+                    break
+                case 'ETUDIANT':
+                    navigate('/dashboard-etudiant')
+                    break
+                case 'GESTIONNAIRE':
+                    navigate('/offres-stages-gestionnaire')
+                    break
+            }
+        }
+    }, [navigate]);
+
     // Fonction de validation du mot de passe
     const validatePassword = (password: string): string[] => {
         const errors: string[] = [];
@@ -151,6 +168,7 @@ const InscriptionEtudiant = () => {
         return validationErrors;
     };
 
+    // FONCTION HANDLESUBMIT MODIFIÉE AVEC CONNEXION AUTOMATIQUE
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrors([]);
@@ -495,24 +513,6 @@ const InscriptionEtudiant = () => {
                                 </NavLink>
                             </p>
                         </div>
-                        {/* Bouton de soumission */}
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center"
-                        >
-                            {loading ? (
-                                <>
-                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Création en cours...
-                                </>
-                            ) : (
-                                'Créer mon compte'
-                            )}
-                        </button>
                     </form>
                 </div>
             </div>

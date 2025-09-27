@@ -147,6 +147,27 @@ class UtilisateurService {
             password: formData.password
         };
     }
+
+    async deconnexion(): Promise<void> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            const response = await fetch(`${this.baseUrl}/logout`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
+            }
+
+            sessionStorage.clear();
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : 'Erreur inconnue lors de la déconnexion');
+        }
+    }
 }
 
 // Export d'une instance unique (Singleton)

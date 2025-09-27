@@ -110,11 +110,18 @@ public class GestionnaireServiceTest {
     public void getOffresAttente_retourneListe() throws Exception {
         Offre offre = new Offre();
         offre.setStatutApprouve(Offre.StatutApprouve.ATTENTE);
+
+        // Mock d'un employeur pour éviter le NullPointerException
+        com.backend.modele.Employeur employeur = mock(com.backend.modele.Employeur.class);
+        when(employeur.getEmail()).thenReturn("employeur@test.com");
+        offre.setEmployeur(employeur);
+
         when(offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE)).thenReturn(Arrays.asList(offre));
 
         var result = gestionnaireService.getOffresAttente();
 
         assertEquals(1, result.size());
+        assertEquals("employeur@test.com", result.get(0).getEmployeurDTO().getEmail());
     }
 
     @Test

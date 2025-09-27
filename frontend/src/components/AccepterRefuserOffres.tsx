@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
+import NavBar from "./NavBar.tsx";
 
 const OffresDeStagesGestionnaire = () => {
     const navigate = useNavigate();
@@ -101,6 +102,7 @@ const OffresDeStagesGestionnaire = () => {
 
     return (
         <>
+            <NavBar/>
             <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex flex-col items-center py-10 px-4">
                 <div className="w-full max-w-5xl">
                     <div className="mb-8 text-center">
