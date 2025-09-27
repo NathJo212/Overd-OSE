@@ -6,6 +6,7 @@ import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.config.JwtTokenProvider;
 import com.backend.modele.Employeur;
 import com.backend.modele.Offre;
+import com.backend.modele.Programme;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.AuthResponseDTO;
@@ -121,8 +122,8 @@ public class EmployeurServiceTest {
         Employeur employeur = new Employeur("employeur@test.com", "pass", "tel", "nom", "contact");
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        Offre offre1 = new Offre("Titre 1", "Description 1", "2024-01-01", "2024-06-01", "prog", "lieu", "rem", "2024-05-01", employeur);
-        Offre offre2 = new Offre("Titre 2", "Description 2", "2024-02-01", "2024-07-01", "prog", "lieu", "rem", "2024-06-01", employeur);
+        Offre offre1 = new Offre("Titre 1", "Description 1", "2024-01-01", "2024-06-01", Programme.P420_B0, "lieu", "rem", "2024-05-01", employeur);
+        Offre offre2 = new Offre("Titre 2", "Description 2", "2024-02-01", "2024-07-01", Programme.P420_B0, "lieu", "rem", "2024-06-01", employeur);
         when(offreRepository.findOffreByEmployeurId(employeur.getId())).thenReturn(java.util.List.of(offre1, offre2));
 
         // Act

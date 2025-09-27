@@ -129,7 +129,6 @@ const DashBoardEmployeur = () => {
                                     const statutApprouve = offre.statutApprouve || 'ATTENTE';
                                     const isRefused = statutApprouve === 'REFUSE';
                                     const isApproved = statutApprouve === 'APPROUVE';
-                                    const isWaiting = statutApprouve === 'ATTENTE';
 
                                     return (
                                         <div

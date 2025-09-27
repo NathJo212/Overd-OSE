@@ -4,6 +4,7 @@ import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.OffreDejaVerifieException;
 import com.backend.Exceptions.OffreNonExistantException;
 import com.backend.modele.Offre;
+import com.backend.modele.Programme;
 import com.backend.persistence.OffreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -108,13 +109,20 @@ public class GestionnaireServiceTest {
 
     @Test
     public void getOffresAttente_retourneListe() throws Exception {
-        Offre offre = new Offre();
-        offre.setStatutApprouve(Offre.StatutApprouve.ATTENTE);
-
-        // Mock d'un employeur pour éviter le NullPointerException
         com.backend.modele.Employeur employeur = mock(com.backend.modele.Employeur.class);
         when(employeur.getEmail()).thenReturn("employeur@test.com");
-        offre.setEmployeur(employeur);
+
+        Offre offre = new Offre(
+                "Développeur java",
+                "Dev java/spring",
+                "2026-01-16",
+                "2026-01-17",
+                Programme.P420_B0,
+                "Montréal",
+                "25$/h",
+                "2025-09-10",
+                employeur
+        );
 
         when(offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE)).thenReturn(Arrays.asList(offre));
 
