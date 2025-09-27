@@ -2,10 +2,14 @@ package com.backend.controller;
 
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.LoginDTO;
+import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.UtilisateurService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/OSE")
@@ -31,4 +35,17 @@ public class UtilisateurController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    @GetMapping("/getProgrammes")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<Map<String, String>> getAllProgrammes() {
+        try {
+            Map<String, String> programmes = utilisateurService.getAllProgrammes();
+            return ResponseEntity.ok(programmes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }

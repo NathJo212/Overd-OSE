@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {ArrowLeft, User, Mail, Lock, GraduationCap, Phone} from 'lucide-react'
 import * as React from "react";
-import etudiantService, { PROGRAMMES } from '../services/EtudiantService';
+import etudiantService from '../services/EtudiantService';
 import {NavLink} from "react-router";
 
 interface FormData {
@@ -107,10 +107,10 @@ const InscriptionEtudiant = () => {
             validationErrors.push('Le programme d\'études est requis');
         }
         if (!formData.anneeEtude.trim()) {
-            validationErrors.push('L\'année d\'étude est requise');
+            validationErrors.push('L\'année/session d\'étude est requise');
         }
         if (!formData.session.trim()) {
-            validationErrors.push('La session d\'étude est requise');
+            validationErrors.push('L\'année/session d\'étude est requise');
         }
 
         // Validation améliorée du mot de passe
@@ -295,20 +295,15 @@ const InscriptionEtudiant = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Programme d'études *
                                 </label>
-                                <select
+                                <input
+                                    type="text"
                                     name="programmeEtudes"
                                     value={formData.programmeEtudes}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    placeholder="Ex: Techniques de l'informatique"
                                     disabled={loading}
-                                >
-                                    <option value="">Sélectionnez votre programme</option>
-                                    {PROGRAMMES.map((programme) => (
-                                        <option key={programme.key} value={programme.key}>
-                                            {programme.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
