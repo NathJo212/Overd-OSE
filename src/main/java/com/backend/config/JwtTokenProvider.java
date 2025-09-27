@@ -10,9 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
@@ -23,9 +20,6 @@ public class JwtTokenProvider {
 
     @Value("${application.security.jwt.secret-key:2B7E151628AED2A6ABF7158809CF4F3C2B7E151628AED2A6ABF7158809CF4F3C}")
     private String jwtSecret;
-
-    private final Set<String> tokenBlacklist = new HashSet<>();
-
 
     public String generateToken(Authentication authentication) {
         long nowMillis = System.currentTimeMillis();
@@ -51,23 +45,9 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    public void logout(String token) {
-        String cleanToken = token.startsWith("Bearer ") ? token.substring(7) : token;
-        tokenBlacklist.add(cleanToken);
-    }
-
-    public boolean isTokenBlacklisted(String token) {
-        String cleanToken = token.startsWith("Bearer ") ? token.substring(7) : token;
-        return tokenBlacklist.contains(cleanToken);
-    }
-
     public void validateToken(String token) {
-        String cleanToken = token.startsWith("Bearer ") ? token.substring(7) : token;
-        if (isTokenBlacklisted(cleanToken)) {
-            throw new InvalidJwtTokenException();
-        }
         try {
-            Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(cleanToken);
+            Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(token);
         } catch (SecurityException | IllegalArgumentException | UnsupportedJwtException | ExpiredJwtException |
                  MalformedJwtException ex) {
             throw new InvalidJwtTokenException();

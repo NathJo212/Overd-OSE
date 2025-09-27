@@ -40,7 +40,7 @@ public class SecurityConfiguration {
     // Définir les chemins d'API selon ta structure
     private static final String LOGIN_PATH = "/OSE/login";
     private static final String EMPLOYEUR_REGISTER_PATH = "/OSEemployeur/creerCompte";
-    private static final String ETUDIANT_REGISTER_PATH = "/OSEetudiant/creerCompte";
+    private static final String ETUDIANT_REGISTER_PATH = "/OSEetudiant/creerCompte"; // À ajouter si tu as ce endpoint
     private static final String GESTIONNAIRE_APPROVE_PATH = "/OSEGestionnaire/approuveOffre";
     private static final String GESTIONNAIRE_DENY_PATH = "/OSEGestionnaire/refuseOffre";
     private static final String GESTIONNAIRE_AWAITING_OFFERS = "/OSEGestionnaire/offresEnAttente";
