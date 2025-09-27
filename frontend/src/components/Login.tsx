@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { NavLink } from "react-router"
 import utilisateurService from '../services/UtilisateurService'
@@ -15,6 +15,23 @@ const Login = () => {
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState<string[]>([])
     const [successMessage, setSuccessMessage] = useState<string>('')
+
+    useEffect(() => {
+        const role = sessionStorage.getItem("userType");
+        if (role !== null) {
+            switch (sessionStorage.getItem('userType')) {
+                case 'EMPLOYEUR':
+                    navigate('/dashboard-employeur')
+                    break
+                case 'ETUDIANT':
+                    navigate('/dashboard-etudiant')
+                    break
+                case 'GESTIONNAIRE':
+                    navigate('/offres-stages-gestionnaire')
+                    break
+            }
+        }
+    }, [navigate]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import {ArrowLeft, User, Mail, Lock, GraduationCap, Phone} from 'lucide-react'
 import * as React from "react";
@@ -39,6 +39,23 @@ const InscriptionEtudiant = () => {
     // États pour la validation du mot de passe
     const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
     const [isPasswordValid, setIsPasswordValid] = useState(false);
+
+    useEffect(() => {
+        const role = sessionStorage.getItem("userType");
+        if (role !== null) {
+            switch (sessionStorage.getItem('userType')) {
+                case 'EMPLOYEUR':
+                    navigate('/dashboard-employeur')
+                    break
+                case 'ETUDIANT':
+                    navigate('/dashboard-etudiant')
+                    break
+                case 'GESTIONNAIRE':
+                    navigate('/offres-stages-gestionnaire')
+                    break
+            }
+        }
+    }, [navigate]);
 
     // Fonction de validation du mot de passe
     const validatePassword = (password: string): string[] => {

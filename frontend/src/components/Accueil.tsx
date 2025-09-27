@@ -1,7 +1,27 @@
 import { Building, Users, ArrowRight } from 'lucide-react'
 import {NavLink} from "react-router";
+import {useEffect} from "react";
+import {useNavigate} from "react-router-dom";
 
 const Accueil = () => {
+    const navigate = useNavigate();
+    useEffect(() => {
+        const role = sessionStorage.getItem("userType");
+        if (role !== null) {
+            switch (sessionStorage.getItem('userType')) {
+                case 'EMPLOYEUR':
+                    navigate('/dashboard-employeur')
+                    break
+                case 'ETUDIANT':
+                    navigate('/dashboard-etudiant')
+                    break
+                case 'GESTIONNAIRE':
+                    navigate('/offres-stages-gestionnaire')
+                    break
+            }
+        }
+    }, [navigate]);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
             <div className="max-w-4xl mx-auto text-center">
