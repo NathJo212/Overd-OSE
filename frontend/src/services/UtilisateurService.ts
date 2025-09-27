@@ -100,7 +100,7 @@ class UtilisateurService {
         // Stocker les données utilisateur (structure utilisateurDTO)
         if (authResponse.utilisateurDTO) {
             // Créer un objet utilisateur nettoyé (sans le mot de passe)
-            const { password, ...userDataSafe } = authResponse.utilisateurDTO;
+            const {password, ...userDataSafe} = authResponse.utilisateurDTO;
             sessionStorage.setItem('userData', JSON.stringify(userDataSafe));
         }
     }
@@ -118,6 +118,34 @@ class UtilisateurService {
             email: formData.email.trim(),
             password: formData.password
         };
+    }
+
+    async deconnexion(): Promise<void> {
+        try {
+            let token = sessionStorage.getItem('authToken')
+            const response = await fetch(`${this.baseUrl}/logout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(token),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Erreur lors de la déconnexion:', errorData);
+            }
+
+            sessionStorage.clear();
+        } catch (error) {
+            // Gestion des erreurs de réseau ou autres
+            if (error instanceof Error) {
+                throw error; // Re-lancer l'erreur telle quelle si c'est déjà une Error
+            } else {
+                throw new Error('Erreur inconnue lors de la déconnexion');
+            }
+        }
+
     }
 }
 

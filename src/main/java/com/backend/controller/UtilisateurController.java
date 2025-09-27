@@ -2,6 +2,7 @@ package com.backend.controller;
 
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.LoginDTO;
+import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.UtilisateurService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,18 @@ public class UtilisateurController {
             return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @PostMapping("/logout")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> logout(@RequestBody AuthResponseDTO authResponseDTO) {
+        try {
+            utilisateurService.logout(authResponseDTO.getToken());
+            return ResponseEntity.ok(new MessageRetourDTO("Déconnexion réussie", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, "Erreur lors de la déconnexion"));
         }
     }
 }
