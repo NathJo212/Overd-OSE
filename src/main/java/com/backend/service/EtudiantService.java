@@ -4,6 +4,7 @@ import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.modele.Etudiant;
 import com.backend.persistence.EtudiantRepository;
+import com.backend.service.DTO.ProgrammeDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class EtudiantService {
 
     @Transactional
     public void creerEtudiant(String email, String password, String telephone,
-                              String prenom, String nom, String progEtude, String session, String annee) throws MotPasseInvalideException, EmailDejaUtiliseException {
+                              String prenom, String nom, ProgrammeDTO progEtude, String session, String annee) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean etudiantExistant = etudiantRepository.existsByEmail(email);
         if (etudiantExistant) {
             throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");

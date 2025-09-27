@@ -15,7 +15,7 @@ public class OffreDTO {
     private String description;
     private String date_debut;
     private String date_fin;
-    private String progEtude;
+    private ProgrammeDTO progEtude;
     private String lieuStage;
     private String remuneration;
     private String dateLimite;

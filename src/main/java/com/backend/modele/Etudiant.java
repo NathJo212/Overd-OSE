@@ -1,6 +1,9 @@
 package com.backend.modele;
 
 
+import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.service.DTO.ProgrammeDTOConverter;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,11 +19,15 @@ public class Etudiant extends Utilisateur {
 
     private String nom;
     private String prenom;
-    private String progEtude;
+
+    @Convert(converter = ProgrammeDTOConverter.class)
+    private ProgrammeDTO progEtude;
+
+
     private String session;
     private String annee;
 
-    public Etudiant(String email, String password, String telephone, String prenom, String nom, String progEtude, String session, String annee) {
+    public Etudiant(String email, String password, String telephone, String prenom, String nom, ProgrammeDTO progEtude, String session, String annee) {
         super(email, password, telephone);
         this.nom = nom;
         this.prenom = prenom;

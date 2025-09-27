@@ -10,6 +10,7 @@ import com.backend.modele.Offre;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.ProgrammeDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -51,7 +52,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, String date_debut, String date_fin, String progEtude, String lieuStage, String remuneration, String dateLimite) throws ActionNonAutoriseeException {
+    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, String date_debut, String date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, String dateLimite) throws ActionNonAutoriseeException {
         String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
