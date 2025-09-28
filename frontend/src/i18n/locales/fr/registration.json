@@ -1,0 +1,65 @@
+{
+  "employerRegistration": {
+    "backToHome": "Retour à l'accueil",
+    "title": "Inscription Employeur",
+    "subtitle": "Créez votre compte employeur pour publier des offres de stage.",
+    "redirecting": "Redirection...",
+
+    "sections": {
+      "companyInfo": "Informations de l'entreprise",
+      "contactPerson": "Personne-ressource",
+      "accountSecurity": "Sécurité du compte"
+    },
+
+    "fields": {
+      "companyName": "Nom de l'entreprise",
+      "companyAddress": "Adresse de l'entreprise",
+      "contactFirstName": "Prénom du contact",
+      "contactLastName": "Nom du contact",
+      "professionalEmail": "Adresse courriel professionnelle",
+      "phoneNumber": "Numéro de téléphone",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe"
+    },
+
+    "placeholders": {
+      "companyName": "ex: TechCorp Inc.",
+      "companyAddress": "123 Rue Principale, Montréal, QC",
+      "contactFirstName": "Marie",
+      "contactLastName": "Martin",
+      "professionalEmail": "marie.martin@techcorp.com",
+      "phoneNumber": "514 123 4567",
+      "password": "Votre mot de passe sécurisé",
+      "confirmPassword": "Confirmez votre mot de passe"
+    },
+
+    "validation": {
+      "companyNameRequired": "Le nom de l'entreprise est requis",
+      "companyAddressRequired": "L'adresse de l'entreprise est requise",
+      "contactFirstNameRequired": "Le prénom du contact est requis",
+      "contactLastNameRequired": "Le nom du contact est requis",
+      "emailRequired": "L'adresse courriel est requise",
+      "emailInvalid": "L'adresse courriel n'est pas valide",
+      "phoneRequired": "Le numéro de téléphone est requis",
+      "passwordRequired": "Le mot de passe est requis",
+      "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
+      "passwordUppercase": "Le mot de passe doit contenir au moins une majuscule",
+      "passwordNumber": "Le mot de passe doit contenir au moins un chiffre",
+      "passwordSpecialChar": "Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*(),.?\":{}|<>)",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "passwordValid": "Mot de passe valide"
+    },
+
+    "messages": {
+      "accountCreated": "Compte créé avec succès !",
+      "accountCreatedAndLoggedIn": "Compte créé et connexion automatique réussie !",
+      "accountCreatedPleaseLogin": "Compte créé ! Veuillez vous connecter.",
+      "unknownError": "Une erreur inconnue est survenue"
+    },
+
+    "buttons": {
+      "createAccount": "Créer mon compte",
+      "creating": "Création en cours..."
+    }
+  }
+}

@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import {ArrowLeft, Building, User, Mail, Lock, Phone} from 'lucide-react'
 import * as React from "react";
 import employeurService from '../services/EmployeurService';
-import utilisateurService from '../services/UtilisateurService'; // AJOUT IMPORTANT
+import utilisateurService from '../services/UtilisateurService';
 import {NavLink} from "react-router";
+import { useTranslation } from 'react-i18next';
 
 interface FormData {
     nomEntreprise: string
@@ -18,6 +19,7 @@ interface FormData {
 }
 
 const InscriptionEmployeur = () => {
+    const { t } = useTranslation('registration');
     const navigate = useNavigate();
     const [formData, setFormData] = useState<FormData>({
         nomEntreprise: '',
@@ -61,22 +63,22 @@ const InscriptionEmployeur = () => {
 
         // Vérifier la longueur minimale (8 caractères)
         if (password.length < 8) {
-            errors.push('Le mot de passe doit contenir au moins 8 caractères');
+            errors.push(t('employerRegistration.validation.passwordMinLength'));
         }
 
         // Vérifier la présence d'au moins une majuscule
         if (!/[A-Z]/.test(password)) {
-            errors.push('Le mot de passe doit contenir au moins une majuscule');
+            errors.push(t('employerRegistration.validation.passwordUppercase'));
         }
 
         // Vérifier la présence d'au moins un chiffre
         if (!/[0-9]/.test(password)) {
-            errors.push('Le mot de passe doit contenir au moins un chiffre');
+            errors.push(t('employerRegistration.validation.passwordNumber'));
         }
 
         // Vérifier la présence d'au moins un caractère spécial
         if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-            errors.push('Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*(),.?":{}|<>)');
+            errors.push(t('employerRegistration.validation.passwordSpecialChar'));
         }
 
         return errors;
@@ -106,36 +108,36 @@ const InscriptionEmployeur = () => {
         const validationErrors: string[] = [];
 
         if (!formData.nomEntreprise.trim()) {
-            validationErrors.push('Le nom de l\'entreprise est requis');
+            validationErrors.push(t('employerRegistration.validation.companyNameRequired'));
         }
         if (!formData.adresseEntreprise.trim()) {
-            validationErrors.push('L\'adresse de l\'entreprise est requise');
+            validationErrors.push(t('employerRegistration.validation.companyAddressRequired'));
         }
         if (!formData.prenomContact.trim()) {
-            validationErrors.push('Le prénom du contact est requis');
+            validationErrors.push(t('employerRegistration.validation.contactFirstNameRequired'));
         }
         if (!formData.nomContact.trim()) {
-            validationErrors.push('Le nom du contact est requis');
+            validationErrors.push(t('employerRegistration.validation.contactLastNameRequired'));
         }
         if (!formData.emailProfessionnel.trim()) {
-            validationErrors.push('L\'adresse courriel est requise');
+            validationErrors.push(t('employerRegistration.validation.emailRequired'));
         } else if (!/\S+@\S+\.\S+/.test(formData.emailProfessionnel)) {
-            validationErrors.push('L\'adresse courriel n\'est pas valide');
+            validationErrors.push(t('employerRegistration.validation.emailInvalid'));
         }
         if (!formData.telephone.trim()) {
-            validationErrors.push('Le numéro de téléphone est requis');
+            validationErrors.push(t('employerRegistration.validation.phoneRequired'));
         }
 
         // Validation améliorée du mot de passe
         if (!formData.motDePasse) {
-            validationErrors.push('Le mot de passe est requis');
+            validationErrors.push(t('employerRegistration.validation.passwordRequired'));
         } else {
             const passwordValidationErrors = validatePassword(formData.motDePasse);
             validationErrors.push(...passwordValidationErrors);
         }
 
         if (formData.motDePasse !== formData.confirmerMotDePasse) {
-            validationErrors.push('Les mots de passe ne correspondent pas');
+            validationErrors.push(t('employerRegistration.validation.passwordMismatch'));
         }
 
         return validationErrors;
@@ -164,7 +166,7 @@ const InscriptionEmployeur = () => {
             const inscriptionResponse = await employeurService.creerCompte(apiData);
 
             if (inscriptionResponse) {
-                setSuccessMessage('Compte créé avec succès !');
+                setSuccessMessage(t('employerRegistration.messages.accountCreated'));
 
                 // 2. Connexion automatique après inscription réussie
                 try {
@@ -176,7 +178,7 @@ const InscriptionEmployeur = () => {
                     const authResponse = await utilisateurService.authentifier(loginData);
 
                     if (authResponse) {
-                        setSuccessMessage('Compte créé et connexion automatique réussie !');
+                        setSuccessMessage(t('employerRegistration.messages.accountCreatedAndLoggedIn'));
 
                         // Définir le flag pour indiquer que l'utilisateur vient d'une inscription
                         sessionStorage.setItem('fromRegistration', 'true');
@@ -187,7 +189,7 @@ const InscriptionEmployeur = () => {
                         }, 2000);
                     } else {
                         // Si la connexion automatique échoue, rediriger vers login
-                        setSuccessMessage('Compte créé ! Veuillez vous connecter.');
+                        setSuccessMessage(t('employerRegistration.messages.accountCreatedPleaseLogin'));
                         setTimeout(() => {
                             navigate('/login');
                         }, 2000);
@@ -195,7 +197,7 @@ const InscriptionEmployeur = () => {
 
                 } catch (loginError) {
                     console.error('Erreur lors de la connexion automatique:', loginError);
-                    setSuccessMessage('Compte créé ! Veuillez vous connecter.');
+                    setSuccessMessage(t('employerRegistration.messages.accountCreatedPleaseLogin'));
                     setTimeout(() => {
                         navigate('/login');
                     }, 2000);
@@ -206,7 +208,7 @@ const InscriptionEmployeur = () => {
             if (error instanceof Error) {
                 setErrors([error.message]);
             } else {
-                setErrors(['Une erreur inconnue est survenue']);
+                setErrors([t('employerRegistration.messages.unknownError')]);
             }
         } finally {
             setLoading(false);
@@ -223,14 +225,14 @@ const InscriptionEmployeur = () => {
                         className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors mb-4"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Retour à l'accueil
+                        {t('employerRegistration.backToHome')}
                     </NavLink>
 
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                        Inscription Employeur
+                        {t('employerRegistration.title')}
                     </h1>
                     <p className="text-gray-600">
-                        Créez votre compte employeur pour publier des offres de stage.
+                        {t('employerRegistration.subtitle')}
                     </p>
                 </div>
 
@@ -248,7 +250,7 @@ const InscriptionEmployeur = () => {
                 {successMessage && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-green-800 font-medium text-center">
                         {successMessage}
-                        <p className="text-green-600 text-sm mt-1">Redirection...</p>
+                        <p className="text-green-600 text-sm mt-1">{t('employerRegistration.redirecting')}</p>
                     </div>
                 )}
 
@@ -259,12 +261,12 @@ const InscriptionEmployeur = () => {
                         <div className="space-y-4">
                             <h2 className="text-lg font-semibold text-gray-800 flex items-center">
                                 <Building className="w-4 h-4 mr-2 text-blue-600" />
-                                Informations de l'entreprise
+                                {t('employerRegistration.sections.companyInfo')}
                             </h2>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Nom de l'entreprise *
+                                    {t('employerRegistration.fields.companyName')} *
                                 </label>
                                 <input
                                     type="text"
@@ -272,14 +274,14 @@ const InscriptionEmployeur = () => {
                                     value={formData.nomEntreprise}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="ex: TechCorp Inc."
+                                    placeholder={t('employerRegistration.placeholders.companyName')}
                                     disabled={loading}
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Adresse de l'entreprise *
+                                    {t('employerRegistration.fields.companyAddress')} *
                                 </label>
                                 <input
                                     type="text"
@@ -287,7 +289,7 @@ const InscriptionEmployeur = () => {
                                     value={formData.adresseEntreprise}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="123 Rue Principale, Montréal, QC"
+                                    placeholder={t('employerRegistration.placeholders.companyAddress')}
                                     disabled={loading}
                                 />
                             </div>
@@ -297,13 +299,13 @@ const InscriptionEmployeur = () => {
                         <div className="space-y-4">
                             <h2 className="text-lg font-semibold text-gray-800 flex items-center">
                                 <User className="w-4 h-4 mr-2 text-blue-600" />
-                                Personne-ressource
+                                {t('employerRegistration.sections.contactPerson')}
                             </h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Prénom du contact *
+                                        {t('employerRegistration.fields.contactFirstName')} *
                                     </label>
                                     <input
                                         type="text"
@@ -311,14 +313,14 @@ const InscriptionEmployeur = () => {
                                         value={formData.prenomContact}
                                         onChange={handleChange}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                        placeholder="Marie"
+                                        placeholder={t('employerRegistration.placeholders.contactFirstName')}
                                         disabled={loading}
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Nom du contact *
+                                        {t('employerRegistration.fields.contactLastName')} *
                                     </label>
                                     <input
                                         type="text"
@@ -326,7 +328,7 @@ const InscriptionEmployeur = () => {
                                         value={formData.nomContact}
                                         onChange={handleChange}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                        placeholder="Martin"
+                                        placeholder={t('employerRegistration.placeholders.contactLastName')}
                                         disabled={loading}
                                     />
                                 </div>
@@ -335,7 +337,7 @@ const InscriptionEmployeur = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     <Mail className="inline w-4 h-4 mr-1" />
-                                    Adresse courriel professionnelle *
+                                    {t('employerRegistration.fields.professionalEmail')} *
                                 </label>
                                 <input
                                     type="email"
@@ -343,7 +345,7 @@ const InscriptionEmployeur = () => {
                                     value={formData.emailProfessionnel}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="marie.martin@techcorp.com"
+                                    placeholder={t('employerRegistration.placeholders.professionalEmail')}
                                     disabled={loading}
                                 />
                             </div>
@@ -351,7 +353,7 @@ const InscriptionEmployeur = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     <Phone className="inline w-4 h-4 mr-1" />
-                                    Numéro de téléphone *
+                                    {t('employerRegistration.fields.phoneNumber')} *
                                 </label>
                                 <input
                                     type="tel"
@@ -359,7 +361,7 @@ const InscriptionEmployeur = () => {
                                     value={formData.telephone}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="514 123 4567"
+                                    placeholder={t('employerRegistration.placeholders.phoneNumber')}
                                     disabled={loading}
                                 />
                             </div>
@@ -369,12 +371,12 @@ const InscriptionEmployeur = () => {
                         <div className="space-y-4">
                             <h2 className="text-lg font-semibold text-gray-800 flex items-center">
                                 <Lock className="w-4 h-4 mr-2 text-blue-600" />
-                                Sécurité du compte
+                                {t('employerRegistration.sections.accountSecurity')}
                             </h2>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Mot de passe *
+                                    {t('employerRegistration.fields.password')} *
                                 </label>
                                 <input
                                     type="password"
@@ -384,7 +386,7 @@ const InscriptionEmployeur = () => {
                                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                                         passwordErrors.length > 0 ? 'border-red-300' : 'border-gray-300'
                                     }`}
-                                    placeholder="Votre mot de passe sécurisé"
+                                    placeholder={t('employerRegistration.placeholders.password')}
                                     disabled={loading}
                                 />
 
@@ -399,13 +401,13 @@ const InscriptionEmployeur = () => {
 
                                 {/* Indicateur de mot de passe valide */}
                                 {isPasswordValid && (
-                                    <p className="mt-2 text-green-600 text-xs">✓ Mot de passe valide</p>
+                                    <p className="mt-2 text-green-600 text-xs">✓ {t('employerRegistration.validation.passwordValid')}</p>
                                 )}
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Confirmer le mot de passe *
+                                    {t('employerRegistration.fields.confirmPassword')} *
                                 </label>
                                 <input
                                     type="password"
@@ -413,7 +415,7 @@ const InscriptionEmployeur = () => {
                                     value={formData.confirmerMotDePasse}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                    placeholder="Confirmez votre mot de passe"
+                                    placeholder={t('employerRegistration.placeholders.confirmPassword')}
                                     disabled={loading}
                                 />
                             </div>
@@ -431,10 +433,10 @@ const InscriptionEmployeur = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Création en cours...
+                                    {t('employerRegistration.buttons.creating')}
                                 </>
                             ) : (
-                                'Créer mon compte'
+                                t('employerRegistration.buttons.createAccount')
                             )}
                         </button>
                     </form>

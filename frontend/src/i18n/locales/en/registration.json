@@ -1,0 +1,65 @@
+{
+      "employerRegistration": {
+      "backToHome": "Back to home",
+      "title": "Employer Registration",
+      "subtitle": "Create your employer account to post internship offers.",
+      "redirecting": "Redirecting...",
+
+      "sections": {
+      "companyInfo": "Company Information",
+      "contactPerson": "Contact Person",
+      "accountSecurity": "Account Security"
+      },
+
+      "fields": {
+      "companyName": "Company Name",
+      "companyAddress": "Company Address",
+      "contactFirstName": "Contact First Name",
+      "contactLastName": "Contact Last Name",
+      "professionalEmail": "Professional Email Address",
+      "phoneNumber": "Phone Number",
+      "password": "Password",
+      "confirmPassword": "Confirm Password"
+      },
+
+      "placeholders": {
+      "companyName": "e.g: TechCorp Inc.",
+      "companyAddress": "123 Main Street, Montreal, QC",
+      "contactFirstName": "Marie",
+      "contactLastName": "Martin",
+      "professionalEmail": "marie.martin@techcorp.com",
+      "phoneNumber": "514 123 4567",
+      "password": "Your secure password",
+      "confirmPassword": "Confirm your password"
+      },
+
+      "validation": {
+      "companyNameRequired": "Company name is required",
+      "companyAddressRequired": "Company address is required",
+      "contactFirstNameRequired": "Contact first name is required",
+      "contactLastNameRequired": "Contact last name is required",
+      "emailRequired": "Email address is required",
+      "emailInvalid": "Email address is not valid",
+      "phoneRequired": "Phone number is required",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must contain at least 8 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "passwordSpecialChar": "Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>)",
+      "passwordMismatch": "Passwords do not match",
+      "passwordValid": "Valid password"
+      },
+
+      "messages": {
+      "accountCreated": "Account created successfully!",
+      "accountCreatedAndLoggedIn": "Account created and automatic login successful!",
+      "accountCreatedPleaseLogin": "Account created! Please log in.",
+      "unknownError": "An unknown error occurred"
+      },
+
+      "buttons": {
+      "createAccount": "Create my account",
+      "creating": "Creating..."
+      }
+    }
+}
