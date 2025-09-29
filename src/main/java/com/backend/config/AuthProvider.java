@@ -1,7 +1,7 @@
 package com.backend.config;
 
 import com.backend.Exceptions.AuthenticationException;
-import com.backend.Exceptions.UserNotFoundException;
+import com.backend.Exceptions.UtilisateurPasTrouveException;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.modele.Utilisateur;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,12 @@ public class AuthProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) {
-        Utilisateur user = loadUserByEmail(authentication.getPrincipal().toString());
+        Utilisateur user = null;
+        try {
+            user = loadUserByEmail(authentication.getPrincipal().toString());
+        } catch (UtilisateurPasTrouveException e) {
+            throw new RuntimeException(e);
+        }
         validateAuthentication(authentication, user);
         return new UsernamePasswordAuthenticationToken(
                 user.getEmail(),
@@ -34,9 +39,9 @@ public class AuthProvider implements AuthenticationProvider {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    private Utilisateur loadUserByEmail(String email) throws UsernameNotFoundException {
+    private Utilisateur loadUserByEmail(String email) throws UtilisateurPasTrouveException {
         return utilisateurRepository.findByEmail(email)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(UtilisateurPasTrouveException::new);
     }
 
     private void validateAuthentication(Authentication authentication, Utilisateur user) {

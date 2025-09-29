@@ -1,8 +1,10 @@
 package com.backend.modele;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +26,8 @@ public class Etudiant extends Utilisateur {
 
     private String session;
     private String annee;
+
+    private byte[] cv;
 
     public Etudiant(String email, String password, String telephone, String prenom, String nom, Programme progEtude, String session, String annee) {
         super(email, password, telephone);

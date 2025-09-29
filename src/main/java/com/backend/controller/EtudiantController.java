@@ -2,12 +2,14 @@ package com.backend.controller;
 
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.service.DTO.CvDTO;
 import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.EtudiantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/OSEetudiant")
@@ -33,4 +35,32 @@ public class EtudiantController {
         }
     }
 
+    @PostMapping("/cv")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> uploadCv(@RequestParam("cv") MultipartFile fichierCv) {
+        try {
+            etudiantService.sauvegarderCvEtudiantConnecte(fichierCv);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new MessageRetourDTO("CV sauvegardé avec succès", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageRetourDTO(null, "Erreur lors de l'upload du cv : " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/cv")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getCvEtudiant() {
+        try {
+            CvDTO contenuCv = etudiantService.getCvEtudiantConnecte();
+
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"cv.pdf\"")
+                    .header("Content-Type", "application/pdf")
+                    .body(contenuCv.getCv());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json")
+                    .body(null);
+        }
+    }
 }
