@@ -29,7 +29,7 @@ public class GenKey {
         keyStore.load(null, null);
         KeyStore.SecretKeyEntry entreeDeCleSecrete = new KeyStore.SecretKeyEntry(cleSecrete);
         KeyStore.PasswordProtection protection = new KeyStore.PasswordProtection(retrouverMotDePasseDuKeystore().toCharArray());
-        keyStore.setEntry("cle_pour_tp3", entreeDeCleSecrete, protection);
+        keyStore.setEntry("cle_travail", entreeDeCleSecrete, protection);
 
         try (var out = Files.newOutputStream(Paths.get("keystore.jks"))) {
             keyStore.store(out, retrouverMotDePasseDuKeystore().toCharArray());

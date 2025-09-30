@@ -56,7 +56,7 @@ public class EtudiantService {
     private SecretKey chargerCleDepuisKeyStore() throws Exception {
         String keystorePath = "keystore.jks";
         String keystorePassword = System.getenv("KEYSTORE_PASSWORD");
-        String keyAlias = "cle_pour_tp3";
+        String keyAlias = "cle_travail";
         KeyStore keyStore = KeyStore.getInstance("JCEKS");
         try (FileInputStream fis = new FileInputStream(keystorePath)) {
             keyStore.load(fis, keystorePassword.toCharArray());
@@ -81,7 +81,7 @@ public class EtudiantService {
         return Base64.getEncoder().encodeToString(iv) + ";" + Base64.getEncoder().encodeToString(ciphertext);
     }
 
-    private byte[] dechiffrer(String dataChiffre) throws Exception {
+    byte[] dechiffrer(String dataChiffre) throws Exception {
         SecretKey secretKey = chargerCleDepuisKeyStore();
         String[] parts = dataChiffre.split(";");
         byte[] iv = Base64.getDecoder().decode(parts[0]);

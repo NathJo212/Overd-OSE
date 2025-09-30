@@ -2,6 +2,7 @@ package com.backend.controller;
 
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.service.DTO.CvDTO;
 import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,7 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
@@ -112,5 +115,57 @@ class EtudiantControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").doesNotExist())
                 .andExpect(jsonPath("$.erreur").value("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."));
+    }
+
+    @Test
+    @DisplayName("POST /OSEetudiant/cv -> succès upload CV")
+    void uploadCv_success() throws Exception {
+        MockMultipartFile fichier = new MockMultipartFile(
+                "cv", "cv.pdf", "application/pdf", "Contenu".getBytes()
+        );
+
+        mockMvc.perform(multipart("/OSEetudiant/cv").file(fichier))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("CV sauvegardé avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("POST /OSEetudiant/cv -> erreur upload CV")
+    void uploadCv_failure() throws Exception {
+        MockMultipartFile fichier = new MockMultipartFile(
+                "cv", "cv.txt", "text/plain", "Mauvais format".getBytes()
+        );
+
+        doThrow(new IllegalArgumentException("Le fichier doit être au format PDF."))
+                .when(etudiantService).sauvegarderCvEtudiantConnecte(fichier);
+
+        mockMvc.perform(multipart("/OSEetudiant/cv").file(fichier))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur").value("Erreur lors de l'upload du cv : Le fichier doit être au format PDF."));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/cv -> succès récupération CV")
+    void getCv_success() throws Exception {
+        byte[] contenu = "ContenuCV".getBytes();
+        when(etudiantService.getCvEtudiantConnecte()).thenReturn(new CvDTO(contenu));
+
+        mockMvc.perform(get("/OSEetudiant/cv"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"cv.pdf\""))
+                .andExpect(header().string("Content-Type", "application/pdf"))
+                .andExpect(content().bytes(contenu));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/cv -> CV introuvable")
+    void getCv_failure() throws Exception {
+        doThrow(new RuntimeException("CV non trouvé"))
+                .when(etudiantService).getCvEtudiantConnecte();
+
+        mockMvc.perform(get("/OSEetudiant/cv"))
+                .andExpect(status().isNotFound());
     }
 }
