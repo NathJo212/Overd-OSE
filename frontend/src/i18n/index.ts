@@ -7,15 +7,19 @@ import registrationFr from './locales/fr/registration.json';
 import registrationEn from './locales/en/registration.json';
 import errorsFr from './locales/fr/errors.json';
 import errorsEn from './locales/en/errors.json';
+import homeFr from './locales/fr/home.json';
+import homeEn from './locales/en/home.json';
 
 const resources = {
     fr: {
         registration: registrationFr,
-        errors: errorsFr
+        errors: errorsFr,
+        home: homeFr,
     },
     en: {
         registration: registrationEn,
-        errors: errorsEn
+        errors: errorsEn,
+        home: homeEn
     }
 };
 

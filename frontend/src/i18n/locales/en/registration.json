@@ -61,5 +61,71 @@
       "createAccount": "Create my account",
       "creating": "Creating..."
       }
+    },
+  "studentRegistration": {
+    "backToHome": "Back to home",
+    "title": "Student Registration",
+    "subtitle": "Create your student account to access internship offers.",
+    "redirecting": "Redirecting...",
+
+    "sections": {
+      "personalInfo": "Personal Information",
+      "academicInfo": "Academic Information",
+      "accountSecurity": "Account Security"
+    },
+
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "phoneNumber": "Phone Number",
+      "studyProgram": "Study Program",
+      "studyYear": "Year of Study",
+      "session": "Session",
+      "password": "Password",
+      "confirmPassword": "Confirm Password"
+    },
+
+    "placeholders": {
+      "firstName": "John",
+      "lastName": "Smith",
+      "email": "john.smith@example.com",
+      "phoneNumber": "123 123 1234",
+      "studyProgram": "Select your program",
+      "studyYear": "Select...",
+      "session": "Select...",
+      "password": "Your secure password",
+      "confirmPassword": "Confirm your password"
+    },
+
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "emailRequired": "Email address is required",
+      "emailInvalid": "Email address is not valid",
+      "phoneRequired": "Phone number is required",
+      "studyProgramRequired": "Study program is required",
+      "studyYearRequired": "Year of study is required",
+      "sessionRequired": "Session is required",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must contain at least 8 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "passwordSpecialChar": "Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>)",
+      "passwordMismatch": "Passwords do not match",
+      "passwordValid": "Valid password"
+    },
+
+    "messages": {
+      "accountCreated": "Account created successfully!",
+      "accountCreatedAndLoggedIn": "Account created and automatic login successful!",
+      "accountCreatedPleaseLogin": "Account created! Please log in.",
+      "unknownError": "An unknown error occurred"
+    },
+
+    "buttons": {
+      "createAccount": "Create my student account",
+      "creating": "Creating..."
     }
+  }
 }

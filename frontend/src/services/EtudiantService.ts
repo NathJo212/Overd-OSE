@@ -1,4 +1,3 @@
-// Types pour les données d'étudiant
 export interface EtudiantData {
     email: string;
     password: string;
@@ -12,10 +11,10 @@ export interface EtudiantData {
 
 export interface MessageRetour {
     message: string;
-    data: any;
+    data?: any;
+    errorCode?: string;
 }
 
-// Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const ETUDIANT_ENDPOINT = '/OSEetudiant';
 
@@ -26,11 +25,6 @@ class EtudiantService {
         this.baseUrl = `${API_BASE_URL}${ETUDIANT_ENDPOINT}`;
     }
 
-    /**
-     * Crée un nouveau compte étudiant
-     * @param etudiantData - Les données de l'étudiant à créer
-     * @returns Promise avec la réponse du serveur
-     */
     async creerCompte(etudiantData: EtudiantData): Promise<MessageRetour> {
         try {
             const response = await fetch(`${this.baseUrl}/creerCompte`, {
@@ -41,32 +35,54 @@ class EtudiantService {
                 body: JSON.stringify(etudiantData),
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                // Gestion des erreurs HTTP
-                const errorData = await response.json().catch(() => ({}));
-                console.log(new Error(
-                    errorData.message ||
+                if (data.errorCode) {
+                    const error: any = new Error(data.message || 'Erreur lors de la création du compte');
+                    error.response = { data }; // Attacher errorCode pour le composant
+                    throw error;
+                }
+
+                // Sinon, erreur avec message classique (rétrocompatibilité)
+                const error: any = new Error(
+                    data.erreur ||
+                    data.message ||
                     `Erreur HTTP: ${response.status} - ${response.statusText}`
-                ));
+                );
+                error.response = {
+                    data: { errorCode: 'ERROR_000', message: error.message }
+                };
+                throw error;
             }
 
-            return await response.json();
+            return data;
 
-        } catch (error) {
-            // Gestion des erreurs de réseau ou autres
-            if (error instanceof Error) {
-                throw new Error(`Erreur lors de la création du compte: ${error.message}`);
-            } else {
-                throw new Error('Erreur inconnue lors de la création du compte');
+        } catch (error: any) {
+            if (error.response?.data?.errorCode) {
+                throw error;
             }
+
+            // Gestion des erreurs de réseau
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.response = {
+                    data: { errorCode: 'NETWORK_ERROR' }
+                };
+                throw networkError;
+            }
+
+            const genericError: any = new Error(
+                error.message || 'Erreur inconnue lors de la création du compte'
+            );
+
+            genericError.response = {
+                data: { errorCode: 'ERROR_000', message: error.message }
+            };
+            throw genericError;
         }
     }
 
-    /**
-     * Transforme les données du formulaire en format attendu par l'API
-     * @param formData - Les données du formulaire d'inscription
-     * @returns Les données formatées pour l'API
-     */
     formatFormDataForAPI(formData: {
         prenom: string;
         nom: string;
@@ -78,7 +94,6 @@ class EtudiantService {
         anneeEtude: string;
         session: string;
     }): EtudiantData {
-
         return {
             email: formData.email,
             password: formData.motDePasse,
@@ -92,6 +107,5 @@ class EtudiantService {
     }
 }
 
-// Export d'une instance unique (Singleton)
 export const etudiantService = new EtudiantService();
 export default etudiantService;

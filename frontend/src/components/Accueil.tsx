@@ -2,8 +2,10 @@ import { Building, Users, ArrowRight } from 'lucide-react'
 import {NavLink} from "react-router";
 import {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 const Accueil = () => {
+    const { t } = useTranslation(['home']);
     const navigate = useNavigate();
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -27,20 +29,19 @@ const Accueil = () => {
             <div className="max-w-4xl mx-auto text-center">
                 <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
                     <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6">
-                        Overd-OSE
+                        {t('home:title')}
                     </h1>
                     <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-                        Plateforme de gestion des stages et opportunités d'emploi.
-                        Connectez les étudiants avec les entreprises pour des expériences professionnelles enrichissantes.
+                        {t('home:subtitle')}
                     </p>
 
                     <div className="mb-8">
                         <h2 className="text-2xl font-semibold text-gray-800 mb-8">
-                            Choisissez votre rôle pour commencer
+                            {t('home:chooseRole')}
                         </h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                            {/* Carte Employeur - Disponible */}
+                            {/* Carte Employeur */}
                             <NavLink
                                 to="/inscription-employeur"
                                 className="group bg-white border-2 border-blue-200 hover:border-blue-400 rounded-xl p-6 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
@@ -50,19 +51,19 @@ const Accueil = () => {
                                         <Building className="w-8 h-8 text-blue-600" />
                                     </div>
                                     <h3 className="text-xl font-semibold text-gray-800">
-                                        Employeur
+                                        {t('home:employer.title')}
                                     </h3>
                                     <p className="text-gray-600 text-sm">
-                                        Publiez des offres de stage et recrutez des talents étudiants pour votre entreprise.
+                                        {t('home:employer.description')}
                                     </p>
                                     <div className="flex items-center text-blue-600 font-medium group-hover:text-blue-700">
-                                        <span>S'inscrire</span>
+                                        <span>{t('home:employer.register')}</span>
                                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 </div>
                             </NavLink>
 
-                            {/* Carte Étudiant - Maintenant Disponible */}
+                            {/* Carte Étudiant */}
                             <NavLink
                                 to="/inscription-etudiant"
                                 className="group bg-white border-2 border-green-200 hover:border-green-400 rounded-xl p-6 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
@@ -72,13 +73,13 @@ const Accueil = () => {
                                         <Users className="w-8 h-8 text-green-600" />
                                     </div>
                                     <h3 className="text-xl font-semibold text-gray-800">
-                                        Étudiant
+                                        {t('home:student.title')}
                                     </h3>
                                     <p className="text-gray-600 text-sm">
-                                        Trouvez des stages et opportunités d'emploi adaptés à votre profil.
+                                        {t('home:student.description')}
                                     </p>
                                     <div className="flex items-center text-green-600 font-medium group-hover:text-green-700">
-                                        <span>S'inscrire</span>
+                                        <span>{t('home:student.register')}</span>
                                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 </div>
@@ -87,9 +88,9 @@ const Accueil = () => {
                     </div>
                     <div className="text-sm text-gray-500 border-t border-gray-200 pt-6 text-center mt-6">
                         <p>
-                            Déjà inscrit ?{' '}
+                            {t('home:alreadyRegistered')}{' '}
                             <NavLink to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                                Se connecter
+                                {t('home:login')}
                             </NavLink>
                         </p>
                     </div>

@@ -1,0 +1,17 @@
+{
+  "title": "Overd-OSE",
+  "subtitle": "Plateforme de gestion des stages et opportunités d'emploi. Connectez les étudiants avec les entreprises pour des expériences professionnelles enrichissantes.",
+  "chooseRole": "Choisissez votre rôle pour commencer",
+  "employer": {
+    "title": "Employeur",
+    "description": "Publiez des offres de stage et recrutez des talents étudiants pour votre entreprise.",
+    "register": "S'inscrire"
+  },
+  "student": {
+    "title": "Étudiant",
+    "description": "Trouvez des stages et opportunités d'emploi adaptés à votre profil.",
+    "register": "S'inscrire"
+  },
+  "alreadyRegistered": "Déjà inscrit ?",
+  "login": "Se connecter"
+}
