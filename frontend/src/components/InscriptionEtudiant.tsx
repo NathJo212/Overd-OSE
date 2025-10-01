@@ -343,13 +343,15 @@ const InscriptionEtudiant = () => {
                                         onChange={handleChange}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                         disabled={loading}
-                                    >
+                                        >
+
                                         <option value="">{t('registration:studentRegistration.placeholders.studyYear')}</option>
-                                        <option value="1ère année">1ère année</option>
-                                        <option value="2ème année">2ème année</option>
-                                        <option value="3ème année">3ème année</option>
-                                        <option value="4ème année">4ème année</option>
-                                        <option value="5ème année">5ème année</option>
+                                        <option value="1ère année">{t('registration:studentRegistration.options.studyYears.year1')}</option>
+                                        <option value="2ème année">{t('registration:studentRegistration.options.studyYears.year2')}</option>
+                                        <option value="3ème année">{t('registration:studentRegistration.options.studyYears.year3')}</option>
+                                        <option value="4ème année">{t('registration:studentRegistration.options.studyYears.year4')}</option>
+                                        <option value="5ème année">{t('registration:studentRegistration.options.studyYears.year5')}</option>
+
                                     </select>
                                 </div>
                                 <div>
@@ -364,9 +366,10 @@ const InscriptionEtudiant = () => {
                                         disabled={loading}
                                     >
                                         <option value="">{t('registration:studentRegistration.placeholders.session')}</option>
-                                        <option value="Automne">Automne</option>
-                                        <option value="Hiver">Hiver</option>
-                                        <option value="Été">Été</option>
+                                        <option value="Automne">{t('registration:studentRegistration.options.sessions.fall')}</option>
+                                        <option value="Hiver">{t('registration:studentRegistration.options.sessions.winter')}</option>
+                                        <option value="Été">{t('registration:studentRegistration.options.sessions.summer')}</option>
+
                                     </select>
                                 </div>
                             </div>

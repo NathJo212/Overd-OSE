@@ -126,6 +126,21 @@
     "buttons": {
       "createAccount": "Create my student account",
       "creating": "Creating..."
+    },
+
+    "options": {
+      "studyYears": {
+        "year1": "1st year",
+        "year2": "2nd year",
+        "year3": "3rd year",
+        "year4": "4th year",
+        "year5": "5th year"
+      },
+      "sessions": {
+        "fall": "Fall",
+        "winter": "Winter",
+        "summer": "Summer"
+      }
     }
   }
 }
