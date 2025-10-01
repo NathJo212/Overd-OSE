@@ -3,7 +3,7 @@ package com.backend.modele;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = false)
+@Converter()
 public class ProgrammeConverter implements AttributeConverter<Programme, String> {
 
     @Override

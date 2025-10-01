@@ -1,7 +1,9 @@
 package com.backend.service.DTO;
 
 import com.backend.modele.Programme;
+import lombok.Getter;
 
+@Getter
 public enum ProgrammeDTO {
 
     P180_A0("180.A0 Soins infirmiers"),
@@ -32,10 +34,6 @@ public enum ProgrammeDTO {
 
     ProgrammeDTO(String label) {
         this.label = label;
-    }
-
-    public String getLabel() {
-        return label;
     }
 
     public static ProgrammeDTO toDTO(Programme modele) {

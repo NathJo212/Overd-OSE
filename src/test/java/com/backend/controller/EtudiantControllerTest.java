@@ -67,7 +67,7 @@ class EtudiantControllerTest {
     @Test
     @DisplayName("POST /OSEetudiant/creerCompte retourne 409 si email déjà utilisé")
     void creerCompte_emailDejaUtilise_returnsConflict() throws Exception {
-        doThrow(new EmailDejaUtiliseException("Un étudiant avec cet email existe déjà"))
+        doThrow(new EmailDejaUtiliseException())
                 .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class), anyString(), anyString());
 
         EtudiantDTO etudiant = new EtudiantDTO();
@@ -92,7 +92,7 @@ class EtudiantControllerTest {
     @Test
     @DisplayName("POST /OSEetudiant/creerCompte retourne 409 si mot de passe invalide")
     void creerCompte_motDePassePasBon_returnsConflict() throws Exception {
-        doThrow(new MotPasseInvalideException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."))
+        doThrow(new MotPasseInvalideException())
                 .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class), anyString(), anyString());
 
         EtudiantDTO etudiant = new EtudiantDTO();

@@ -5,13 +5,17 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // Import des traductions
 import registrationFr from './locales/fr/registration.json';
 import registrationEn from './locales/en/registration.json';
+import errorsFr from './locales/fr/errors.json';
+import errorsEn from './locales/en/errors.json';
 
 const resources = {
     fr: {
-        registration: registrationFr
+        registration: registrationFr,
+        errors: errorsFr
     },
     en: {
-        registration: registrationEn
+        registration: registrationEn,
+        errors: errorsEn
     }
 };
 
@@ -34,5 +38,3 @@ i18n
 
         resources,
     }).then();
-
-export default i18n;

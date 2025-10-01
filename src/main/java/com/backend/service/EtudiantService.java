@@ -28,11 +28,11 @@ public class EtudiantService {
                               String prenom, String nom, ProgrammeDTO progEtude, String session, String annee) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean etudiantExistant = etudiantRepository.existsByEmail(email);
         if (etudiantExistant) {
-            throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");
+            throw new EmailDejaUtiliseException();
         }
-        String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$";
+        String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$";
         if (!Pattern.matches(regex, password)) {
-            throw new MotPasseInvalideException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.");
+            throw new MotPasseInvalideException();
         }
         String hashedPassword = passwordEncoder.encode(password);
         Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, prenom, nom, Programme.toModele(progEtude), session, annee);

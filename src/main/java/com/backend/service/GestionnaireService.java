@@ -2,8 +2,6 @@ package com.backend.service;
 
 
 import com.backend.Exceptions.*;
-import com.backend.modele.Employeur;
-import com.backend.modele.Etudiant;
 import com.backend.modele.GestionnaireStage;
 import com.backend.modele.Offre;
 import com.backend.persistence.GestionnaireRepository;
@@ -37,11 +35,11 @@ public class GestionnaireService {
     public void creerGestionnaire(String email, String password, String telephone, String prenom, String nom) throws MotPasseInvalideException {
         boolean gestionnaireExistant = gestionnaireRepository.existsByEmail(email);
         if (gestionnaireExistant) {
-            throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");
+            throw new EmailDejaUtiliseException();
         }
         String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$";
         if (!Pattern.matches(regex, password)) {
-            throw new MotPasseInvalideException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.");
+            throw new MotPasseInvalideException();
         }
         String hashedPassword = passwordEncoder.encode(password);
         GestionnaireStage gestionnaireStage = new GestionnaireStage(email, hashedPassword, telephone, nom, prenom);
@@ -53,9 +51,9 @@ public class GestionnaireService {
     public void approuveOffre(Long id) throws ActionNonAutoriseeException, OffreNonExistantException, OffreDejaVerifieException {
         checkGestionnaireStageRole();
         Offre offre = offreRepository.findById(id)
-                .orElseThrow(() -> new OffreNonExistantException("Offre introuvable"));
+                .orElseThrow(OffreNonExistantException::new);
         if (offre.getStatutApprouve() != Offre.StatutApprouve.ATTENTE){
-            throw new OffreDejaVerifieException("Cette offre a déjà été vérifiée par un gestionnaire.");
+            throw new OffreDejaVerifieException();
         }
         offre.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
         offreRepository.save(offre);
@@ -65,9 +63,9 @@ public class GestionnaireService {
     public void refuseOffre(Long id, String messageRefus) throws ActionNonAutoriseeException, OffreNonExistantException, OffreDejaVerifieException {
         checkGestionnaireStageRole();
         Offre offre = offreRepository.findById(id)
-                .orElseThrow(() -> new OffreNonExistantException("Offre introuvable"));
+                .orElseThrow(OffreNonExistantException::new);
         if (offre.getStatutApprouve() != Offre.StatutApprouve.ATTENTE){
-            throw new OffreDejaVerifieException("Cette offre a déjà été vérifiée par un gestionnaire.");
+            throw new OffreDejaVerifieException();
         }
         offre.setStatutApprouve(Offre.StatutApprouve.REFUSE);
         offre.setMessageRefus(messageRefus);
@@ -90,7 +88,7 @@ public class GestionnaireService {
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch(a -> a.equals("GESTIONNAIRE"));
         if (!hasRole) {
-            throw new ActionNonAutoriseeException("Accès refusé : rôle gestionnaire requis");
+            throw new ActionNonAutoriseeException();
         }
     }
 

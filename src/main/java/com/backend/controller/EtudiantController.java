@@ -2,6 +2,7 @@ package com.backend.controller;
 
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.service.DTO.ErrorResponse;
 import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.EtudiantService;
@@ -21,16 +22,19 @@ public class EtudiantController {
 
     @PostMapping("/creerCompte")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> creerCompte(@RequestBody EtudiantDTO etudiantDTO) {
+    public ResponseEntity<?> creerCompte(@RequestBody EtudiantDTO etudiantDTO) {
         try {
             etudiantService.creerEtudiant(etudiantDTO.getEmail(), etudiantDTO.getPassword(),
-                    etudiantDTO.getTelephone(), etudiantDTO.getPrenom(), etudiantDTO.getNom(), etudiantDTO.getProgEtude(), etudiantDTO.getSession(), etudiantDTO.getAnnee());
+                    etudiantDTO.getTelephone(), etudiantDTO.getPrenom(), etudiantDTO.getNom(),
+                    etudiantDTO.getProgEtude(), etudiantDTO.getSession(), etudiantDTO.getAnnee());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Étudiant créé avec succès", null));
-        }catch (EmailDejaUtiliseException | MotPasseInvalideException e) {
+        } catch (EmailDejaUtiliseException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageRetourDTO(null, e.getMessage()));
+                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
+        } catch (MotPasseInvalideException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
         }
     }
-
 }

@@ -1,0 +1,12 @@
+{
+  "AUTH_001": "Échec de l'authentification",
+  "AUTH_002": "Jeton JWT invalide",
+  "AUTH_003": "Utilisateur non trouvé",
+  "VALIDATION_001": "Cette adresse courriel est déjà utilisée",
+  "VALIDATION_002": "Mot de passe invalide",
+  "AUTHORIZATION_001": "Action non autorisée",
+  "OFFER_001": "Offre non trouvée",
+  "OFFER_002": "Cette offre a déjà été vérifiée",
+  "ERROR_000": "Une erreur est survenue",
+  "NETWORK_ERROR": "Erreur de connexion au serveur"
+}

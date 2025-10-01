@@ -40,11 +40,11 @@ public class EmployeurService {
     public void creerEmployeur(String email, String password, String telephone, String nomEntreprise, String contact) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean employeurExistant = employeurRepository.existsByEmail(email);
         if (employeurExistant) {
-            throw new EmailDejaUtiliseException("Un utilisateur avec cet email existe déjà");
+            throw new EmailDejaUtiliseException();
         }
         String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$";
         if (!Pattern.matches(regex, password)) {
-            throw new MotPasseInvalideException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.");
+            throw new MotPasseInvalideException();
         }
         String hashedPassword = passwordEncoder.encode(password);
         Employeur employeur = new Employeur(email, hashedPassword, telephone, nomEntreprise, contact);
@@ -56,7 +56,7 @@ public class EmployeurService {
         String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
-            throw new ActionNonAutoriseeException("Seul un employeur peut créer une offre de stage.");
+            throw new ActionNonAutoriseeException();
         }
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
@@ -69,7 +69,7 @@ public class EmployeurService {
         String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
-            throw new ActionNonAutoriseeException("Seul un employeur peut voir ses offres de stage.");
+            throw new ActionNonAutoriseeException();
         }
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
