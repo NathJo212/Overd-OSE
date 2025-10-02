@@ -138,6 +138,120 @@ class EtudiantService {
     }
 
     /**
+     * Récupère le token JWT depuis le sessionStorage
+     * @returns Le token ou null si non trouvé
+     */
+    private getAuthToken(): string | null {
+        return sessionStorage.getItem('authToken');
+    }
+
+    async telechargerCv(): Promise<void> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour télécharger votre CV');
+            }
+
+            const response = await fetch(`${this.baseUrl}/cv`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Aucun CV trouvé ou erreur lors de la récupération');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cv.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Erreur lors du téléchargement du CV: ${error.message}`);
+            } else {
+                throw new Error('Erreur inconnue lors du téléchargement du CV');
+            }
+        }
+    }
+
+    /**
+     * Téléverse un CV pour l'étudiant connecté
+     * @param fichierCv - Le fichier PDF du CV
+     * @returns Promise avec la réponse du serveur
+     */
+    async uploadCv(fichierCv: File): Promise<MessageRetour> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour téléverser un CV');
+            }
+
+            const formData = new FormData();
+            formData.append('cv', fichierCv);
+
+            const response = await fetch(`${this.baseUrl}/cv`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(
+                    errorData.data ||
+                    `Erreur HTTP: ${response.status} - ${response.statusText}`
+                );
+            }
+
+            return await response.json();
+
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Erreur lors du téléversement du CV: ${error.message}`);
+            } else {
+                throw new Error('Erreur inconnue lors du téléversement du CV');
+            }
+        }
+    }
+
+    /**
+     * Vérifie si l'étudiant connecté a un CV
+     * @returns Promise<boolean> - true si un CV existe, false sinon
+     */
+    async verifierCvExiste(): Promise<boolean> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                return false;
+            }
+
+            const response = await fetch(`${this.baseUrl}/cv`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+
+            return response.ok;
+
+        } catch (error) {
+            console.error('Erreur lors de la vérification du CV:', error);
+            return false;
+        }
+    }
+
+
+    /**
      * Extrait la valeur numérique de la rémunération pour le tri
      * @param remuneration - La chaîne de rémunération
      * @returns La valeur numérique

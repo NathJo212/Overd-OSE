@@ -27,7 +27,7 @@ const router = createBrowserRouter(
             <Route path="offre-stage" element={<CreerOffreStage/>}/>
             <Route path="offres-stages-gestionnaire" element={<AccepterRefuserOffres/>}/>
             <Route path="televersement-cv" element={<TeleversementCv/>}/>
-        </>
+        </Route>
     )
 );
 

@@ -134,7 +134,7 @@ public class EtudiantService {
         boolean isEtudiant = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ETUDIANT"));
         if (!isEtudiant) {
-            throw new ActionNonAutoriseeException("Accès refusé : rôle étudiant requis");
+            throw new ActionNonAutoriseeException();
         }
         String email = auth.getName();
         if (etudiantRepository.existsByEmail(email)) {
