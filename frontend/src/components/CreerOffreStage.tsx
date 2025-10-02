@@ -5,8 +5,10 @@ import utilisateurService from "../services/UtilisateurService";
 import type { OffreStageDTO } from "../services/EmployeurService";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 const CreerOffreStage = () => {
+    const { t } = useTranslation(["offercreate"]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -45,7 +47,7 @@ const CreerOffreStage = () => {
                 setProgrammes(programmesData);
             } catch (error) {
                 console.error('Erreur lors du chargement des programmes:', error);
-                setErrors(['Erreur lors du chargement des programmes']);
+                setErrors([t('offercreate:errors.programsLoad')]);
             } finally {
                 setLoadingProgrammes(false);
             }
@@ -62,14 +64,14 @@ const CreerOffreStage = () => {
 
     const validateForm = (): string[] => {
         const validationErrors: string[] = [];
-        if (!formData.titre.trim()) validationErrors.push("Le titre est requis");
-        if (!formData.description.trim()) validationErrors.push("La description est requise");
-        if (!formData.date_debut) validationErrors.push("La date de début est requise");
-        if (!formData.date_fin) validationErrors.push("La date de fin est requise");
-        if (!formData.progEtude.trim()) validationErrors.push("Le programme d'étude est requis");
-        if (!formData.lieuStage.trim()) validationErrors.push("Le lieu de stage est requis");
-        if (!formData.remuneration.trim()) validationErrors.push("La rémunération est requise");
-        if (!formData.dateLimite) validationErrors.push("La date limite est requise");
+        if (!formData.titre.trim()) validationErrors.push(t("offercreate:errors.titleRequired"));
+        if (!formData.description.trim()) validationErrors.push(t("offercreate:errors.descriptionRequired"));
+        if (!formData.date_debut) validationErrors.push(t("offercreate:errors.startDateRequired"));
+        if (!formData.date_fin) validationErrors.push(t("offercreate:errors.endDateRequired"));
+        if (!formData.progEtude.trim()) validationErrors.push(t("offercreate:errors.studyProgramRequired"));
+        if (!formData.lieuStage.trim()) validationErrors.push(t("offercreate:errors.internshipLocationRequired"));
+        if (!formData.remuneration.trim()) validationErrors.push(t("offercreate:errors.remunerationRequired"));
+        if (!formData.dateLimite) validationErrors.push(t("offercreate:errors.deadlineRequired"));
         return validationErrors;
     };
 
@@ -86,12 +88,12 @@ const CreerOffreStage = () => {
         try {
             const offreDTO: OffreStageDTO = { ...formData, utilisateur: { token } };
             await employeurService.creerOffreDeStage(offreDTO);
-            setSuccessMessage("Offre de stage créée avec succès !");
+            setSuccessMessage(t("offercreate:success.offerCreated"));
             setTimeout(() => {
                 navigate("/dashboard-employeur");
             }, 2000);
         } catch (error) {
-            setErrors([error instanceof Error ? error.message : "Erreur lors de la création de l'offre"]);
+            setErrors([error instanceof Error ? error.message : t("offercreate:errors.offerCreation")]);
         } finally {
             setLoading(false);
         }
@@ -103,7 +105,7 @@ const CreerOffreStage = () => {
             <div className="min-h-screen bg-gray-50 py-8 px-4 flex items-center justify-center">
                 <div className="max-w-lg w-full bg-white rounded-xl shadow-lg p-8">
                     <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                        Créer une offre de stage
+                        {t("offercreate:title")}
                     </h1>
                     {errors.length > 0 && (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -117,35 +119,35 @@ const CreerOffreStage = () => {
                     {successMessage && (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-green-800 font-medium text-center">
                             {successMessage}
-                            <p className="text-green-600 text-sm mt-1">Redirection...</p>
+                            <p className="text-green-600 text-sm mt-1">{t("offercreate:success.redirecting")}</p>
                         </div>
                     )}
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t("offercreate:form.title")} *</label>
                             <input type="text" name="titre" value={formData.titre} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t("offercreate:form.description")} *</label>
                             <textarea name="description" value={formData.description} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" rows={4} disabled={loading} />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Date de début *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t("offercreate:form.startDate")} *</label>
                             <input type="date" name="date_debut" value={formData.date_debut} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Date de fin *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t("offercreate:form.endDate")} *</label>
                             <input type="date" name="date_fin" value={formData.date_fin} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Programme d'étude *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t("offercreate:form.studyProgram")} *</label>
                             {loadingProgrammes ? (
                                 <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center">
                                     <svg className="animate-spin h-4 w-4 text-gray-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span className="text-gray-500 text-sm">Chargement des programmes...</span>
+                                    <span className="text-gray-500 text-sm">{t("offercreate:loading.programs")}</span>
                                 </div>
                             ) : (
                                 <select
@@ -155,7 +157,7 @@ const CreerOffreStage = () => {
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                                     disabled={loading}
                                 >
-                                    <option value="">Sélectionnez le programme d'étude</option>
+                                    <option value="">{t("offercreate:form.selectProgram")}</option>
                                     {Object.entries(programmes).map(([key, label]) => (
                                         <option key={key} value={key}>
                                             {label}
@@ -165,19 +167,19 @@ const CreerOffreStage = () => {
                             )}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Lieu du stage *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t("offercreate:form.internshipLocation")} *</label>
                             <input type="text" name="lieuStage" value={formData.lieuStage} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Rémunération *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t("offercreate:form.remuneration")} *</label>
                             <input type="text" name="remuneration" value={formData.remuneration} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Date limite *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t("offercreate:form.deadline")} *</label>
                             <input type="date" name="dateLimite" value={formData.dateLimite} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
                         </div>
                         <button type="submit" disabled={loading || loadingProgrammes} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300">
-                            {loading ? "Création en cours..." : "Créer l'offre"}
+                            {loading ? t("offercreate:button.creating") : t("offercreate:button.createOffer")}
                         </button>
                     </form>
                 </div>

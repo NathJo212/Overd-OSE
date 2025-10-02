@@ -13,6 +13,10 @@ import internshipmanagerFr from './locales/fr/internshipmanager.json';
 import internshipmanagerEn from './locales/en/internshipmanager.json';
 import navbarFr from './locales/fr/navbar.json';
 import navbarEn from './locales/en/navbar.json';
+import offercreateFr from './locales/fr/offercreate.json';
+import offercreateEn from './locales/en/offercreate.json';
+import employerdashboardFr from './locales/fr/employerdashboard.json';
+import employerdashboardEn from './locales/en/employerdashboard.json';
 
 
 const resources = {
@@ -22,6 +26,8 @@ const resources = {
         home: homeFr,
         internshipmanager:internshipmanagerFr,
         navbar: navbarFr,
+        offercreate: offercreateFr,
+        employerdashboard: employerdashboardFr,
     },
     en: {
         registration: registrationEn,
@@ -29,6 +35,8 @@ const resources = {
         home: homeEn,
         internshipmanager:internshipmanagerEn,
         navbar: navbarEn,
+        offercreate: offercreateEn,
+        employerdashboard: employerdashboardEn,
     }
 };
 

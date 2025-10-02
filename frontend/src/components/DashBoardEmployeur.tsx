@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router";
 import { employeurService } from "../services/EmployeurService";
-import { Building, Calendar, MapPin,CheckCircle, X  } from 'lucide-react';
+import { Building, Calendar, MapPin, CheckCircle, X } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
+import { useTranslation } from "react-i18next";
 
 const DashBoardEmployeur = () => {
+    const { t } = useTranslation(["employerdashboard"]);
     const navigate = useNavigate();
     const [showNotification, setShowNotification] = useState(false);
-    const [notificationMessage, setNotificationMessage] = useState('');
+    const [notificationMessage, setNotificationMessage] = useState("");
     const [offres, setOffres] = useState<any[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [modalReason, setModalReason] = useState("");
@@ -22,7 +24,7 @@ const DashBoardEmployeur = () => {
             if (token) {
                 employeurService.getOffresParEmployeur(token)
                     .then(offres => setOffres(offres))
-                    .catch(() => console.log("Erreur lors du chargement des offres"));
+                    .catch(() => setNotificationMessage(t("employerdashboard:errors.loadOffers")));
             }
             return;
         }
@@ -32,12 +34,12 @@ const DashBoardEmployeur = () => {
         const fromLogin = sessionStorage.getItem('fromLogin');
 
         if (fromRegistration === 'true') {
-            setNotificationMessage('Bienvenue ! Votre compte a été créé et vous êtes connecté avec succès.');
+            setNotificationMessage(t('employerdashboard:notifications.welcomeCreated'));
             setShowNotification(true);
             // Nettoyer le flag pour éviter de re-montrer la notification
             sessionStorage.removeItem('fromRegistration');
         } else if (fromLogin === 'true') {
-            setNotificationMessage('Connexion réussie ! Bienvenue sur votre tableau de bord.');
+            setNotificationMessage(t('employerdashboard:notifications.welcomeLogin'));
             setShowNotification(true);
             // Nettoyer le flag pour éviter de re-montrer la notification
             sessionStorage.removeItem('fromLogin');
@@ -51,7 +53,7 @@ const DashBoardEmployeur = () => {
 
             return () => clearTimeout(timer);
         }
-    }, [navigate, showNotification]);
+    }, [navigate, showNotification, t]);
 
     const handleCloseNotification = () => {
         setShowNotification(false);
@@ -64,7 +66,7 @@ const DashBoardEmployeur = () => {
 
     return (
         <>
-            <NavBar/>
+            <NavBar />
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
                 {showNotification && (
                     <div className="fixed top-4 right-4 z-50 max-w-md w-full">
@@ -100,19 +102,19 @@ const DashBoardEmployeur = () => {
                             </div>
                         </div>
                         <h1 className="text-3xl font-bold text-gray-800 mb-6">
-                            Tableau de bord Employeur
+                            {t("employerdashboard:title")}
                         </h1>
                         <NavLink
                             to="/offre-stage"
                             className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105"
                         >
-                            Créer une nouvelle offre de stage
+                            {t("employerdashboard:createOffer")}
                         </NavLink>
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-2xl p-8">
                         <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-                            Mes offres de stage
+                            {t("employerdashboard:myOffers")}
                         </h2>
 
                         {offres.length === 0 ? (
@@ -120,8 +122,8 @@ const DashBoardEmployeur = () => {
                                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Building className="w-10 h-10 text-gray-400" />
                                 </div>
-                                <p className="text-gray-500 text-lg">Aucune offre de stage trouvée</p>
-                                <p className="text-gray-400 text-sm mt-2">Commencez par créer votre première offre</p>
+                                <p className="text-gray-500 text-lg">{t("employerdashboard:noOffers.title")}</p>
+                                <p className="text-gray-400 text-sm mt-2">{t("employerdashboard:noOffers.subtitle")}</p>
                             </div>
                         ) : (
                             <div className="space-y-6">
@@ -165,7 +167,7 @@ const DashBoardEmployeur = () => {
                                                             ? 'bg-green-200 text-green-800'
                                                             : 'bg-yellow-200 text-yellow-800'
                                                 }`}>
-                                                {isRefused ? 'Refusée' : isApproved ? 'Approuvée' : 'En attente'}
+                                                {isRefused ? t("employerdashboard:status.refused") : isApproved ? t("employerdashboard:status.approved") : t("employerdashboard:status.pending")}
                                             </span>
                                             </div>
 
@@ -176,17 +178,17 @@ const DashBoardEmployeur = () => {
                                             <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                                             <span className="flex items-center">
                                                 <Calendar className="w-4 h-4 mr-1" />
-                                                Début: {offre.date_debut}
+                                                {t("employerdashboard:start")}: {offre.date_debut}
                                             </span>
                                                 <span className="flex items-center">
                                                 <Calendar className="w-4 h-4 mr-1" />
-                                                Fin: {offre.date_fin}
+                                                {t("employerdashboard:end")}: {offre.date_fin}
                                             </span>
                                             </div>
 
                                             {isRefused && (
                                                 <div className="mt-4 text-sm text-red-600 font-medium">
-                                                    Cliquez pour voir la raison du refus
+                                                    {t("employerdashboard:clickToSeeRefuseReason")}
                                                 </div>
                                             )}
                                         </div>
@@ -208,14 +210,14 @@ const DashBoardEmployeur = () => {
                                         </svg>
                                     </div>
                                     <h3 className="text-xl font-semibold text-red-700">
-                                        Offre refusée
+                                        {t("employerdashboard:modal.refusedTitle")}
                                     </h3>
                                 </div>
                             </div>
 
                             {/* Modal Body */}
                             <div className="px-6 py-6">
-                                <p className="text-gray-600 text-sm mb-2">Raison du refus :</p>
+                                <p className="text-gray-600 text-sm mb-2">{t("employerdashboard:modal.refusedReason")}</p>
                                 <div className="bg-gray-50 p-4 rounded-lg border">
                                     <p className="text-gray-800 leading-relaxed">
                                         {modalReason}
@@ -229,7 +231,7 @@ const DashBoardEmployeur = () => {
                                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
                                     onClick={() => setShowModal(false)}
                                 >
-                                    Fermer
+                                    {t("employerdashboard:modal.close")}
                                 </button>
                             </div>
                         </div>
