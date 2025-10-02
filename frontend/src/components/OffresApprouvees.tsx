@@ -1,8 +1,30 @@
 import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronDown, ArrowUpDown } from "lucide-react";
 import etudiantService from "../services/EtudiantService";
 import utilisateurService from "../services/UtilisateurService";
-import type { OffreDTO } from "../services/EtudiantService";
+
+// Mock types (replace with your actual imports)
+interface EmployeurDTO {
+    id?: number;
+    nomEntreprise: string;
+    email: string;
+    telephone: string;
+}
+
+interface OffreDTO {
+    id: number;
+    titre: string;
+    description: string;
+    date_debut: string;
+    date_fin: string;
+    progEtude: string;
+    lieuStage: string;
+    remuneration: string;
+    dateLimite: string;
+    messageRefus?: string;
+    statutApprouve: string;
+    employeurDTO: EmployeurDTO;
+}
 
 const OffresApprouvees = () => {
     const [offres, setOffres] = useState<OffreDTO[]>([]);
@@ -14,7 +36,8 @@ const OffresApprouvees = () => {
     // Filtres et tri
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProgramme, setSelectedProgramme] = useState<string>("TOUS");
-    const [sortBy, setSortBy] = useState<string>("date");
+    const [sortBy, setSortBy] = useState<string>("datePublication");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
@@ -23,7 +46,7 @@ const OffresApprouvees = () => {
 
     useEffect(() => {
         appliquerFiltresEtTri();
-    }, [offres, searchTerm, selectedProgramme, sortBy]);
+    }, [offres, searchTerm, selectedProgramme, sortBy, sortOrder]);
 
     const chargerDonnees = async () => {
         try {
@@ -45,18 +68,39 @@ const OffresApprouvees = () => {
         }
     };
 
+    const extractRemunerationValue = (remuneration: string): number => {
+        const match = remuneration.match(/[\d,]+/);
+        if (match) {
+            return parseFloat(match[0].replace(',', '.'));
+        }
+        return 0;
+    };
+
+    const calculateDuree = (dateDebut: string, dateFin: string): number => {
+        const debut = new Date(dateDebut);
+        const fin = new Date(dateFin);
+        const diffTime = Math.abs(fin.getTime() - debut.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    };
+
     const appliquerFiltresEtTri = () => {
         let resultat = [...offres];
 
-        // Filtre par recherche (titre, description, entreprise)
+        // Filtre par recherche (titre, description, entreprise, lieu, programme)
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
-            resultat = resultat.filter(offre =>
-                offre.titre.toLowerCase().includes(term) ||
-                offre.description.toLowerCase().includes(term) ||
-                offre.employeurDTO.nomEntreprise.toLowerCase().includes(term) ||
-                offre.lieuStage.toLowerCase().includes(term)
-            );
+            resultat = resultat.filter(offre => {
+                const programmeLabel = getProgrammeLabel(offre.progEtude).toLowerCase();
+                return (
+                    offre.titre.toLowerCase().includes(term) ||
+                    offre.description.toLowerCase().includes(term) ||
+                    offre.employeurDTO.nomEntreprise.toLowerCase().includes(term) ||
+                    offre.lieuStage.toLowerCase().includes(term) ||
+                    programmeLabel.includes(term) ||
+                    offre.progEtude.toLowerCase().includes(term)
+                );
+            });
         }
 
         // Filtre par programme
@@ -66,21 +110,42 @@ const OffresApprouvees = () => {
 
         // Tri
         resultat.sort((a, b) => {
+            let comparison = 0;
+
             switch (sortBy) {
                 case "titre":
-                    return a.titre.localeCompare(b.titre);
-                case "entreprise":
-                    return a.employeurDTO.nomEntreprise.localeCompare(b.employeurDTO.nomEntreprise);
+                    comparison = a.titre.localeCompare(b.titre);
+                    break;
+                case "employeur":
+                    comparison = a.employeurDTO.nomEntreprise.localeCompare(b.employeurDTO.nomEntreprise);
+                    break;
+                case "lieu":
+                    comparison = a.lieuStage.localeCompare(b.lieuStage);
+                    break;
                 case "remuneration":
-                    const remuA = etudiantService.extractRemunerationValue(a.remuneration);
-                    const remuB = etudiantService.extractRemunerationValue(b.remuneration);
-                    return remuB - remuA; // Décroissant
+                    const remuA = extractRemunerationValue(a.remuneration);
+                    const remuB = extractRemunerationValue(b.remuneration);
+                    comparison = remuA - remuB;
+                    break;
                 case "dateLimite":
-                    return new Date(a.dateLimite).getTime() - new Date(b.dateLimite).getTime();
-                case "date":
+                    comparison = new Date(a.dateLimite).getTime() - new Date(b.dateLimite).getTime();
+                    break;
+                case "dateDebut":
+                    comparison = new Date(a.date_debut).getTime() - new Date(b.date_debut).getTime();
+                    break;
+                case "duree":
+                    const dureeA = calculateDuree(a.date_debut, a.date_fin);
+                    const dureeB = calculateDuree(b.date_debut, b.date_fin);
+                    comparison = dureeA - dureeB;
+                    break;
+                case "datePublication":
                 default:
-                    return new Date(b.date_debut).getTime() - new Date(a.date_debut).getTime();
+                    // Assuming most recent first by default
+                    comparison = new Date(b.date_debut).getTime() - new Date(a.date_debut).getTime();
+                    break;
             }
+
+            return sortOrder === "asc" ? comparison : -comparison;
         });
 
         setOffresFiltered(resultat);
@@ -88,6 +153,10 @@ const OffresApprouvees = () => {
 
     const getProgrammeLabel = (key: string): string => {
         return programmes[key] || key;
+    };
+
+    const toggleSortOrder = () => {
+        setSortOrder(prev => prev === "asc" ? "desc" : "asc");
     };
 
     if (loading) {
@@ -122,7 +191,7 @@ const OffresApprouvees = () => {
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                         <input
                             type="text"
-                            placeholder="Rechercher par titre, entreprise, lieu..."
+                            placeholder="Rechercher par titre, entreprise, lieu, programme..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -142,7 +211,7 @@ const OffresApprouvees = () => {
 
                 {/* Panneau de filtres */}
                 {showFilters && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Filtre par programme */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -162,7 +231,7 @@ const OffresApprouvees = () => {
                             </select>
                         </div>
 
-                        {/* Tri */}
+                        {/* Tri par critère */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Trier par
@@ -172,12 +241,29 @@ const OffresApprouvees = () => {
                                 onChange={(e) => setSortBy(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
-                                <option value="date">Date de publication (récent)</option>
-                                <option value="titre">Titre (A-Z)</option>
-                                <option value="entreprise">Entreprise (A-Z)</option>
-                                <option value="remuneration">Rémunération (décroissant)</option>
+                                <option value="datePublication">Date de publication</option>
                                 <option value="dateLimite">Date limite</option>
+                                <option value="employeur">Employeur</option>
+                                <option value="lieu">Lieu</option>
+                                <option value="duree">Durée du stage</option>
+                                <option value="remuneration">Rémunération</option>
+                                <option value="titre">Titre</option>
+                                <option value="dateDebut">Date de début</option>
                             </select>
+                        </div>
+
+                        {/* Ordre de tri */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Ordre
+                            </label>
+                            <button
+                                onClick={toggleSortOrder}
+                                className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                <ArrowUpDown className="h-4 w-4" />
+                                {sortOrder === "asc" ? "Croissant" : "Décroissant"}
+                            </button>
                         </div>
                     </div>
                 )}
@@ -219,10 +305,13 @@ const OffresApprouvees = () => {
                                             {getProgrammeLabel(offre.progEtude)}
                                         </span>
                                         <span className="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
-                                            📍 {offre.lieuStage}
+                                            {offre.lieuStage}
                                         </span>
                                         <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                                            💰 {offre.remuneration}
+                                            {offre.remuneration}
+                                        </span>
+                                        <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                                            {calculateDuree(offre.date_debut, offre.date_fin)} jours
                                         </span>
                                     </div>
                                 </div>
