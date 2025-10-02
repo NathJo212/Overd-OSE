@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CheckCircle, X } from "lucide-react";
 import NavBar from "./NavBar.tsx";
+import OffresApprouvees from "./OffresApprouvees.tsx";
 
 const DashBoardEtudiant = () => {
     const navigate = useNavigate();
@@ -79,12 +80,19 @@ const DashBoardEtudiant = () => {
                 )}
 
                 {/* Contenu principal du dashboard */}
-                <div className="min-h-screen flex items-center justify-center">
-                    <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
-                        <h1 className="text-2xl font-bold mb-6">Tableau de bord Étudiant</h1>
-                        <p className="text-gray-600 mb-6">Bienvenue sur votre espace étudiant !</p>
-                        {/* Vous pouvez ajouter d'autres fonctionnalités ici */}
+                <div className="container mx-auto px-4 py-8">
+                    {/* En-tête du dashboard */}
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            Tableau de bord Étudiant
+                        </h1>
+                        <p className="text-gray-600">
+                            Explorez les offres de stage disponibles et postulez dès maintenant
+                        </p>
                     </div>
+
+                    {/* Composant des offres */}
+                    <OffresApprouvees />
                 </div>
             </div>
         </>
