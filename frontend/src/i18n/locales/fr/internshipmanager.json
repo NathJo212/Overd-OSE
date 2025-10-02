@@ -1,0 +1,40 @@
+{
+  "page": {
+    "title": "Offres de stages en attente",
+    "manageOffers": "Gérez les offres en attente d'approbation."
+  },
+  "fields": {
+    "employer": "Employeur:",
+    "contact": "Contact:",
+    "email": "Email:",
+    "telephone": "Tél:",
+    "location": "Lieu:",
+    "start": "Début:",
+    "end": "Fin:",
+    "remuneration": "Rémunération:",
+    "deadline": "Date limite:"
+  },
+  "messages": {
+    "pending": "En attente",
+    "noOffers": "Aucune offre trouvée.",
+    "approvedSuccess": "Offre approuvée avec succès",
+    "refusedSuccess": "Offre refusée avec succès",
+    "approveError": "Erreur lors de l'approbation",
+    "refuseError": "Erreur lors du refus"
+  },
+  "actions": {
+    "approve": "Approuver",
+    "refuse": "Refuser",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "sending": "Envoi..."
+  },
+  "refuseModal": {
+    "refuseOffer": "Refuser l'offre",
+    "refuseReason": "Entrez la raison du refus. Elle pourra être communiquée à l'employeur.",
+    "reasonLabel": "Raison du refus",
+    "reasonPlaceholder": "Ex: Informations insuffisantes, dates incohérentes, etc.",
+    "reasonRequired": "La raison est obligatoire."
+  }
+}

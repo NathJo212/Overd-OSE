@@ -9,17 +9,26 @@ import errorsFr from './locales/fr/errors.json';
 import errorsEn from './locales/en/errors.json';
 import homeFr from './locales/fr/home.json';
 import homeEn from './locales/en/home.json';
+import internshipmanagerFr from './locales/fr/internshipmanager.json';
+import internshipmanagerEn from './locales/en/internshipmanager.json';
+import navbarFr from './locales/fr/navbar.json';
+import navbarEn from './locales/en/navbar.json';
+
 
 const resources = {
     fr: {
         registration: registrationFr,
         errors: errorsFr,
         home: homeFr,
+        internshipmanager:internshipmanagerFr,
+        navbar: navbarFr,
     },
     en: {
         registration: registrationEn,
         errors: errorsEn,
-        home: homeEn
+        home: homeEn,
+        internshipmanager:internshipmanagerEn,
+        navbar: navbarEn,
     }
 };
 

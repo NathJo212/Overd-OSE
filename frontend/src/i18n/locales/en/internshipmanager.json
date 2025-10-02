@@ -1,0 +1,40 @@
+{
+  "page": {
+    "title": "Pending internship offers",
+    "manageOffers": "Manage pending internship offers."
+  },
+  "fields": {
+    "employer": "Employer:",
+    "contact": "Contact:",
+    "email": "Email:",
+    "telephone": "Phone:",
+    "location": "Location:",
+    "start": "Start:",
+    "end": "End:",
+    "remuneration": "Remuneration:",
+    "deadline": "Deadline:"
+  },
+  "messages": {
+    "pending": "Pending",
+    "noOffers": "No offer found.",
+    "approvedSuccess": "Offer approved successfully",
+    "refusedSuccess": "Offer refused successfully",
+    "approveError": "Error during approval",
+    "refuseError": "Error during refusal"
+  },
+  "actions": {
+    "approve": "Approve",
+    "refuse": "Refuse",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close",
+    "sending": "Sending..."
+  },
+  "refuseModal": {
+    "refuseOffer": "Refuse the offer",
+    "refuseReason": "Enter the reason for refusal. It may be communicated to the employer.",
+    "reasonLabel": "Reason for refusal",
+    "reasonPlaceholder": "Ex: Insufficient information, inconsistent dates, etc.",
+    "reasonRequired": "The reason is required."
+  }
+}

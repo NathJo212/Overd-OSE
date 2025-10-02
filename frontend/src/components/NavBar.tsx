@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
+import { useTranslation } from "react-i18next";
 
 const NavBar = () => {
     const navigate = useNavigate();
     const isConnected = !!sessionStorage.getItem("authToken");
+    const { t } = useTranslation(['navbar']);
 
     const handleLogout = async () => {
         await utilisateurService.deconnexion();
@@ -28,7 +30,7 @@ const NavBar = () => {
                         className="bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                     >
                         <LogOut className="w-4 h-4" />
-                        Déconnexion
+                        {t('navbar:logout')}
                     </button>
                 )}
             </div>
