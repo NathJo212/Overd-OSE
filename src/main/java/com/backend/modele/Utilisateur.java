@@ -4,6 +4,7 @@ package com.backend.modele;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -21,6 +22,7 @@ public abstract class Utilisateur {
     protected Long id;
 
     @Column(unique = true)
+    @Setter
     protected String email;
     protected String password;
     protected String telephone;

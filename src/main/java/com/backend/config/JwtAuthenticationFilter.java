@@ -1,6 +1,6 @@
 package com.backend.config;
 
-import com.backend.Exceptions.UserNotFoundException;
+import com.backend.Exceptions.UtilisateurPasTrouveException;
 import com.backend.modele.Utilisateur;
 import com.backend.persistence.UtilisateurRepository;
 import jakarta.servlet.FilterChain;
@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 tokenProvider.validateToken(token);
                 String email = tokenProvider.getEmailFromJWT(token);
                 Utilisateur user = userRepository.findByEmail(email)
-                        .orElseThrow(UserNotFoundException::new);
+                        .orElseThrow(UtilisateurPasTrouveException::new);
 
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(
