@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CheckCircle, X } from "lucide-react";
+import { CheckCircle, X, Upload, FileText, Briefcase } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 
 const DashBoardEtudiant = () => {
@@ -23,12 +23,10 @@ const DashBoardEtudiant = () => {
         if (fromRegistration === 'true') {
             setNotificationMessage('Bienvenue ! Votre compte a été créé et vous êtes connecté avec succès.');
             setShowNotification(true);
-            // Nettoyer le flag pour éviter de re-montrer la notification
             sessionStorage.removeItem('fromRegistration');
         } else if (fromLogin === 'true') {
             setNotificationMessage('Connexion réussie ! Bienvenue sur votre tableau de bord.');
             setShowNotification(true);
-            // Nettoyer le flag pour éviter de re-montrer la notification
             sessionStorage.removeItem('fromLogin');
         }
 
@@ -44,6 +42,10 @@ const DashBoardEtudiant = () => {
 
     const handleCloseNotification = () => {
         setShowNotification(false);
+    };
+
+    const handleNavigateToCv = () => {
+        navigate("/televersement-cv");
     };
 
     return (
@@ -79,11 +81,79 @@ const DashBoardEtudiant = () => {
                 )}
 
                 {/* Contenu principal du dashboard */}
-                <div className="min-h-screen flex items-center justify-center">
-                    <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
-                        <h1 className="text-2xl font-bold mb-6">Tableau de bord Étudiant</h1>
-                        <p className="text-gray-600 mb-6">Bienvenue sur votre espace étudiant !</p>
-                        {/* Vous pouvez ajouter d'autres fonctionnalités ici */}
+                <div className="container mx-auto px-4 py-8">
+                    <div className="max-w-6xl mx-auto">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+                            Tableau de bord Étudiant
+                        </h1>
+
+                        {/* Grille de cartes d'actions */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                            {/* Carte CV */}
+                            <button
+                                onClick={handleNavigateToCv}
+                                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 text-left group"
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="bg-blue-100 p-3 rounded-lg group-hover:bg-blue-200 transition-colors">
+                                        <Upload className="h-6 w-6 text-blue-600" />
+                                    </div>
+                                </div>
+                                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                                    Mon CV
+                                </h2>
+                                <p className="text-gray-600 text-sm">
+                                    Téléversez ou mettez à jour votre curriculum vitae
+                                </p>
+                            </button>
+
+                            {/* Carte Offres de stage */}
+                            <button
+                                onClick={() => navigate("/offres-stages")}
+                                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 text-left group"
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="bg-green-100 p-3 rounded-lg group-hover:bg-green-200 transition-colors">
+                                        <Briefcase className="h-6 w-6 text-green-600" />
+                                    </div>
+                                </div>
+                                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                                    Offres de stage
+                                </h2>
+                                <p className="text-gray-600 text-sm">
+                                    Consultez les offres de stage disponibles
+                                </p>
+                            </button>
+
+                            {/* Carte Candidatures */}
+                            <button
+                                onClick={() => navigate("/mes-candidatures")}
+                                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 text-left group"
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="bg-purple-100 p-3 rounded-lg group-hover:bg-purple-200 transition-colors">
+                                        <FileText className="h-6 w-6 text-purple-600" />
+                                    </div>
+                                </div>
+                                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                                    Mes candidatures
+                                </h2>
+                                <p className="text-gray-600 text-sm">
+                                    Suivez l'état de vos candidatures
+                                </p>
+                            </button>
+                        </div>
+
+                        {/* Section bienvenue */}
+                        <div className="mt-8 bg-white p-6 rounded-xl shadow-md">
+                            <h2 className="text-xl font-semibold text-gray-900 mb-3">
+                                Bienvenue sur votre espace étudiant ! 👋
+                            </h2>
+                            <p className="text-gray-600">
+                                Commencez par téléverser votre CV pour pouvoir postuler aux offres de stage.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

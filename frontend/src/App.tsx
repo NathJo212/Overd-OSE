@@ -12,6 +12,7 @@ import CreerOffreStage from "./components/CreerOffreStage.tsx";
 import DashBoardEmployeur from "./components/DashBoardEmployeur.tsx";
 import DashBoardEtudiant from "./components/DashBoardEtudiant.tsx";
 import AccepterRefuserOffres from './components/AccepterRefuserOffres.tsx';
+import TeleversementCv from './components/TeleversementCv.tsx';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -24,18 +25,17 @@ const router = createBrowserRouter(
             <Route path="dashboard-etudiant" element={<DashBoardEtudiant/>}/>
             <Route path="offre-stage" element={<CreerOffreStage/>}/>
             <Route path="offres-stages-gestionnaire" element={<AccepterRefuserOffres/>}/>
+            <Route path="televersement-cv" element={<TeleversementCv/>}/>
         </>
-
     )
 );
 
 function App() {
-
-  return (
-    <>
-        <RouterProvider router={router} />
-    </>
-  )
+    return (
+        <>
+            <RouterProvider router={router} />
+        </>
+    )
 }
 
 export default App
