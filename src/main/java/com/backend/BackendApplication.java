@@ -22,7 +22,7 @@ public class BackendApplication {
     @Bean
     @Profile("!test")
     public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService, UtilisateurService utilisateurService, GestionnaireService gestionnaireService) {
-        return args -> {
+        return _ -> {
             employeurService.creerEmployeur(
                     "mon@employeur.com",
                     "Employeur123%",
@@ -67,6 +67,18 @@ public class BackendApplication {
                     "Montréal",
                     "15$/h",
                     "2023-12-15"
+            );
+
+            employeurService.creerOffreDeStage(
+                    utilisateurTest,
+                    "Java",
+                    "Test",
+                    "2025-01-01",
+                    "2025-06-01",
+                    ProgrammeDTO.P200_B1,
+                    "Quebec",
+                    "18$/h",
+                    "2025-12-15"
             );
 
         };

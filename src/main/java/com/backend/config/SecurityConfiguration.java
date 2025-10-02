@@ -42,6 +42,7 @@ public class SecurityConfiguration {
     private static final String PROGRAMMES_PATH = "/OSE/getProgrammes";
     private static final String EMPLOYEUR_REGISTER_PATH = "/OSEemployeur/creerCompte";
     private static final String ETUDIANT_REGISTER_PATH = "/OSEetudiant/creerCompte"; // À ajouter si tu as ce endpoint
+    private static final String ETUDIANT_VOIR_OFFRES = "/OSEetudiant/voirOffres";
     private static final String GESTIONNAIRE_APPROVE_PATH = "/OSEGestionnaire/approuveOffre";
     private static final String GESTIONNAIRE_DENY_PATH = "/OSEGestionnaire/refuseOffre";
     private static final String GESTIONNAIRE_AWAITING_OFFERS = "/OSEGestionnaire/offresEnAttente";
@@ -61,6 +62,7 @@ public class SecurityConfiguration {
                         .requestMatchers(POST, EMPLOYEUR_REGISTER_PATH).permitAll()
                         .requestMatchers(POST, ETUDIANT_REGISTER_PATH).permitAll()
                         .requestMatchers(GET, PROGRAMMES_PATH).permitAll()
+                        .requestMatchers(GET, ETUDIANT_VOIR_OFFRES).permitAll()
 
 
                         // Endpoints protégés par rôle

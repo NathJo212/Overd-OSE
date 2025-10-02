@@ -3,6 +3,7 @@ package com.backend.controller;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.service.DTO.CvDTO;
+import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
@@ -18,12 +19,17 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
@@ -116,6 +122,84 @@ class EtudiantControllerTest {
                 .andExpect(jsonPath("$.message").doesNotExist())
                 .andExpect(jsonPath("$.erreur").value("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."));
     }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/voirOffres retourne 200 et liste des offres approuvées")
+    void voirOffres_success_returnsOkAndOffresList() throws Exception {
+        // Arrange
+        OffreDTO offre1 = new OffreDTO();
+        offre1.setTitre("Stage en développement web");
+        offre1.setDescription("Développement d'applications web");
+        offre1.setDate_debut("2025-05-01");
+        offre1.setDate_fin("2025-08-31");
+        offre1.setProgEtude(ProgrammeDTO.P420_B0);
+        offre1.setLieuStage("Montréal");
+        offre1.setRemuneration("20$/h");
+        offre1.setDateLimite("2025-04-15");
+
+        OffreDTO offre2 = new OffreDTO();
+        offre2.setTitre("Stage en réseaux");
+        offre2.setDescription("Administration de réseaux");
+        offre2.setDate_debut("2025-06-01");
+        offre2.setDate_fin("2025-09-30");
+        offre2.setProgEtude(ProgrammeDTO.P420_B0);
+        offre2.setLieuStage("Québec");
+        offre2.setRemuneration("22$/h");
+        offre2.setDateLimite("2025-05-01");
+
+        List<OffreDTO> offresApprouvees = List.of(offre1, offre2);
+
+        when(etudiantService.getOffresApprouves()).thenReturn(offresApprouvees);
+
+        // Act
+        mockMvc.perform(get("/OSEetudiant/voirOffres")
+                        .contentType(MediaType.APPLICATION_JSON))
+                // Assert
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].titre").value("Stage en développement web"))
+                .andExpect(jsonPath("$[0].description").value("Développement d'applications web"))
+                .andExpect(jsonPath("$[0].lieuStage").value("Montréal"))
+                .andExpect(jsonPath("$[0].remuneration").value("20$/h"))
+                .andExpect(jsonPath("$[1].titre").value("Stage en réseaux"))
+                .andExpect(jsonPath("$[1].description").value("Administration de réseaux"))
+                .andExpect(jsonPath("$[1].lieuStage").value("Québec"))
+                .andExpect(jsonPath("$[1].remuneration").value("22$/h"));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/voirOffres retourne 200 et liste vide si aucune offre approuvée")
+    void voirOffres_aucuneOffre_returnsOkAndEmptyList() throws Exception {
+        // Arrange
+        when(etudiantService.getOffresApprouves()).thenReturn(List.of());
+
+        // Act
+        mockMvc.perform(get("/OSEetudiant/voirOffres")
+                        .contentType(MediaType.APPLICATION_JSON))
+                // Assert
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/voirOffres retourne 500 si erreur interne")
+    void voirOffres_erreurInterne_returnsInternalServerError() throws Exception {
+        // Arrange
+        when(etudiantService.getOffresApprouves()).thenThrow(new RuntimeException("Erreur de base de données"));
+
+        // Act
+        mockMvc.perform(get("/OSEetudiant/voirOffres")
+                        .contentType(MediaType.APPLICATION_JSON))
+                // Assert
+                .andExpect(status().isInternalServerError());
+    }
+
+
+
 
     @Test
     @DisplayName("POST /OSEetudiant/cv -> succès upload CV")

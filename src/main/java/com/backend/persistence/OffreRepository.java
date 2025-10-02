@@ -9,4 +9,7 @@ public interface OffreRepository extends CrudRepository<Offre, Long> {
     List<Offre> findByStatutApprouve(Offre.StatutApprouve statutApprouve);
 
     List<Offre> findOffreByEmployeurId(Long employeurId);
+
+    List<Offre> findAllByStatutApprouve(Offre.StatutApprouve statutApprouve);
+
 }
