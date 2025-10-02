@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class UtilisateurService {
@@ -63,8 +64,7 @@ public class UtilisateurService {
 
     @Transactional
     public Map<String, String> getAllProgrammes() {
-        return List.of(ProgrammeDTO.values())
-                .stream()
+        return Stream.of(ProgrammeDTO.values())
                 .collect(Collectors.toMap(
                         ProgrammeDTO::name,   // key: enum name like P200_Z1
                         ProgrammeDTO::getLabel // value: the label

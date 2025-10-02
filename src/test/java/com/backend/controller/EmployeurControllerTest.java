@@ -2,6 +2,7 @@ package com.backend.controller;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
+import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.modele.Employeur;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.OffreDTO;
@@ -69,7 +70,7 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/creerCompte retourne 409 si email déjà utilisé")
     void creerCompte_emailDejaUtilise_returnsConflict() throws Exception {
-        doThrow(new EmailDejaUtiliseException("Un employeur avec cet email existe déjà"))
+        doThrow(new EmailDejaUtiliseException())
                 .when(employeurService).creerEmployeur(anyString(), anyString(), anyString(), anyString(), anyString());
 
         String json = """
@@ -94,7 +95,7 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/creerCompte retourne 409 si mot de passe invalide")
     void creerCompte_motDePassePasBon_returnsConflict() throws Exception {
-        doThrow(new EmailDejaUtiliseException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."))
+        doThrow(new MotPasseInvalideException())
                 .when(employeurService).creerEmployeur(anyString(), anyString(), anyString(), anyString(), anyString());
 
         String json = """
@@ -139,7 +140,7 @@ class EmployeurControllerTest {
 
     @Test
     void creerOffre_actionNonAutorisee_returnsConflict() throws Exception {
-        doThrow(new ActionNonAutoriseeException("Seul un employeur peut créer une offre de stage."))
+        doThrow(new ActionNonAutoriseeException())
                 .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class), anyString(), anyString(), anyString());
 
         OffreDTO offreDTO = new OffreDTO();
@@ -198,7 +199,7 @@ class EmployeurControllerTest {
         // Arrange
         AuthResponseDTO authResponse = new AuthResponseDTO("Bearer fakeToken");
 
-        doThrow(new ActionNonAutoriseeException("Seul un employeur peut voir ses offres de stage."))
+        doThrow(new ActionNonAutoriseeException())
                 .when(employeurService).OffrePourEmployeur(any(AuthResponseDTO.class));
 
         // Act & Assert

@@ -3,7 +3,6 @@ package com.backend.controller;
 import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.OffreDejaVerifieException;
 import com.backend.Exceptions.OffreNonExistantException;
-import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.GestionnaireService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,11 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -74,7 +69,7 @@ class GestionnaireControllerTest {
     void approuveOffre_nonAutorise() throws Exception {
         OffreDTO dto = new OffreDTO();
         dto.setId(1L);
-        doThrow(new ActionNonAutoriseeException("Accès refusé")).when(gestionnaireService).approuveOffre(1L);
+        doThrow(new ActionNonAutoriseeException()).when(gestionnaireService).approuveOffre(1L);
 
         mockMvc.perform(post("/OSEGestionnaire/approuveOffre")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +83,7 @@ class GestionnaireControllerTest {
     void approuveOffre_offreInexistante() throws Exception {
         OffreDTO dto = new OffreDTO();
         dto.setId(1L);
-        doThrow(new OffreNonExistantException("Offre introuvable")).when(gestionnaireService).approuveOffre(1L);
+        doThrow(new OffreNonExistantException()).when(gestionnaireService).approuveOffre(1L);
 
         mockMvc.perform(post("/OSEGestionnaire/approuveOffre")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -102,7 +97,7 @@ class GestionnaireControllerTest {
     void approuveOffre_dejaVerifiee() throws Exception {
         OffreDTO dto = new OffreDTO();
         dto.setId(1L);
-        doThrow(new OffreDejaVerifieException("Déjà vérifiée")).when(gestionnaireService).approuveOffre(1L);
+        doThrow(new OffreDejaVerifieException()).when(gestionnaireService).approuveOffre(1L);
 
         mockMvc.perform(post("/OSEGestionnaire/approuveOffre")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -145,7 +140,7 @@ class GestionnaireControllerTest {
         OffreDTO dto = new OffreDTO();
         dto.setId(2L);
         dto.setMessageRefus("msg");
-        doThrow(new ActionNonAutoriseeException("Accès refusé")).when(gestionnaireService).refuseOffre(2L, "msg");
+        doThrow(new ActionNonAutoriseeException()).when(gestionnaireService).refuseOffre(2L, "msg");
 
         mockMvc.perform(post("/OSEGestionnaire/refuseOffre")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -160,7 +155,7 @@ class GestionnaireControllerTest {
         OffreDTO dto = new OffreDTO();
         dto.setId(2L);
         dto.setMessageRefus("msg");
-        doThrow(new OffreNonExistantException("Offre introuvable")).when(gestionnaireService).refuseOffre(2L, "msg");
+        doThrow(new OffreNonExistantException()).when(gestionnaireService).refuseOffre(2L, "msg");
 
         mockMvc.perform(post("/OSEGestionnaire/refuseOffre")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -175,7 +170,7 @@ class GestionnaireControllerTest {
         OffreDTO dto = new OffreDTO();
         dto.setId(2L);
         dto.setMessageRefus("msg");
-        doThrow(new OffreDejaVerifieException("Déjà vérifiée")).when(gestionnaireService).refuseOffre(2L, "msg");
+        doThrow(new OffreDejaVerifieException()).when(gestionnaireService).refuseOffre(2L, "msg");
 
         mockMvc.perform(post("/OSEGestionnaire/refuseOffre")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -197,7 +192,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/offresEnAttente retourne 401 si non autorisé")
     void getOffresAttente_nonAutorise() throws Exception {
-        when(gestionnaireService.getOffresAttente()).thenThrow(new ActionNonAutoriseeException("Accès refusé"));
+        when(gestionnaireService.getOffresAttente()).thenThrow(new ActionNonAutoriseeException());
 
         mockMvc.perform(get("/OSEGestionnaire/offresEnAttente"))
                 .andExpect(status().isUnauthorized());

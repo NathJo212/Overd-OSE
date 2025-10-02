@@ -12,11 +12,12 @@ import CreerOffreStage from "./components/CreerOffreStage.tsx";
 import DashBoardEmployeur from "./components/DashBoardEmployeur.tsx";
 import DashBoardEtudiant from "./components/DashBoardEtudiant.tsx";
 import AccepterRefuserOffres from './components/AccepterRefuserOffres.tsx';
+import LayoutGlobal from './components/LayoutGlobal.tsx';
 import TeleversementCv from './components/TeleversementCv.tsx';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
-        <>
+        <Route path="/" element={<LayoutGlobal />}>
             <Route index element={<Accueil/>}/>
             <Route path="inscription-employeur" element={<InscriptionEmployeur/>}/>
             <Route path="inscription-etudiant" element={<InscriptionEtudiant/>}/>

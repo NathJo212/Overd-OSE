@@ -5,6 +5,7 @@ import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.EmployeurDTO;
+import com.backend.service.DTO.ErrorResponse;
 import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.EmployeurService;
@@ -26,29 +27,35 @@ public class EmployeurController {
 
     @PostMapping("/creerCompte")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> creerCompte(@RequestBody EmployeurDTO employeurDTO) {
+    public ResponseEntity<?> creerCompte(@RequestBody EmployeurDTO employeurDTO) {
         try {
             employeurService.creerEmployeur(employeurDTO.getEmail(), employeurDTO.getPassword(),
                     employeurDTO.getTelephone(), employeurDTO.getNomEntreprise(),
                     employeurDTO.getContact());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Employeur créé avec succès", null));
-        }catch (EmailDejaUtiliseException | MotPasseInvalideException e) {
+        } catch (EmailDejaUtiliseException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageRetourDTO(null, e.getMessage()));
+                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
+        } catch (MotPasseInvalideException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
         }
     }
 
     @PostMapping("/creerOffre")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> creerOffre(@RequestBody OffreDTO offreDTO) {
+    public ResponseEntity<?> creerOffre(@RequestBody OffreDTO offreDTO) {
         try{
-            employeurService.creerOffreDeStage(offreDTO.getAuthResponseDTO(), offreDTO.getDescription(), offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(), offreDTO.getProgEtude(), offreDTO.getLieuStage(), offreDTO.getRemuneration(), offreDTO.getDateLimite());
+            employeurService.creerOffreDeStage(offreDTO.getAuthResponseDTO(), offreDTO.getDescription(),
+                    offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(),
+                    offreDTO.getProgEtude(), offreDTO.getLieuStage(), offreDTO.getRemuneration(),
+                    offreDTO.getDateLimite());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Offre de stage créée avec succès", null));
-        }catch (ActionNonAutoriseeException e){
+        } catch (ActionNonAutoriseeException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageRetourDTO(null, e.getMessage()));
+                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
         }
     }
 

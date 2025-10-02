@@ -50,24 +50,51 @@ class EmployeurService {
                 body: JSON.stringify(employeurData),
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                // Gestion des erreurs HTTP
-                const errorData = await response.json().catch(() => ({}));
-                console.log(new Error(
-                    errorData.message ||
+                if (data.errorCode) {
+                    const error: any = new Error(data.message || 'Erreur lors de la création du compte');
+                    error.response = { data }; // Attacher errorCode pour le composant
+                    throw error;
+                }
+
+                // Sinon, erreur avec message classique (rétrocompatibilité)
+                const error: any = new Error(
+                    data.erreur ||
+                    data.message ||
                     `Erreur HTTP: ${response.status} - ${response.statusText}`
-                ));
+                );
+                error.response = {
+                    data: { errorCode: 'ERROR_000', message: error.message }
+                };
+                throw error;
             }
 
-            return await response.json();
+            return data;
 
-        } catch (error) {
-            // Gestion des erreurs de réseau ou autres
-            if (error instanceof Error) {
-                throw new Error(`Erreur lors de la création du compte: ${error.message}`);
-            } else {
-                throw new Error('Erreur inconnue lors de la création du compte');
+        } catch (error: any) {
+            if (error.response?.data?.errorCode) {
+                throw error;
             }
+
+            // Gestion des erreurs de réseau
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.response = {
+                    data: { errorCode: 'NETWORK_ERROR' }
+                };
+                throw networkError;
+            }
+
+            const genericError: any = new Error(
+                error.message || 'Erreur inconnue lors de la création du compte'
+            );
+
+            genericError.response = {
+                data: { errorCode: 'ERROR_000', message: error.message }
+            };
+            throw genericError;
         }
     }
 
@@ -116,35 +143,88 @@ class EmployeurService {
                 body: JSON.stringify(offreDTO),
             });
 
+            // Lire la réponse UNE SEULE FOIS
+            const data = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(
-                    errorData.message ||
+                // Si le backend envoie un ErrorResponse avec errorCode
+                if (data.errorCode) {
+                    const error: any = new Error(data.message || 'Erreur lors de la création de l\'offre');
+                    error.response = { data };
+                    throw error;
+                }
+
+                // Sinon, erreur classique
+                const error: any = new Error(
+                    data.erreur ||
+                    data.message ||
                     `Erreur HTTP: ${response.status} - ${response.statusText}`
                 );
+                error.response = {
+                    data: { errorCode: 'ERROR_000', message: error.message }
+                };
+                throw error;
             }
 
-            return await response.json();
-        } catch (error) {
-            if (error instanceof Error) {
-                throw new Error(`Erreur lors de la création de l'offre: ${error.message}`);
-            } else {
-                throw new Error('Erreur inconnue lors de la création de l\'offre');
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.errorCode) {
+                throw error;
             }
+
+            // Gestion des erreurs de réseau
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.response = {
+                    data: { errorCode: 'NETWORK_ERROR' }
+                };
+                throw networkError;
+            }
+
+            // Autres erreurs
+            const genericError: any = new Error(
+                error.message || 'Erreur inconnue lors de la création de l\'offre'
+            );
+            genericError.response = {
+                data: { errorCode: 'ERROR_000', message: error.message }
+            };
+            throw genericError;
         }
     }
 
     async getOffresParEmployeur(token: string): Promise<any[]> {
-        const response = await fetch(`${this.baseUrl}/OffresParEmployeur`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({ token }),
-        });
-        if (!response.ok) throw new Error('Erreur lors de la récupération des offres');
-        return await response.json();
+        try {
+            const response = await fetch(`${this.baseUrl}/OffresParEmployeur`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ token }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                const error: any = new Error('Erreur lors de la récupération des offres');
+                error.response = { data };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.errorCode) {
+                throw error;
+            }
+
+            const genericError: any = new Error('Erreur lors de la récupération des offres');
+            genericError.response = {
+                data: { errorCode: 'ERROR_000' }
+            };
+            throw genericError;
+        }
     }
 }
 

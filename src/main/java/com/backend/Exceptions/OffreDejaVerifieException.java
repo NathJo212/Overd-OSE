@@ -1,7 +1,13 @@
 package com.backend.Exceptions;
 
+import lombok.Getter;
+
+@Getter
 public class OffreDejaVerifieException extends Exception {
-    public OffreDejaVerifieException(String message) {
-        super(message);
+    private final ErrorCode errorCode;
+
+    public OffreDejaVerifieException() {
+        super("Offer already verified");
+        this.errorCode = ErrorCode.OFFER_ALREADY_VERIFIED;
     }
 }

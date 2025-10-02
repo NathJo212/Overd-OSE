@@ -1,0 +1,12 @@
+{
+  "AUTH_001": "Authentication failed",
+  "AUTH_002": "Invalid JWT token",
+  "AUTH_003": "User not found",
+  "VALIDATION_001": "This email address is already in use",
+  "VALIDATION_002": "Invalid password",
+  "AUTHORIZATION_001": "Unauthorized action",
+  "OFFER_001": "Offer not found",
+  "OFFER_002": "This offer has already been verified",
+  "ERROR_000": "An error occurred",
+  "NETWORK_ERROR": "Network connection error"
+}

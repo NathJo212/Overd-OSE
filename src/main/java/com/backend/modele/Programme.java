@@ -35,10 +35,6 @@ public enum Programme {
         this.label = label;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
     public static Programme toModele(ProgrammeDTO dto) {
         return Programme.valueOf(dto.name());
     }
