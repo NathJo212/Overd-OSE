@@ -2,8 +2,6 @@ package com.backend.service;
 
 
 import com.backend.Exceptions.*;
-import com.backend.modele.Employeur;
-import com.backend.modele.Etudiant;
 import com.backend.modele.GestionnaireStage;
 import com.backend.modele.Offre;
 import com.backend.persistence.GestionnaireRepository;

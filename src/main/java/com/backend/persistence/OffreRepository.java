@@ -1,7 +1,6 @@
 package com.backend.persistence;
 
 import com.backend.modele.Offre;
-import com.backend.service.DTO.OffreDTO;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

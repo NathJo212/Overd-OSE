@@ -22,7 +22,7 @@ public class BackendApplication {
     @Bean
     @Profile("!test")
     public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService, UtilisateurService utilisateurService, GestionnaireService gestionnaireService) {
-        return args -> {
+        return _ -> {
             employeurService.creerEmployeur(
                     "mon@employeur.com",
                     "Employeur123%",

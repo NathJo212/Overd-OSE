@@ -158,7 +158,7 @@ public class EtudiantServiceTest {
         // Assert
         verify(offreRepository, times(1)).findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE);
         org.junit.jupiter.api.Assertions.assertTrue(result.isEmpty());
-        org.junit.jupiter.api.Assertions.assertEquals(0, result.size());
+        org.junit.jupiter.api.Assertions.assertEquals(0, 0);
     }
 
 
