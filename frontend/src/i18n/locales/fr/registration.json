@@ -61,5 +61,86 @@
       "createAccount": "Créer mon compte",
       "creating": "Création en cours..."
     }
+  },
+  "studentRegistration": {
+    "backToHome": "Retour à l'accueil",
+    "title": "Inscription Étudiant",
+    "subtitle": "Créez votre compte étudiant pour accéder aux offres de stage.",
+    "redirecting": "Redirection...",
+
+    "sections": {
+      "personalInfo": "Informations personnelles",
+      "academicInfo": "Informations académiques",
+      "accountSecurity": "Sécurité du compte"
+    },
+
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Adresse courriel",
+      "phoneNumber": "Numéro de téléphone",
+      "studyProgram": "Programme d'études",
+      "studyYear": "Année d'étude",
+      "session": "Session",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe"
+    },
+
+    "placeholders": {
+      "firstName": "Jean",
+      "lastName": "Dupont",
+      "email": "jean.dupont@example.com",
+      "phoneNumber": "123 123 1234",
+      "studyProgram": "Sélectionnez votre programme",
+      "studyYear": "Sélectionnez...",
+      "session": "Sélectionnez...",
+      "password": "Votre mot de passe sécurisé",
+      "confirmPassword": "Confirmez votre mot de passe"
+    },
+
+    "validation": {
+      "firstNameRequired": "Le prénom est requis",
+      "lastNameRequired": "Le nom est requis",
+      "emailRequired": "L'adresse courriel est requise",
+      "emailInvalid": "L'adresse courriel n'est pas valide",
+      "phoneRequired": "Le numéro de téléphone est requis",
+      "studyProgramRequired": "Le programme d'études est requis",
+      "studyYearRequired": "L'année d'étude est requise",
+      "sessionRequired": "La session est requise",
+      "passwordRequired": "Le mot de passe est requis",
+      "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
+      "passwordUppercase": "Le mot de passe doit contenir au moins une majuscule",
+      "passwordNumber": "Le mot de passe doit contenir au moins un chiffre",
+      "passwordSpecialChar": "Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*(),.?\":{}|<>)",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "passwordValid": "Mot de passe valide"
+    },
+
+    "messages": {
+      "accountCreated": "Compte créé avec succès !",
+      "accountCreatedAndLoggedIn": "Compte créé et connexion automatique réussie !",
+      "accountCreatedPleaseLogin": "Compte créé ! Veuillez vous connecter.",
+      "unknownError": "Une erreur inconnue est survenue"
+    },
+
+    "buttons": {
+      "createAccount": "Créer mon compte étudiant",
+      "creating": "Création en cours..."
+    },
+
+    "options": {
+      "studyYears": {
+        "year1": "1ère année",
+        "year2": "2ème année",
+        "year3": "3ème année",
+        "year4": "4ème année",
+        "year5": "5ème année"
+      },
+      "sessions": {
+        "fall": "Automne",
+        "winter": "Hiver",
+        "summer": "Été"
+      }
+    }
   }
 }

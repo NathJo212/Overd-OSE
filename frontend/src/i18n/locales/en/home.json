@@ -1,0 +1,17 @@
+{
+  "title": "Overd-OSE",
+  "subtitle": "Internship and job opportunity management platform. Connect students with companies for enriching professional experiences.",
+  "chooseRole": "Choose your role to start",
+  "employer": {
+    "title": "Employer",
+    "description": "Post internship offers and recruit student talents for your company.",
+    "register": "Register"
+  },
+  "student": {
+    "title": "Student",
+    "description": "Find internships and job opportunities suited to your profile.",
+    "register": "Register"
+  },
+  "alreadyRegistered": "Already registered?",
+  "login": "Log in"
+}
