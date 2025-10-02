@@ -1,9 +1,13 @@
 package com.backend.service;
 
 import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.modele.Employeur;
 import com.backend.modele.Etudiant;
+import com.backend.modele.Offre;
 import com.backend.modele.Programme;
 import com.backend.persistence.EtudiantRepository;
+import com.backend.persistence.OffreRepository;
+import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,9 @@ public class EtudiantServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private OffreRepository offreRepository;
 
     @InjectMocks
     private EtudiantService etudiantService;
@@ -75,4 +84,82 @@ public class EtudiantServiceTest {
                 () -> etudiantService.creerEtudiant(email, etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P200_B1, etudiant.getSession(), etudiant.getAnnee())
         );
     }
+
+
+    @Test
+    public void testGetOffresApprouve() {
+        // Arrange
+        Employeur employeur = new Employeur("employeur@example.com", "encodedPassword", "514-123-4567", "Tech Corp", "John Doe");
+
+        Offre offre1 = new Offre(
+                "Stage en développement web",
+                "Développement d'applications web",
+                "2025-05-01",
+                "2025-08-31",
+                Programme.P420_B0,
+                "Montréal",
+                "20$/h",
+                "2025-04-15",
+                employeur
+        );
+        offre1.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
+
+        Offre offre2 = new Offre(
+                "Stage en réseaux",
+                "Administration de réseaux",
+                "2025-06-01",
+                "2025-09-30",
+                Programme.P420_B0,
+                "Québec",
+                "22$/h",
+                "2025-05-01",
+                employeur
+        );
+        offre2.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
+
+        // Offre refusée (ne devrait pas apparaître dans les résultats)
+        Offre offre3 = new Offre(
+                "Stage refusé",
+                "Description",
+                "2025-05-01",
+                "2025-08-31",
+                Programme.P420_B0,
+                "Laval",
+                "18$/h",
+                "2025-04-01",
+                employeur
+        );
+        offre3.setStatutApprouve(Offre.StatutApprouve.REFUSE);
+
+        List<Offre> offresApprouvees = List.of(offre1, offre2);
+
+        when(offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE))
+                .thenReturn(offresApprouvees);
+
+        // Act
+        List<OffreDTO> result = etudiantService.getOffresApprouves();
+
+        // Assert
+        verify(offreRepository, times(1)).findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE);
+        org.junit.jupiter.api.Assertions.assertEquals(2, result.size());
+        org.junit.jupiter.api.Assertions.assertEquals("Stage en développement web", result.get(0).getTitre());
+        org.junit.jupiter.api.Assertions.assertEquals("Stage en réseaux", result.get(1).getTitre());
+    }
+
+    @Test
+    public void testGetOffresApprouve_AucuneOffre() {
+        // Arrange
+        when(offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE))
+                .thenReturn(List.of());
+
+        // Act
+        List<OffreDTO> result = etudiantService.getOffresApprouves();
+
+        // Assert
+        verify(offreRepository, times(1)).findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE);
+        org.junit.jupiter.api.Assertions.assertTrue(result.isEmpty());
+        org.junit.jupiter.api.Assertions.assertEquals(0, result.size());
+    }
+
+
 }

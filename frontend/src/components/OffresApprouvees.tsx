@@ -238,7 +238,7 @@ const OffresApprouvees = () => {
                                         </p>
                                     </div>
                                     <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                                        Voir les détails
+                                        Postuler
                                     </button>
                                 </div>
                             </div>
