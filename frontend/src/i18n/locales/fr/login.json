@@ -1,0 +1,35 @@
+{
+  "title": "Connexion",
+  "subtitle": "Accédez à votre espace Overd-OSE",
+  "errorTitle": "Erreur de connexion",
+
+  "fields": {
+    "email": "Adresse courriel",
+    "password": "Mot de passe"
+  },
+
+  "placeholders": {
+    "email": "exemple@domaine.com",
+    "password": "Votre mot de passe"
+  },
+
+  "validation": {
+    "emailRequired": "Adresse courriel requise",
+    "emailInvalid": "Adresse courriel invalide",
+    "passwordRequired": "Mot de passe requis"
+  },
+
+  "messages": {
+    "success": "Connexion réussie !",
+    "redirecting": "Redirection en cours..."
+  },
+
+  "buttons": {
+    "login": "Se connecter",
+    "connecting": "Connexion en cours..."
+  },
+
+  "noAccount": "Pas encore de compte ?",
+  "signUp": "S'inscrire",
+  "securityNote": "Vos informations sont protégées et sécurisées"
+}

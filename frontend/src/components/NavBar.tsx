@@ -25,7 +25,7 @@ const NavBar = () => {
                     {/* Logo et titre */}
                     <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md">
-                            <span className="text-blue-600 font-bold text-xl">O</span>
+                            <span className="text-blue-600 font-bold text-xl">📚</span>
                         </div>
                         <span className="font-bold text-xl text-white tracking-tight">
                             Overd-OSE

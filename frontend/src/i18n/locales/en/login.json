@@ -1,0 +1,35 @@
+{
+  "title": "Login",
+  "subtitle": "Access your Overd-OSE space",
+  "errorTitle": "Login error",
+
+  "fields": {
+    "email": "Email address",
+    "password": "Password"
+  },
+
+  "placeholders": {
+    "email": "example@domain.com",
+    "password": "Your password"
+  },
+
+  "validation": {
+    "emailRequired": "Email address is required",
+    "emailInvalid": "Invalid email address",
+    "passwordRequired": "Password is required"
+  },
+
+  "messages": {
+    "success": "Login successful!",
+    "redirecting": "Redirecting..."
+  },
+
+  "buttons": {
+    "login": "Sign in",
+    "connecting": "Connecting..."
+  },
+
+  "noAccount": "Don't have an account?",
+  "signUp": "Sign up",
+  "securityNote": "Your information is protected and secure"
+}

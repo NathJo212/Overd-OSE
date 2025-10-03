@@ -13,6 +13,8 @@ import internshipmanagerFr from './locales/fr/internshipmanager.json';
 import internshipmanagerEn from './locales/en/internshipmanager.json';
 import navbarFr from './locales/fr/navbar.json';
 import navbarEn from './locales/en/navbar.json';
+import loginFr from './locales/fr/login.json';
+import loginEn from './locales/en/login.json';
 
 
 const resources = {
@@ -22,6 +24,7 @@ const resources = {
         home: homeFr,
         internshipmanager:internshipmanagerFr,
         navbar: navbarFr,
+        login: loginFr
     },
     en: {
         registration: registrationEn,
@@ -29,6 +32,7 @@ const resources = {
         home: homeEn,
         internshipmanager:internshipmanagerEn,
         navbar: navbarEn,
+        login: loginEn
     }
 };
 

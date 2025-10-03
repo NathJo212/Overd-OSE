@@ -4,6 +4,7 @@ import { NavLink } from "react-router"
 import { LogIn, Mail, Lock, CheckCircle, AlertCircle } from 'lucide-react'
 import utilisateurService from '../services/UtilisateurService'
 import * as React from "react";
+import { useTranslation } from 'react-i18next';
 
 interface FormData {
     email: string
@@ -11,10 +12,17 @@ interface FormData {
 }
 
 const Login = () => {
+    const { t } = useTranslation(['login', 'errors']);
     const navigate = useNavigate()
     const [formData, setFormData] = useState<FormData>({ email: '', password: '' })
     const [loading, setLoading] = useState(false)
-    const [errors, setErrors] = useState<string[]>([])
+
+    // Erreurs de validation côté client (déjà traduites)
+    const [validationErrors, setValidationErrors] = useState<string[]>([])
+
+    // Codes d'erreur du backend (se traduisent automatiquement)
+    const [backendErrorCodes, setBackendErrorCodes] = useState<string[]>([])
+
     const [successMessage, setSuccessMessage] = useState<string>('')
 
     useEffect(() => {
@@ -37,25 +45,34 @@ const Login = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
-        if (errors.length > 0) setErrors([])
+        if (validationErrors.length > 0 || backendErrorCodes.length > 0) {
+            setValidationErrors([])
+            setBackendErrorCodes([])
+        }
     }
 
     const validateForm = (): string[] => {
-        const validationErrors: string[] = []
-        if (!formData.email.trim()) validationErrors.push('Adresse courriel requise')
-        else if (!/\S+@\S+\.\S+/.test(formData.email)) validationErrors.push('Adresse courriel invalide')
-        if (!formData.password) validationErrors.push('Mot de passe requis')
-        return validationErrors
+        const errors: string[] = []
+        if (!formData.email.trim()) {
+            errors.push(t('login:validation.emailRequired'))
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            errors.push(t('login:validation.emailInvalid'))
+        }
+        if (!formData.password) {
+            errors.push(t('login:validation.passwordRequired'))
+        }
+        return errors
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setErrors([])
+        setValidationErrors([])
+        setBackendErrorCodes([])
         setSuccessMessage('')
 
-        const validationErrors = validateForm()
-        if (validationErrors.length > 0) {
-            setErrors(validationErrors)
+        const errors = validateForm()
+        if (errors.length > 0) {
+            setValidationErrors(errors)
             return
         }
 
@@ -66,7 +83,7 @@ const Login = () => {
             const authResponse = await utilisateurService.authentifier(loginData)
 
             if (authResponse) {
-                setSuccessMessage('Connexion réussie !')
+                setSuccessMessage(t('login:messages.success'))
                 sessionStorage.setItem('fromLogin', 'true');
 
                 setTimeout(() => {
@@ -87,11 +104,16 @@ const Login = () => {
                 }, 1500)
             }
 
-        } catch (error) {
-            if (error instanceof Error) {
-                setErrors([error.message])
+        } catch (error: any) {
+            console.error('Erreur lors de la connexion:', error);
+
+            // Extraire le code d'erreur de la réponse du backend
+            if (error.response?.data?.errorCode) {
+                setBackendErrorCodes([error.response.data.errorCode]);
+            } else if (error.code === 'ERR_NETWORK') {
+                setBackendErrorCodes(['NETWORK_ERROR']);
             } else {
-                setErrors(['Une erreur inattendue s\'est produite'])
+                setBackendErrorCodes(['ERROR_000']);
             }
         } finally {
             setLoading(false)
@@ -99,29 +121,56 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
             <div className="max-w-md w-full">
                 {/* Logo/Titre de l'application */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-4">
                         <span className="text-white font-bold text-2xl">O</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Connexion</h1>
-                    <p className="text-gray-600">Accédez à votre espace Overd-OSE</p>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        {t('login:title')}
+                    </h1>
+                    <p className="text-gray-600">
+                        {t('login:subtitle')}
+                    </p>
                 </div>
 
                 {/* Carte de formulaire */}
                 <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-8 border border-slate-200">
-                    {/* Messages d'erreur */}
-                    {errors.length > 0 && (
+                    {/* Messages d'erreur de validation */}
+                    {validationErrors.length > 0 && (
                         <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
                             <div className="flex items-start gap-3">
                                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
-                                    <h3 className="text-sm font-semibold text-red-900 mb-1">Erreur de connexion</h3>
+                                    <h3 className="text-sm font-semibold text-red-900 mb-1">
+                                        {t('login:errorTitle')}
+                                    </h3>
                                     <ul className="space-y-1">
-                                        {errors.map((error, idx) => (
+                                        {validationErrors.map((error, idx) => (
                                             <li key={idx} className="text-sm text-red-700">• {error}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Messages d'erreur du backend */}
+                    {backendErrorCodes.length > 0 && (
+                        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                            <div className="flex items-start gap-3">
+                                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex-1">
+                                    <h3 className="text-sm font-semibold text-red-900 mb-1">
+                                        {t('login:errorTitle')}
+                                    </h3>
+                                    <ul className="space-y-1">
+                                        {backendErrorCodes.map((errorCode, idx) => (
+                                            <li key={idx} className="text-sm text-red-700">
+                                                • {t(`errors:${errorCode}`, { defaultValue: t('errors:ERROR_000') })}
+                                            </li>
                                         ))}
                                     </ul>
                                 </div>
@@ -136,7 +185,9 @@ const Login = () => {
                                 <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-green-900">{successMessage}</p>
-                                    <p className="text-xs text-green-700 mt-1">Redirection en cours...</p>
+                                    <p className="text-xs text-green-700 mt-1">
+                                        {t('login:messages.redirecting')}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -148,7 +199,7 @@ const Login = () => {
                         <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                 <Mail className="w-4 h-4 text-blue-600" />
-                                Adresse courriel
+                                {t('login:fields.email')}
                             </label>
                             <input
                                 type="email"
@@ -156,7 +207,7 @@ const Login = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                placeholder="exemple@domaine.com"
+                                placeholder={t('login:placeholders.email')}
                                 disabled={loading}
                             />
                         </div>
@@ -165,7 +216,7 @@ const Login = () => {
                         <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                 <Lock className="w-4 h-4 text-blue-600" />
-                                Mot de passe
+                                {t('login:fields.password')}
                             </label>
                             <input
                                 type="password"
@@ -173,7 +224,7 @@ const Login = () => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                placeholder="Votre mot de passe"
+                                placeholder={t('login:placeholders.password')}
                                 disabled={loading}
                             />
                         </div>
@@ -190,12 +241,12 @@ const Login = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                     </svg>
-                                    Connexion en cours...
+                                    {t('login:buttons.connecting')}
                                 </>
                             ) : (
                                 <>
                                     <LogIn className="w-5 h-5" />
-                                    Se connecter
+                                    {t('login:buttons.login')}
                                 </>
                             )}
                         </button>
@@ -204,12 +255,12 @@ const Login = () => {
                     {/* Lien d'inscription */}
                     <div className="mt-6 pt-6 border-t border-gray-200 text-center">
                         <p className="text-sm text-gray-600">
-                            Pas encore de compte ?{' '}
+                            {t('login:noAccount')}{' '}
                             <NavLink
                                 to="/"
                                 className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
                             >
-                                S'inscrire
+                                {t('login:signUp')}
                             </NavLink>
                         </p>
                     </div>
@@ -217,7 +268,7 @@ const Login = () => {
 
                 {/* Note de sécurité */}
                 <p className="text-center text-xs text-gray-500 mt-6">
-                    Vos informations sont protégées et sécurisées
+                    {t('login:securityNote')}
                 </p>
             </div>
         </div>

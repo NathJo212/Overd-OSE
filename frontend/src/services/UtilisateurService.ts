@@ -3,24 +3,27 @@ export interface LoginData {
     password: string;
 }
 
-// Interface pour la réponse d'authentification basée sur votre API
 export interface AuthResponseDTO {
     token: string;
     utilisateurDTO: {
         email: string;
         password: string;
         telephone: string;
-        nomEntreprise?: string; // Pour les employeurs
-        contact?: string; // Pour les employeurs
-        nom?: string; // Pour les étudiants
-        prenom?: string; // Pour les étudiants
-        progEtude?: string; // Pour les étudiants
-        session?: string; // Pour les étudiants
-        annee?: number; // Pour les étudiants
+        nomEntreprise?: string;
+        contact?: string;
+        nom?: string;
+        prenom?: string;
+        progEtude?: string;
+        session?: string;
+        annee?: number;
     };
 }
 
-// Configuration de l'API
+export interface ErrorResponse {
+    errorCode: string;
+    message?: string;
+}
+
 const API_BASE_URL = 'http://localhost:8080';
 const UTILISATEUR_ENDPOINT = '/OSE';
 
@@ -46,31 +49,65 @@ class UtilisateurService {
                 body: JSON.stringify(loginData),
             });
 
+            // ✅ Lire la réponse UNE SEULE FOIS
+            const data = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Erreur lors de la connexion:', errorData);
+                console.error('Erreur lors de la connexion:', data);
+
+                // Si le backend envoie un ErrorResponse avec errorCode
+                if (data.errorCode) {
+                    const error: any = new Error(data.message || 'Erreur de connexion');
+                    error.response = { data }; // Attacher errorCode pour Login.tsx
+                    throw error;
+                }
+
+                // Sinon, erreur classique (rétrocompatibilité)
+                const error: any = new Error(
+                    data.message ||
+                    `Erreur HTTP: ${response.status} - ${response.statusText}`
+                );
+                error.response = {
+                    data: { errorCode: 'ERROR_000', message: error.message }
+                };
+                throw error;
             }
 
-            const authResponse: AuthResponseDTO = await response.json();
+            const authResponse: AuthResponseDTO = data;
 
-            // Stocker le token et les informations utilisateur dans le sessionStorage
+            // Stocker le token et les informations utilisateur
             this.stockerDonneesUtilisateur(authResponse);
 
             return authResponse;
 
-        } catch (error) {
-            // Gestion des erreurs de réseau ou autres
-            if (error instanceof Error) {
-                throw error; // Re-lancer l'erreur telle quelle si c'est déjà une Error
-            } else {
-                throw new Error('Erreur inconnue lors de la connexion');
+        } catch (error: any) {
+            // Si l'erreur a déjà un errorCode, la relancer
+            if (error.response?.data?.errorCode) {
+                throw error;
             }
+
+            // Gestion des erreurs de réseau
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.response = {
+                    data: { errorCode: 'NETWORK_ERROR' }
+                };
+                throw networkError;
+            }
+
+            // Autres erreurs
+            const genericError: any = new Error(
+                error.message || 'Erreur inconnue lors de la connexion'
+            );
+            genericError.response = {
+                data: { errorCode: 'ERROR_000', message: error.message }
+            };
+            throw genericError;
         }
     }
 
     /**
      * Récupère tous les programmes disponibles
-     * @returns Promise avec un objet contenant les programmes (key: enum name, value: label)
      */
     async getAllProgrammes(): Promise<{[key: string]: string}> {
         try {
@@ -81,38 +118,41 @@ class UtilisateurService {
                 },
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data };
+                throw error;
             }
 
-            return await response.json();
+            return data;
 
-        } catch (error) {
-            if (error instanceof Error) {
-                throw new Error(`Erreur lors de la récupération des programmes: ${error.message}`);
-            } else {
-                throw new Error('Erreur inconnue lors de la récupération des programmes');
+        } catch (error: any) {
+            if (error.response?.data?.errorCode) {
+                throw error;
             }
+
+            const genericError: any = new Error('Erreur lors de la récupération des programmes');
+            genericError.response = {
+                data: { errorCode: 'ERROR_000' }
+            };
+            throw genericError;
         }
     }
 
     /**
      * Stocke les données d'authentification dans le sessionStorage
-     * @param authResponse - La réponse d'authentification
      */
     private stockerDonneesUtilisateur(authResponse: AuthResponseDTO): void {
-        // Stocker le token
         sessionStorage.setItem('authToken', authResponse.token);
 
-        // Extraire le userType du token JWT
         let userType: string | null = null;
 
         try {
-            // Décoder le payload du JWT pour extraire les authorities
             const payload = JSON.parse(atob(authResponse.token.split('.')[1]));
             console.log('Payload du JWT:', payload);
 
-            // Extraire le rôle des authorities
             if (payload.authorities && Array.isArray(payload.authorities)) {
                 const authority = payload.authorities[0];
                 userType = authority.authority || authority;
@@ -125,18 +165,14 @@ class UtilisateurService {
             sessionStorage.setItem('userType', userType);
         }
 
-        // Stocker les données utilisateur (structure utilisateurDTO)
         if (authResponse.utilisateurDTO) {
-            // Créer un objet utilisateur nettoyé (sans le mot de passe)
             const { password, ...userDataSafe } = authResponse.utilisateurDTO;
             sessionStorage.setItem('userData', JSON.stringify(userDataSafe));
         }
     }
 
-
     /**
      * Formate les données du formulaire pour l'API
-     * @param formData
      */
     formatLoginDataForAPI(formData: {
         email: string;
@@ -148,6 +184,9 @@ class UtilisateurService {
         };
     }
 
+    /**
+     * Déconnexion de l'utilisateur
+     */
     async deconnexion(): Promise<void> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -158,18 +197,38 @@ class UtilisateurService {
                 }
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
+                // Si errorCode présent
+                if (data.errorCode) {
+                    const error: any = new Error(data.message || 'Erreur de déconnexion');
+                    error.response = { data };
+                    throw error;
+                }
+
+                const error: any = new Error(data.message || `Erreur HTTP: ${response.status}`);
+                error.response = {
+                    data: { errorCode: 'ERROR_000' }
+                };
+                throw error;
             }
 
             sessionStorage.clear();
-        } catch (error) {
-            throw new Error(error instanceof Error ? error.message : 'Erreur inconnue lors de la déconnexion');
+
+        } catch (error: any) {
+            if (error.response?.data?.errorCode) {
+                throw error;
+            }
+
+            const genericError: any = new Error('Erreur lors de la déconnexion');
+            genericError.response = {
+                data: { errorCode: 'ERROR_000' }
+            };
+            throw genericError;
         }
     }
 }
 
-// Export d'une instance unique (Singleton)
 export const utilisateurService = new UtilisateurService();
 export default utilisateurService;
