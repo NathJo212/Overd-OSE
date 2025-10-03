@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
+import { Briefcase, MapPin, DollarSign, Calendar, GraduationCap, FileText, CheckCircle, X } from "lucide-react";
 import { employeurService } from "../services/EmployeurService";
 import utilisateurService from "../services/UtilisateurService";
 import type { OffreStageDTO } from "../services/EmployeurService";
@@ -29,14 +30,11 @@ const CreerOffreStage = () => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
     const [successMessage, setSuccessMessage] = useState<string>("");
-
-    // Add state for programs
     const [programmes, setProgrammes] = useState<{[key: string]: string}>({});
     const [loadingProgrammes, setLoadingProgrammes] = useState(true);
 
     const token = sessionStorage.getItem("authToken") || "";
 
-    // Load programs on component mount
     useEffect(() => {
         const loadProgrammes = async () => {
             try {
@@ -50,8 +48,7 @@ const CreerOffreStage = () => {
                 setLoadingProgrammes(false);
             }
         };
-
-        loadProgrammes();
+        loadProgrammes().then();
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -98,91 +95,223 @@ const CreerOffreStage = () => {
     };
 
     return (
-        <>
+        <div className="bg-gray-50 min-h-screen">
             <NavBar/>
-            <div className="min-h-screen bg-gray-50 py-8 px-4 flex items-center justify-center">
-                <div className="max-w-lg w-full bg-white rounded-xl shadow-lg p-8">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+
+            <div className="container mx-auto px-4 py-8 max-w-4xl">
+                {/* En-tête */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         Créer une offre de stage
                     </h1>
-                    {errors.length > 0 && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                            <ul className="list-disc list-inside space-y-1">
-                                {errors.map((error, idx) => (
-                                    <li key={idx} className="text-red-700 text-sm">{error}</li>
-                                ))}
-                            </ul>
+                    <p className="text-gray-600">
+                        Remplissez les informations pour publier votre offre
+                    </p>
+                </div>
+
+                {/* Messages */}
+                {errors.length > 0 && (
+                    <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                                <h3 className="text-sm font-semibold text-red-900 mb-2">Erreurs de validation</h3>
+                                <ul className="space-y-1">
+                                    {errors.map((error, idx) => (
+                                        <li key={idx} className="text-sm text-red-700">• {error}</li>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
-                    )}
-                    {successMessage && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-green-800 font-medium text-center">
-                            {successMessage}
-                            <p className="text-green-600 text-sm mt-1">Redirection...</p>
+                    </div>
+                )}
+
+                {successMessage && (
+                    <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-sm font-medium text-green-900">{successMessage}</p>
+                                <p className="text-xs text-green-700 mt-1">Redirection en cours...</p>
+                            </div>
                         </div>
-                    )}
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    </div>
+                )}
+
+                {/* Formulaire */}
+                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-8 border border-slate-200">
+                    <div className="space-y-6">
+                        {/* Titre */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
-                            <input type="text" name="titre" value={formData.titre} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                <Briefcase className="w-4 h-4 text-blue-600" />
+                                Titre de l'offre *
+                            </label>
+                            <input
+                                type="text"
+                                name="titre"
+                                value={formData.titre}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                placeholder="Ex: Développeur web junior"
+                                disabled={loading}
+                            />
                         </div>
+
+                        {/* Description */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
-                            <textarea name="description" value={formData.description} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" rows={4} disabled={loading} />
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                <FileText className="w-4 h-4 text-blue-600" />
+                                Description *
+                            </label>
+                            <textarea
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                                rows={5}
+                                placeholder="Décrivez les missions, compétences requises..."
+                                disabled={loading}
+                            />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Date de début *</label>
-                            <input type="date" name="date_debut" value={formData.date_debut} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
+
+                        {/* Dates */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                    <Calendar className="w-4 h-4 text-blue-600" />
+                                    Date de début *
+                                </label>
+                                <input
+                                    type="date"
+                                    name="date_debut"
+                                    value={formData.date_debut}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    disabled={loading}
+                                />
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                    <Calendar className="w-4 h-4 text-blue-600" />
+                                    Date de fin *
+                                </label>
+                                <input
+                                    type="date"
+                                    name="date_fin"
+                                    value={formData.date_fin}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    disabled={loading}
+                                />
+                            </div>
                         </div>
+
+                        {/* Programme d'étude */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Date de fin *</label>
-                            <input type="date" name="date_fin" value={formData.date_fin} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Programme d'étude *</label>
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                <GraduationCap className="w-4 h-4 text-blue-600" />
+                                Programme d'étude *
+                            </label>
                             {loadingProgrammes ? (
-                                <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center">
-                                    <svg className="animate-spin h-4 w-4 text-gray-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 flex items-center justify-center">
+                                    <svg className="animate-spin h-5 w-5 text-blue-600 mr-2" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                     </svg>
-                                    <span className="text-gray-500 text-sm">Chargement des programmes...</span>
+                                    <span className="text-gray-600 text-sm">Chargement...</span>
                                 </div>
                             ) : (
                                 <select
                                     name="progEtude"
                                     value={formData.progEtude}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                     disabled={loading}
                                 >
-                                    <option value="">Sélectionnez le programme d'étude</option>
+                                    <option value="">Sélectionnez un programme</option>
                                     {Object.entries(programmes).map(([key, label]) => (
-                                        <option key={key} value={key}>
-                                            {label}
-                                        </option>
+                                        <option key={key} value={key}>{label}</option>
                                     ))}
                                 </select>
                             )}
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Lieu du stage *</label>
-                            <input type="text" name="lieuStage" value={formData.lieuStage} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
+
+                        {/* Lieu et Rémunération */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                    <MapPin className="w-4 h-4 text-blue-600" />
+                                    Lieu du stage *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="lieuStage"
+                                    value={formData.lieuStage}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    placeholder="Ex: Montréal, QC"
+                                    disabled={loading}
+                                />
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                    <DollarSign className="w-4 h-4 text-blue-600" />
+                                    Rémunération *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="remuneration"
+                                    value={formData.remuneration}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    placeholder="Ex: 20$/h"
+                                    disabled={loading}
+                                />
+                            </div>
                         </div>
+
+                        {/* Date limite */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Rémunération *</label>
-                            <input type="text" name="remuneration" value={formData.remuneration} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                <Calendar className="w-4 h-4 text-blue-600" />
+                                Date limite de candidature *
+                            </label>
+                            <input
+                                type="date"
+                                name="dateLimite"
+                                value={formData.dateLimite}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                disabled={loading}
+                            />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Date limite *</label>
-                            <input type="date" name="dateLimite" value={formData.dateLimite} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" disabled={loading} />
-                        </div>
-                        <button type="submit" disabled={loading || loadingProgrammes} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300">
-                            {loading ? "Création en cours..." : "Créer l'offre"}
+
+                        {/* Bouton de soumission */}
+                        <button
+                            type="submit"
+                            disabled={loading || loadingProgrammes}
+                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center justify-center gap-2"
+                        >
+                            {loading ? (
+                                <>
+                                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                    </svg>
+                                    Création en cours...
+                                </>
+                            ) : (
+                                <>
+                                    <Briefcase className="w-5 h-5" />
+                                    Créer l'offre de stage
+                                </>
+                            )}
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
-        </>
+        </div>
     );
 };
 

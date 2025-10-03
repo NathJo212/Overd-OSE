@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign } from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -23,7 +24,7 @@ const OffresDeStagesGestionnaire = () => {
             setLoading(true);
             const data = await gestionnaireService.getAllOffresDeStages(token);
             setOffres(data);
-        } catch (e:any) {
+        } catch (e: any) {
             setError(e.message || 'Erreur inconnue');
         } finally {
             setLoading(false);
@@ -40,7 +41,7 @@ const OffresDeStagesGestionnaire = () => {
             setError("Token d'authentification manquant");
             return;
         }
-        chargerOffres();
+        chargerOffres().then();
     }, [navigate, token]);
 
     const handleApprove = async (id: number) => {
@@ -50,7 +51,7 @@ const OffresDeStagesGestionnaire = () => {
             await gestionnaireService.approuverOffre(id, token);
             setActionMessage('internshipmanager:messages.approvedSuccess');
             await chargerOffres();
-        } catch (e:any) {
+        } catch (e: any) {
             setError(e.message || 'internshipmanager:messages.approveError');
         } finally {
             setProcessingId(null);
@@ -78,7 +79,7 @@ const OffresDeStagesGestionnaire = () => {
             setActionMessage('internshipmanager:messages.refusedSuccess');
             setShowRefuseModal(false);
             await chargerOffres();
-        } catch (e:any) {
+        } catch (e: any) {
             setError(e.message || 'internshipmanager:messages.refuseError');
         } finally {
             setProcessingId(null);
@@ -103,142 +104,223 @@ const OffresDeStagesGestionnaire = () => {
     }, [showRefuseModal]);
 
     return (
-        <>
-            <NavBar/>
-            <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex flex-col items-center py-10 px-4">
-                <div className="w-full max-w-5xl">
-                    <div className="mb-8 text-center">
-                        <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('internshipmanager:page.title')}</h1>
-                        <p className="text-gray-600">{t('internshipmanager:page.manageOffers')}</p>
-                    </div>
+        <div className="bg-gray-50 min-h-screen">
+            <NavBar />
 
-                    {actionMessage && (
-                        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-700 text-sm font-medium">
-                            {t(actionMessage)}
-                        </div>
-                    )}
-                    {error && (
-                        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
-                            {t(error)}
-                        </div>
-                    )}
-
-                    {loading ? (
-                        <div className="flex justify-center py-20">
-                            <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-300 border-t-indigo-600" />
-                        </div>
-                    ) : offres.length === 0 ? (
-                        <div className="text-center text-gray-500 bg-white rounded-xl p-10 shadow-sm">{t('internshipmanager:messages.noOffers')}</div>
-                    ) : (
-                        <ul className="grid gap-6 md:grid-cols-2">
-                            {offres.map(offre => (
-                                <li key={offre.id} className="relative group border border-gray-200 rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition-shadow">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <h2 className="text-lg font-semibold text-gray-800 pr-2">{offre.titre}</h2>
-                                        <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium">{t('internshipmanager:messages.pending')}</span>
-                                    </div>
-                                    <div className="mb-3 text-sm text-gray-600 bg-gray-50 rounded-md p-3 border border-gray-100">
-                                        <div className="font-medium text-gray-700">{t('internshipmanager:fields.employer')}</div>
-                                        <div>{offre.employeurDTO?.nomEntreprise}</div>
-                                        <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                                            {offre.employeurDTO?.contact && (
-                                                <span className="inline-block text-xs text-gray-500">{t('internshipmanager:fields.contact')} {offre.employeurDTO?.contact}</span>
-                                            )}
-                                            {offre.employeurDTO?.email && (
-                                                <span className="inline-block text-xs text-gray-500">{t('internshipmanager:fields.email')} {offre.employeurDTO?.email}</span>
-                                            )}
-                                            {offre.employeurDTO?.telephone && (
-                                                <span className="inline-block text-xs text-gray-500">{t('internshipmanager:fields.telephone')} {offre.employeurDTO?.telephone}</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <p className="text-sm text-gray-700 mb-3 leading-relaxed line-clamp-4">{offre.description}</p>
-                                    <div className="grid grid-cols-1 text-sm gap-1 mb-4 text-gray-600">
-                                        <div><span className="font-medium text-gray-700">{t('internshipmanager:fields.location')}</span> {offre.lieuStage || '—'}</div>
-                                        <div><span className="font-medium text-gray-700">{t('internshipmanager:fields.start')}</span> {offre.date_debut}</div>
-                                        <div><span className="font-medium text-gray-700">{t('internshipmanager:fields.end')}</span> {offre.date_fin}</div>
-                                        {offre.remuneration && (
-                                            <div><span className="font-medium text-gray-700">{t('internshipmanager:fields.remuneration')}</span> {offre.remuneration}</div>
-                                        )}
-                                        {offre.dateLimite && (
-                                            <div><span className="font-medium text-gray-700">{t('internshipmanager:fields.deadline')}</span> {offre.dateLimite}</div>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <button
-                                            onClick={() => handleApprove(offre.id)}
-                                            disabled={processingId === offre.id}
-                                            className="flex-1 inline-flex items-center justify-center rounded-lg bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white text-sm font-medium py-2.5 transition-colors"
-                                        >
-                                            {processingId === offre.id ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.approve')}
-                                        </button>
-                                        <button
-                                            onClick={() => handleRefuseClick(offre.id)}
-                                            disabled={processingId === offre.id}
-                                            className="flex-1 inline-flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white text-sm font-medium py-2.5 transition-colors"
-                                        >
-                                            {processingId === offre.id ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.refuse')}
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+            <div className="container mx-auto px-4 py-8 max-w-7xl">
+                {/* En-tête */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        {t('internshipmanager:page.title')}
+                    </h1>
+                    <p className="text-gray-600">
+                        {t('internshipmanager:page.manageOffers')}
+                    </p>
                 </div>
+
+                {/* Messages */}
+                {actionMessage && (
+                    <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                            <p className="text-sm font-medium text-green-900">{t(actionMessage)}</p>
+                            <button onClick={() => setActionMessage("")} className="ml-auto text-green-600 hover:text-green-800">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {error && (
+                    <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                            <p className="text-sm font-medium text-red-900">{t(error)}</p>
+                            <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Contenu */}
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="relative">
+                            <div className="h-16 w-16 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+                        </div>
+                    </div>
+                ) : offres.length === 0 ? (
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+                        <AlertCircle className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                        <p className="text-gray-600">{t('internshipmanager:messages.noOffers')}</p>
+                    </div>
+                ) : (
+                    <div className="grid gap-6 md:grid-cols-2">
+                        {offres.map(offre => (
+                            <div
+                                key={offre.id}
+                                className="bg-white rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-6 border border-slate-200"
+                            >
+                                {/* En-tête de la carte */}
+                                <div className="flex items-start justify-between mb-4">
+                                    <h2 className="text-xl font-bold text-gray-900 pr-4">{offre.titre}</h2>
+                                    <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium flex-shrink-0">
+                                        {t('internshipmanager:messages.pending')}
+                                    </span>
+                                </div>
+
+                                {/* Info employeur */}
+                                <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Building2 className="w-4 h-4 text-slate-600" />
+                                        <span className="font-semibold text-gray-900">{offre.employeurDTO?.nomEntreprise}</span>
+                                    </div>
+                                    <div className="space-y-1 text-sm text-gray-600">
+                                        {offre.employeurDTO?.contact && (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-slate-500">Contact:</span>
+                                                <span>{offre.employeurDTO?.contact}</span>
+                                            </div>
+                                        )}
+                                        {offre.employeurDTO?.email && (
+                                            <div className="flex items-center gap-2">
+                                                <Mail className="w-3 h-3 text-slate-500" />
+                                                <span className="text-xs">{offre.employeurDTO?.email}</span>
+                                            </div>
+                                        )}
+                                        {offre.employeurDTO?.telephone && (
+                                            <div className="flex items-center gap-2">
+                                                <Phone className="w-3 h-3 text-slate-500" />
+                                                <span className="text-xs">{offre.employeurDTO?.telephone}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Description */}
+                                <p className="text-sm text-gray-700 mb-4 leading-relaxed line-clamp-3">
+                                    {offre.description}
+                                </p>
+
+                                {/* Détails */}
+                                <div className="space-y-2 mb-4 text-sm">
+                                    {offre.lieuStage && (
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                            <MapPin className="w-4 h-4 text-blue-600" />
+                                            <span>{offre.lieuStage}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center gap-2 text-gray-600">
+                                        <Calendar className="w-4 h-4 text-blue-600" />
+                                        <span>{offre.date_debut} → {offre.date_fin}</span>
+                                    </div>
+                                    {offre.remuneration && (
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                            <DollarSign className="w-4 h-4 text-blue-600" />
+                                            <span>{offre.remuneration}</span>
+                                        </div>
+                                    )}
+                                    {offre.dateLimite && (
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                            <Calendar className="w-4 h-4 text-red-600" />
+                                            <span className="text-red-600">Limite: {offre.dateLimite}</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex gap-3 pt-4 border-t border-slate-200">
+                                    <button
+                                        onClick={() => handleApprove(offre.id)}
+                                        disabled={processingId === offre.id}
+                                        className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-green-400 disabled:shadow-none flex items-center justify-center gap-2"
+                                    >
+                                        <CheckCircle className="w-4 h-4" />
+                                        {processingId === offre.id ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.approve')}
+                                    </button>
+                                    <button
+                                        onClick={() => handleRefuseClick(offre.id)}
+                                        disabled={processingId === offre.id}
+                                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-red-400 disabled:shadow-none flex items-center justify-center gap-2"
+                                    >
+                                        <XCircle className="w-4 h-4" />
+                                        {processingId === offre.id ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.refuse')}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
+
+            {/* Modal de refus */}
             {showRefuseModal && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-                    onMouseDown={(e) => {
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+                    onClick={(e) => {
                         if (e.target === e.currentTarget) cancelRefuse();
                     }}
                 >
-                    <div
-                        className="bg-white w-full max-w-md rounded-xl shadow-xl p-6 relative animate-fade-in"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="refuse-title"
-                    >
-                        <h2 id="refuse-title" className="text-xl font-semibold text-gray-800 mb-2">{t('internshipmanager:refuseModal.refuseOffer')}</h2>
-                        <p id="refuse-help" className="text-sm text-gray-600 mb-4">{t('internshipmanager:refuseModal.refuseReason')}</p>
-                        <label htmlFor="refuse-reason" className="block text-sm font-medium text-gray-700 mb-1">{t('internshipmanager:refuseModal.reasonLabel')}</label>
+                    <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 animate-fade-in">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold text-gray-900">
+                                {t('internshipmanager:refuseModal.refuseOffer')}
+                            </h2>
+                            <button
+                                onClick={cancelRefuse}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <p className="text-sm text-gray-600 mb-4">
+                            {t('internshipmanager:refuseModal.refuseReason')}
+                        </p>
+
+                        <label htmlFor="refuse-reason" className="block text-sm font-medium text-gray-700 mb-2">
+                            {t('internshipmanager:refuseModal.reasonLabel')}
+                        </label>
                         <textarea
                             id="refuse-reason"
-                            aria-describedby="refuse-help"
                             value={refuseReason}
-                            onChange={(e) => { setRefuseReason(e.target.value); if (refuseError) setRefuseError(''); }}
+                            onChange={(e) => {
+                                setRefuseReason(e.target.value);
+                                if (refuseError) setRefuseError('');
+                            }}
                             rows={4}
-                            className="w-full resize-none rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 px-3 py-2 text-sm outline-none"
+                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent px-4 py-3 text-sm transition-all"
                             placeholder={t('internshipmanager:refuseModal.reasonPlaceholder')}
                             autoFocus
                         />
-                        {refuseError && <div className="text-sm text-red-600 mt-2">{t('internshipmanager:refuseModal.reasonRequired')}</div>}
-                        <div className="flex items-center gap-3 mt-6">
+                        {refuseError && (
+                            <div className="mt-2 flex items-center gap-2 text-sm text-red-600">
+                                <AlertCircle className="w-4 h-4" />
+                                <span>{t('internshipmanager:refuseModal.reasonRequired')}</span>
+                            </div>
+                        )}
+
+                        <div className="flex gap-3 mt-6">
                             <button
                                 onClick={submitRefuse}
                                 disabled={processingId !== null}
-                                className="flex-1 inline-flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium py-2.5 text-sm transition-colors"
+                                className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-red-400 disabled:shadow-none"
                             >
                                 {processingId !== null ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.confirm')}
                             </button>
                             <button
                                 onClick={cancelRefuse}
                                 disabled={processingId !== null}
-                                className="flex-1 inline-flex items-center justify-center rounded-lg bg-gray-200 hover:bg-gray-300 disabled:bg-gray-200 text-gray-800 font-medium py-2.5 text-sm transition-colors"
+                                className="flex-1 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-200 text-gray-800 font-medium py-3 rounded-xl transition-all duration-200"
                             >
                                 {t('internshipmanager:actions.cancel')}
                             </button>
                         </div>
-                        <button
-                            onClick={cancelRefuse}
-                            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                            ✕
-                        </button>
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

@@ -63,9 +63,9 @@ const DashBoardEmployeur = () => {
     };
 
     return (
-        <>
+        <div className="bg-gray-200">
             <NavBar/>
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+            <div className="min-h-screen bg-gradient-to-br p-4">
                 {showNotification && (
                     <div className="fixed top-4 right-4 z-50 max-w-md w-full">
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg">
@@ -236,7 +236,7 @@ const DashBoardEmployeur = () => {
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 };
 

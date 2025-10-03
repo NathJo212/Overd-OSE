@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, ChevronDown, ArrowUpDown } from "lucide-react";
+import {useEffect, useState} from "react";
+import {ArrowUpDown, ChevronDown, Search, SlidersHorizontal} from "lucide-react";
 import etudiantService from "../services/EtudiantService";
 import utilisateurService from "../services/UtilisateurService";
 
@@ -41,7 +41,7 @@ const OffresApprouvees = () => {
     const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
-        chargerDonnees();
+        chargerDonnees().then();
     }, []);
 
     useEffect(() => {
@@ -80,8 +80,7 @@ const OffresApprouvees = () => {
         const debut = new Date(dateDebut);
         const fin = new Date(dateFin);
         const diffTime = Math.abs(fin.getTime() - debut.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
 
     const appliquerFiltresEtTri = () => {
@@ -110,7 +109,7 @@ const OffresApprouvees = () => {
 
         // Tri
         resultat.sort((a, b) => {
-            let comparison = 0;
+            let comparison: number;
 
             switch (sortBy) {
                 case "titre":
