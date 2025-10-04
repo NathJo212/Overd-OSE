@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap } from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 
 const OffresDeStagesGestionnaire = () => {
     const { t } = useTranslation(["internshipmanager"]);
+    const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
     const [offres, setOffres] = useState<OffreDTO[]>([]);
     const [loading, setLoading] = useState(true);
@@ -205,6 +206,12 @@ const OffresDeStagesGestionnaire = () => {
 
                                 {/* Détails */}
                                 <div className="space-y-2 mb-4 text-sm">
+                                    {offre.progEtude && (
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                            <GraduationCap className="w-4 h-4 text-blue-600" />
+                                            <span>{tProgrammes(offre.progEtude)}</span>
+                                        </div>
+                                    )}
                                     {offre.lieuStage && (
                                         <div className="flex items-center gap-2 text-gray-600">
                                             <MapPin className="w-4 h-4 text-blue-600" />

@@ -19,6 +19,8 @@ import dashboardEtudiantFr from './locales/fr/dashboardEtudiant.json';
 import dashboardEtudiantEn from './locales/en/dashboardEtudiant.json';
 import offresStageApprouveFr from './locales/fr/offresStageApprouve.json';
 import offresStageApprouveEn from './locales/en/offresStageApprouve.json';
+import enProgrammes from './locales/en/programmes.json';
+import frProgrammes from './locales/fr/programmes.json';
 
 const resources = {
     fr: {
@@ -30,6 +32,7 @@ const resources = {
         login: loginFr,
         dashboardEtudiant: dashboardEtudiantFr,
         offresStageApprouve: offresStageApprouveFr,
+        programmes: frProgrammes,
     },
     en: {
         registration: registrationEn,
@@ -40,6 +43,7 @@ const resources = {
         login: loginEn,
         dashboardEtudiant: dashboardEtudiantEn,
         offresStageApprouve: offresStageApprouveEn,
+        programmes: enProgrammes,
     }
 };
 

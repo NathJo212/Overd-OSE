@@ -28,9 +28,10 @@ interface OffreDTO {
 
 const OffresApprouvees = () => {
     const { t } = useTranslation('offresStageApprouve');
+    const { t: tProgrammes } = useTranslation('programmes');
     const [offres, setOffres] = useState<OffreDTO[]>([]);
     const [offresFiltered, setOffresFiltered] = useState<OffreDTO[]>([]);
-    const [programmes, setProgrammes] = useState<{[key: string]: string}>({});
+    const [programmes, setProgrammes] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -154,7 +155,7 @@ const OffresApprouvees = () => {
     };
 
     const getProgrammeLabel = (key: string): string => {
-        return programmes[key] || key;
+        return tProgrammes(key);
     };
 
     const toggleSortOrder = () => {
@@ -220,9 +221,9 @@ const OffresApprouvees = () => {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                                 <option value="TOUS">{t('filterLabels.allProgrammes')}</option>
-                                {Object.entries(programmes).map(([key, label]) => (
+                                {programmes.map(key => (
                                     <option key={key} value={key}>
-                                        {label}
+                                        {tProgrammes(key)}
                                     </option>
                                 ))}
                             </select>

@@ -6,8 +6,10 @@ import utilisateurService from "../services/UtilisateurService";
 import type { OffreStageDTO } from "../services/EmployeurService";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
+import { useTranslation } from 'react-i18next';
 
 const CreerOffreStage = () => {
+    const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -30,7 +32,7 @@ const CreerOffreStage = () => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
     const [successMessage, setSuccessMessage] = useState<string>("");
-    const [programmes, setProgrammes] = useState<{[key: string]: string}>({});
+    const [programmes, setProgrammes] = useState<string[]>([]);
     const [loadingProgrammes, setLoadingProgrammes] = useState(true);
 
     const token = sessionStorage.getItem("authToken") || "";
@@ -230,8 +232,8 @@ const CreerOffreStage = () => {
                                     disabled={loading}
                                 >
                                     <option value="">Sélectionnez un programme</option>
-                                    {Object.entries(programmes).map(([key, label]) => (
-                                        <option key={key} value={key}>{label}</option>
+                                    {programmes.map(key => (
+                                        <option key={key} value={key}>{tProgrammes(key)}</option>
                                     ))}
                                 </select>
                             )}

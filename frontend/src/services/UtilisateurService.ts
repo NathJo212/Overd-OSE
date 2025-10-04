@@ -108,8 +108,9 @@ class UtilisateurService {
 
     /**
      * Récupère tous les programmes disponibles
+     * @returns Promise avec un tableau de clés de programmes
      */
-    async getAllProgrammes(): Promise<{[key: string]: string}> {
+    async getAllProgrammes(): Promise<string[]> {
         try {
             const response = await fetch(`${this.baseUrl}/getProgrammes`, {
                 method: 'GET',
