@@ -6,6 +6,7 @@ import type { OffreStageDTO } from "../services/EmployeurService";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import {ArrowLeft} from "lucide-react";
 
 const CreerOffreStage = () => {
     const { t } = useTranslation(["offercreate"]);
@@ -104,6 +105,15 @@ const CreerOffreStage = () => {
             <NavBar/>
             <div className="min-h-screen bg-gray-50 py-8 px-4 flex items-center justify-center">
                 <div className="max-w-lg w-full bg-white rounded-xl shadow-lg p-8">
+                    <div className="w-full flex justify-start mb-6">
+                        <button
+                            onClick={() => navigate('/dashboard-etudiant')}
+                            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                            <span className="font-medium">{t("offercreate:return.message")}</span>
+                        </button>
+                    </div>
                     <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                         {t("offercreate:title")}
                     </h1>
