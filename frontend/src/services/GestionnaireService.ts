@@ -19,8 +19,8 @@ export interface AuthResponseWrapperDTO {
 }
 
 export interface EmployeurDTO {
-    email: String;
-    telephone: String;
+    email: string;
+    telephone: string;
     nomEntreprise?: string;
     contact: string;
 }
@@ -37,11 +37,13 @@ export interface OffreDTO {
     remuneration?: string;
     dateLimite?: string;
     messageRefus?: string;
+    statutApprouve: string;
     employeurDTO?: EmployeurDTO;
 }
 
 class GestionnaireService {
     private readonly baseUrl: string;
+
     constructor() {
         this.baseUrl = `${API_BASE_URL}${GESTIONNAIRE_ENDPOINT}`;
     }
@@ -54,7 +56,27 @@ class GestionnaireService {
                 'Content-Type': 'application/json',
             },
         });
-        if (!response.ok) throw new Error('Erreur lors de la récupération des offres');
+
+        if (!response.ok) {
+            throw new Error('Erreur lors de la récupération des offres');
+        }
+
+        return await response.json();
+    }
+
+    async getAllOffres(token: string): Promise<OffreDTO[]> {
+        const response = await fetch(`${this.baseUrl}/visualiserOffres`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Erreur lors de la récupération de toutes les offres');
+        }
+
         return await response.json();
     }
 
@@ -67,6 +89,7 @@ class GestionnaireService {
             },
             body: JSON.stringify({ id })
         });
+
         if (!response.ok) {
             const txt = await response.text();
             throw new Error(txt || 'Erreur lors de l\'approbation');
@@ -82,6 +105,7 @@ class GestionnaireService {
             },
             body: JSON.stringify({ id, messageRefus: raison })
         });
+
         if (!response.ok) {
             const txt = await response.text();
             throw new Error(txt || 'Erreur lors du refus');
