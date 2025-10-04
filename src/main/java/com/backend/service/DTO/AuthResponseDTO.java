@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class AuthResponseDTO {
     private String token;
     private UtilisateurDTO utilisateurDTO;
+    private ErrorResponse errorResponse;
 
     public AuthResponseDTO(String token) {
         this.token = token;

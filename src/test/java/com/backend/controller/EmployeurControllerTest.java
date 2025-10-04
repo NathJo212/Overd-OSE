@@ -89,7 +89,7 @@ class EmployeurControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur").value("Un employeur avec cet email existe déjà"));
+                .andExpect(jsonPath("$.erreur.message").value("Email already used"));
     }
 
     @Test
@@ -111,10 +111,10 @@ class EmployeurControllerTest {
         mockMvc.perform(post("/OSEemployeur/creerCompte")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isConflict())
+                .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur").value("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."));
+                .andExpect(jsonPath("$.erreur.message").value("Invalid password"));
     }
 
     @Test
@@ -159,7 +159,7 @@ class EmployeurControllerTest {
                         .content(objectMapper.writeValueAsString(offreDTO)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur").value("Seul un employeur peut créer une offre de stage."));
+                .andExpect(jsonPath("$.erreur.message").value("Unauthorized action"));
     }
 
     @Test

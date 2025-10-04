@@ -28,7 +28,7 @@ public class UtilisateurController {
 
     @PostMapping("/login")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDTO loginDTO) {
         try {
             AuthResponseDTO authResponse = utilisateurService.authentifierUtilisateur(
                     loginDTO.getEmail(),
@@ -37,24 +37,24 @@ public class UtilisateurController {
             return ResponseEntity.ok(authResponse);
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
+                    .body(new AuthResponseDTO(null,null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
+                    .body(new AuthResponseDTO(null,null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("ERROR_000", "Erreur d'authentification"));
+                    .body(new AuthResponseDTO(null,null, new ErrorResponse("ERROR_000", "Erreur d'authentification")));
         }
     }
 
     @PostMapping("/logout")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
+    public ResponseEntity<MessageRetourDTO> logout(HttpServletRequest request) {
         try {
             String header = request.getHeader("Authorization");
             if (header == null || !header.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ErrorResponse("AUTH_002", "Token manquant ou invalide"));
+                        .body(new MessageRetourDTO(null, new ErrorResponse("AUTH_002", "Token manquant ou invalide")));
             }
             String token = header.substring(7);
             utilisateurService.logout(token);
@@ -62,19 +62,18 @@ public class UtilisateurController {
             return ResponseEntity.ok(new MessageRetourDTO("Déconnexion réussie", null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("ERROR_000", "Erreur lors de la déconnexion"));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_000", "Erreur lors de la déconnexion")));
         }
     }
 
     @GetMapping("/getProgrammes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<?> getAllProgrammes() {
+    public ResponseEntity<List<String>> getAllProgrammes() {
         try {
-            List<String> programmes = utilisateurService.getAllProgrammes();  // Changed from Map<String, String>
+            List<String> programmes = utilisateurService.getAllProgrammes();
             return ResponseEntity.ok(programmes);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("ERROR_000", "Erreur lors de la récupération des programmes"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

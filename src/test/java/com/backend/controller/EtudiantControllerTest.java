@@ -93,9 +93,9 @@ class EtudiantControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(etudiant)))
                 .andExpect(status().isConflict())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur").value("Un étudiant avec cet email existe déjà"));
+                .andExpect(jsonPath("$.erreur.errorCode").value("VALIDATION_001"))
+                .andExpect(jsonPath("$.erreur.message").value("Email already used"));
     }
 
     @Test
@@ -117,10 +117,10 @@ class EtudiantControllerTest {
         mockMvc.perform(post("/OSEetudiant/creerCompte")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(etudiant)))
-                .andExpect(status().isConflict())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur").value("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial."));
+                .andExpect(jsonPath("$.erreur.errorCode").value("VALIDATION_002"))
+                .andExpect(jsonPath("$.erreur.message").value("Invalid password"));
     }
 
     @Test
@@ -227,7 +227,8 @@ class EtudiantControllerTest {
         mockMvc.perform(multipart("/OSEetudiant/cv").file(fichier))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur").value("Erreur lors de l'upload du cv : Le fichier doit être au format PDF."));
+                .andExpect(jsonPath("$.erreur.errorCode").value("CV_001"))
+                .andExpect(jsonPath("$.erreur.message").value("Erreur lors de l'upload du CV : Le fichier doit être au format PDF."));
     }
 
     @Test

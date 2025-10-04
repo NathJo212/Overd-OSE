@@ -50,7 +50,7 @@ public class UtilisateurService {
             Utilisateur utilisateur = utilisateurOptional.get();
             UtilisateurDTO utilisateurDTO = UtilisateurDTO.toDTO(utilisateur);
 
-            return new AuthResponseDTO(token, utilisateurDTO);
+            return new AuthResponseDTO(token, utilisateurDTO, null);
 
         } catch (Exception e) {
             throw new AuthenticationException();

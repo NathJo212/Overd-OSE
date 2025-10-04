@@ -66,7 +66,7 @@ class UtilisateurControllerTest {
         utilisateurDTO.setNomEntreprise("Test Entreprise");
         utilisateurDTO.setContact("Test Contact");
 
-        AuthResponseDTO authResponse = new AuthResponseDTO(token, utilisateurDTO);
+        AuthResponseDTO authResponse = new AuthResponseDTO(token, utilisateurDTO, null);
 
         when(utilisateurService.authentifierUtilisateur(email, password))
                 .thenReturn(authResponse);
@@ -191,7 +191,7 @@ class UtilisateurControllerTest {
     void logout_missingToken_returnsUnauthorized() throws Exception {
         mockMvc.perform(post("/OSE/logout"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.erreur").value("Token manquant ou invalide"));
+                .andExpect(jsonPath("$.erreur.message").value("Token manquant ou invalide"));
     }
 
     @Test
@@ -203,7 +203,7 @@ class UtilisateurControllerTest {
         mockMvc.perform(post("/OSE/logout")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.erreur").value("Erreur lors de la déconnexion"));
+                .andExpect(jsonPath("$.erreur.message").value("Erreur lors de la déconnexion"));
     }
 
 }

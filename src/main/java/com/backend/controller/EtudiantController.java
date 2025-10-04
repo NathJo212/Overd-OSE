@@ -27,7 +27,7 @@ public class EtudiantController {
 
     @PostMapping("/creerCompte")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<?> creerCompte(@RequestBody EtudiantDTO etudiantDTO) {
+    public ResponseEntity<MessageRetourDTO> creerCompte(@RequestBody EtudiantDTO etudiantDTO) {
         try {
             etudiantService.creerEtudiant(etudiantDTO.getEmail(), etudiantDTO.getPassword(),
                     etudiantDTO.getTelephone(), etudiantDTO.getPrenom(), etudiantDTO.getNom(),
@@ -36,10 +36,10 @@ public class EtudiantController {
                     .body(new MessageRetourDTO("Étudiant créé avec succès", null));
         } catch (EmailDejaUtiliseException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
+                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (MotPasseInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
+                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         }
     }
 
@@ -51,7 +51,7 @@ public class EtudiantController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageRetourDTO("CV sauvegardé avec succès", null));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageRetourDTO(null, "Erreur lors de l'upload du cv : " + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageRetourDTO(null, new ErrorResponse("CV_001", "Erreur lors de l'upload du CV : " + e.getMessage())));
         }
     }
 
