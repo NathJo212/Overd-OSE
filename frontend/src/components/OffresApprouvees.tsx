@@ -41,7 +41,7 @@ const OffresApprouvees = () => {
     const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
-        chargerDonnees();
+        chargerDonnees().then();
     }, []);
 
     useEffect(() => {
