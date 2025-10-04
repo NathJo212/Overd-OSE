@@ -1,0 +1,22 @@
+{
+  "welcome": "Bienvenue sur votre espace étudiant",
+  "subtitle": "Gérez votre profil et découvrez les opportunités de stage disponibles",
+  "notifications": {
+    "registration": "Bienvenue ! Votre compte a été créé et vous êtes connecté avec succès.",
+    "login": "Connexion réussie ! Bienvenue sur votre tableau de bord."
+  },
+  "cards": {
+    "cv": {
+      "title": "Mon CV",
+      "description": "Téléversez ou mettez à jour votre curriculum vitae pour postuler aux offres"
+    },
+    "applications": {
+      "title": "Mes candidatures",
+      "description": "Suivez l'état de vos candidatures et gérez vos postulations"
+    }
+  },
+  "offers": {
+    "title": "Offres de stage disponibles",
+    "subtitle": "Explorez et postulez aux opportunités qui correspondent à votre profil"
+  }
+}

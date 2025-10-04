@@ -15,24 +15,31 @@ import navbarFr from './locales/fr/navbar.json';
 import navbarEn from './locales/en/navbar.json';
 import loginFr from './locales/fr/login.json';
 import loginEn from './locales/en/login.json';
-
+import dashboardEtudiantFr from './locales/fr/dashboardEtudiant.json';
+import dashboardEtudiantEn from './locales/en/dashboardEtudiant.json';
+import offresStageApprouveFr from './locales/fr/offresStageApprouve.json';
+import offresStageApprouveEn from './locales/en/offresStageApprouve.json';
 
 const resources = {
     fr: {
         registration: registrationFr,
         errors: errorsFr,
         home: homeFr,
-        internshipmanager:internshipmanagerFr,
+        internshipmanager: internshipmanagerFr,
         navbar: navbarFr,
-        login: loginFr
+        login: loginFr,
+        dashboardEtudiant: dashboardEtudiantFr,
+        offresStageApprouve: offresStageApprouveFr,
     },
     en: {
         registration: registrationEn,
         errors: errorsEn,
         home: homeEn,
-        internshipmanager:internshipmanagerEn,
+        internshipmanager: internshipmanagerEn,
         navbar: navbarEn,
-        login: loginEn
+        login: loginEn,
+        dashboardEtudiant: dashboardEtudiantEn,
+        offresStageApprouve: offresStageApprouveEn,
     }
 };
 

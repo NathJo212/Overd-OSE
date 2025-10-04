@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Upload, FileText, Download, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { Upload, FileText, Download, CheckCircle, AlertCircle, X, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import etudiantService from "../services/EtudiantService.ts";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
 
 const TeleversementCv = () => {
+    const navigate = useNavigate();
     const [fichier, setFichier] = useState<File | null>(null);
     const [chargement, setChargement] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; texte: string } | null>(null);
@@ -97,6 +99,15 @@ const TeleversementCv = () => {
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-4xl">
+                {/* Bouton retour */}
+                <button
+                    onClick={() => navigate('/dashboard-etudiant')}
+                    className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                    <span className="font-medium">Retour au tableau de bord</span>
+                </button>
+
                 {/* En-tête */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
