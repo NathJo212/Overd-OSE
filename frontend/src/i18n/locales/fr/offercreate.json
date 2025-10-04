@@ -1,0 +1,41 @@
+{
+  "title": "Créer une offre de stage",
+  "form": {
+    "title": "Titre",
+    "description": "Description",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "studyProgram": "Programme d'études",
+    "selectProgram": "Sélectionner un programme",
+    "internshipLocation": "Lieu du stage",
+    "remuneration": "Rémunération",
+    "deadline": "Date limite de candidature"
+  },
+  "button": {
+    "createOffer": "Créer l'offre",
+    "creating": "Création en cours..."
+  },
+  "errors": {
+    "titleRequired": "Le titre est requis.",
+    "descriptionRequired": "La description est requise.",
+    "startDateRequired": "La date de début est requise.",
+    "endDateRequired": "La date de fin est requise.",
+    "studyProgramRequired": "Le programme d'études est requis.",
+    "internshipLocationRequired": "Le lieu du stage est requis.",
+    "remunerationRequired": "La rémunération est requise.",
+    "deadlineRequired": "La date limite de candidature est requise.",
+    "programsLoad": "Erreur lors du chargement des programmes.",
+    "offerCreation": "Erreur lors de la création de l'offre."
+  },
+  "success": {
+    "offerCreated": "Offre créée avec succès !",
+    "redirecting": "Redirection vers le tableau de bord..."
+  },
+  "loading": {
+    "programs": "Chargement des programmes..."
+  },
+  "return": {
+    "message": "Retour au tableau de bord"
+  }
+}
+

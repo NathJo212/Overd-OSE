@@ -1,0 +1,30 @@
+{
+  "title": "Tableau de bord Employeur",
+  "createOffer": "Créer une nouvelle offre de stage",
+  "myOffers": "Mes offres de stage",
+  "noOffers": {
+    "title": "Aucune offre de stage trouvée",
+    "subtitle": "Commencez par créer votre première offre"
+  },
+  "status": {
+    "refused": "Refusée",
+    "approved": "Approuvée",
+    "pending": "En attente"
+  },
+  "clickToSeeRefuseReason": "Cliquez pour voir la raison du refus",
+  "start": "Début",
+  "end": "Fin",
+  "modal": {
+    "refusedTitle": "Offre refusée",
+    "refusedReason": "Raison du refus :",
+    "close": "Fermer"
+  },
+  "errors": {
+    "loadOffers": "Erreur lors du chargement des offres."
+  },
+  "notifications": {
+    "welcomeCreated": "Bienvenue ! Votre compte a été créé et vous êtes maintenant connecté.",
+    "welcomeLogin": "Connexion réussie ! Bienvenue sur votre tableau de bord."
+  }
+}
+

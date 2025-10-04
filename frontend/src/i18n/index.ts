@@ -15,6 +15,10 @@ import navbarFr from './locales/fr/navbar.json';
 import navbarEn from './locales/en/navbar.json';
 import loginFr from './locales/fr/login.json';
 import loginEn from './locales/en/login.json';
+import offercreateFr from './locales/fr/offercreate.json';
+import offercreateEn from './locales/en/offercreate.json';
+import employerdashboardFr from './locales/fr/employerdashboard.json';
+import employerdashboardEn from './locales/en/employerdashboard.json';
 
 
 const resources = {
@@ -24,6 +28,8 @@ const resources = {
         home: homeFr,
         internshipmanager:internshipmanagerFr,
         navbar: navbarFr,
+        offercreate: offercreateFr,
+        employerdashboard: employerdashboardFr,
         login: loginFr
     },
     en: {
@@ -32,6 +38,8 @@ const resources = {
         home: homeEn,
         internshipmanager:internshipmanagerEn,
         navbar: navbarEn,
+        offercreate: offercreateEn,
+        employerdashboard: employerdashboardEn,
         login: loginEn
     }
 };

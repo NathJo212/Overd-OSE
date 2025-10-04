@@ -1,0 +1,30 @@
+{
+  "title": "Employer Dashboard",
+  "createOffer": "Create a new internship offer",
+  "myOffers": "My internship offers",
+  "noOffers": {
+    "title": "No internship offers found",
+    "subtitle": "Start by creating your first offer"
+  },
+  "status": {
+    "refused": "Refused",
+    "approved": "Approved",
+    "pending": "Pending"
+  },
+  "clickToSeeRefuseReason": "Click to see the reason for refusal",
+  "start": "Start",
+  "end": "End",
+  "modal": {
+    "refusedTitle": "Offer Refused",
+    "refusedReason": "Reason for refusal:",
+    "close": "Close"
+  },
+  "errors": {
+    "loadOffers": "Error loading offers."
+  },
+  "notifications": {
+    "welcomeCreated": "Welcome! Your account has been created and you are now logged in.",
+    "welcomeLogin": "Login successful! Welcome to your dashboard."
+  }
+}
+

@@ -1,0 +1,41 @@
+{
+  "title": "Create an Internship Offer",
+  "form": {
+    "title": "Title",
+    "description": "Description",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "studyProgram": "Study Program",
+    "selectProgram": "Select a program",
+    "internshipLocation": "Internship Location",
+    "remuneration": "Remuneration",
+    "deadline": "Application Deadline"
+  },
+  "button": {
+    "createOffer": "Create Offer",
+    "creating": "Creating..."
+  },
+  "errors": {
+    "titleRequired": "Title is required.",
+    "descriptionRequired": "Description is required.",
+    "startDateRequired": "Start date is required.",
+    "endDateRequired": "End date is required.",
+    "studyProgramRequired": "Study program is required.",
+    "internshipLocationRequired": "Internship location is required.",
+    "remunerationRequired": "Remuneration is required.",
+    "deadlineRequired": "Application deadline is required.",
+    "programsLoad": "Error loading programs.",
+    "offerCreation": "Error creating offer."
+  },
+  "success": {
+    "offerCreated": "Offer created successfully!",
+    "redirecting": "Redirecting to dashboard..."
+  },
+  "loading": {
+    "programs": "Loading programs..."
+  },
+  "return": {
+    "message": "Return to dashboard"
+  }
+}
+

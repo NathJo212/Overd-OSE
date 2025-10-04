@@ -6,8 +6,11 @@ import utilisateurService from "../services/UtilisateurService";
 import type { OffreStageDTO } from "../services/EmployeurService";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
+import {ArrowLeft} from "lucide-react";
 
 const CreerOffreStage = () => {
+    const { t } = useTranslation(["offercreate"]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -43,7 +46,7 @@ const CreerOffreStage = () => {
                 setProgrammes(programmesData);
             } catch (error) {
                 console.error('Erreur lors du chargement des programmes:', error);
-                setErrors(['Erreur lors du chargement des programmes']);
+                setErrors([t('offercreate:errors.programsLoad')]);
             } finally {
                 setLoadingProgrammes(false);
             }
@@ -59,14 +62,14 @@ const CreerOffreStage = () => {
 
     const validateForm = (): string[] => {
         const validationErrors: string[] = [];
-        if (!formData.titre.trim()) validationErrors.push("Le titre est requis");
-        if (!formData.description.trim()) validationErrors.push("La description est requise");
-        if (!formData.date_debut) validationErrors.push("La date de début est requise");
-        if (!formData.date_fin) validationErrors.push("La date de fin est requise");
-        if (!formData.progEtude.trim()) validationErrors.push("Le programme d'étude est requis");
-        if (!formData.lieuStage.trim()) validationErrors.push("Le lieu de stage est requis");
-        if (!formData.remuneration.trim()) validationErrors.push("La rémunération est requise");
-        if (!formData.dateLimite) validationErrors.push("La date limite est requise");
+        if (!formData.titre.trim()) validationErrors.push(t("offercreate:errors.titleRequired"));
+        if (!formData.description.trim()) validationErrors.push(t("offercreate:errors.descriptionRequired"));
+        if (!formData.date_debut) validationErrors.push(t("offercreate:errors.startDateRequired"));
+        if (!formData.date_fin) validationErrors.push(t("offercreate:errors.endDateRequired"));
+        if (!formData.progEtude.trim()) validationErrors.push(t("offercreate:errors.studyProgramRequired"));
+        if (!formData.lieuStage.trim()) validationErrors.push(t("offercreate:errors.internshipLocationRequired"));
+        if (!formData.remuneration.trim()) validationErrors.push(t("offercreate:errors.remunerationRequired"));
+        if (!formData.dateLimite) validationErrors.push(t("offercreate:errors.deadlineRequired"));
         return validationErrors;
     };
 
@@ -83,12 +86,12 @@ const CreerOffreStage = () => {
         try {
             const offreDTO: OffreStageDTO = { ...formData, utilisateur: { token } };
             await employeurService.creerOffreDeStage(offreDTO);
-            setSuccessMessage("Offre de stage créée avec succès !");
+            setSuccessMessage(t("offercreate:success.offerCreated"));
             setTimeout(() => {
                 navigate("/dashboard-employeur");
             }, 2000);
         } catch (error) {
-            setErrors([error instanceof Error ? error.message : "Erreur lors de la création de l'offre"]);
+            setErrors([error instanceof Error ? error.message : t("offercreate:errors.offerCreation")]);
         } finally {
             setLoading(false);
         }
@@ -101,8 +104,17 @@ const CreerOffreStage = () => {
             <div className="container mx-auto px-4 py-8 max-w-4xl">
                 {/* En-tête */}
                 <div className="mb-8">
+                    <div className="w-full flex justify-start mb-6">
+                        <button
+                            onClick={() => navigate('/dashboard-etudiant')}
+                            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                            <span className="font-medium">{t("offercreate:return.message")}</span>
+                        </button>
+                    </div>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        Créer une offre de stage
+                        {t("offercreate:title")}
                     </h1>
                     <p className="text-gray-600">
                         Remplissez les informations pour publier votre offre
@@ -132,7 +144,7 @@ const CreerOffreStage = () => {
                             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-green-900">{successMessage}</p>
-                                <p className="text-xs text-green-700 mt-1">Redirection en cours...</p>
+                                <p className="text-xs text-green-700 mt-1">{t("offercreate:success.redirecting")}</p>
                             </div>
                         </div>
                     </div>
@@ -145,7 +157,7 @@ const CreerOffreStage = () => {
                         <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                 <Briefcase className="w-4 h-4 text-blue-600" />
-                                Titre de l'offre *
+                                {t("offercreate:form.title")} *
                             </label>
                             <input
                                 type="text"
@@ -153,7 +165,6 @@ const CreerOffreStage = () => {
                                 value={formData.titre}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                placeholder="Ex: Développeur web junior"
                                 disabled={loading}
                             />
                         </div>
@@ -162,7 +173,7 @@ const CreerOffreStage = () => {
                         <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                 <FileText className="w-4 h-4 text-blue-600" />
-                                Description *
+                                {t("offercreate:form.description")} *
                             </label>
                             <textarea
                                 name="description"
@@ -170,7 +181,6 @@ const CreerOffreStage = () => {
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                 rows={5}
-                                placeholder="Décrivez les missions, compétences requises..."
                                 disabled={loading}
                             />
                         </div>
@@ -180,7 +190,7 @@ const CreerOffreStage = () => {
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                     <Calendar className="w-4 h-4 text-blue-600" />
-                                    Date de début *
+                                    {t("offercreate:form.startDate")} *
                                 </label>
                                 <input
                                     type="date"
@@ -194,7 +204,7 @@ const CreerOffreStage = () => {
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                     <Calendar className="w-4 h-4 text-blue-600" />
-                                    Date de fin *
+                                    {t("offercreate:form.endDate")} *
                                 </label>
                                 <input
                                     type="date"
@@ -211,7 +221,7 @@ const CreerOffreStage = () => {
                         <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                 <GraduationCap className="w-4 h-4 text-blue-600" />
-                                Programme d'étude *
+                                {t("offercreate:form.studyProgram")} *
                             </label>
                             {loadingProgrammes ? (
                                 <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 flex items-center justify-center">
@@ -219,7 +229,7 @@ const CreerOffreStage = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                     </svg>
-                                    <span className="text-gray-600 text-sm">Chargement...</span>
+                                    <span className="text-gray-600 text-sm">{t("offercreate:loading.programs")}</span>
                                 </div>
                             ) : (
                                 <select
@@ -229,7 +239,7 @@ const CreerOffreStage = () => {
                                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                     disabled={loading}
                                 >
-                                    <option value="">Sélectionnez un programme</option>
+                                    <option value="">{t("offercreate:form.selectProgram")}</option>
                                     {Object.entries(programmes).map(([key, label]) => (
                                         <option key={key} value={key}>{label}</option>
                                     ))}
@@ -242,7 +252,7 @@ const CreerOffreStage = () => {
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                     <MapPin className="w-4 h-4 text-blue-600" />
-                                    Lieu du stage *
+                                    {t("offercreate:form.internshipLocation")} *
                                 </label>
                                 <input
                                     type="text"
@@ -250,14 +260,13 @@ const CreerOffreStage = () => {
                                     value={formData.lieuStage}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                    placeholder="Ex: Montréal, QC"
                                     disabled={loading}
                                 />
                             </div>
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                     <DollarSign className="w-4 h-4 text-blue-600" />
-                                    Rémunération *
+                                    {t("offercreate:form.remuneration")} *
                                 </label>
                                 <input
                                     type="text"
@@ -275,7 +284,7 @@ const CreerOffreStage = () => {
                         <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                 <Calendar className="w-4 h-4 text-blue-600" />
-                                Date limite de candidature *
+                                {t("offercreate:form.deadline")} *
                             </label>
                             <input
                                 type="date"
@@ -299,12 +308,12 @@ const CreerOffreStage = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                     </svg>
-                                    Création en cours...
+                                    t("offercreate:button.creating")
                                 </>
                             ) : (
                                 <>
                                     <Briefcase className="w-5 h-5" />
-                                    Créer l'offre de stage
+                                    t("offercreate:button.createOffer")}
                                 </>
                             )}
                         </button>
