@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CheckCircle, X, Upload, FileText } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
 import OffresApprouvees from "./OffresApprouvees.tsx";
 
 const DashBoardEtudiant = () => {
+    const { t } = useTranslation('dashboardEtudiant');
     const navigate = useNavigate();
     useLocation();
     const [showNotification, setShowNotification] = useState(false);
@@ -17,21 +19,19 @@ const DashBoardEtudiant = () => {
             return;
         }
 
-        // Vérifier si l'utilisateur vient d'une inscription ou connexion réussie
         const fromRegistration = sessionStorage.getItem('fromRegistration');
         const fromLogin = sessionStorage.getItem('fromLogin');
 
         if (fromRegistration === 'true') {
-            setNotificationMessage('Bienvenue ! Votre compte a été créé et vous êtes connecté avec succès.');
+            setNotificationMessage(t('notifications.registration'));
             setShowNotification(true);
             sessionStorage.removeItem('fromRegistration');
         } else if (fromLogin === 'true') {
-            setNotificationMessage('Connexion réussie ! Bienvenue sur votre tableau de bord.');
+            setNotificationMessage(t('notifications.login'));
             setShowNotification(true);
             sessionStorage.removeItem('fromLogin');
         }
 
-        // Auto-fermer la notification après 5 secondes
         if (showNotification) {
             const timer = setTimeout(() => {
                 setShowNotification(false);
@@ -39,7 +39,7 @@ const DashBoardEtudiant = () => {
 
             return () => clearTimeout(timer);
         }
-    }, [navigate, showNotification]);
+    }, [navigate, showNotification, t]);
 
     const handleCloseNotification = () => {
         setShowNotification(false);
@@ -53,7 +53,6 @@ const DashBoardEtudiant = () => {
         <div className="bg-gray-50 min-h-screen">
             <NavBar/>
 
-            {/* Notification de succès */}
             {showNotification && (
                 <div className="fixed top-20 right-4 z-50 max-w-md w-full animate-slide-in">
                     <div className="bg-green-50 border border-green-200 rounded-xl p-4 shadow-lg">
@@ -81,19 +80,16 @@ const DashBoardEtudiant = () => {
             )}
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                {/* En-tête du dashboard */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        Bienvenue sur votre espace étudiant 👋
+                        {t('welcome')}
                     </h1>
                     <p className="text-gray-600">
-                        Gérez votre profil et découvrez les opportunités de stage disponibles
+                        {t('subtitle')}
                     </p>
                 </div>
 
-                {/* Actions rapides */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                    {/* Carte CV */}
                     <button
                         onClick={handleNavigateToCv}
                         className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
@@ -104,14 +100,13 @@ const DashBoardEtudiant = () => {
                             </div>
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                            Mon CV
+                            {t('cards.cv.title')}
                         </h2>
                         <p className="text-gray-600">
-                            Téléversez ou mettez à jour votre curriculum vitae pour postuler aux offres
+                            {t('cards.cv.description')}
                         </p>
                     </button>
 
-                    {/* Carte Candidatures */}
                     <button
                         onClick={() => navigate("/mes-candidatures")}
                         className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
@@ -122,28 +117,26 @@ const DashBoardEtudiant = () => {
                             </div>
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                            Mes candidatures
+                            {t('cards.applications.title')}
                         </h2>
                         <p className="text-gray-600">
-                            Suivez l'état de vos candidatures et gérez vos postulations
+                            {t('cards.applications.description')}
                         </p>
                     </button>
                 </div>
 
-                {/* Section des offres disponibles */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                                Offres de stage disponibles
+                                {t('offers.title')}
                             </h2>
                             <p className="text-gray-600">
-                                Explorez et postulez aux opportunités qui correspondent à votre profil
+                                {t('offers.subtitle')}
                             </p>
                         </div>
                     </div>
 
-                    {/* Composant des offres */}
                     <OffresApprouvees />
                 </div>
             </div>

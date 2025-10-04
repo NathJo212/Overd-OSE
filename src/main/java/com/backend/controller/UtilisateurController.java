@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -69,7 +70,7 @@ public class UtilisateurController {
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<?> getAllProgrammes() {
         try {
-            Map<String, String> programmes = utilisateurService.getAllProgrammes();
+            List<String> programmes = utilisateurService.getAllProgrammes();  // Changed from Map<String, String>
             return ResponseEntity.ok(programmes);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

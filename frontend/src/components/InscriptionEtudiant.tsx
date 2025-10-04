@@ -21,6 +21,7 @@ interface FormData {
 
 const InscriptionEtudiant = () => {
     const { t } = useTranslation(['registration', 'errors']);
+    const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
     const [formData, setFormData] = useState<FormData>({
         prenom: '',
@@ -37,7 +38,7 @@ const InscriptionEtudiant = () => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
     const [successMessage, setSuccessMessage] = useState<string>('');
-    const [programmes, setProgrammes] = useState<{[key: string]: string}>({});
+    const [programmes, setProgrammes] = useState<string[]>([]);
     const [loadingProgrammes, setLoadingProgrammes] = useState(true);
     const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
     const [isPasswordValid, setIsPasswordValid] = useState(false);
@@ -324,9 +325,9 @@ const InscriptionEtudiant = () => {
                                         disabled={loading}
                                     >
                                         <option value="">{t('registration:studentRegistration.placeholders.studyProgram')}</option>
-                                        {Object.entries(programmes).map(([key, label]) => (
+                                        {programmes.map(key => (
                                             <option key={key} value={key}>
-                                                {label}
+                                                {tProgrammes(key)}
                                             </option>
                                         ))}
                                     </select>
@@ -343,7 +344,7 @@ const InscriptionEtudiant = () => {
                                         onChange={handleChange}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                         disabled={loading}
-                                        >
+                                    >
 
                                         <option value="">{t('registration:studentRegistration.placeholders.studyYear')}</option>
                                         <option value="1ère année">{t('registration:studentRegistration.options.studyYears.year1')}</option>

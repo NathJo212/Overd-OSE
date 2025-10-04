@@ -63,12 +63,10 @@ public class UtilisateurService {
     }
 
     @Transactional
-    public Map<String, String> getAllProgrammes() {
+    public List<String> getAllProgrammes() {
         return Stream.of(ProgrammeDTO.values())
-                .collect(Collectors.toMap(
-                        ProgrammeDTO::name,   // key: enum name like P200_Z1
-                        ProgrammeDTO::getLabel // value: the label
-                ));
+                .map(ProgrammeDTO::name)   // Only the key (e.g., "P200_Z1")
+                .collect(Collectors.toList());
     }
 
 

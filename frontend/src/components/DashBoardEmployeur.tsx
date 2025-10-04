@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router";
 import { employeurService } from "../services/EmployeurService";
-import { Building, Calendar, MapPin, CheckCircle, X } from 'lucide-react';
+import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 
 const DashBoardEmployeur = () => {
     const { t } = useTranslation(["employerdashboard"]);
+    const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState("");
@@ -145,7 +146,7 @@ const DashBoardEmployeur = () => {
                                             onClick={() => isRefused && handleRefuseClick(offre.messageRefus)}
                                         >
                                             <div className="flex justify-between items-start mb-4">
-                                                <div>
+                                                <div className="flex-1">
                                                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
                                                         {offre.titre}
                                                     </h3>
@@ -154,13 +155,19 @@ const DashBoardEmployeur = () => {
                                                         {offre.employeurDTO?.nomEntreprise}
                                                     </p>
                                                     {offre.lieuStage && (
-                                                        <p className="text-gray-600 text-sm flex items-center">
+                                                        <p className="text-gray-600 text-sm flex items-center mb-1">
                                                             <MapPin className="w-4 h-4 mr-2" />
                                                             {offre.lieuStage}
                                                         </p>
                                                     )}
+                                                    {offre.progEtude && (
+                                                        <p className="text-gray-600 text-sm flex items-center">
+                                                            <GraduationCap className="w-4 h-4 mr-2" />
+                                                            {tProgrammes(offre.progEtude)}
+                                                        </p>
+                                                    )}
                                                 </div>
-                                                <span className={`px-4 py-2 rounded-full text-sm font-medium ${
+                                                <span className={`px-4 py-2 rounded-full text-sm font-medium flex-shrink-0 ml-4 ${
                                                     isRefused
                                                         ? 'bg-red-200 text-red-800'
                                                         : isApproved

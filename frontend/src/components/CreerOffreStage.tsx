@@ -1,16 +1,16 @@
 import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
-import { Briefcase, MapPin, DollarSign, Calendar, GraduationCap, FileText, CheckCircle, X } from "lucide-react";
+import { Briefcase, MapPin, DollarSign, Calendar, GraduationCap, FileText, CheckCircle, X, ArrowLeft} from "lucide-react";
 import { employeurService } from "../services/EmployeurService";
 import utilisateurService from "../services/UtilisateurService";
 import type { OffreStageDTO } from "../services/EmployeurService";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import {ArrowLeft} from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 const CreerOffreStage = () => {
     const { t } = useTranslation(["offercreate"]);
+    const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,7 +33,7 @@ const CreerOffreStage = () => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
     const [successMessage, setSuccessMessage] = useState<string>("");
-    const [programmes, setProgrammes] = useState<{[key: string]: string}>({});
+    const [programmes, setProgrammes] = useState<string[]>([]);
     const [loadingProgrammes, setLoadingProgrammes] = useState(true);
 
     const token = sessionStorage.getItem("authToken") || "";
@@ -240,8 +240,8 @@ const CreerOffreStage = () => {
                                     disabled={loading}
                                 >
                                     <option value="">{t("offercreate:form.selectProgram")}</option>
-                                    {Object.entries(programmes).map(([key, label]) => (
-                                        <option key={key} value={key}>{label}</option>
+                                    {programmes.map(key => (
+                                        <option key={key} value={key}>{tProgrammes(key)}</option>
                                     ))}
                                 </select>
                             )}

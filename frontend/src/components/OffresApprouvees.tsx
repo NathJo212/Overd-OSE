@@ -1,9 +1,9 @@
 import {useEffect, useState} from "react";
 import {ArrowUpDown, ChevronDown, Search, SlidersHorizontal} from "lucide-react";
+import {useTranslation} from 'react-i18next';
 import etudiantService from "../services/EtudiantService";
 import utilisateurService from "../services/UtilisateurService";
 
-// Mock types (replace with your actual imports)
 interface EmployeurDTO {
     id?: number;
     nomEntreprise: string;
@@ -27,13 +27,14 @@ interface OffreDTO {
 }
 
 const OffresApprouvees = () => {
+    const { t } = useTranslation('offresStageApprouve');
+    const { t: tProgrammes } = useTranslation('programmes');
     const [offres, setOffres] = useState<OffreDTO[]>([]);
     const [offresFiltered, setOffresFiltered] = useState<OffreDTO[]>([]);
-    const [programmes, setProgrammes] = useState<{[key: string]: string}>({});
+    const [programmes, setProgrammes] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Filtres et tri
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProgramme, setSelectedProgramme] = useState<string>("TOUS");
     const [sortBy, setSortBy] = useState<string>("datePublication");
@@ -53,7 +54,6 @@ const OffresApprouvees = () => {
             setLoading(true);
             setError(null);
 
-            // Charger les offres et les programmes en parallèle
             const [offresData, programmesData] = await Promise.all([
                 etudiantService.getOffresApprouvees(),
                 utilisateurService.getAllProgrammes()
@@ -62,7 +62,15 @@ const OffresApprouvees = () => {
             setOffres(offresData);
             setProgrammes(programmesData);
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erreur lors du chargement des données");
+            if (err instanceof Error) {
+                if (err.message.includes('Failed to fetch') || err.message.includes('fetch')) {
+                    setError(t('error.fetchFailed'));
+                } else {
+                    setError(err.message);
+                }
+            } else {
+                setError(t('error.loading'));
+            }
         } finally {
             setLoading(false);
         }
@@ -86,7 +94,6 @@ const OffresApprouvees = () => {
     const appliquerFiltresEtTri = () => {
         let resultat = [...offres];
 
-        // Filtre par recherche (titre, description, entreprise, lieu, programme)
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
             resultat = resultat.filter(offre => {
@@ -102,12 +109,10 @@ const OffresApprouvees = () => {
             });
         }
 
-        // Filtre par programme
         if (selectedProgramme !== "TOUS") {
             resultat = resultat.filter(offre => offre.progEtude === selectedProgramme);
         }
 
-        // Tri
         resultat.sort((a, b) => {
             let comparison: number;
 
@@ -139,7 +144,6 @@ const OffresApprouvees = () => {
                     break;
                 case "datePublication":
                 default:
-                    // Assuming most recent first by default
                     comparison = new Date(b.date_debut).getTime() - new Date(a.date_debut).getTime();
                     break;
             }
@@ -151,7 +155,7 @@ const OffresApprouvees = () => {
     };
 
     const getProgrammeLabel = (key: string): string => {
-        return programmes[key] || key;
+        return tProgrammes(key);
     };
 
     const toggleSortOrder = () => {
@@ -174,7 +178,7 @@ const OffresApprouvees = () => {
                     onClick={chargerDonnees}
                     className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
-                    Réessayer
+                    {t('error.retry')}
                 </button>
             </div>
         );
@@ -182,101 +186,92 @@ const OffresApprouvees = () => {
 
     return (
         <div className="space-y-6">
-            {/* En-tête avec barre de recherche */}
             <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex flex-col md:flex-row gap-4">
-                    {/* Barre de recherche */}
                     <div className="flex-1 relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                         <input
                             type="text"
-                            placeholder="Rechercher par titre, entreprise, lieu, programme..."
+                            placeholder={t('search')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                     </div>
 
-                    {/* Bouton Filtres */}
                     <button
                         onClick={() => setShowFilters(!showFilters)}
                         className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                     >
                         <SlidersHorizontal className="h-5 w-5" />
-                        Filtres
+                        {t('filters')}
                         <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
                     </button>
                 </div>
 
-                {/* Panneau de filtres */}
                 {showFilters && (
                     <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Filtre par programme */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Programme d'études
+                                {t('filterLabels.programme')}
                             </label>
                             <select
                                 value={selectedProgramme}
                                 onChange={(e) => setSelectedProgramme(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
-                                <option value="TOUS">Tous les programmes</option>
-                                {Object.entries(programmes).map(([key, label]) => (
+                                <option value="TOUS">{t('filterLabels.allProgrammes')}</option>
+                                {programmes.map(key => (
                                     <option key={key} value={key}>
-                                        {label}
+                                        {tProgrammes(key)}
                                     </option>
                                 ))}
                             </select>
                         </div>
 
-                        {/* Tri par critère */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Trier par
+                                {t('filterLabels.sortBy')}
                             </label>
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
-                                <option value="datePublication">Date de publication</option>
-                                <option value="dateLimite">Date limite</option>
-                                <option value="employeur">Employeur</option>
-                                <option value="lieu">Lieu</option>
-                                <option value="duree">Durée du stage</option>
-                                <option value="remuneration">Rémunération</option>
-                                <option value="titre">Titre</option>
-                                <option value="dateDebut">Date de début</option>
+                                <option value="datePublication">{t('sortOptions.datePublication')}</option>
+                                <option value="dateLimite">{t('sortOptions.dateLimite')}</option>
+                                <option value="employeur">{t('sortOptions.employeur')}</option>
+                                <option value="lieu">{t('sortOptions.lieu')}</option>
+                                <option value="duree">{t('sortOptions.duree')}</option>
+                                <option value="remuneration">{t('sortOptions.remuneration')}</option>
+                                <option value="titre">{t('sortOptions.titre')}</option>
+                                <option value="dateDebut">{t('sortOptions.dateDebut')}</option>
                             </select>
                         </div>
 
-                        {/* Ordre de tri */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Ordre
+                                {t('filterLabels.order')}
                             </label>
                             <button
                                 onClick={toggleSortOrder}
                                 className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                             >
                                 <ArrowUpDown className="h-4 w-4" />
-                                {sortOrder === "asc" ? "Croissant" : "Décroissant"}
+                                {t(`sortOrder.${sortOrder}`)}
                             </button>
                         </div>
                     </div>
                 )}
 
-                {/* Compteur de résultats */}
                 <div className="mt-4 text-sm text-gray-600">
-                    {offresFiltered.length} offre{offresFiltered.length > 1 ? 's' : ''} trouvée{offresFiltered.length > 1 ? 's' : ''}
+                    {offresFiltered.length} {offresFiltered.length > 1 ? t('results.foundPlural') : t('results.found')}
                 </div>
             </div>
 
-            {/* Liste des offres */}
             {offresFiltered.length === 0 ? (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-                    <p className="text-gray-600">Aucune offre ne correspond à vos critères</p>
+                    <p className="text-gray-600">{t('results.noResults')}</p>
                 </div>
             ) : (
                 <div className="space-y-4">
@@ -286,7 +281,6 @@ const OffresApprouvees = () => {
                             className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
                         >
                             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                                {/* Colonne gauche - Informations principales */}
                                 <div className="flex-1">
                                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
                                         {offre.titre}
@@ -298,7 +292,6 @@ const OffresApprouvees = () => {
                                         {offre.description}
                                     </p>
 
-                                    {/* Tags d'information */}
                                     <div className="flex flex-wrap gap-2">
                                         <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
                                             {getProgrammeLabel(offre.progEtude)}
@@ -310,23 +303,22 @@ const OffresApprouvees = () => {
                                             {offre.remuneration}
                                         </span>
                                         <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                                            {calculateDuree(offre.date_debut, offre.date_fin)} jours
+                                            {calculateDuree(offre.date_debut, offre.date_fin)} {t('card.jours')}
                                         </span>
                                     </div>
                                 </div>
 
-                                {/* Colonne droite - Dates et action */}
                                 <div className="lg:w-64 flex flex-col gap-3">
                                     <div className="text-sm">
                                         <p className="text-gray-600">
-                                            <span className="font-medium">Période:</span> {offre.date_debut} → {offre.date_fin}
+                                            <span className="font-medium">{t('card.periode')}</span> {offre.date_debut} → {offre.date_fin}
                                         </p>
                                         <p className="text-gray-600 mt-1">
-                                            <span className="font-medium">Date limite:</span> {offre.dateLimite}
+                                            <span className="font-medium">{t('card.dateLimite')}</span> {offre.dateLimite}
                                         </p>
                                     </div>
                                     <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                                        Postuler
+                                        {t('card.postuler')}
                                     </button>
                                 </div>
                             </div>

@@ -1,0 +1,22 @@
+{
+  "welcome": "Welcome to your student portal",
+  "subtitle": "Manage your profile and discover available internship opportunities",
+  "notifications": {
+    "registration": "Welcome! Your account has been created and you are successfully logged in.",
+    "login": "Login successful! Welcome to your dashboard."
+  },
+  "cards": {
+    "cv": {
+      "title": "My Resume",
+      "description": "Upload or update your curriculum vitae to apply for offers"
+    },
+    "applications": {
+      "title": "My Applications",
+      "description": "Track the status of your applications and manage your submissions"
+    }
+  },
+  "offers": {
+    "title": "Available Internship Offers",
+    "subtitle": "Explore and apply to opportunities that match your profile"
+  }
+}

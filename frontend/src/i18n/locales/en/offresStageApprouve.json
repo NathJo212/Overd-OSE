@@ -1,0 +1,40 @@
+{
+  "search": "Search by title, company, location, program...",
+  "filters": "Filters",
+  "filterLabels": {
+    "programme": "Study Program",
+    "allProgrammes": "All programs",
+    "sortBy": "Sort by",
+    "order": "Order"
+  },
+  "sortOptions": {
+    "datePublication": "Publication date",
+    "dateLimite": "Deadline",
+    "employeur": "Employer",
+    "lieu": "Location",
+    "duree": "Internship duration",
+    "remuneration": "Salary",
+    "titre": "Title",
+    "dateDebut": "Start date"
+  },
+  "sortOrder": {
+    "asc": "Ascending",
+    "desc": "Descending"
+  },
+  "results": {
+    "found": "offer found",
+    "foundPlural": "offers found",
+    "noResults": "No offers match your criteria"
+  },
+  "card": {
+    "periode": "Period:",
+    "dateLimite": "Deadline:",
+    "jours": "days",
+    "postuler": "Apply"
+  },
+  "error": {
+    "loading": "Error loading data",
+    "fetchFailed": "Server connection error. Please check your internet connection.",
+    "retry": "Retry"
+  }
+}

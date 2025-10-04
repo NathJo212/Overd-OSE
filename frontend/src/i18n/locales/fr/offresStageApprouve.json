@@ -1,0 +1,40 @@
+{
+  "search": "Rechercher par titre, entreprise, lieu, programme...",
+  "filters": "Filtres",
+  "filterLabels": {
+    "programme": "Programme d'études",
+    "allProgrammes": "Tous les programmes",
+    "sortBy": "Trier par",
+    "order": "Ordre"
+  },
+  "sortOptions": {
+    "datePublication": "Date de publication",
+    "dateLimite": "Date limite",
+    "employeur": "Employeur",
+    "lieu": "Lieu",
+    "duree": "Durée du stage",
+    "remuneration": "Rémunération",
+    "titre": "Titre",
+    "dateDebut": "Date de début"
+  },
+  "sortOrder": {
+    "asc": "Croissant",
+    "desc": "Décroissant"
+  },
+  "results": {
+    "found": "offre trouvée",
+    "foundPlural": "offres trouvées",
+    "noResults": "Aucune offre ne correspond à vos critères"
+  },
+  "card": {
+    "periode": "Période:",
+    "dateLimite": "Date limite:",
+    "jours": "jours",
+    "postuler": "Postuler"
+  },
+  "error": {
+    "loading": "Erreur lors du chargement des données",
+    "fetchFailed": "Erreur de connexion au serveur. Veuillez vérifier votre connexion internet.",
+    "retry": "Réessayer"
+  }
+}

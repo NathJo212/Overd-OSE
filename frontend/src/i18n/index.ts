@@ -20,27 +20,39 @@ import offercreateEn from './locales/en/offercreate.json';
 import employerdashboardFr from './locales/fr/employerdashboard.json';
 import employerdashboardEn from './locales/en/employerdashboard.json';
 
+import dashboardEtudiantFr from './locales/fr/dashboardEtudiant.json';
+import dashboardEtudiantEn from './locales/en/dashboardEtudiant.json';
+import offresStageApprouveFr from './locales/fr/offresStageApprouve.json';
+import offresStageApprouveEn from './locales/en/offresStageApprouve.json';
+import enProgrammes from './locales/en/programmes.json';
+import frProgrammes from './locales/fr/programmes.json';
 
 const resources = {
     fr: {
         registration: registrationFr,
         errors: errorsFr,
         home: homeFr,
-        internshipmanager:internshipmanagerFr,
+        internshipmanager: internshipmanagerFr,
         navbar: navbarFr,
         offercreate: offercreateFr,
         employerdashboard: employerdashboardFr,
-        login: loginFr
+        login: loginFr,
+        dashboardEtudiant: dashboardEtudiantFr,
+        offresStageApprouve: offresStageApprouveFr,
+        programmes: frProgrammes,
     },
     en: {
         registration: registrationEn,
         errors: errorsEn,
         home: homeEn,
-        internshipmanager:internshipmanagerEn,
+        internshipmanager: internshipmanagerEn,
         navbar: navbarEn,
         offercreate: offercreateEn,
         employerdashboard: employerdashboardEn,
-        login: loginEn
+        login: loginEn,
+        dashboardEtudiant: dashboardEtudiantEn,
+        offresStageApprouve: offresStageApprouveEn,
+        programmes: enProgrammes,
     }
 };
 
