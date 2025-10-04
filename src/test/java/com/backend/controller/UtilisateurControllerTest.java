@@ -18,6 +18,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -204,6 +207,44 @@ class UtilisateurControllerTest {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.erreur.message").value("Erreur lors de la déconnexion"));
+    }
+
+    @Test
+    @DisplayName("GET /OSE/getProgrammes retourne 200 et la liste des programmes")
+    void getAllProgrammes_success_returnsOkAndList() throws Exception {
+        // Arrange
+        List<String> programmes = List.of(
+                "180.A0 Soins infirmiers",
+                "200.B1 Sciences de la nature",
+                "410.A1 Gestion des opérations"
+        );
+
+        when(utilisateurService.getAllProgrammes()).thenReturn(programmes);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/getProgrammes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0]").value("180.A0 Soins infirmiers"))
+                .andExpect(jsonPath("$[1]").value("200.B1 Sciences de la nature"))
+                .andExpect(jsonPath("$[2]").value("410.A1 Gestion des opérations"));
+
+        verify(utilisateurService, times(1)).getAllProgrammes();
+    }
+
+    @Test
+    @DisplayName("GET /OSE/getProgrammes retourne 500 si le service lance une exception")
+    void getAllProgrammes_serviceThrows_returnsServerError() throws Exception {
+        // Arrange
+        when(utilisateurService.getAllProgrammes()).thenThrow(new RuntimeException("Erreur interne"));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/getProgrammes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
+        verify(utilisateurService, times(1)).getAllProgrammes();
     }
 
 }

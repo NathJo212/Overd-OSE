@@ -65,14 +65,7 @@ public class UtilisateurService {
     @Transactional
     public List<String> getAllProgrammes() {
         return Stream.of(ProgrammeDTO.values())
-                .map(ProgrammeDTO::name)   // Only the key (e.g., "P200_Z1")
+                .map(ProgrammeDTO::name)
                 .collect(Collectors.toList());
     }
-
-
-
-
-
-
-
 }

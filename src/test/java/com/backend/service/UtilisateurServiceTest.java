@@ -18,7 +18,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -212,5 +216,79 @@ public class UtilisateurServiceTest {
         assertThrows(RuntimeException.class, () -> utilisateurService.logout(token));
         verify(jwtTokenProvider, times(1)).logout(token);
     }
+
+
+    @Test
+    public void testGetAllProgrammes_ReturnsAllProgrammeKeys() {
+        // Act
+        List<String> result = utilisateurService.getAllProgrammes();
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(ProgrammeDTO.values().length, result.size());
+
+        assertTrue(result.contains("P180_A0"));
+        assertTrue(result.contains("P180_B0"));
+        assertTrue(result.contains("P200_B1"));
+        assertTrue(result.contains("P200_Z1"));
+        assertTrue(result.contains("P420_B0"));
+
+        verifyNoInteractions(authenticationManager);
+        verifyNoInteractions(jwtTokenProvider);
+        verifyNoInteractions(utilisateurRepository);
+    }
+
+    @Test
+    public void testGetAllProgrammes_ReturnsListInCorrectFormat() {
+        // Act
+        List<String> result = utilisateurService.getAllProgrammes();
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result instanceof List);
+
+        for (Object item : result) {
+            assertTrue(item instanceof String);
+        }
+    }
+
+    @Test
+    public void testGetAllProgrammes_ContainsAllExpectedProgrammes() {
+        // Arrange
+        Set<String> expectedProgrammes = Stream.of(ProgrammeDTO.values())
+                .map(ProgrammeDTO::name)
+                .collect(Collectors.toSet());
+
+        // Act
+        List<String> result = utilisateurService.getAllProgrammes();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(expectedProgrammes.size(), result.size());
+
+        for (String expected : expectedProgrammes) {
+            assertTrue(result.contains(expected),
+                    "Result should contain programme: " + expected);
+        }
+    }
+
+    @Test
+    public void testGetAllProgrammes_IsConsistent() {
+        List<String> result1 = utilisateurService.getAllProgrammes();
+        List<String> result2 = utilisateurService.getAllProgrammes();
+        List<String> result3 = utilisateurService.getAllProgrammes();
+
+        assertNotNull(result1);
+        assertNotNull(result2);
+        assertNotNull(result3);
+
+        assertEquals(result1.size(), result2.size());
+        assertEquals(result2.size(), result3.size());
+
+        assertTrue(result1.containsAll(result2));
+        assertTrue(result2.containsAll(result3));
+    }
+
 
 }
