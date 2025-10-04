@@ -48,12 +48,54 @@ const OffresDeStagesGestionnaire = () => {
     const handleApprove = async (id: number) => {
         setProcessingId(id);
         setActionMessage("");
+        setError("");
+
         try {
             await gestionnaireService.approuverOffre(id, token);
             setActionMessage('internshipmanager:messages.approvedSuccess');
             await chargerOffres();
         } catch (e: any) {
-            setError(e.message || 'internshipmanager:messages.approveError');
+            console.error('Erreur lors de l\'approbation:', e);
+
+            const responseData = e.response?.data;
+
+            if (responseData?.erreur?.errorCode) {
+                setError(`errors:${responseData.erreur.errorCode}`);
+            } else {
+                setError('internshipmanager:messages.approveError');
+            }
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
+    const submitRefuse = async () => {
+        if (!refuseReason.trim()) {
+            setRefuseError("La raison est obligatoire.");
+            return;
+        }
+        if (refuseTargetId == null) return;
+
+        setProcessingId(refuseTargetId);
+        setActionMessage("");
+        setRefuseError("");
+        setError("");
+
+        try {
+            await gestionnaireService.refuserOffre(refuseTargetId, refuseReason.trim(), token);
+            setActionMessage('internshipmanager:messages.refusedSuccess');
+            setShowRefuseModal(false);
+            await chargerOffres();
+        } catch (e: any) {
+            console.error('Erreur lors du refus:', e);
+
+            const responseData = e.response?.data;
+
+            if (responseData?.erreur?.errorCode) {
+                setError(`errors:${responseData.erreur.errorCode}`);
+            } else {
+                setError('internshipmanager:messages.refuseError');
+            }
         } finally {
             setProcessingId(null);
         }
@@ -66,26 +108,6 @@ const OffresDeStagesGestionnaire = () => {
         setShowRefuseModal(true);
     };
 
-    const submitRefuse = async () => {
-        if (!refuseReason.trim()) {
-            setRefuseError("La raison est obligatoire.");
-            return;
-        }
-        if (refuseTargetId == null) return;
-        setProcessingId(refuseTargetId);
-        setActionMessage("");
-        setRefuseError("");
-        try {
-            await gestionnaireService.refuserOffre(refuseTargetId, refuseReason.trim(), token);
-            setActionMessage('internshipmanager:messages.refusedSuccess');
-            setShowRefuseModal(false);
-            await chargerOffres();
-        } catch (e: any) {
-            setError(e.message || 'internshipmanager:messages.refuseError');
-        } finally {
-            setProcessingId(null);
-        }
-    };
 
     const cancelRefuse = () => {
         setShowRefuseModal(false);

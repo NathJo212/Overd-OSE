@@ -77,12 +77,15 @@ const CreerOffreStage = () => {
         e.preventDefault();
         setErrors([]);
         setSuccessMessage("");
+
         const validationErrors = validateForm();
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
             return;
         }
+
         setLoading(true);
+
         try {
             const offreDTO: OffreStageDTO = { ...formData, utilisateur: { token } };
             await employeurService.creerOffreDeStage(offreDTO);
@@ -92,6 +95,26 @@ const CreerOffreStage = () => {
             }, 2000);
         } catch (error) {
             setErrors([error instanceof Error ? error.message : t("offercreate:errors.offerCreation")]);
+
+        } catch (error: any) {
+            console.error('Erreur lors de la création de l\'offre:', error);
+
+            // Gestion des erreurs réseau
+            if (error.code === 'ERR_NETWORK') {
+                setErrors(['Erreur de connexion au serveur']);
+                return;
+            }
+
+            const responseData = error.response?.data;
+
+            if (!responseData) {
+                setErrors(['Une erreur est survenue']);
+                return;
+            }
+
+            if (responseData.erreur?.errorCode) {
+                setErrors([`Erreur: ${responseData.erreur.message || responseData.erreur.errorCode}`]);
+            }
         } finally {
             setLoading(false);
         }

@@ -61,7 +61,7 @@ class GestionnaireControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("ID de l'offre manquant"));
+                .andExpect(jsonPath("$.erreur.message").value("ID de l'offre manquant"));
     }
 
     @Test
@@ -75,7 +75,7 @@ class GestionnaireControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.erreur").value("Accès refusé"));
+                .andExpect(jsonPath("$.erreur.message").value("Unauthorized action"));
     }
 
     @Test
@@ -89,7 +89,7 @@ class GestionnaireControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.erreur").value("Offre introuvable"));
+                .andExpect(jsonPath("$.erreur.message").value("Offer not found"));
     }
 
     @Test
@@ -103,7 +103,7 @@ class GestionnaireControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.erreur").value("Déjà vérifiée"));
+                .andExpect(jsonPath("$.erreur.message").value("Offer already verified"));
     }
 
     @Test
@@ -119,7 +119,7 @@ class GestionnaireControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Offre refusée avec succès"))
-                .andExpect(jsonPath("$.erreur").doesNotExist());
+                .andExpect(jsonPath("$.erreur.message").doesNotExist());
     }
 
     @Test
@@ -131,7 +131,7 @@ class GestionnaireControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.erreur").value("ID de l'offre manquant"));
+                .andExpect(jsonPath("$.erreur.message").value("ID de l'offre manquant"));
     }
 
     @Test
@@ -146,7 +146,7 @@ class GestionnaireControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.erreur").value("Accès refusé"));
+                .andExpect(jsonPath("$.erreur.message").value("Unauthorized action"));
     }
 
     @Test
@@ -161,7 +161,7 @@ class GestionnaireControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.erreur").value("Offre introuvable"));
+                .andExpect(jsonPath("$.erreur.message").value("Offer not found"));
     }
 
     @Test
@@ -176,7 +176,7 @@ class GestionnaireControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.erreur").value("Déjà vérifiée"));
+                .andExpect(jsonPath("$.erreur.message").value("Offer already verified"));
     }
 
     @Test

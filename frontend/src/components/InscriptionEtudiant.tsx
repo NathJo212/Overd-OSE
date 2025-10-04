@@ -36,7 +36,13 @@ const InscriptionEtudiant = () => {
     });
 
     const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState<string[]>([]);
+
+    // Erreurs de validation (messages déjà traduits)
+    const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+    // Codes d'erreur du backend (se traduisent automatiquement)
+    const [backendErrorCodes, setBackendErrorCodes] = useState<string[]>([]);
+
     const [successMessage, setSuccessMessage] = useState<string>('');
     const [programmes, setProgrammes] = useState<string[]>([]);
     const [loadingProgrammes, setLoadingProgrammes] = useState(true);
@@ -50,13 +56,13 @@ const InscriptionEtudiant = () => {
                 const programmesData = await utilisateurService.getAllProgrammes();
                 setProgrammes(programmesData);
             } catch (error) {
-                setErrors([t('errors:ERROR_000')]);
+                setBackendErrorCodes(['ERROR_000']);
             } finally {
                 setLoadingProgrammes(false);
             }
         };
-        loadProgrammes();
-    }, [t]);
+        loadProgrammes().then();
+    }, []);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -103,96 +109,119 @@ const InscriptionEtudiant = () => {
             setPasswordErrors(passwordValidationErrors);
             setIsPasswordValid(passwordValidationErrors.length === 0 && value.length > 0);
         }
-        if (errors.length > 0) {
-            setErrors([]);
+        if (validationErrors.length > 0 || backendErrorCodes.length > 0) {
+            setValidationErrors([]);
+            setBackendErrorCodes([]);
         }
     }
 
     const validateForm = (): string[] => {
-        const validationErrors: string[] = [];
+        const validationErrs: string[] = [];
         if (!formData.prenom.trim()) {
-            validationErrors.push(t('registration:studentRegistration.validation.firstNameRequired'));
+            validationErrs.push(t('registration:studentRegistration.validation.firstNameRequired'));
         }
         if (!formData.nom.trim()) {
-            validationErrors.push(t('registration:studentRegistration.validation.lastNameRequired'));
+            validationErrs.push(t('registration:studentRegistration.validation.lastNameRequired'));
         }
         if (!formData.email.trim()) {
-            validationErrors.push(t('registration:studentRegistration.validation.emailRequired'));
+            validationErrs.push(t('registration:studentRegistration.validation.emailRequired'));
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            validationErrors.push(t('registration:studentRegistration.validation.emailInvalid'));
+            validationErrs.push(t('registration:studentRegistration.validation.emailInvalid'));
         }
         if (!formData.telephone.trim()) {
-            validationErrors.push(t('registration:studentRegistration.validation.phoneRequired'));
+            validationErrs.push(t('registration:studentRegistration.validation.phoneRequired'));
         }
         if (!formData.programmeEtudes.trim()) {
-            validationErrors.push(t('registration:studentRegistration.validation.studyProgramRequired'));
+            validationErrs.push(t('registration:studentRegistration.validation.studyProgramRequired'));
         }
         if (!formData.anneeEtude.trim()) {
-            validationErrors.push(t('registration:studentRegistration.validation.studyYearRequired'));
+            validationErrs.push(t('registration:studentRegistration.validation.studyYearRequired'));
         }
         if (!formData.session.trim()) {
-            validationErrors.push(t('registration:studentRegistration.validation.sessionRequired'));
+            validationErrs.push(t('registration:studentRegistration.validation.sessionRequired'));
         }
         if (!formData.motDePasse) {
-            validationErrors.push(t('registration:studentRegistration.validation.passwordRequired'));
+            validationErrs.push(t('registration:studentRegistration.validation.passwordRequired'));
         } else {
             const passwordValidationErrors = validatePassword(formData.motDePasse);
-            validationErrors.push(...passwordValidationErrors);
+            validationErrs.push(...passwordValidationErrors);
         }
         if (formData.motDePasse !== formData.confirmerMotDePasse) {
-            validationErrors.push(t('registration:studentRegistration.validation.passwordMismatch'));
+            validationErrs.push(t('registration:studentRegistration.validation.passwordMismatch'));
         }
-        return validationErrors;
+        return validationErrs;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setErrors([]);
+        setValidationErrors([]);
+        setBackendErrorCodes([]);
         setSuccessMessage('');
-        const validationErrors = validateForm();
-        if (validationErrors.length > 0) {
-            setErrors(validationErrors);
+
+        const validationErrs = validateForm();
+        if (validationErrs.length > 0) {
+            setValidationErrors(validationErrs);
             return;
         }
+
         setLoading(true);
+
         try {
             const apiData = etudiantService.formatFormDataForAPI(formData);
             const inscriptionResponse = await etudiantService.creerCompte(apiData);
+
             if (inscriptionResponse) {
                 setSuccessMessage(t('registration:studentRegistration.messages.accountCreated'));
+
                 try {
                     const loginData = {
                         email: formData.email,
                         password: formData.motDePasse
                     };
+
                     const authResponse = await utilisateurService.authentifier(loginData);
-                    if (authResponse) {
+
+                    if (authResponse && authResponse.token) {
                         setSuccessMessage(t('registration:studentRegistration.messages.accountCreatedAndLoggedIn'));
                         sessionStorage.setItem('fromRegistration', 'true');
                         setTimeout(() => {
                             navigate('/dashboard-etudiant');
                         }, 2000);
-                    } else {
-                        setSuccessMessage(t('registration:studentRegistration.messages.accountCreatedPleaseLogin'));
-                        setTimeout(() => {
-                            navigate('/login');
-                        }, 2000);
                     }
-                } catch (loginError) {
+
+                } catch (loginError: any) {
+                    console.error('Erreur lors de la connexion automatique:', loginError);
+
                     setSuccessMessage(t('registration:studentRegistration.messages.accountCreatedPleaseLogin'));
                     setTimeout(() => {
                         navigate('/login');
                     }, 2000);
                 }
             }
+
         } catch (error: any) {
-            if (error.response?.data?.errorCode) {
-                setErrors([t(`errors:${error.response.data.errorCode}`)]);
-            } else if (error.code === 'ERR_NETWORK') {
-                setErrors([t('errors:NETWORK_ERROR')]);
-            } else {
-                setErrors([t('registration:studentRegistration.messages.unknownError')]);
+            console.error('Erreur lors de l\'inscription:', error);
+
+            // Gestion des erreurs réseau
+            if (error.code === 'ERR_NETWORK') {
+                setBackendErrorCodes(['NETWORK_ERROR']);
+                return;
             }
+
+            const responseData = error.response?.data;
+
+            if (!responseData) {
+                setBackendErrorCodes(['ERROR_000']);
+                return;
+            }
+
+            if (responseData.erreur?.errorCode) {
+                setBackendErrorCodes([responseData.erreur.errorCode]);
+            }
+            else if (responseData.errorResponse?.errorCode) {
+                setBackendErrorCodes([responseData.errorResponse.errorCode]);
+            }
+
         } finally {
             setLoading(false);
         }
@@ -216,21 +245,38 @@ const InscriptionEtudiant = () => {
                         {t('registration:studentRegistration.subtitle')}
                     </p>
                 </div>
-                {errors.length > 0 && (
+
+                {/* Erreurs de validation côté client */}
+                {validationErrors.length > 0 && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                         <ul className="list-disc list-inside space-y-1">
-                            {errors.map((error, idx) => (
+                            {validationErrors.map((error, idx) => (
                                 <li key={idx} className="text-red-700 text-sm">{error}</li>
                             ))}
                         </ul>
                     </div>
                 )}
+
+                {/* Erreurs du backend (se traduisent automatiquement) */}
+                {backendErrorCodes.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                        <ul className="list-disc list-inside space-y-1">
+                            {backendErrorCodes.map((errorCode, idx) => (
+                                <li key={idx} className="text-red-700 text-sm">
+                                    {t(`errors:${errorCode}`, { defaultValue: 'Une erreur est survenue' })}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
                 {successMessage && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-green-800 font-medium text-center">
                         {successMessage}
                         <p className="text-green-600 text-sm mt-1">{t('registration:studentRegistration.redirecting')}</p>
                     </div>
                 )}
+
                 <div className="bg-white rounded-xl shadow-lg p-8">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-4">
@@ -345,14 +391,12 @@ const InscriptionEtudiant = () => {
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                         disabled={loading}
                                     >
-
                                         <option value="">{t('registration:studentRegistration.placeholders.studyYear')}</option>
                                         <option value="1ère année">{t('registration:studentRegistration.options.studyYears.year1')}</option>
                                         <option value="2ème année">{t('registration:studentRegistration.options.studyYears.year2')}</option>
                                         <option value="3ème année">{t('registration:studentRegistration.options.studyYears.year3')}</option>
                                         <option value="4ème année">{t('registration:studentRegistration.options.studyYears.year4')}</option>
                                         <option value="5ème année">{t('registration:studentRegistration.options.studyYears.year5')}</option>
-
                                     </select>
                                 </div>
                                 <div>
@@ -370,7 +414,6 @@ const InscriptionEtudiant = () => {
                                         <option value="Automne">{t('registration:studentRegistration.options.sessions.fall')}</option>
                                         <option value="Hiver">{t('registration:studentRegistration.options.sessions.winter')}</option>
                                         <option value="Été">{t('registration:studentRegistration.options.sessions.summer')}</option>
-
                                     </select>
                                 </div>
                             </div>

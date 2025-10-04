@@ -87,7 +87,8 @@ const Login = () => {
                 sessionStorage.setItem('fromLogin', 'true');
 
                 setTimeout(() => {
-                    switch (sessionStorage.getItem('userType')) {
+                    const userType = sessionStorage.getItem('userType');
+                    switch (userType) {
                         case 'EMPLOYEUR':
                             navigate('/dashboard-employeur')
                             break
@@ -107,12 +108,20 @@ const Login = () => {
         } catch (error: any) {
             console.error('Erreur lors de la connexion:', error);
 
-            // Extraire le code d'erreur de la réponse du backend
-            if (error.response?.data?.errorCode) {
-                setBackendErrorCodes([error.response.data.errorCode]);
-            } else if (error.code === 'ERR_NETWORK') {
+            // Gestion des erreurs réseau
+            if (error.code === 'ERR_NETWORK') {
                 setBackendErrorCodes(['NETWORK_ERROR']);
-            } else {
+                return;
+            }
+
+            const responseData = error.response?.data;
+
+            if (responseData?.errorResponse?.errorCode) {
+                setBackendErrorCodes([responseData.errorResponse.errorCode]);
+            }
+
+            // Erreur inconnue
+            else {
                 setBackendErrorCodes(['ERROR_000']);
             }
         } finally {

@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class MessageRetourDTO {
     private String message;
-    private String erreur;
+    private ErrorResponse erreur;
 }

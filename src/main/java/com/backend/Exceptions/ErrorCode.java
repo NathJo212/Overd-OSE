@@ -24,6 +24,9 @@ public enum ErrorCode {
     OFFER_NOT_FOUND("OFFER_001"),
     OFFER_ALREADY_VERIFIED("OFFER_002"),
 
+    // CV
+    ERROR_UPLOAD_CV("CV_001"),
+
     // Général
     UNKNOWN_ERROR("ERROR_000");
 

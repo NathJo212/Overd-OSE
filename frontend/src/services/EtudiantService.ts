@@ -61,21 +61,30 @@ class EtudiantService {
 
             const data = await response.json();
 
-            if (!response.ok) {
-                if (data.errorCode) {
-                    const error: any = new Error(data.message || 'Erreur lors de la création du compte');
-                    error.response = { data }; // Attacher errorCode pour le composant
-                    throw error;
-                }
+            // ✅ Vérifier si erreur dans MessageRetourDTO
+            if (data.erreur) {
+                console.error('Erreur lors de la création du compte:', data.erreur);
 
-                // Sinon, erreur avec message classique (rétrocompatibilité)
-                const error: any = new Error(
-                    data.erreur ||
-                    data.message ||
-                    `Erreur HTTP: ${response.status} - ${response.statusText}`
-                );
+                const error: any = new Error(data.erreur.message || 'Erreur de création de compte');
                 error.response = {
-                    data: { errorCode: 'ERROR_000', message: error.message }
+                    data: {
+                        erreur: data.erreur  // Structure MessageRetourDTO
+                    }
+                };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = {
+                    data: {
+                        erreur: {
+                            errorCode: 'ERROR_000',
+                            message: error.message
+                        }
+                    }
                 };
                 throw error;
             }
@@ -83,25 +92,24 @@ class EtudiantService {
             return data;
 
         } catch (error: any) {
-            if (error.response?.data?.errorCode) {
+            if (error.response?.data?.erreur) {
                 throw error;
             }
 
-            // Gestion des erreurs de réseau
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
-                networkError.response = {
-                    data: { errorCode: 'NETWORK_ERROR' }
-                };
+                networkError.code = 'ERR_NETWORK';
                 throw networkError;
             }
 
-            const genericError: any = new Error(
-                error.message || 'Erreur inconnue lors de la création du compte'
-            );
-
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
             genericError.response = {
-                data: { errorCode: 'ERROR_000', message: error.message }
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
             };
             throw genericError;
         }

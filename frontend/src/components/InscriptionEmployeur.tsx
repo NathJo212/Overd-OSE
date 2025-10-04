@@ -170,29 +170,34 @@ const InscriptionEmployeur = () => {
 
                     const authResponse = await utilisateurService.authentifier(loginData);
 
-                    if (authResponse) {
+                    if (authResponse && authResponse.token) {
                         setSuccessMessage(t('registration:employerRegistration.messages.accountCreatedAndLoggedIn'));
                         sessionStorage.setItem('fromRegistration', 'true');
 
                         setTimeout(() => {
                             navigate('/dashboard-employeur');
                         }, 2000);
-                    } else {
-                        setSuccessMessage(t('registration:employerRegistration.messages.accountCreatedPleaseLogin'));
-                        setTimeout(() => {
-                            navigate('/login');
-                        }, 2000);
                     }
 
                 } catch (loginError: any) {
                     console.error('Erreur lors de la connexion automatique:', loginError);
 
-                    if (loginError.response?.data?.errorCode) {
-                        setBackendErrorCodes([loginError.response.data.errorCode]);
+                    // Gestion des erreurs réseau
+                    if (loginError.code === 'ERR_NETWORK') {
+                        setBackendErrorCodes(['NETWORK_ERROR']);
                     } else {
-                        setBackendErrorCodes(['ERROR_000']);
+                        const responseData = loginError.response?.data;
+
+                        // Structure AuthResponseDTO en erreur
+                        if (responseData?.errorResponse?.errorCode) {
+                            setBackendErrorCodes([responseData.errorResponse.errorCode]);
+                        }
+                        else if (responseData?.erreur?.errorCode) {
+                            setBackendErrorCodes([responseData.erreur.errorCode]);
+                        }
                     }
 
+                    setSuccessMessage(t('registration:employerRegistration.messages.accountCreatedPleaseLogin'));
                     setTimeout(() => {
                         navigate('/login');
                     }, 2000);
@@ -202,10 +207,30 @@ const InscriptionEmployeur = () => {
         } catch (error: any) {
             console.error('Erreur lors de l\'inscription:', error);
 
-            if (error.response?.data?.errorCode) {
-                setBackendErrorCodes([error.response.data.errorCode]);
-            } else if (error.code === 'ERR_NETWORK') {
+            // Gestion des erreurs réseau
+            if (error.code === 'ERR_NETWORK') {
                 setBackendErrorCodes(['NETWORK_ERROR']);
+                return;
+            }
+
+            const responseData = error.response?.data;
+
+            if (!responseData) {
+                setBackendErrorCodes(['ERROR_000']);
+                return;
+            }
+
+            // Structure MessageRetourDTO : { message, erreur: { errorCode, message } }
+            if (responseData.erreur?.errorCode) {
+                setBackendErrorCodes([responseData.erreur.errorCode]);
+            }
+            // Structure AuthResponseDTO en erreur (au cas où)
+            else if (responseData.errorResponse?.errorCode) {
+                setBackendErrorCodes([responseData.errorResponse.errorCode]);
+            }
+            // Ancienne structure directe
+            else if (responseData.errorCode) {
+                setBackendErrorCodes([responseData.errorCode]);
             } else {
                 setBackendErrorCodes(['ERROR_000']);
             }

@@ -27,7 +27,7 @@ public class EmployeurController {
 
     @PostMapping("/creerCompte")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<?> creerCompte(@RequestBody EmployeurDTO employeurDTO) {
+    public ResponseEntity<MessageRetourDTO> creerCompte(@RequestBody EmployeurDTO employeurDTO) {
         try {
             employeurService.creerEmployeur(employeurDTO.getEmail(), employeurDTO.getPassword(),
                     employeurDTO.getTelephone(), employeurDTO.getNomEntreprise(),
@@ -36,16 +36,16 @@ public class EmployeurController {
                     .body(new MessageRetourDTO("Employeur créé avec succès", null));
         } catch (EmailDejaUtiliseException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
+                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (MotPasseInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
+                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         }
     }
 
     @PostMapping("/creerOffre")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<?> creerOffre(@RequestBody OffreDTO offreDTO) {
+    public ResponseEntity<MessageRetourDTO> creerOffre(@RequestBody OffreDTO offreDTO) {
         try{
             employeurService.creerOffreDeStage(offreDTO.getAuthResponseDTO(), offreDTO.getDescription(),
                     offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(),
@@ -55,7 +55,7 @@ public class EmployeurController {
                     .body(new MessageRetourDTO("Offre de stage créée avec succès", null));
         } catch (ActionNonAutoriseeException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse(e.getErrorCode().getCode(), e.getMessage()));
+                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         }
     }
 

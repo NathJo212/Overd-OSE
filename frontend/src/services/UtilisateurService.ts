@@ -49,58 +49,62 @@ class UtilisateurService {
                 body: JSON.stringify(loginData),
             });
 
-            // ✅ Lire la réponse UNE SEULE FOIS
             const data = await response.json();
+
+            // ✅ CORRECTION : Vérifier si errorResponse existe dans la réponse
+            if (data.errorResponse) {
+                console.error('Erreur lors de la connexion:', data.errorResponse);
+
+                const error: any = new Error(data.errorResponse.message || 'Erreur de connexion');
+                error.response = {
+                    data: {
+                        errorResponse: data.errorResponse  // Structure AuthResponseDTO
+                    }
+                };
+                throw error;
+            }
 
             if (!response.ok) {
                 console.error('Erreur lors de la connexion:', data);
 
-                // Si le backend envoie un ErrorResponse avec errorCode
-                if (data.errorCode) {
-                    const error: any = new Error(data.message || 'Erreur de connexion');
-                    error.response = { data }; // Attacher errorCode pour Login.tsx
-                    throw error;
-                }
-
-                // Sinon, erreur classique (rétrocompatibilité)
-                const error: any = new Error(
-                    data.message ||
-                    `Erreur HTTP: ${response.status} - ${response.statusText}`
-                );
+                const error: any = new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
                 error.response = {
-                    data: { errorCode: 'ERROR_000', message: error.message }
+                    data: {
+                        errorResponse: {
+                            errorCode: 'ERROR_000',
+                            message: error.message
+                        }
+                    }
                 };
                 throw error;
             }
 
             const authResponse: AuthResponseDTO = data;
-
-            // Stocker le token et les informations utilisateur
             this.stockerDonneesUtilisateur(authResponse);
-
             return authResponse;
 
         } catch (error: any) {
-            // Si l'erreur a déjà un errorCode, la relancer
-            if (error.response?.data?.errorCode) {
+            // Si l'erreur a déjà un errorResponse, la relancer
+            if (error.response?.data?.errorResponse) {
                 throw error;
             }
 
             // Gestion des erreurs de réseau
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
-                networkError.response = {
-                    data: { errorCode: 'NETWORK_ERROR' }
-                };
+                networkError.code = 'ERR_NETWORK';
                 throw networkError;
             }
 
             // Autres erreurs
-            const genericError: any = new Error(
-                error.message || 'Erreur inconnue lors de la connexion'
-            );
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
             genericError.response = {
-                data: { errorCode: 'ERROR_000', message: error.message }
+                data: {
+                    errorResponse: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
             };
             throw genericError;
         }
