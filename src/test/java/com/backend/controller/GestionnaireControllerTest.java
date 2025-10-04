@@ -206,4 +206,33 @@ class GestionnaireControllerTest {
         mockMvc.perform(get("/OSEGestionnaire/offresEnAttente"))
                 .andExpect(status().isInternalServerError());
     }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/visualiserOffres retourne 200 et liste de toutes les offres")
+    void getAllOffres_success() throws Exception {
+        when(gestionnaireService.getAllOffres()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/OSEGestionnaire/visualiserOffres"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/visualiserOffres retourne 401 si non autorisé")
+    void getAllOffres_nonAutorise() throws Exception {
+        when(gestionnaireService.getAllOffres()).thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEGestionnaire/visualiserOffres"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/visualiserOffres retourne 500 si erreur serveur")
+    void getAllOffres_erreurServeur() throws Exception {
+        when(gestionnaireService.getAllOffres()).thenThrow(new RuntimeException("Erreur interne"));
+
+        mockMvc.perform(get("/OSEGestionnaire/visualiserOffres"))
+                .andExpect(status().isInternalServerError());
+    }
 }

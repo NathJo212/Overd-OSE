@@ -83,4 +83,17 @@ public class GestionnaireControlleur {
                     .body(new ErrorResponse("ERROR_000", "Erreur interne du serveur"));
         }
     }
+
+    @GetMapping("/visualiserOffres")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<OffreDTO>> getAllOffres() {
+        try {
+            List<OffreDTO> toutesLesOffres = gestionnaireService.getAllOffres();
+            return ResponseEntity.ok(toutesLesOffres);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

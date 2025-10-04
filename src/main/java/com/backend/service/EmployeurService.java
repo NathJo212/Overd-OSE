@@ -63,7 +63,7 @@ public class EmployeurService {
 
         // Validate dates
         if (date_fin != null && date_debut != null && date_fin.isBefore(date_debut)) {
-            throw new DateInvalideException("End date cannot be before start date");
+            throw new DateInvalideException("Date de fin ne peut pas être avant la date de début.");
         }
 
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);

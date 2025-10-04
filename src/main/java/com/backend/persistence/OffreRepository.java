@@ -12,4 +12,6 @@ public interface OffreRepository extends CrudRepository<Offre, Long> {
 
     List<Offre> findAllByStatutApprouve(Offre.StatutApprouve statutApprouve);
 
+    List<Offre> findAll();
+
 }

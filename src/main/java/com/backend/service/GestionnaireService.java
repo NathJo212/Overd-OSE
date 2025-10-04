@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -83,6 +82,16 @@ public class GestionnaireService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public List<OffreDTO> getAllOffres() throws ActionNonAutoriseeException {
+        checkGestionnaireStageRole();
+        List<Offre> toutesLesOffres = offreRepository.findAll();
+
+        return toutesLesOffres.stream()
+                .map(offre -> new OffreDTO().toDTO(offre))
+                .collect(Collectors.toList());
+    }
+
     private void checkGestionnaireStageRole() throws ActionNonAutoriseeException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean hasRole = auth != null && auth.getAuthorities().stream()
@@ -92,45 +101,4 @@ public class GestionnaireService {
             throw new ActionNonAutoriseeException();
         }
     }
-
-    @Transactional
-    public List<OffreDTO> getOffresApprouvees() throws ActionNonAutoriseeException {
-        checkGestionnaireStageRole();
-        List<Offre> offresApprouvees = offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE);
-
-        return offresApprouvees.stream()
-                .map(offre -> new OffreDTO().toDTO(offre))
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public List<OffreDTO> getOffresExpirees() throws ActionNonAutoriseeException {
-        checkGestionnaireStageRole();
-        LocalDate currentDate = LocalDate.now();
-
-        List<Offre> offresExpirees = offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE)
-                .stream()
-                .filter(offre -> offre.getDateLimite() != null && offre.getDateLimite().isBefore(currentDate))
-                .collect(Collectors.toList());
-
-        return offresExpirees.stream()
-                .map(offre -> new OffreDTO().toDTO(offre))
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public List<OffreDTO> getOffresEnCours() throws ActionNonAutoriseeException {
-        checkGestionnaireStageRole();
-        LocalDate currentDate = LocalDate.now();
-
-        List<Offre> offresEnCours = offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE)
-                .stream()
-                .filter(offre -> offre.getDate_fin() != null && offre.getDate_fin().isAfter(currentDate))
-                .collect(Collectors.toList());
-
-        return offresEnCours.stream()
-                .map(offre -> new OffreDTO().toDTO(offre))
-                .collect(Collectors.toList());
-    }
-
 }
