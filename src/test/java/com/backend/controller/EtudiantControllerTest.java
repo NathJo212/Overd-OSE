@@ -21,6 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -130,22 +131,22 @@ class EtudiantControllerTest {
         OffreDTO offre1 = new OffreDTO();
         offre1.setTitre("Stage en développement web");
         offre1.setDescription("Développement d'applications web");
-        offre1.setDate_debut("2025-05-01");
-        offre1.setDate_fin("2025-08-31");
+        offre1.setDate_debut(LocalDate.of(2025, 5, 1));
+        offre1.setDate_fin(LocalDate.of(2025, 8, 31));
         offre1.setProgEtude(ProgrammeDTO.P420_B0);
         offre1.setLieuStage("Montréal");
         offre1.setRemuneration("20$/h");
-        offre1.setDateLimite("2025-04-15");
+        offre1.setDateLimite(LocalDate.of(2025, 4, 15));
 
         OffreDTO offre2 = new OffreDTO();
         offre2.setTitre("Stage en réseaux");
         offre2.setDescription("Administration de réseaux");
-        offre2.setDate_debut("2025-06-01");
-        offre2.setDate_fin("2025-09-30");
+        offre2.setDate_debut(LocalDate.of(2025, 6, 1));
+        offre2.setDate_fin(LocalDate.of(2025, 9, 30));
         offre2.setProgEtude(ProgrammeDTO.P420_B0);
         offre2.setLieuStage("Québec");
         offre2.setRemuneration("22$/h");
-        offre2.setDateLimite("2025-05-01");
+        offre2.setDateLimite(LocalDate.of(2025, 5, 1));
 
         List<OffreDTO> offresApprouvees = List.of(offre1, offre2);
 

@@ -1,6 +1,7 @@
 package com.backend.service;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
+import com.backend.Exceptions.DateInvalideException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.config.JwtTokenProvider;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -52,12 +54,18 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, String date_debut, String date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, String dateLimite) throws ActionNonAutoriseeException {
+    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, LocalDate date_debut, LocalDate date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, LocalDate dateLimite) throws ActionNonAutoriseeException, DateInvalideException {
         String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
             throw new ActionNonAutoriseeException();
         }
+
+        // Validate dates
+        if (date_fin != null && date_debut != null && date_fin.isBefore(date_debut)) {
+            throw new DateInvalideException("End date cannot be before start date");
+        }
+
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
         Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur);

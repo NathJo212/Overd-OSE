@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -180,12 +181,12 @@ public class EtudiantServiceTest {
         Offre offre1 = new Offre(
                 "Stage en développement web",
                 "Développement d'applications web",
-                "2025-05-01",
-                "2025-08-31",
+                LocalDate.of(2025, 5, 1),
+                LocalDate.of(2025, 8, 31),
                 Programme.P420_B0,
                 "Montréal",
                 "20$/h",
-                "2025-04-15",
+                LocalDate.of(2025, 4, 15),
                 employeur
         );
         offre1.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
@@ -193,12 +194,12 @@ public class EtudiantServiceTest {
         Offre offre2 = new Offre(
                 "Stage en réseaux",
                 "Administration de réseaux",
-                "2025-06-01",
-                "2025-09-30",
+                LocalDate.of(2025, 6, 1),
+                LocalDate.of(2025, 9, 30),
                 Programme.P420_B0,
                 "Québec",
                 "22$/h",
-                "2025-05-01",
+                LocalDate.of(2025, 5, 1),
                 employeur
         );
         offre2.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
@@ -207,12 +208,12 @@ public class EtudiantServiceTest {
         Offre offre3 = new Offre(
                 "Stage refusé",
                 "Description",
-                "2025-05-01",
-                "2025-08-31",
+                LocalDate.of(2025, 5, 1),
+                LocalDate.of(2025, 8, 31),
                 Programme.P420_B0,
                 "Laval",
                 "18$/h",
-                "2025-04-01",
+                LocalDate.of(2025, 4, 1),
                 employeur
         );
         offre3.setStatutApprouve(Offre.StatutApprouve.REFUSE);

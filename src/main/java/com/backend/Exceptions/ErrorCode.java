@@ -23,6 +23,7 @@ public enum ErrorCode {
     // Offres
     OFFER_NOT_FOUND("OFFER_001"),
     OFFER_ALREADY_VERIFIED("OFFER_002"),
+    OFFER_DATE_INVALID("OFFER_003"),
 
     // Général
     UNKNOWN_ERROR("ERROR_000");

@@ -18,6 +18,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -115,12 +116,12 @@ public class GestionnaireServiceTest {
         Offre offre = new Offre(
                 "Développeur java",
                 "Dev java/spring",
-                "2026-01-16",
-                "2026-01-17",
+                LocalDate.of(2026, 1, 16),
+                LocalDate.of(2026, 1, 17),
                 Programme.P420_B0,
                 "Montréal",
                 "25$/h",
-                "2025-09-10",
+                LocalDate.of(2025, 9, 10),
                 employeur
         );
 

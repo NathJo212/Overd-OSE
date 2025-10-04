@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Table
 @Getter
@@ -26,15 +28,15 @@ public class Offre {
 
     private String titre;
     private String description;
-    private String date_debut;
-    private String date_fin;
+    private LocalDate date_debut;
+    private LocalDate date_fin;
 
     @Convert(converter = ProgrammeConverter.class)
     private Programme progEtude;
 
     private String lieuStage;
     private String remuneration;
-    private String dateLimite;
+    private LocalDate dateLimite;
 
 
     @ManyToOne
@@ -45,7 +47,7 @@ public class Offre {
     @Enumerated(EnumType.STRING)
     private StatutApprouve statutApprouve;
 
-    public Offre(String titre, String description, String date_debut, String date_fin, Programme progEtude, String lieuStage, String remuneration, String dateLimite, Employeur employeur) {
+    public Offre(String titre, String description, LocalDate date_debut, LocalDate date_fin, Programme progEtude, String lieuStage, String remuneration, LocalDate dateLimite, Employeur employeur) {
         this.titre = titre;
         this.description = description;
         this.date_debut = date_debut;
