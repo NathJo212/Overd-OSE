@@ -93,9 +93,6 @@ const CreerOffreStage = () => {
             setTimeout(() => {
                 navigate("/dashboard-employeur");
             }, 2000);
-        } catch (error) {
-            setErrors([error instanceof Error ? error.message : t("offercreate:errors.offerCreation")]);
-
         } catch (error: any) {
             console.error('Erreur lors de la création de l\'offre:', error);
 
@@ -140,7 +137,7 @@ const CreerOffreStage = () => {
                         {t("offercreate:title")}
                     </h1>
                     <p className="text-gray-600">
-                        Remplissez les informations pour publier votre offre
+                        {t("offercreate:subtitle")}
                     </p>
                 </div>
 
@@ -150,7 +147,7 @@ const CreerOffreStage = () => {
                         <div className="flex items-start gap-3">
                             <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
-                                <h3 className="text-sm font-semibold text-red-900 mb-2">Erreurs de validation</h3>
+                                <h3 className="text-sm font-semibold text-red-900 mb-2">{t("offercreate:errors.errorMessageSection")}</h3>
                                 <ul className="space-y-1">
                                     {errors.map((error, idx) => (
                                         <li key={idx} className="text-sm text-red-700">• {error}</li>
@@ -331,12 +328,12 @@ const CreerOffreStage = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                     </svg>
-                                    t("offercreate:button.creating")
+                                    {t("offercreate:button.creating")}
                                 </>
                             ) : (
                                 <>
                                     <Briefcase className="w-5 h-5" />
-                                    t("offercreate:button.createOffer")}
+                                    {t("offercreate:button.createOffer")}
                                 </>
                             )}
                         </button>

@@ -1,5 +1,6 @@
 {
   "title": "Create an Internship Offer",
+  "subtitle": "Fill in the information to publish your offer",
   "form": {
     "title": "Title",
     "description": "Description",
@@ -16,6 +17,7 @@
     "creating": "Creating..."
   },
   "errors": {
+    "errorMessageSection": "Validation errors",
     "titleRequired": "Title is required.",
     "descriptionRequired": "Description is required.",
     "startDateRequired": "Start date is required.",

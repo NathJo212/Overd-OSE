@@ -1,5 +1,6 @@
 {
   "title": "Créer une offre de stage",
+  "subtitle": "Remplissez les informations pour publier votre offre",
   "form": {
     "title": "Titre",
     "description": "Description",
@@ -16,6 +17,7 @@
     "creating": "Création en cours..."
   },
   "errors": {
+    "errorMessageSection": "Erreurs de validation",
     "titleRequired": "Le titre est requis.",
     "descriptionRequired": "La description est requise.",
     "startDateRequired": "La date de début est requise.",
