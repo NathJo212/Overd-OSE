@@ -60,13 +60,13 @@ public class BackendApplication {
             employeurService.creerOffreDeStage(
                     utilisateurTest,
                     "Mon stage",
-                    "stage super cool",
-                    LocalDate.now().minusDays(1),
+                    "Stage react",
+                    LocalDate.now().plusWeeks(1),
                     LocalDate.now().plusMonths(6),
                     ProgrammeDTO.P180_A0,
-                    "MTL",
-                    "10000000$",
-                    LocalDate.now().plusMonths(6)
+                    "Montréal",
+                    "15$/h",
+                    LocalDate.now().plusDays(1)
             );
 
             employeurService.creerOffreDeStage(
@@ -78,7 +78,7 @@ public class BackendApplication {
                     ProgrammeDTO.P200_B1,
                     "Montréal",
                     "15$/h",
-                    LocalDate.now().minusMonths(3)
+                    LocalDate.now().plusMonths(6)
             );
 
             employeurService.creerOffreDeStage(

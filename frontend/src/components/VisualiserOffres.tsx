@@ -1,11 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2, Mail, Phone, MapPin, Calendar, DollarSign, AlertCircle, CheckCircle, XCircle, Filter } from "lucide-react";
+import {
+    Building2,
+    Mail,
+    Phone,
+    MapPin,
+    Calendar,
+    DollarSign,
+    AlertCircle,
+    CheckCircle,
+    XCircle,
+    Filter,
+    ArrowLeft
+} from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 
-type FilterType = 'all' | 'expired' | 'refused' | 'approved';
+type FilterType = 'all' | 'expired' | 'refused' | 'approved' | 'pending';
 
 const VisualiserOffres = () => {
     useTranslation(["internshipmanager"]);
@@ -59,13 +71,22 @@ const VisualiserOffres = () => {
                 );
                 break;
             case 'refused':
-                filtered = allOffres.filter(offre => offre.messageRefus);
+                filtered = allOffres.filter(offre =>
+                    offre.messageRefus
+                    && (!offre.dateLimite || new Date(offre.dateLimite) >= today)
+                    && offre.statutApprouve == "REFUSE");
                 break;
             case 'approved':
                 filtered = allOffres.filter(offre =>
                     !offre.messageRefus &&
                     (!offre.dateLimite || new Date(offre.dateLimite) >= today)
+                    && offre.statutApprouve == "APPROUVE"
                 );
+                break;
+            case 'pending':
+                filtered = allOffres.filter(offre =>
+                    (!offre.dateLimite || new Date(offre.dateLimite) >= today)
+                    && offre.statutApprouve == "ATTENTE");
                 break;
             default:
                 filtered = allOffres;
@@ -78,7 +99,7 @@ const VisualiserOffres = () => {
         const today = new Date();
         const isExpired = offre.dateLimite && new Date(offre.dateLimite) < today;
 
-        if (offre.messageRefus) {
+        if (offre.messageRefus && offre.statutApprouve == "REFUSE") {
             return (
                 <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-medium flex items-center gap-1">
                     <XCircle className="w-3 h-3" />
@@ -94,6 +115,15 @@ const VisualiserOffres = () => {
                     Expirée
                 </span>
             );
+        }
+
+        if(offre.statutApprouve == "ATTENTE") {
+            return (
+                <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-medium flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    En attente
+                </span>
+            )
         }
 
         return (
@@ -114,6 +144,15 @@ const VisualiserOffres = () => {
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
+                <div className="w-full flex justify-start mb-6">
+                    <button
+                        onClick={() => navigate('/dashboard-etudiant')}
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                        <span className="font-medium">Retourner à la page des offres de stage en attentes</span>
+                    </button>
+                </div>
                 {/* En-tête */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -139,7 +178,17 @@ const VisualiserOffres = () => {
                                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                             }`}
                         >
-                            Toutes ({allOffres.filter(o => o.statutApprouve !== 'ATTENTE').length})
+                            Toutes ({allOffres.length})
+                        </button>
+                        <button
+                            onClick={() => filterOffres('pending')}
+                            className={`px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
+                                currentFilter === 'pending'
+                                    ? 'bg-yellow-500 text-white shadow-lg'
+                                    : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                            }`}
+                        >
+                            En attente ({allOffres.filter(o => o.statutApprouve === 'ATTENTE' && (!o.dateLimite || new Date(o.dateLimite) >= new Date())).length})
                         </button>
                         <button
                             onClick={() => filterOffres('approved')}
@@ -159,7 +208,7 @@ const VisualiserOffres = () => {
                                     : 'bg-red-100 text-red-700 hover:bg-red-200'
                             }`}
                         >
-                            Refusées ({allOffres.filter(o => o.statutApprouve === 'REFUSE').length})
+                            Refusées ({allOffres.filter(o => o.statutApprouve === 'REFUSE' && (!o.dateLimite || new Date(o.dateLimite) >= new Date())).length})
                         </button>
                         <button
                             onClick={() => filterOffres('expired')}
@@ -169,7 +218,7 @@ const VisualiserOffres = () => {
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         >
-                            Expirées ({allOffres.filter(o => (o.statutApprouve === 'APPROUVE' || o.statutApprouve === 'REFUSE') && o.dateLimite && new Date(o.dateLimite) < new Date()).length})
+                            Expirées ({allOffres.filter(o => o.dateLimite && new Date(o.dateLimite) < new Date()).length})
                         </button>
                     </div>
                 </div>
