@@ -107,6 +107,7 @@ public class EtudiantService {
         String cvChiffre = chiffrer(cvBytes); // stocker sous forme String
         etudiant.setCv(cvChiffre.getBytes()); // ou adapte le type dans ton modèle
         etudiantRepository.save(etudiant);
+        etudiant.setStatutCV(Etudiant.StatutCV.ATTENTE);
     }
 
     @Transactional

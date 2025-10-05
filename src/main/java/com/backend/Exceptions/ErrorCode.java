@@ -26,6 +26,7 @@ public enum ErrorCode {
 
     // CV
     ERROR_UPLOAD_CV("CV_001"),
+    CV_ALREADY_VERIFIED("CV_002"),  // NEW: Add this line
 
     // Général
     UNKNOWN_ERROR("ERROR_000");
