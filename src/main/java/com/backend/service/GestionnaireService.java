@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -78,6 +79,11 @@ public class GestionnaireService {
         List<Offre> offresEnAttente = offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE);
 
         return offresEnAttente.stream()
+                .filter(offre -> {
+                    LocalDate dateLimite = offre.getDateLimite();
+                    return dateLimite != null &&
+                            (dateLimite.isAfter(LocalDate.now()) || dateLimite.isEqual(LocalDate.now()));
+                })
                 .map(offre -> new OffreDTO().toDTO(offre))
                 .collect(Collectors.toList());
     }

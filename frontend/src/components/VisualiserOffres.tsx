@@ -246,7 +246,7 @@ const VisualiserOffres = () => {
                         <p className="text-gray-600">
                             {currentFilter === 'all'
                                 ? 'Aucune offre disponible'
-                                : `Aucune offre ${currentFilter === 'approved' ? 'approuvée' : currentFilter === 'refused' ? 'refusée' : 'expirée'} trouvée`
+                                : `Aucune offre ${currentFilter === 'approved' ? 'approuvée' : currentFilter === 'refused' ? 'refusée' : currentFilter === 'expired' ? 'expirée' : currentFilter === 'pending' ? 'en attente' : ''} trouvée`
                             }
                         </p>
                     </div>
