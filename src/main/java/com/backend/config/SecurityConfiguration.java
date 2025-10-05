@@ -66,10 +66,6 @@ public class SecurityConfiguration {
                         .requestMatchers(POST, ETUDIANT_REGISTER_PATH).permitAll()
                         .requestMatchers(GET, PROGRAMMES_PATH).permitAll()
                         .requestMatchers(GET, ETUDIANT_VOIR_OFFRES).permitAll()
-                        .requestMatchers(POST, GESTIONNAIRE_APPROVE_PATH).permitAll()
-                        .requestMatchers(POST, GESTIONNAIRE_DENY_PATH).permitAll()
-                        .requestMatchers(GET, GESTIONNAIRE_GET_ALL_CV_PATH).permitAll()
-
 
                         // Endpoints protégés par rôle
                         .requestMatchers(EMPLOYEUR_PATH).hasAuthority("EMPLOYEUR")
