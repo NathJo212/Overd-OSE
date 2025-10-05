@@ -98,10 +98,15 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void approuveCV(Long etudiantId) throws ActionNonAutoriseeException, UserNotFoundException, CVDejaVerifieException {
-        checkGestionnaireStageRole();
+    public void approuveCV(Long etudiantId) throws ActionNonAutoriseeException, CVNonExistantException, CVDejaVerifieException {
+        verifierGestionnaireConnecte();
+
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new CVNonExistantException());
+
+        if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
+            throw new CVNonExistantException();
+        }
 
         if (etudiant.getStatutCV() != Etudiant.StatutCV.ATTENTE) {
             throw new CVDejaVerifieException();
@@ -113,10 +118,15 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void refuseCV(Long etudiantId, String messageRefus) throws ActionNonAutoriseeException, UserNotFoundException, CVDejaVerifieException {
-        checkGestionnaireStageRole();
+    public void refuseCV(Long etudiantId, String messageRefus) throws ActionNonAutoriseeException, CVNonExistantException, CVDejaVerifieException {
+        verifierGestionnaireConnecte();
+
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new CVNonExistantException());
+
+        if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
+            throw new CVNonExistantException();
+        }
 
         if (etudiant.getStatutCV() != Etudiant.StatutCV.ATTENTE) {
             throw new CVDejaVerifieException();
@@ -129,12 +139,21 @@ public class GestionnaireService {
 
     @Transactional
     public List<EtudiantDTO> getCVsEnAttente() throws ActionNonAutoriseeException {
-        checkGestionnaireStageRole();
-        List<Etudiant> etudiantsEnAttente = etudiantRepository.findByStatutCV(Etudiant.StatutCV.ATTENTE);
+        verifierGestionnaireConnecte();
 
-        return etudiantsEnAttente.stream()
+        List<Etudiant> etudiants = etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE);
+        return etudiants.stream()
                 .map(etudiant -> new EtudiantDTO().toDTO(etudiant))
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    private void verifierGestionnaireConnecte() throws ActionNonAutoriseeException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isGestionnaire = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("GESTIONNAIRE"));
+        if (!isGestionnaire) {
+            throw new ActionNonAutoriseeException();
+        }
     }
 
 }

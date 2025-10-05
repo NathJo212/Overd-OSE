@@ -48,6 +48,5 @@ public class Etudiant extends Utilisateur {
         this.progEtude = progEtude;
         this.session = session;
         this.annee = annee;
-//        this.statutCV = StatutCV.ATTENTE;
     }
 }

@@ -10,5 +10,5 @@ public interface EtudiantRepository extends CrudRepository<Etudiant, Long> {
 
     boolean existsByEmail(String email);
     Etudiant findByEmail(String email);
-    List<Etudiant> findByStatutCV(Etudiant.StatutCV statutCV);
+    List<Etudiant> findAllByStatutCV(Etudiant.StatutCV statutCV);
 }
