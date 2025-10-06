@@ -26,6 +26,8 @@ import offresStageApprouveFr from './locales/fr/offresStageApprouve.json';
 import offresStageApprouveEn from './locales/en/offresStageApprouve.json';
 import enProgrammes from './locales/en/programmes.json';
 import frProgrammes from './locales/fr/programmes.json';
+import televersementCvFr from './locales/fr/televersementCv.json';
+import televersementCvEn from './locales/en/televersementCv.json';
 
 const resources = {
     fr: {
@@ -40,6 +42,7 @@ const resources = {
         dashboardEtudiant: dashboardEtudiantFr,
         offresStageApprouve: offresStageApprouveFr,
         programmes: frProgrammes,
+        televersementCv: televersementCvFr,
     },
     en: {
         registration: registrationEn,
@@ -53,6 +56,7 @@ const resources = {
         dashboardEtudiant: dashboardEtudiantEn,
         offresStageApprouve: offresStageApprouveEn,
         programmes: enProgrammes,
+        televersementCv: televersementCvEn,
     }
 };
 

@@ -1,0 +1,50 @@
+{
+  "cv": {
+    "title": "My Resume",
+    "subtitle": "Manage your resume to apply for internship offers",
+    "backToDashboard": "Back to dashboard",
+
+    "upload": {
+      "title": "Upload my resume",
+      "updateTitle": "Update my resume",
+      "format": "PDF format, max 5MB",
+      "clickToSelect": "Click to select",
+      "pdfOnly": "PDF only (max 5MB)",
+      "uploading": "Uploading...",
+      "uploadButton": "Upload resume",
+      "replaceButton": "Replace my resume",
+      "replaceWarning": "The new resume will replace your current resume"
+    },
+
+    "current": {
+      "title": "Current Resume",
+      "subtitle": "Your resume is available",
+      "available": "Resume available",
+      "canApply": "You can apply for internship offers with this resume",
+      "downloadButton": "Download my resume"
+    },
+
+    "info": {
+      "title": "Information",
+      "acceptedFormat": "Accepted format",
+      "pdfOnly": "PDF only",
+      "maxSize": "Maximum size",
+      "cvRequired": "A resume is",
+      "required": "required",
+      "toApply": "to apply for offers"
+    },
+
+    "success": {
+      "uploaded": "Resume successfully uploaded",
+      "downloaded": "Resume successfully downloaded"
+    },
+
+    "errors": {
+      "pdfOnly": "Please select a PDF file",
+      "maxSize": "File must not exceed {{size}}MB",
+      "selectFile": "Please select a file",
+      "uploadFailed": "Error uploading file",
+      "downloadFailed": "Error downloading file"
+    }
+  }
+}
