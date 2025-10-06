@@ -168,7 +168,7 @@ const TeleversementCv = () => {
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                     <FileText className="w-10 h-10 text-slate-400 mb-3" />
                                     <p className="mb-2 text-sm text-slate-600">
-                                        <span className="font-semibold">{t('cv.upload.clickToSelect')}</span> {t('cv.upload.dragDrop')}
+                                        <span className="font-semibold">{t('cv.upload.clickToSelect')}</span>
                                     </p>
                                     <p className="text-xs text-slate-500">
                                         {t('cv.upload.pdfOnly')}

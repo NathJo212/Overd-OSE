@@ -9,7 +9,6 @@
       "updateTitle": "Mettre à jour mon CV",
       "format": "Format PDF, max 5MB",
       "clickToSelect": "Cliquez pour sélectionner",
-      "dragDrop": "ou glissez-déposez",
       "pdfOnly": "PDF uniquement (max 5MB)",
       "uploading": "Téléversement en cours...",
       "uploadButton": "Téléverser le CV",

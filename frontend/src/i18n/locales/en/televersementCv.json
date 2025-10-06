@@ -9,7 +9,6 @@
       "updateTitle": "Update my resume",
       "format": "PDF format, max 5MB",
       "clickToSelect": "Click to select",
-      "dragDrop": "or drag and drop",
       "pdfOnly": "PDF only (max 5MB)",
       "uploading": "Uploading...",
       "uploadButton": "Upload resume",
