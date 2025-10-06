@@ -47,7 +47,7 @@ public class EmployeurController {
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> creerOffre(@RequestBody OffreDTO offreDTO) {
         try{
-            employeurService.creerOffreDeStage(offreDTO.getAuthResponseDTO(), offreDTO.getDescription(),
+            employeurService.creerOffreDeStage(offreDTO.getAuthResponseDTO(), offreDTO.getTitre(),
                     offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(),
                     offreDTO.getProgEtude(), offreDTO.getLieuStage(), offreDTO.getRemuneration(),
                     offreDTO.getDateLimite());

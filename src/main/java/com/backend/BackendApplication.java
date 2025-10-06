@@ -12,6 +12,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
+import java.time.LocalDate;
+
 @SpringBootApplication
 public class BackendApplication {
 
@@ -55,31 +57,42 @@ public class BackendApplication {
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");
             System.out.println("Employeur contact: " + utilisateurTest.getUtilisateurDTO().getContact());
 
-            employeurService.creerOffreDeStage(utilisateurTest, "Mon stage", "stage super cool", "un jour", "un jour", ProgrammeDTO.P180_A0, "MTL", "10000000$", "un jour");
+            employeurService.creerOffreDeStage(
+                    utilisateurTest,
+                    "Mon stage",
+                    "Stage react",
+                    LocalDate.now().plusWeeks(1),
+                    LocalDate.now().plusMonths(6),
+                    ProgrammeDTO.P180_A0,
+                    "Montréal",
+                    "15$/h",
+                    LocalDate.now().plusDays(1)
+            );
 
             employeurService.creerOffreDeStage(
                     utilisateurTest,
                     "Développeur Java",
                     "Stage backend sur une application Spring Boot",
-                    "2024-01-01",
-                    "2024-06-01",
+                    LocalDate.now().minusMonths(8),
+                    LocalDate.now().minusMonths(2),
                     ProgrammeDTO.P200_B1,
                     "Montréal",
                     "15$/h",
-                    "2023-12-15"
+                    LocalDate.now().plusMonths(6)
             );
 
             employeurService.creerOffreDeStage(
                     utilisateurTest,
                     "Java",
                     "Test",
-                    "2025-01-01",
-                    "2025-06-01",
+                    LocalDate.now(),
+                    LocalDate.now().plusMonths(4),
                     ProgrammeDTO.P200_B1,
                     "Quebec",
                     "18$/h",
-                    "2025-12-15"
+                    LocalDate.now().minusDays(10)
             );
+
 
         };
     }

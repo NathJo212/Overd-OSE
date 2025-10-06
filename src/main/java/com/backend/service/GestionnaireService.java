@@ -82,6 +82,16 @@ public class GestionnaireService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public List<OffreDTO> getAllOffres() throws ActionNonAutoriseeException {
+        checkGestionnaireStageRole();
+        List<Offre> toutesLesOffres = offreRepository.findAll();
+
+        return toutesLesOffres.stream()
+                .map(offre -> new OffreDTO().toDTO(offre))
+                .collect(Collectors.toList());
+    }
+
     private void checkGestionnaireStageRole() throws ActionNonAutoriseeException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean hasRole = auth != null && auth.getAuthorities().stream()
@@ -91,5 +101,4 @@ public class GestionnaireService {
             throw new ActionNonAutoriseeException();
         }
     }
-
 }

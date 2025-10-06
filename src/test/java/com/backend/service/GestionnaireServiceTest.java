@@ -18,6 +18,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -115,12 +116,12 @@ public class GestionnaireServiceTest {
         Offre offre = new Offre(
                 "Développeur java",
                 "Dev java/spring",
-                "2026-01-16",
-                "2026-01-17",
+                LocalDate.of(2026, 1, 16),
+                LocalDate.of(2026, 1, 17),
                 Programme.P420_B0,
                 "Montréal",
                 "25$/h",
-                "2025-09-10",
+                LocalDate.of(2025, 9, 10),
                 employeur
         );
 
@@ -133,8 +134,52 @@ public class GestionnaireServiceTest {
     }
 
     @Test
+    public void getAllOffres_retourneToutesLesOffres() throws Exception {
+        com.backend.modele.Employeur employeur1 = mock(com.backend.modele.Employeur.class);
+        when(employeur1.getEmail()).thenReturn("employeur1@test.com");
+
+        com.backend.modele.Employeur employeur2 = mock(com.backend.modele.Employeur.class);
+        when(employeur2.getEmail()).thenReturn("employeur2@test.com");
+
+        Offre offreApprouvee = new Offre(
+                "Stage approuvé",
+                "Description stage approuvé",
+                LocalDate.of(2026, 1, 16),
+                LocalDate.of(2026, 1, 17),
+                Programme.P420_B0,
+                "Montréal",
+                "25$/h",
+                LocalDate.of(2025, 12, 10),
+                employeur1
+        );
+        offreApprouvee.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
+
+        Offre offreEnAttente = new Offre(
+                "Stage en attente",
+                "Description stage en attente",
+                LocalDate.of(2026, 2, 16),
+                LocalDate.of(2026, 2, 17),
+                Programme.P420_B0,
+                "Québec",
+                "30$/h",
+                LocalDate.of(2025, 11, 15),
+                employeur2
+        );
+        offreEnAttente.setStatutApprouve(Offre.StatutApprouve.ATTENTE);
+
+        when(offreRepository.findAll()).thenReturn(Arrays.asList(offreApprouvee, offreEnAttente));
+
+        var result = gestionnaireService.getAllOffres();
+
+        assertEquals(2, result.size());
+        assertEquals("employeur1@test.com", result.get(0).getEmployeurDTO().getEmail());
+        assertEquals("employeur2@test.com", result.get(1).getEmployeurDTO().getEmail());
+        assertEquals("Stage approuvé", result.get(0).getTitre());
+        assertEquals("Stage en attente", result.get(1).getTitre());
+    }
+
+    @Test
     public void approuveOffre_AccesNonAutorise() {
-        // Simule un utilisateur sans le rôle GESTIONNAIRE
         Authentication auth = mock(Authentication.class);
         when(auth.getAuthorities()).thenReturn(Collections.emptyList());
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -142,5 +187,27 @@ public class GestionnaireServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.approuveOffre(1L));
+    }
+
+    @Test
+    public void getAllOffres_AccesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getAllOffres());
+    }
+
+    @Test
+    public void getOffresAttente_AccesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getOffresAttente());
     }
 }

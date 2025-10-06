@@ -18,6 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -97,7 +99,9 @@ public class EmployeurServiceTest {
         Employeur employeur = new Employeur("mon@employeur.com", "pass", "tel", "nom", "contact");
         when(employeurRepository.findByEmail(anyString())).thenReturn(employeur);
 
-        employeurService.creerOffreDeStage(utilisateur, "titre", "desc", "2024-01-01", "2024-06-01", ProgrammeDTO.P410_A1, "lieu", "rem", "2024-05-01");
+        employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
+            LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
+            ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1));
 
         verify(offreRepository, times(1)).save(any(Offre.class));
     }
@@ -108,7 +112,9 @@ public class EmployeurServiceTest {
         when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(false);
 
         assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.creerOffreDeStage(utilisateur, "titre", "desc", "2024-01-01", "2024-06-01", ProgrammeDTO.P500_AF, "lieu", "rem", "2024-05-01");
+            employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
+                ProgrammeDTO.P500_AF, "lieu", "rem", LocalDate.of(2024, 5, 1));
         });
     }
 
@@ -122,8 +128,8 @@ public class EmployeurServiceTest {
         Employeur employeur = new Employeur("employeur@test.com", "pass", "tel", "nom", "contact");
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        Offre offre1 = new Offre("Titre 1", "Description 1", "2024-01-01", "2024-06-01", Programme.P420_B0, "lieu", "rem", "2024-05-01", employeur);
-        Offre offre2 = new Offre("Titre 2", "Description 2", "2024-02-01", "2024-07-01", Programme.P420_B0, "lieu", "rem", "2024-06-01", employeur);
+        Offre offre1 = new Offre("Titre 1", "Description 1", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1), Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 5, 1), employeur);
+        Offre offre2 = new Offre("Titre 2", "Description 2", LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1), Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 6, 1), employeur);
         when(offreRepository.findOffreByEmployeurId(employeur.getId())).thenReturn(java.util.List.of(offre1, offre2));
 
         // Act

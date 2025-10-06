@@ -22,6 +22,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -123,12 +125,12 @@ class EmployeurControllerTest {
         offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer validToken"));
         offreDTO.setTitre("titre");
         offreDTO.setDescription("desc");
-        offreDTO.setDate_debut("2024-01-01");
-        offreDTO.setDate_fin("2024-06-01");
+        offreDTO.setDate_debut(LocalDate.of(2024, 1, 1));
+        offreDTO.setDate_fin(LocalDate.of(2024, 6, 1));
         offreDTO.setProgEtude(ProgrammeDTO.P420_B0);
         offreDTO.setLieuStage("lieu");
         offreDTO.setRemuneration("rem");
-        offreDTO.setDateLimite("2024-05-01");
+        offreDTO.setDateLimite(LocalDate.of(2024, 5, 1));
 
         mockMvc.perform(post("/OSEemployeur/creerOffre")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -141,18 +143,18 @@ class EmployeurControllerTest {
     @Test
     void creerOffre_actionNonAutorisee_returnsConflict() throws Exception {
         doThrow(new ActionNonAutoriseeException())
-                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class), anyString(), anyString(), anyString());
+                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class), anyString(), anyString(), any(LocalDate.class));
 
         OffreDTO offreDTO = new OffreDTO();
         offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer fakeToken"));
         offreDTO.setTitre("titre");
         offreDTO.setDescription("desc");
-        offreDTO.setDate_debut("2024-01-01");
-        offreDTO.setDate_fin("2024-06-01");
+        offreDTO.setDate_debut(LocalDate.of(2024, 1, 1));
+        offreDTO.setDate_fin(LocalDate.of(2024, 6, 1));
         offreDTO.setProgEtude(ProgrammeDTO.P200_B1);
         offreDTO.setLieuStage("lieu");
         offreDTO.setRemuneration("rem");
-        offreDTO.setDateLimite("2024-05-01");
+        offreDTO.setDateLimite(LocalDate.of(2024, 5, 1));
 
         mockMvc.perform(post("/OSEemployeur/creerOffre")
                         .contentType(MediaType.APPLICATION_JSON)

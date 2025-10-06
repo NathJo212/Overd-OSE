@@ -3,6 +3,8 @@ package com.backend.service.DTO;
 import com.backend.modele.Offre;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,12 +15,12 @@ public class OffreDTO {
     private AuthResponseDTO authResponseDTO;
     private String titre;
     private String description;
-    private String date_debut;
-    private String date_fin;
+    private LocalDate date_debut;
+    private LocalDate date_fin;
     private ProgrammeDTO progEtude;
     private String lieuStage;
     private String remuneration;
-    private String dateLimite;
+    private LocalDate dateLimite;
     private String messageRefus;
     private String statutApprouve;
     private EmployeurDTO employeurDTO;
