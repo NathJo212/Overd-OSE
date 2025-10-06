@@ -1,0 +1,51 @@
+{
+  "cv": {
+    "title": "Mon CV",
+    "subtitle": "Gérez votre curriculum vitae pour postuler aux offres de stage",
+    "backToDashboard": "Retour au tableau de bord",
+
+    "upload": {
+      "title": "Téléverser mon CV",
+      "updateTitle": "Mettre à jour mon CV",
+      "format": "Format PDF, max 5MB",
+      "clickToSelect": "Cliquez pour sélectionner",
+      "dragDrop": "ou glissez-déposez",
+      "pdfOnly": "PDF uniquement (max 5MB)",
+      "uploading": "Téléversement en cours...",
+      "uploadButton": "Téléverser le CV",
+      "replaceButton": "Remplacer mon CV",
+      "replaceWarning": "Le nouveau CV remplacera votre CV actuel"
+    },
+
+    "current": {
+      "title": "CV actuel",
+      "subtitle": "Votre CV est disponible",
+      "available": "CV disponible",
+      "canApply": "Vous pouvez postuler aux offres de stage avec ce CV",
+      "downloadButton": "Télécharger mon CV"
+    },
+
+    "info": {
+      "title": "Informations",
+      "acceptedFormat": "Format accepté",
+      "pdfOnly": "PDF uniquement",
+      "maxSize": "Taille maximale",
+      "cvRequired": "Un CV est",
+      "required": "requis",
+      "toApply": "pour postuler aux offres"
+    },
+
+    "success": {
+      "uploaded": "CV téléversé avec succès",
+      "downloaded": "CV téléchargé avec succès"
+    },
+
+    "errors": {
+      "pdfOnly": "Veuillez sélectionner un fichier PDF",
+      "maxSize": "Le fichier ne doit pas dépasser {{size}}MB",
+      "selectFile": "Veuillez sélectionner un fichier",
+      "uploadFailed": "Erreur lors du téléversement",
+      "downloadFailed": "Erreur lors du téléchargement"
+    }
+  }
+}

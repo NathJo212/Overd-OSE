@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Upload, FileText, Download, CheckCircle, AlertCircle, X, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import etudiantService from "../services/EtudiantService.ts";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
 
 const TeleversementCv = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation(['televersementCv', 'errors']);
     const [fichier, setFichier] = useState<File | null>(null);
     const [chargement, setChargement] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; texte: string } | null>(null);
@@ -18,7 +20,7 @@ const TeleversementCv = () => {
         if (fichierSelectionne) {
             // Vérifier que c'est un PDF
             if (fichierSelectionne.type !== 'application/pdf') {
-                setMessage({ type: 'error', texte: 'Veuillez sélectionner un fichier PDF' });
+                setMessage({ type: 'error', texte: t('cv.errors.pdfOnly') });
                 setFichier(null);
                 return;
             }
@@ -26,7 +28,7 @@ const TeleversementCv = () => {
             // Vérifier la taille (max 5MB)
             const tailleMaxMo = 5;
             if (fichierSelectionne.size > tailleMaxMo * 1024 * 1024) {
-                setMessage({ type: 'error', texte: `Le fichier ne doit pas dépasser ${tailleMaxMo}MB` });
+                setMessage({ type: 'error', texte: t('cv.errors.maxSize', { size: tailleMaxMo }) });
                 setFichier(null);
                 return;
             }
@@ -38,7 +40,7 @@ const TeleversementCv = () => {
 
     const handleTeleversement = async () => {
         if (!fichier) {
-            setMessage({ type: 'error', texte: 'Veuillez sélectionner un fichier' });
+            setMessage({ type: 'error', texte: t('cv.errors.selectFile') });
             return;
         }
 
@@ -47,7 +49,7 @@ const TeleversementCv = () => {
 
         try {
             const resultat = await etudiantService.uploadCv(fichier);
-            setMessage({ type: 'success', texte: resultat.message || 'CV téléversé avec succès' });
+            setMessage({ type: 'success', texte: resultat.message || t('cv.success.uploaded') });
             setCvExistant(true);
             setFichier(null);
 
@@ -58,7 +60,7 @@ const TeleversementCv = () => {
         } catch (error) {
             setMessage({
                 type: 'error',
-                texte: error instanceof Error ? error.message : 'Erreur lors du téléversement'
+                texte: error instanceof Error ? error.message : t('cv.errors.uploadFailed')
             });
         } finally {
             setChargement(false);
@@ -69,11 +71,11 @@ const TeleversementCv = () => {
         setChargement(true);
         try {
             await etudiantService.telechargerCv();
-            setMessage({ type: 'success', texte: 'CV téléchargé avec succès' });
+            setMessage({ type: 'success', texte: t('cv.success.downloaded') });
         } catch (error) {
             setMessage({
                 type: 'error',
-                texte: error instanceof Error ? error.message : 'Erreur lors du téléchargement'
+                texte: error instanceof Error ? error.message : t('cv.errors.downloadFailed')
             });
         } finally {
             setChargement(false);
@@ -105,16 +107,16 @@ const TeleversementCv = () => {
                     className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
-                    <span className="font-medium">Retour au tableau de bord</span>
+                    <span className="font-medium">{t('cv.backToDashboard')}</span>
                 </button>
 
                 {/* En-tête */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        Mon CV
+                        {t('cv.title')}
                     </h1>
                     <p className="text-gray-600">
-                        Gérez votre curriculum vitae pour postuler aux offres de stage
+                        {t('cv.subtitle')}
                     </p>
                 </div>
 
@@ -149,10 +151,10 @@ const TeleversementCv = () => {
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900">
-                                    {cvExistant ? 'Mettre à jour mon CV' : 'Téléverser mon CV'}
+                                    {cvExistant ? t('cv.upload.updateTitle') : t('cv.upload.title')}
                                 </h2>
                                 <p className="text-sm text-gray-600">
-                                    Format PDF, max 5MB
+                                    {t('cv.upload.format')}
                                 </p>
                             </div>
                         </div>
@@ -166,10 +168,10 @@ const TeleversementCv = () => {
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                     <FileText className="w-10 h-10 text-slate-400 mb-3" />
                                     <p className="mb-2 text-sm text-slate-600">
-                                        <span className="font-semibold">Cliquez pour sélectionner</span> ou glissez-déposez
+                                        <span className="font-semibold">{t('cv.upload.clickToSelect')}</span> {t('cv.upload.dragDrop')}
                                     </p>
                                     <p className="text-xs text-slate-500">
-                                        PDF uniquement (max 5MB)
+                                        {t('cv.upload.pdfOnly')}
                                     </p>
                                 </div>
                                 <input
@@ -222,14 +224,14 @@ const TeleversementCv = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                     </svg>
-                                    Téléversement en cours...
+                                    {t('cv.upload.uploading')}
                                 </span>
-                            ) : cvExistant ? 'Remplacer mon CV' : 'Téléverser le CV'}
+                            ) : cvExistant ? t('cv.upload.replaceButton') : t('cv.upload.uploadButton')}
                         </button>
 
                         {cvExistant && (
                             <p className="mt-3 text-xs text-center text-amber-600">
-                                ⚠️ Le nouveau CV remplacera votre CV actuel
+                                ⚠️ {t('cv.upload.replaceWarning')}
                             </p>
                         )}
                     </div>
@@ -243,10 +245,10 @@ const TeleversementCv = () => {
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-bold text-gray-900">
-                                        CV actuel
+                                        {t('cv.current.title')}
                                     </h2>
                                     <p className="text-sm text-gray-600">
-                                        Votre CV est disponible
+                                        {t('cv.current.subtitle')}
                                     </p>
                                 </div>
                             </div>
@@ -256,10 +258,10 @@ const TeleversementCv = () => {
                                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                                     <div>
                                         <p className="text-sm font-medium text-green-900 mb-1">
-                                            CV disponible
+                                            {t('cv.current.available')}
                                         </p>
                                         <p className="text-xs text-green-700">
-                                            Vous pouvez postuler aux offres de stage avec ce CV
+                                            {t('cv.current.canApply')}
                                         </p>
                                     </div>
                                 </div>
@@ -274,7 +276,7 @@ const TeleversementCv = () => {
                                          transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
                             >
                                 <Download className="w-5 h-5" />
-                                Télécharger mon CV
+                                {t('cv.current.downloadButton')}
                             </button>
                         </div>
                     ) : (
@@ -285,7 +287,7 @@ const TeleversementCv = () => {
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-bold text-gray-900">
-                                        Informations
+                                        {t('cv.info.title')}
                                     </h2>
                                 </div>
                             </div>
@@ -294,19 +296,19 @@ const TeleversementCv = () => {
                                 <div className="flex items-start gap-3">
                                     <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                                     <p className="text-sm text-gray-700">
-                                        Format accepté: <span className="font-medium">PDF uniquement</span>
+                                        {t('cv.info.acceptedFormat')}: <span className="font-medium">{t('cv.info.pdfOnly')}</span>
                                     </p>
                                 </div>
                                 <div className="flex items-start gap-3">
                                     <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                                     <p className="text-sm text-gray-700">
-                                        Taille maximale: <span className="font-medium">5 MB</span>
+                                        {t('cv.info.maxSize')}: <span className="font-medium">5 MB</span>
                                     </p>
                                 </div>
                                 <div className="flex items-start gap-3">
                                     <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                                     <p className="text-sm text-gray-700">
-                                        Un CV est <span className="font-medium">requis</span> pour postuler aux offres
+                                        {t('cv.info.cvRequired')} <span className="font-medium">{t('cv.info.required')}</span> {t('cv.info.toApply')}
                                     </p>
                                 </div>
                             </div>
