@@ -8,6 +8,7 @@ import com.backend.modele.Etudiant;
 import com.backend.modele.Offre;
 import com.backend.modele.Programme;
 import com.backend.persistence.EtudiantRepository;
+import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.CvDTO;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.OffreDTO;
@@ -36,17 +37,19 @@ public class EtudiantService {
     private final PasswordEncoder passwordEncoder;
     private final EtudiantRepository etudiantRepository;
     private final OffreRepository offreRepository;
+    private final UtilisateurRepository utilisateurRepository;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
+        this.utilisateurRepository = utilisateurRepository;
     }
 
     @Transactional
     public void creerEtudiant(String email, String password, String telephone,
                               String prenom, String nom, ProgrammeDTO progEtude, String session, String annee) throws MotPasseInvalideException, EmailDejaUtiliseException {
-        boolean etudiantExistant = etudiantRepository.existsByEmail(email);
+        boolean etudiantExistant = utilisateurRepository.existsByEmail(email);
         if (etudiantExistant) {
             throw new EmailDejaUtiliseException();
         }

@@ -10,6 +10,7 @@ import com.backend.modele.Offre;
 import com.backend.modele.Programme;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
+import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.DTO.OffreDTO;
@@ -29,18 +30,20 @@ public class EmployeurService {
     private final EmployeurRepository employeurRepository;
     private final OffreRepository offreRepository;
     JwtTokenProvider jwtTokenProvider;
+    private final UtilisateurRepository utilisateurRepository;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider,  UtilisateurRepository utilisateurRepository) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.utilisateurRepository = utilisateurRepository;
     }
 
     @Transactional
     public void creerEmployeur(String email, String password, String telephone, String nomEntreprise, String contact) throws MotPasseInvalideException, EmailDejaUtiliseException {
-        boolean employeurExistant = employeurRepository.existsByEmail(email);
+        boolean employeurExistant = utilisateurRepository.existsByEmail(email);
         if (employeurExistant) {
             throw new EmailDejaUtiliseException();
         }

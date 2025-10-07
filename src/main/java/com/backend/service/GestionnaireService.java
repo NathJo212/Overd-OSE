@@ -6,6 +6,7 @@ import com.backend.modele.GestionnaireStage;
 import com.backend.modele.Offre;
 import com.backend.persistence.GestionnaireRepository;
 import com.backend.persistence.OffreRepository;
+import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.OffreDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
@@ -25,16 +26,18 @@ public class GestionnaireService {
     private final OffreRepository offreRepository;
     private final GestionnaireRepository gestionnaireRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UtilisateurRepository utilisateurRepository;
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository,  PasswordEncoder passwordEncoder) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository,  PasswordEncoder passwordEncoder, UtilisateurRepository utilisateurRepository) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
+        this.utilisateurRepository = utilisateurRepository;
     }
 
     @Transactional
     public void creerGestionnaire(String email, String password, String telephone, String prenom, String nom) throws MotPasseInvalideException, EmailDejaUtiliseException {
-        boolean gestionnaireExistant = gestionnaireRepository.existsByEmail(email);
+        boolean gestionnaireExistant = utilisateurRepository.existsByEmail(email);
         if (gestionnaireExistant) {
             throw new EmailDejaUtiliseException();
         }

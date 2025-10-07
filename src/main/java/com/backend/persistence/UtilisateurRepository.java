@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> {
 
-    // Method 1: Use the embedded credentials email field
     Optional<Utilisateur> findByEmail(String email);
+    boolean existsByEmail(String email);
 
 }
