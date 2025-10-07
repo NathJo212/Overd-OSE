@@ -19,10 +19,29 @@ export interface AuthResponseWrapperDTO {
 }
 
 export interface EmployeurDTO {
-    email: String;
-    telephone: String;
+    email: string;
+    telephone: string;
     nomEntreprise?: string;
     contact: string;
+}
+
+export interface ProgrammeDTO {
+    code: string;
+    nom: string;
+}
+
+export interface EtudiantDTO {
+    id?: number;
+    email: string;
+    telephone: string;
+    nom: string;
+    prenom: string;
+    progEtude?: ProgrammeDTO;
+    session: string;
+    annee: string;
+    cv?: number[];
+    statutCV?: string;
+    messageRefusCV?: string;
 }
 
 export interface OffreDTO {
@@ -46,6 +65,7 @@ class GestionnaireService {
         this.baseUrl = `${API_BASE_URL}${GESTIONNAIRE_ENDPOINT}`;
     }
 
+    // ========== GESTION DES OFFRES ==========
     async getAllOffresDeStages(token: string): Promise<OffreDTO[]> {
         const response = await fetch(`${this.baseUrl}/offresEnAttente`, {
             method: 'GET',
@@ -71,29 +91,26 @@ class GestionnaireService {
 
             const data = await response.json();
 
-            // ✅ Vérifier si erreur dans MessageRetourDTO
             if (data.erreur) {
-                const error: any = new Error(data.erreur.message || 'Erreur lors de l\'approbation');
-                error.response = { data: { erreur: data.erreur } };
+                console.error('Erreur lors de l\'approbation de l\'offre:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de l\'approbation de l\'offre');
+                error.response = { data };
                 throw error;
             }
 
             if (!response.ok) {
-                const error: any = new Error(`Erreur HTTP: ${response.status}`);
-                error.response = {
-                    data: { erreur: { errorCode: 'ERROR_000', message: error.message } }
-                };
-                throw error;
+                throw new Error('Erreur lors de l\'approbation de l\'offre');
             }
+
         } catch (error: any) {
-            if (error.response?.data?.erreur) {
+            if (error.response?.data) {
                 throw error;
             }
-            throw new Error('Erreur lors de l\'approbation');
+            throw new Error('Erreur lors de l\'approbation de l\'offre');
         }
     }
 
-    async refuserOffre(id: number, raison: string, token: string): Promise<void> {
+    async refuserOffre(id: number, messageRefus: string, token: string): Promise<void> {
         try {
             const response = await fetch(`${this.baseUrl}/refuseOffre`, {
                 method: 'POST',
@@ -101,32 +118,117 @@ class GestionnaireService {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ id, messageRefus: raison })
+                body: JSON.stringify({ id, messageRefus })
             });
 
             const data = await response.json();
 
-            // ✅ Vérifier si erreur dans MessageRetourDTO
             if (data.erreur) {
-                const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
-                error.response = { data: { erreur: data.erreur } };
+                console.error('Erreur lors du refus de l\'offre:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus de l\'offre');
+                error.response = { data };
                 throw error;
             }
 
             if (!response.ok) {
-                const error: any = new Error(`Erreur HTTP: ${response.status}`);
-                error.response = {
-                    data: { erreur: { errorCode: 'ERROR_000', message: error.message } }
-                };
-                throw error;
+                throw new Error('Erreur lors du refus de l\'offre');
             }
+
         } catch (error: any) {
-            if (error.response?.data?.erreur) {
+            if (error.response?.data) {
                 throw error;
             }
-            throw new Error('Erreur lors du refus');
+            throw new Error('Erreur lors du refus de l\'offre');
+        }
+    }
+
+    // ========== GESTION DES CVs ==========
+    async getAllCVsEnAttente(token: string): Promise<EtudiantDTO[]> {
+        try {
+            const response = await fetch(`${this.baseUrl}/CVsEnAttente`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des CVs');
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération des CVs:', error);
+            throw new Error('Erreur lors de la récupération des CVs');
+        }
+    }
+
+    async approuverCV(id: number, token: string): Promise<void> {
+        try {
+            const response = await fetch(`${this.baseUrl}/approuveCV`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id })
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors de l\'approbation du CV:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de l\'approbation du CV');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de l\'approbation du CV');
+            }
+
+        } catch (error: any) {
+            if (error.response?.data) {
+                throw error;
+            }
+            throw new Error('Erreur lors de l\'approbation du CV');
+        }
+    }
+
+    async refuserCV(id: number, messageRefusCV: string, token: string): Promise<void> {
+        try {
+            const response = await fetch(`${this.baseUrl}/refuseCV`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id, messageRefusCV })
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors du refus du CV:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus du CV');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du refus du CV');
+            }
+
+        } catch (error: any) {
+            if (error.response?.data) {
+                throw error;
+            }
+            throw new Error('Erreur lors du refus du CV');
         }
     }
 }
 
 export const gestionnaireService = new GestionnaireService();
+export default gestionnaireService;

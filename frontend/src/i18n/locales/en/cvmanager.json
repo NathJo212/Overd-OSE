@@ -1,0 +1,41 @@
+{
+  "page": {
+    "title": "Pending student resumes",
+    "manageResumes": "Manage resumes submitted by students."
+  },
+  "fields": {
+    "student": "Student:",
+    "email": "Email:",
+    "telephone": "Phone:",
+    "program": "Program:",
+    "session": "Session:"
+  },
+  "messages": {
+    "pending": "Pending",
+    "noResumes": "No pending resumes.",
+    "approvedSuccess": "Resume approved successfully",
+    "refusedSuccess": "Resume refused successfully",
+    "approveError": "Error during approval",
+    "refuseError": "Error during refusal"
+  },
+  "actions": {
+    "approve": "Approve",
+    "refuse": "Refuse",
+    "viewCV": "View Resume",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close",
+    "sending": "Sending..."
+  },
+  "refuseModal": {
+    "refuseCV": "Refuse the resume",
+    "refuseReason": "Enter the reason for refusal. It will be communicated to the student.",
+    "reasonLabel": "Reason for refusal",
+    "reasonPlaceholder": "Ex: Incomplete information, non-compliant format, etc.",
+    "reasonRequired": "The reason is required."
+  },
+  "cvModal": {
+    "title": "Resume of",
+    "noPreview": "Resume preview not available"
+  }
+}

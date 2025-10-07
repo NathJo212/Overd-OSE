@@ -1,3 +1,13 @@
 {
-  "logout": "Logout"
+  "home": "Home",
+  "dashboard": "Dashboard",
+  "createOffer": "Create Offer",
+  "myOffers": "My Offers",
+  "internshipOffers": "Internship Offers",
+  "studentResumes": "Student Resumes",
+  "myCV": "My Resume",
+  "myApplications": "My Applications",
+  "availableOffers": "Available Offers",
+  "logout": "Logout",
+  "language": "Language"
 }

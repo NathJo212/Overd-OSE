@@ -4,9 +4,12 @@
   "AUTH_003": "User not found",
   "VALIDATION_001": "This email address is already in use",
   "VALIDATION_002": "Invalid password",
+  "VALIDATION_003": "Student ID missing",
   "AUTHORIZATION_001": "Unauthorized action",
   "OFFER_001": "Offer not found",
   "OFFER_002": "This offer has already been verified",
+  "CV_001": "Error uploading resume",
+  "CV_002": "This resume has already been verified",
   "ERROR_000": "An error occurred",
   "NETWORK_ERROR": "Network connection error"
 }

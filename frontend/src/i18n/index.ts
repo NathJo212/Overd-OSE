@@ -11,6 +11,8 @@ import homeFr from './locales/fr/home.json';
 import homeEn from './locales/en/home.json';
 import internshipmanagerFr from './locales/fr/internshipmanager.json';
 import internshipmanagerEn from './locales/en/internshipmanager.json';
+import cvmanagerFr from './locales/fr/cvmanager.json';
+import cvmanagerEn from './locales/en/cvmanager.json';
 import navbarFr from './locales/fr/navbar.json';
 import navbarEn from './locales/en/navbar.json';
 import loginFr from './locales/fr/login.json';
@@ -19,7 +21,6 @@ import offercreateFr from './locales/fr/offercreate.json';
 import offercreateEn from './locales/en/offercreate.json';
 import employerdashboardFr from './locales/fr/employerdashboard.json';
 import employerdashboardEn from './locales/en/employerdashboard.json';
-
 import dashboardEtudiantFr from './locales/fr/dashboardEtudiant.json';
 import dashboardEtudiantEn from './locales/en/dashboardEtudiant.json';
 import offresStageApprouveFr from './locales/fr/offresStageApprouve.json';
@@ -33,6 +34,7 @@ const resources = {
         errors: errorsFr,
         home: homeFr,
         internshipmanager: internshipmanagerFr,
+        cvmanager: cvmanagerFr,
         navbar: navbarFr,
         offercreate: offercreateFr,
         employerdashboard: employerdashboardFr,
@@ -46,6 +48,7 @@ const resources = {
         errors: errorsEn,
         home: homeEn,
         internshipmanager: internshipmanagerEn,
+        cvmanager: cvmanagerEn,
         navbar: navbarEn,
         offercreate: offercreateEn,
         employerdashboard: employerdashboardEn,
