@@ -9,18 +9,12 @@ import { useTranslation } from "react-i18next";
 const NavBar = () => {
     const navigate = useNavigate();
     const isConnected = !!sessionStorage.getItem("authToken");
-    const userType = sessionStorage.getItem("userType");
     const { t } = useTranslation(['navbar']);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const handleLogout = async () => {
         await utilisateurService.deconnexion();
         navigate("/login");
-    };
-
-    const handleNavigateToVisualiserOffres = () => {
-        navigate("/visualiser-offres");
-        setMobileMenuOpen(false);
     };
 
     return (
@@ -40,15 +34,6 @@ const NavBar = () => {
 
                     {/* Desktop menu */}
                     <div className="hidden md:flex items-center space-x-4">
-                        {isConnected && userType === "GESTIONNAIRE" && (
-                            <button
-                                onClick={handleNavigateToVisualiserOffres}
-                                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 border border-white/20 hover:border-white/30 shadow-sm"
-                            >
-                                <span className="font-medium">Visualiser Offres</span>
-                            </button>
-                        )}
-
                         <LanguageSelector />
 
                         {isConnected && (
@@ -82,15 +67,6 @@ const NavBar = () => {
             {mobileMenuOpen && (
                 <div className="md:hidden bg-blue-700 border-t border-white/10">
                     <div className="px-4 py-4 space-y-3">
-                        {isConnected && userType === "GESTIONNAIRE" && (
-                            <button
-                                onClick={handleNavigateToVisualiserOffres}
-                                className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 border border-white/20"
-                            >
-                                <span className="font-medium">Visualiser Offres</span>
-                            </button>
-                        )}
-
                         <div className="flex justify-center">
                             <LanguageSelector />
                         </div>

@@ -19,8 +19,8 @@ import { useTranslation } from "react-i18next";
 
 type FilterType = 'all' | 'expired' | 'refused' | 'approved' | 'pending';
 
-const VisualiserOffres = () => {
-    useTranslation(["internshipmanager"]);
+const VisualiserOffresGestionnaire = () => {
+    const { t } = useTranslation(["visualiserOffresGestionnaire"]);
     const navigate = useNavigate();
     const [allOffres, setAllOffres] = useState<OffreDTO[]>([]);
     const [filteredOffres, setFilteredOffres] = useState<OffreDTO[]>([]);
@@ -34,10 +34,7 @@ const VisualiserOffres = () => {
             setLoading(true);
             const data = await gestionnaireService.getAllOffres(token);
             setAllOffres(data);
-            const processedOffres = data.filter(offre =>
-                offre.statutApprouve && offre.statutApprouve !== 'ATTENTE'
-            );
-            setFilteredOffres(processedOffres);
+            setFilteredOffres(data);
         } catch (e: any) {
             setError(e.message || 'Erreur inconnue');
         } finally {
@@ -103,7 +100,7 @@ const VisualiserOffres = () => {
             return (
                 <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-medium flex items-center gap-1">
                     <XCircle className="w-3 h-3" />
-                    Refusée
+                    {t("filters.all")}
                 </span>
             );
         }
@@ -112,7 +109,7 @@ const VisualiserOffres = () => {
             return (
                 <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
-                    Expirée
+                    {t("filters.expired")}
                 </span>
             );
         }
@@ -121,7 +118,7 @@ const VisualiserOffres = () => {
             return (
                 <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-medium flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
-                    En attente
+                    {t("filters.pending")}
                 </span>
             )
         }
@@ -129,7 +126,7 @@ const VisualiserOffres = () => {
         return (
             <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium flex items-center gap-1">
                 <CheckCircle className="w-3 h-3" />
-                Approuvée
+                {t("filters.approved")}
             </span>
         );
     };
@@ -150,16 +147,16 @@ const VisualiserOffres = () => {
                         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        <span className="font-medium">Retourner à la page des offres de stage en attentes</span>
+                        <span className="font-medium">{t("back")}</span>
                     </button>
                 </div>
                 {/* En-tête */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        Visualiser toutes les offres
+                        {t("title")}
                     </h1>
                     <p className="text-gray-600">
-                        Consultez et filtrez toutes les offres de stage selon leur statut
+                        {t("subtitle")}
                     </p>
                 </div>
 
@@ -167,7 +164,7 @@ const VisualiserOffres = () => {
                 <div className="mb-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Filter className="w-5 h-5 text-slate-600" />
-                        <h2 className="text-lg font-semibold text-gray-900">Trier par statut</h2>
+                        <h2 className="text-lg font-semibold text-gray-900">{t("textFilter")}</h2>
                     </div>
                     <div className="flex flex-wrap gap-3">
                         <button
@@ -178,7 +175,7 @@ const VisualiserOffres = () => {
                                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                             }`}
                         >
-                            Toutes ({allOffres.length})
+                            {t("filters.all")} ({allOffres.length})
                         </button>
                         <button
                             onClick={() => filterOffres('pending')}
@@ -188,7 +185,7 @@ const VisualiserOffres = () => {
                                     : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                             }`}
                         >
-                            En attente ({allOffres.filter(o => o.statutApprouve === 'ATTENTE' && (!o.dateLimite || new Date(o.dateLimite) >= new Date())).length})
+                            {t("filters.pending")} ({allOffres.filter(o => o.statutApprouve === 'ATTENTE' && (!o.dateLimite || new Date(o.dateLimite) >= new Date())).length})
                         </button>
                         <button
                             onClick={() => filterOffres('approved')}
@@ -198,7 +195,7 @@ const VisualiserOffres = () => {
                                     : 'bg-green-100 text-green-700 hover:bg-green-200'
                             }`}
                         >
-                            Approuvées ({allOffres.filter(o => o.statutApprouve === 'APPROUVE' && (!o.dateLimite || new Date(o.dateLimite) >= new Date())).length})
+                            {t("filters.approved")} ({allOffres.filter(o => o.statutApprouve === 'APPROUVE' && (!o.dateLimite || new Date(o.dateLimite) >= new Date())).length})
                         </button>
                         <button
                             onClick={() => filterOffres('refused')}
@@ -208,7 +205,7 @@ const VisualiserOffres = () => {
                                     : 'bg-red-100 text-red-700 hover:bg-red-200'
                             }`}
                         >
-                            Refusées ({allOffres.filter(o => o.statutApprouve === 'REFUSE' && (!o.dateLimite || new Date(o.dateLimite) >= new Date())).length})
+                            {t("filters.refused")} ({allOffres.filter(o => o.statutApprouve === 'REFUSE' && (!o.dateLimite || new Date(o.dateLimite) >= new Date())).length})
                         </button>
                         <button
                             onClick={() => filterOffres('expired')}
@@ -218,7 +215,7 @@ const VisualiserOffres = () => {
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         >
-                            Expirées ({allOffres.filter(o => o.dateLimite && new Date(o.dateLimite) < new Date()).length})
+                            {t("filters.expired")} ({allOffres.filter(o => o.dateLimite && new Date(o.dateLimite) < new Date()).length})
                         </button>
                     </div>
                 </div>
@@ -245,8 +242,8 @@ const VisualiserOffres = () => {
                         <AlertCircle className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                         <p className="text-gray-600">
                             {currentFilter === 'all'
-                                ? 'Aucune offre disponible'
-                                : `Aucune offre ${currentFilter === 'approved' ? 'approuvée' : currentFilter === 'refused' ? 'refusée' : currentFilter === 'expired' ? 'expirée' : currentFilter === 'pending' ? 'en attente' : ''} trouvée`
+                                ? t("noOffers")
+                                : t("noOffersFiltered", { status: t("status." + currentFilter) })
                             }
                         </p>
                     </div>
@@ -301,14 +298,14 @@ const VisualiserOffres = () => {
                                     <div className="flex items-center gap-2">
                                         <Calendar className="w-4 h-4 text-slate-500" />
                                         <div>
-                                            <span className="text-slate-500">Début:</span>
+                                            <span className="text-slate-500">{t("start")}</span>
                                             <span className="ml-1 font-medium">{formatDate(offre.date_debut)}</span>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Calendar className="w-4 h-4 text-slate-500" />
                                         <div>
-                                            <span className="text-slate-500">Fin:</span>
+                                            <span className="text-slate-500">{t("end")}</span>
                                             <span className="ml-1 font-medium">{formatDate(offre.date_fin)}</span>
                                         </div>
                                     </div>
@@ -332,7 +329,7 @@ const VisualiserOffres = () => {
                                         <div className="flex items-center gap-2 text-sm">
                                             <Calendar className="w-4 h-4 text-blue-600" />
                                             <span className="text-blue-800">
-                                                <strong>Date limite d'application:</strong> {formatDate(offre.dateLimite)}
+                                                <strong>{t("endDateApplication")}</strong> {formatDate(offre.dateLimite)}
                                             </span>
                                         </div>
                                     </div>
@@ -344,7 +341,7 @@ const VisualiserOffres = () => {
                                         <div className="flex items-start gap-2 text-sm">
                                             <XCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
                                             <div>
-                                                <p className="text-red-800 font-medium mb-1">Raison du refus:</p>
+                                                <p className="text-red-800 font-medium mb-1">{t("reasonRefused")}</p>
                                                 <p className="text-red-700">{offre.messageRefus}</p>
                                             </div>
                                         </div>
@@ -359,4 +356,4 @@ const VisualiserOffres = () => {
     );
 };
 
-export default VisualiserOffres;
+export default VisualiserOffresGestionnaire;

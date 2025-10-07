@@ -1,0 +1,25 @@
+{
+  "title": "Visualiser toutes les offres",
+  "subtitle": "Consultez et filtrez toutes les offres de stage selon leur statut",
+  "textFilter": "Trier par statut",
+  "filters": {
+    "all": "Toutes",
+    "pending": "En attente",
+    "approved": "Approuvées",
+    "refused": "Refusées",
+    "expired": "Expirées"
+  },
+  "noOffers": "Aucune offre disponible",
+  "noOffersFiltered": "Aucune offre {{status}} trouvée",
+  "back": "Retourner à la page des offres de stage en attentes",
+  "status": {
+    "approved": "approuvée",
+    "refused": "refusée",
+    "expired": "expirée",
+    "pending": "en attente"
+  },
+  "start": "Début:",
+  "end": "Fin:",
+  "endDateApplication": "Date limite d'application:",
+  "reasonRefused": "Raison du refus:"
+}

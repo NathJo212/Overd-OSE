@@ -1,7 +1,9 @@
 {
   "page": {
     "title": "Offres de stages en attente",
-    "manageOffers": "Gérez les offres en attente d'approbation."
+    "manageOffers": "Gérez les offres en attente d'approbation.",
+    "titleVisualize": "Visualiser toutes les offres de stage",
+    "buttonVisualize": "Voir les offres"
   },
   "fields": {
     "employer": "Employeur:",

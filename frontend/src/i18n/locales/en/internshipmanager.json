@@ -1,7 +1,9 @@
 {
   "page": {
     "title": "Pending internship offers",
-    "manageOffers": "Manage pending internship offers."
+    "manageOffers": "Manage pending internship offers.",
+    "titleVisualize": "View all internship offers",
+    "buttonVisualize": "View offers"
   },
   "fields": {
     "employer": "Employer:",

@@ -1,0 +1,25 @@
+{
+  "title": "View all offers",
+  "subtitle": "Browse and filter all internship offers by their status",
+  "textFilter": "Filter by status",
+  "filters": {
+    "all": "All",
+    "pending": "Pending",
+    "approved": "Approved",
+    "refused": "Refused",
+    "expired": "Expired"
+  },
+  "noOffers": "No offers available",
+  "noOffersFiltered": "No {{status}} offer found",
+  "back": "Back to pending internship offers page",
+  "status": {
+    "approved": "approved",
+    "refused": "refused",
+    "expired": "expired",
+    "pending": "pending"
+  },
+  "reasonRefused": "Reason for refusal:",
+  "start": "Start:",
+  "end": "End:",
+  "endDateApplication": "Application deadline:"
+}
