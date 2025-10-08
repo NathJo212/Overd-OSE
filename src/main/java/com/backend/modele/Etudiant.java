@@ -1,10 +1,7 @@
 package com.backend.modele;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,12 +26,28 @@ public class Etudiant extends Utilisateur {
 
     private byte[] cv;
 
-    public Etudiant(String email, String password, String telephone, String prenom, String nom, Programme progEtude, String session, String annee) {
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut_cv")
+    private StatutCV statutCV = StatutCV.AUCUN;
+
+    @Column(name = "message_refus_cv", length = 1000)
+    private String messageRefusCV;
+
+    public enum StatutCV {
+        ATTENTE,
+        APPROUVE,
+        REFUSE,
+        AUCUN
+    }
+
+    public Etudiant(String email, String password, String telephone, String prenom, String nom,
+                    Programme progEtude, String session, String annee) {
         super(email, password, telephone);
         this.nom = nom;
         this.prenom = prenom;
         this.progEtude = progEtude;
         this.session = session;
         this.annee = annee;
+        this.statutCV = StatutCV.AUCUN;
     }
 }

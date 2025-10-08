@@ -1,10 +1,10 @@
 package com.backend.service;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.OffreDejaVerifieException;
-import com.backend.Exceptions.OffreNonExistantException;
+import com.backend.Exceptions.*;
+import com.backend.modele.Etudiant;
 import com.backend.modele.Offre;
 import com.backend.modele.Programme;
+import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.OffreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +32,9 @@ public class GestionnaireServiceTest {
 
     @InjectMocks
     private GestionnaireService gestionnaireService;
+
+    @Mock
+    private EtudiantRepository etudiantRepository;
 
     @BeforeEach
     public void setupSecurityContext() {
@@ -180,6 +183,7 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveOffre_AccesNonAutorise() {
+        // Simule un utilisateur sans le rôle GESTIONNAIRE
         Authentication auth = mock(Authentication.class);
         when(auth.getAuthorities()).thenReturn(Collections.emptyList());
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -188,6 +192,200 @@ public class GestionnaireServiceTest {
 
         assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.approuveOffre(1L));
     }
+
+    @Test
+    public void approuveCV_metAJourStatut() throws Exception {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+        when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.ATTENTE);
+
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        gestionnaireService.approuveCV(1L);
+
+        verify(etudiant).setStatutCV(Etudiant.StatutCV.APPROUVE);
+        verify(etudiant).setMessageRefusCV(null);
+        verify(etudiantRepository).save(etudiant);
+    }
+
+    @Test
+    public void approuveCV_CVNonExistant_etudiantInexistant() {
+        when(etudiantRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(CVNonExistantException.class, () -> gestionnaireService.approuveCV(99L));
+    }
+
+    @Test
+    public void approuveCV_CVNonExistant_cvNull() {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(null);
+
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        assertThrows(CVNonExistantException.class, () -> gestionnaireService.approuveCV(1L));
+    }
+
+    @Test
+    public void approuveCV_CVNonExistant_cvVide() {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(new byte[0]);
+
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        assertThrows(CVNonExistantException.class, () -> gestionnaireService.approuveCV(1L));
+    }
+
+    @Test
+    public void approuveCV_CVDejaVerifie_dejaApprouve() {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+        when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.APPROUVE);
+
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        assertThrows(CVDejaVerifieException.class, () -> gestionnaireService.approuveCV(1L));
+    }
+
+    @Test
+    public void approuveCV_CVDejaVerifie_dejaRefuse() {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+        when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.REFUSE);
+
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        assertThrows(CVDejaVerifieException.class, () -> gestionnaireService.approuveCV(1L));
+    }
+
+    @Test
+    public void approuveCV_AccesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.approuveCV(1L));
+    }
+
+// CV Refusal Tests
+
+    @Test
+    public void refuseCV_enregistreMessageRefus() throws Exception {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+        when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.ATTENTE);
+
+        when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
+
+        gestionnaireService.refuseCV(2L, "CV non conforme");
+
+        verify(etudiant).setStatutCV(Etudiant.StatutCV.REFUSE);
+        verify(etudiant).setMessageRefusCV("CV non conforme");
+        verify(etudiantRepository).save(etudiant);
+    }
+
+    @Test
+    public void refuseCV_CVNonExistant_etudiantInexistant() {
+        when(etudiantRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(CVNonExistantException.class, () -> gestionnaireService.refuseCV(99L, "message"));
+    }
+
+    @Test
+    public void refuseCV_CVNonExistant_cvNull() {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(null);
+
+        when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
+
+        assertThrows(CVNonExistantException.class, () -> gestionnaireService.refuseCV(2L, "message"));
+    }
+
+    @Test
+    public void refuseCV_CVNonExistant_cvVide() {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(new byte[0]);
+
+        when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
+
+        assertThrows(CVNonExistantException.class, () -> gestionnaireService.refuseCV(2L, "message"));
+    }
+
+    @Test
+    public void refuseCV_CVDejaVerifie_dejaApprouve() {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+        when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.APPROUVE);
+
+        when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
+
+        assertThrows(CVDejaVerifieException.class, () -> gestionnaireService.refuseCV(2L, "message"));
+    }
+
+    @Test
+    public void refuseCV_CVDejaVerifie_dejaRefuse() {
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+        when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.REFUSE);
+
+        when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
+
+        assertThrows(CVDejaVerifieException.class, () -> gestionnaireService.refuseCV(2L, "message"));
+    }
+
+    @Test
+    public void refuseCV_AccesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.refuseCV(2L, "message"));
+    }
+
+// Get CVs En Attente Tests
+
+    @Test
+    public void getCVsEnAttente_retourneListe() throws Exception {
+        Etudiant etudiant1 = mock(Etudiant.class);
+        when(etudiant1.getEmail()).thenReturn("etudiant1@test.com");
+
+        Etudiant etudiant2 = mock(Etudiant.class);
+        when(etudiant2.getEmail()).thenReturn("etudiant2@test.com");
+
+        when(etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE))
+                .thenReturn(Arrays.asList(etudiant1, etudiant2));
+
+        var result = gestionnaireService.getCVsEnAttente();
+
+        assertEquals(2, result.size());
+        assertEquals("etudiant1@test.com", result.get(0).getEmail());
+        assertEquals("etudiant2@test.com", result.get(1).getEmail());
+    }
+
+    @Test
+    public void getCVsEnAttente_listeVide() throws Exception {
+        when(etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE))
+                .thenReturn(Collections.emptyList());
+
+        var result = gestionnaireService.getCVsEnAttente();
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void getCVsEnAttente_AccesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getCVsEnAttente());
+    }
+
 
     @Test
     public void getAllOffres_AccesNonAutorise() {

@@ -1,3 +1,13 @@
 {
-  "logout": "Déconnexion"
+  "home": "Accueil",
+  "dashboard": "Tableau de bord",
+  "createOffer": "Créer une offre",
+  "myOffers": "Mes offres",
+  "internshipOffers": "Offres de stage",
+  "studentResumes": "CVs des étudiants",
+  "myCV": "Mon CV",
+  "myApplications": "Mes candidatures",
+  "availableOffers": "Offres disponibles",
+  "logout": "Déconnexion",
+  "language": "Langue"
 }

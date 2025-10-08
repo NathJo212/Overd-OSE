@@ -4,9 +4,12 @@
   "AUTH_003": "Utilisateur non trouvé",
   "VALIDATION_001": "Cette adresse courriel est déjà utilisée",
   "VALIDATION_002": "Mot de passe invalide",
+  "VALIDATION_003": "ID de l'étudiant manquant",
   "AUTHORIZATION_001": "Action non autorisée",
   "OFFER_001": "Offre non trouvée",
   "OFFER_002": "Cette offre a déjà été vérifiée",
+  "CV_001": "Erreur lors du téléversement du CV",
+  "CV_002": "Ce CV a déjà été vérifié",
   "ERROR_000": "Une erreur est survenue",
   "NETWORK_ERROR": "Erreur de connexion au serveur"
 }

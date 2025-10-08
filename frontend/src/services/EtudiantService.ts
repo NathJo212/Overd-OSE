@@ -7,6 +7,9 @@ export interface EtudiantData {
     progEtude: string;
     session: string;
     annee: string;
+    cv?: string;
+    statutCV?: string;
+    messageRefusCV?: string;
 }
 
 export interface MessageRetour {
@@ -255,6 +258,21 @@ class EtudiantService {
         } catch (error) {
             console.error('Erreur lors de la vérification du CV:', error);
             return false;
+        }
+    }
+
+    async getInfosCv(): Promise<{ statutCV?: string; messageRefusCV?: string } | null> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) return null;
+            const response = await fetch(`${this.baseUrl}/cv/info`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) return null;
+            return await response.json();
+        } catch {
+            return null;
         }
     }
 

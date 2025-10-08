@@ -2,12 +2,16 @@ package com.backend.service;
 
 
 import com.backend.Exceptions.*;
+import com.backend.modele.Etudiant;
 import com.backend.modele.GestionnaireStage;
 import com.backend.modele.Offre;
+import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.GestionnaireRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.persistence.UtilisateurRepository;
+import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.OffreDTO;
+import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,13 +30,18 @@ public class GestionnaireService {
     private final OffreRepository offreRepository;
     private final GestionnaireRepository gestionnaireRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EtudiantRepository etudiantRepository;
+    private final EncryptageCV encryptageCV;
     private final UtilisateurRepository utilisateurRepository;
 
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository,  EncryptageCV encryptageCV) {
     public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository,  PasswordEncoder passwordEncoder, UtilisateurRepository utilisateurRepository) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
         this.utilisateurRepository = utilisateurRepository;
+        this.etudiantRepository = etudiantRepository;
+        this.encryptageCV = encryptageCV;
     }
 
     @Transactional
@@ -110,4 +119,76 @@ public class GestionnaireService {
             throw new ActionNonAutoriseeException();
         }
     }
+
+    @Transactional
+    public void approuveCV(Long etudiantId) throws ActionNonAutoriseeException, CVNonExistantException, CVDejaVerifieException {
+        verifierGestionnaireConnecte();
+
+        Etudiant etudiant = etudiantRepository.findById(etudiantId)
+                .orElseThrow(() -> new CVNonExistantException());
+
+        if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
+            throw new CVNonExistantException();
+        }
+
+        if (etudiant.getStatutCV() != Etudiant.StatutCV.ATTENTE) {
+            throw new CVDejaVerifieException();
+        }
+
+        etudiant.setStatutCV(Etudiant.StatutCV.APPROUVE);
+        etudiant.setMessageRefusCV(null);
+        etudiantRepository.save(etudiant);
+    }
+
+    @Transactional
+    public void refuseCV(Long etudiantId, String messageRefus) throws ActionNonAutoriseeException, CVNonExistantException, CVDejaVerifieException {
+        verifierGestionnaireConnecte();
+
+        Etudiant etudiant = etudiantRepository.findById(etudiantId)
+                .orElseThrow(() -> new CVNonExistantException());
+
+        if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
+            throw new CVNonExistantException();
+        }
+
+        if (etudiant.getStatutCV() != Etudiant.StatutCV.ATTENTE) {
+            throw new CVDejaVerifieException();
+        }
+
+        etudiant.setStatutCV(Etudiant.StatutCV.REFUSE);
+        etudiant.setMessageRefusCV(messageRefus);
+        etudiantRepository.save(etudiant);
+    }
+
+    @Transactional
+    public List<EtudiantDTO> getCVsEnAttente() throws ActionNonAutoriseeException {
+        verifierGestionnaireConnecte();
+
+        List<Etudiant> etudiants = etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE);
+        return etudiants.stream()
+                .map(etudiant -> {
+                    EtudiantDTO dto = new EtudiantDTO().toDTO(etudiant);
+                    try {
+                        if (etudiant.getCv() != null && etudiant.getCv().length > 0) {
+                            String cvChiffre = new String(etudiant.getCv());
+                            byte[] cvDechiffre = encryptageCV.dechiffrer(cvChiffre);
+                            dto.setCv(cvDechiffre);
+                        }
+                    } catch (Exception e) {
+                        dto.setCv(null);
+                    }
+                    return dto;
+                })
+                .toList();
+    }
+
+    private void verifierGestionnaireConnecte() throws ActionNonAutoriseeException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isGestionnaire = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("GESTIONNAIRE"));
+        if (!isGestionnaire) {
+            throw new ActionNonAutoriseeException();
+        }
+    }
+
 }

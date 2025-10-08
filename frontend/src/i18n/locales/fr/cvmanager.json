@@ -1,0 +1,41 @@
+{
+  "page": {
+    "title": "CVs des étudiants en attente",
+    "manageResumes": "Gérez les CVs soumis par les étudiants."
+  },
+  "fields": {
+    "student": "Étudiant:",
+    "email": "Email:",
+    "telephone": "Tél:",
+    "program": "Programme:",
+    "session": "Session:"
+  },
+  "messages": {
+    "pending": "En attente",
+    "noResumes": "Aucun CV en attente.",
+    "approvedSuccess": "CV approuvé avec succès",
+    "refusedSuccess": "CV refusé avec succès",
+    "approveError": "Erreur lors de l'approbation",
+    "refuseError": "Erreur lors du refus"
+  },
+  "actions": {
+    "approve": "Approuver",
+    "refuse": "Refuser",
+    "viewCV": "Voir le CV",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "sending": "Envoi..."
+  },
+  "refuseModal": {
+    "refuseCV": "Refuser le CV",
+    "refuseReason": "Entrez la raison du refus. Elle sera communiquée à l'étudiant.",
+    "reasonLabel": "Raison du refus",
+    "reasonPlaceholder": "Ex: Informations incomplètes, format non conforme, etc.",
+    "reasonRequired": "La raison est obligatoire."
+  },
+  "cvModal": {
+    "title": "CV de",
+    "noPreview": "Aperçu du CV non disponible"
+  }
+}
