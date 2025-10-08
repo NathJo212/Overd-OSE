@@ -261,21 +261,6 @@ class EtudiantService {
         }
     }
 
-    async getInfosCv(): Promise<{ statutCV?: string; messageRefusCV?: string } | null> {
-        try {
-            const token = this.getAuthToken();
-            if (!token) return null;
-            const response = await fetch(`${this.baseUrl}/cv/info`, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!response.ok) return null;
-            return await response.json();
-        } catch {
-            return null;
-        }
-    }
-
 
     /**
      * Extrait la valeur numérique de la rémunération pour le tri

@@ -34,8 +34,7 @@ public class GestionnaireService {
     private final EncryptageCV encryptageCV;
     private final UtilisateurRepository utilisateurRepository;
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository,  EncryptageCV encryptageCV) {
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository,  PasswordEncoder passwordEncoder, UtilisateurRepository utilisateurRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository,UtilisateurRepository utilisateurRepository,  EncryptageCV encryptageCV) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
