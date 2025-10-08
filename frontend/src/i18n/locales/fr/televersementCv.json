@@ -39,6 +39,17 @@
       "downloaded": "CV téléchargé avec succès"
     },
 
+    "refused": {
+      "title": "CV refusé",
+      "subtitle": "Votre CV a été refusé.",
+      "reason": "Motif du refus : {{reason}}"
+    },
+
+    "pending": {
+      "title": "CV en attente de validation",
+      "subtitle": "Votre CV est en cours de validation par un responsable."
+    },
+
     "errors": {
       "pdfOnly": "Veuillez sélectionner un fichier PDF",
       "maxSize": "Le fichier ne doit pas dépasser {{size}}MB",

@@ -39,6 +39,17 @@
       "downloaded": "Resume successfully downloaded"
     },
 
+    "refused": {
+      "title": "Resume rejected",
+      "subtitle": "Your resume was rejected.",
+      "reason": "Reason for rejection: {{reason}}"
+    },
+
+    "pending": {
+      "title": "Resume pending validation",
+      "subtitle": "Your resume is being reviewed by an administrator."
+    },
+
     "errors": {
       "pdfOnly": "Please select a PDF file",
       "maxSize": "File must not exceed {{size}}MB",

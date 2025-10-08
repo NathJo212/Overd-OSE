@@ -13,6 +13,8 @@ const TeleversementCv = () => {
     const [chargement, setChargement] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; texte: string } | null>(null);
     const [cvExistant, setCvExistant] = useState<boolean>(false);
+    const [statutCv, setStatutCv] = useState<string | null>(null);
+    const [messageRefus, setMessageRefus] = useState<string | null>(null);
 
     const handleSelectionFichier = (e: React.ChangeEvent<HTMLInputElement>) => {
         const fichierSelectionne = e.target.files?.[0];
@@ -56,6 +58,9 @@ const TeleversementCv = () => {
             // Réinitialiser l'input file
             const inputFile = document.getElementById('cv-input') as HTMLInputElement;
             if (inputFile) inputFile.value = '';
+            const infos = await etudiantService.getInfosCv();
+            setStatutCv(infos?.statutCV ?? null);
+            setMessageRefus(infos?.messageRefusCV ?? null);
         } catch (error) {
             setMessage({
                 type: 'error',
@@ -92,7 +97,13 @@ const TeleversementCv = () => {
 
     // Vérifier si un CV existe au chargement du composant et vérification du statut du cv
     useEffect(() => {
-        verifierCvExistant();
+        const chargerInfosCv = async () => {
+            await verifierCvExistant();
+            const infos = await etudiantService.getInfosCv();
+            setStatutCv(infos?.statutCV ?? null);
+            setMessageRefus(infos?.messageRefusCV ?? null);
+        };
+        chargerInfosCv();
     }, []);
 
     return (
@@ -235,9 +246,10 @@ const TeleversementCv = () => {
                         )}
                     </div>
 
-                    {/* Carte CV existant */}
-                    {cvExistant ? (
+                    {/* Affichage selon le statut du CV */}
+                    {statutCv === 'APPROUVE' && (
                         <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                            {/* Carte CV approuvé */}
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="bg-green-50 p-3 rounded-xl">
                                     <FileText className="w-6 h-6 text-green-600" />
@@ -251,7 +263,6 @@ const TeleversementCv = () => {
                                     </p>
                                 </div>
                             </div>
-
                             <div className="mb-6 p-4 bg-green-50 rounded-xl border border-green-200">
                                 <div className="flex items-start gap-3">
                                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -265,21 +276,90 @@ const TeleversementCv = () => {
                                     </div>
                                 </div>
                             </div>
-
                             <button
                                 onClick={handleTelechargerCv}
                                 disabled={chargement}
                                 className="w-full bg-green-600 text-white py-3 px-4 rounded-xl font-medium
-                                         hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500
-                                         focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
-                                         transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
+                     hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500
+                     focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
+                     transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
                             >
                                 <Download className="w-5 h-5" />
                                 {t('cv.current.downloadButton')}
                             </button>
                         </div>
-                    ) : (
+                    )}
+
+                    {statutCv === 'REFUSE' && (
                         <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                            {/* Carte CV refusé */}
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="bg-red-50 p-3 rounded-xl">
+                                    <AlertCircle className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900">
+                                        {t('cv.refused.title')}
+                                    </h2>
+                                    <p className="text-sm text-gray-600">
+                                        {t('cv.refused.subtitle')}
+                                    </p>
+                                </div>
+                            </div>
+                            {messageRefus && (
+                                <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                                    <p className="text-sm font-medium text-red-800">
+                                        {t('cv.refused.reason', { reason: messageRefus })}
+                                    </p>
+                                </div>
+                            )}
+                            <button
+                                onClick={handleTelechargerCv}
+                                disabled={chargement}
+                                className="mt-6 w-full bg-red-600 text-white py-3 px-4 rounded-xl font-medium
+                hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500
+                focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
+                transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
+                            >
+                                <Download className="w-5 h-5" />
+                                {t('cv.current.downloadButton')}
+                            </button>
+                        </div>
+                    )}
+
+                    {statutCv === 'ATTENTE' && (
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                            {/* Carte CV en attente */}
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="bg-amber-50 p-3 rounded-xl">
+                                    <AlertCircle className="w-6 h-6 text-amber-600" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900">
+                                        {t('cv.pending.title')}
+                                    </h2>
+                                    <p className="text-sm text-gray-600">
+                                        {t('cv.pending.subtitle')}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={handleTelechargerCv}
+                                disabled={chargement}
+                                className="mt-6 w-full bg-amber-600 text-white py-3 px-4 rounded-xl font-medium
+                hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500
+                focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
+                transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
+                            >
+                                <Download className="w-5 h-5" />
+                                {t('cv.current.downloadButton')}
+                            </button>
+                        </div>
+                    )}
+
+                    {(!statutCv || statutCv === 'AUCUN') && (
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                            {/* Carte info si aucun CV */}
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="bg-slate-100 p-3 rounded-xl">
                                     <AlertCircle className="w-6 h-6 text-slate-600" />
@@ -290,7 +370,6 @@ const TeleversementCv = () => {
                                     </h2>
                                 </div>
                             </div>
-
                             <div className="space-y-4">
                                 <div className="flex items-start gap-3">
                                     <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />

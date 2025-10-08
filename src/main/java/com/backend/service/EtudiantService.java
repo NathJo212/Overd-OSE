@@ -13,6 +13,7 @@ import com.backend.service.DTO.CvDTO;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.service.DTO.StatutCvDTO;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
@@ -108,5 +109,13 @@ public class EtudiantService {
         return offres.stream()
                 .map(offre -> new OffreDTO().toDTO(offre))
                 .toList();
+    }
+
+    public StatutCvDTO getInfosCvEtudiantConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+        StatutCvDTO dto = new StatutCvDTO();
+        dto.setStatutCV(etudiant.getStatutCV().name());
+        dto.setMessageRefusCV(etudiant.getMessageRefusCV());
+        return dto;
     }
 }

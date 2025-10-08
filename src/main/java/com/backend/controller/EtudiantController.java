@@ -1,12 +1,10 @@
 package com.backend.controller;
 
+import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.service.DTO.ErrorResponse;
-import com.backend.service.DTO.CvDTO;
-import com.backend.service.DTO.EtudiantDTO;
-import com.backend.service.DTO.MessageRetourDTO;
-import com.backend.service.DTO.OffreDTO;
+import com.backend.Exceptions.UtilisateurPasTrouveException;
+import com.backend.service.DTO.*;
 import com.backend.service.EtudiantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,6 +68,13 @@ public class EtudiantController {
                     .header("Content-Type", "application/json")
                     .body(null);
         }
+    }
+
+    @GetMapping("/cv/info")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<StatutCvDTO> getInfosCvEtudiant() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        StatutCvDTO dto = etudiantService.getInfosCvEtudiantConnecte();
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("voirOffres")
