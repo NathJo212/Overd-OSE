@@ -4,13 +4,11 @@
   "chooseRole": "Choose your role to start",
   "employer": {
     "title": "Employer",
-    "description": "Post internship offers and recruit student talents for your company.",
-    "register": "Register"
+    "description": "Post internship offers and recruit student talents for your company."
   },
   "student": {
     "title": "Student",
-    "description": "Find internships and job opportunities suited to your profile.",
-    "register": "Register"
+    "description": "Find internships and job opportunities suited to your profile."
   },
   "alreadyRegistered": "Already registered?",
   "login": "Log in"

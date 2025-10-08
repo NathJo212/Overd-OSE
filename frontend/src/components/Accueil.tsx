@@ -50,9 +50,9 @@ const Accueil = () => {
                             >
                                 <div className="flex flex-col items-center">
                                     <Building className="w-16 h-16 mb-4 group-hover:scale-110 transition-transform" />
-                                    <h3 className="text-2xl font-bold mb-2">{t('home:employer')}</h3>
+                                    <h3 className="text-2xl font-bold mb-2">{t('home:employer.title')}</h3>
                                     <p className="text-blue-100 mb-4 text-center">
-                                        {t('home:employerDescription')}
+                                        {t('home:employer.description')}
                                     </p>
                                     <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                                 </div>
@@ -65,9 +65,9 @@ const Accueil = () => {
                             >
                                 <div className="flex flex-col items-center">
                                     <Users className="w-16 h-16 mb-4 group-hover:scale-110 transition-transform" />
-                                    <h3 className="text-2xl font-bold mb-2">{t('home:student')}</h3>
+                                    <h3 className="text-2xl font-bold mb-2">{t('home:student.title')}</h3>
                                     <p className="text-indigo-100 mb-4 text-center">
-                                        {t('home:studentDescription')}
+                                        {t('home:student.description')}
                                     </p>
                                     <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                                 </div>
@@ -76,7 +76,7 @@ const Accueil = () => {
                     </div>
 
                     <div className="mt-12 pt-8 border-t border-gray-200">
-                        <p className="text-gray-600 mb-4">{t('home:alreadyAccount')}</p>
+                        <p className="text-gray-600 mb-4">{t('home:alreadyRegistered')}</p>
                         <NavLink
                             to="/login"
                             className="inline-block bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105"

@@ -11,6 +11,8 @@ const TeleversementCv = () => {
     const [chargement, setChargement] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; texte: string } | null>(null);
     const [cvExistant, setCvExistant] = useState<boolean>(false);
+    const [statutCv, setStatutCv] = useState<string | null>(null);
+    const [messageRefus, setMessageRefus] = useState<string | null>(null);
 
     const handleSelectionFichier = (e: React.ChangeEvent<HTMLInputElement>) => {
         const fichierSelectionne = e.target.files?.[0];
@@ -54,7 +56,9 @@ const TeleversementCv = () => {
             // Réinitialiser l'input file
             const inputFile = document.getElementById('cv-input') as HTMLInputElement;
             if (inputFile) inputFile.value = '';
-
+            const infos = await etudiantService.getInfosCv();
+            setStatutCv(infos?.statutCV ?? null);
+            setMessageRefus(infos?.messageRefusCV ?? null);
         } catch (error) {
             setMessage({
                 type: 'error',
@@ -89,9 +93,15 @@ const TeleversementCv = () => {
         }
     };
 
-    // Vérifier si un CV existe au chargement du composant
+    // Vérifier si un CV existe au chargement du composant et vérification du statut du cv
     useEffect(() => {
-        verifierCvExistant().then();
+        const chargerInfosCv = async () => {
+            await verifierCvExistant();
+            const infos = await etudiantService.getInfosCv();
+            setStatutCv(infos?.statutCV ?? null);
+            setMessageRefus(infos?.messageRefusCV ?? null);
+        };
+        chargerInfosCv();
     }, []);
 
     return (
@@ -276,6 +286,16 @@ const TeleversementCv = () => {
                                 <Download className="w-5 h-5" />
                                 Télécharger mon CV
                             </button>
+                            {statutCv && (
+                                <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                    <p className="text-sm font-medium">
+                                        Statut du CV : <span className="font-bold">{statutCv}</span>
+                                    </p>
+                                    {statutCv === 'REFUSE' && messageRefus && (
+                                        <p className="text-xs text-red-600 mt-1">Motif du refus : {messageRefus}</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">

@@ -71,6 +71,7 @@ public class EtudiantController {
                     .body(null);
         }
     }
+
     @GetMapping("voirOffres")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<OffreDTO>> voirOffres() {

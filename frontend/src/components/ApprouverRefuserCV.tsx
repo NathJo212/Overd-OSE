@@ -207,7 +207,7 @@ const ApprouverRefuserCV = () => {
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <GraduationCap className="h-4 w-4 text-gray-400" />
-                                                    <span>{tProgrammes(etudiant.progEtude?.code || '')}</span>
+                                                    <span>{tProgrammes(etudiant.progEtude || '')}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <Calendar className="h-4 w-4 text-gray-400" />
@@ -260,12 +260,13 @@ const ApprouverRefuserCV = () => {
                                     <X className="h-6 w-6" />
                                 </button>
                             </div>
-                            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+                            <div className="p-6 overflow-y-auto max-h-[calc(95vh-80px)]">
                                 {selectedCV.cv && selectedCV.cv.length > 0 ? (
                                     <iframe
-                                        src={`data:application/pdf;base64,${btoa(String.fromCharCode(...new Uint8Array(selectedCV.cv)))}`}
+                                        src={`data:application/pdf;base64,${selectedCV.cv}`}
                                         className="w-full h-[600px] border rounded"
                                         title="CV Preview"
+                                        allow="fullscreen"
                                     />
                                 ) : (
                                     <div className="text-center py-12">

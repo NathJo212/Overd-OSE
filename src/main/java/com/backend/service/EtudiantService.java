@@ -12,6 +12,8 @@ import com.backend.service.DTO.CvDTO;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.service.DTO.StatutCvDTO;
+import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,11 +38,13 @@ public class EtudiantService {
     private final PasswordEncoder passwordEncoder;
     private final EtudiantRepository etudiantRepository;
     private final OffreRepository offreRepository;
+    private final EncryptageCV encryptageCV;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository,  EncryptageCV encryptageCV) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
+        this.encryptageCV = encryptageCV;
     }
 
     @Transactional
@@ -59,53 +63,13 @@ public class EtudiantService {
         etudiantRepository.save(etudiant);
     }
 
-    private SecretKey chargerCleDepuisKeyStore() throws Exception {
-        String keystorePath = "keystore.jks";
-        String keystorePassword = System.getenv("KEYSTORE_PASSWORD");
-        String keyAlias = "cle_travail";
-        KeyStore keyStore = KeyStore.getInstance("JCEKS");
-        try (FileInputStream fis = new FileInputStream(keystorePath)) {
-            keyStore.load(fis, keystorePassword.toCharArray());
-        }
-        KeyStore.PasswordProtection protection = new KeyStore.PasswordProtection(keystorePassword.toCharArray());
-        KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) keyStore.getEntry(keyAlias, protection);
-        return entry.getSecretKey();
-    }
-
-    private String chiffrer(byte[] data) throws Exception {
-        SecretKey secretKey = chargerCleDepuisKeyStore();
-        byte[] iv = new byte[12];
-        SecureRandom secureRandom = new SecureRandom();
-        secureRandom.nextBytes(iv);
-
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec);
-        byte[] ciphertext = cipher.doFinal(data);
-
-        // Encode IV et ciphertext en Base64, séparés par ;
-        return Base64.getEncoder().encodeToString(iv) + ";" + Base64.getEncoder().encodeToString(ciphertext);
-    }
-
-    byte[] dechiffrer(String dataChiffre) throws Exception {
-        SecretKey secretKey = chargerCleDepuisKeyStore();
-        String[] parts = dataChiffre.split(";");
-        byte[] iv = Base64.getDecoder().decode(parts[0]);
-        byte[] ciphertext = Base64.getDecoder().decode(parts[1]);
-
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec);
-        return cipher.doFinal(ciphertext);
-    }
-
     @Transactional
     public void sauvegarderCvEtudiantConnecte(MultipartFile fichierCv) throws Exception {
         verifierFichierPdf(fichierCv);
         Etudiant etudiant = getEtudiantConnecte();
         byte[] cvBytes = fichierCv.getBytes();
-        String cvChiffre = chiffrer(cvBytes); // stocker sous forme String
-        etudiant.setCv(cvChiffre.getBytes()); // ou adapte le type dans ton modèle
+        String cvChiffre = encryptageCV.chiffrer(cvBytes);
+        etudiant.setCv(cvChiffre.getBytes());
         etudiantRepository.save(etudiant);
         etudiant.setStatutCV(Etudiant.StatutCV.ATTENTE);
     }
@@ -117,7 +81,7 @@ public class EtudiantService {
             throw new RuntimeException("CV non trouvé pour l'étudiant");
         }
         String cvChiffre = new String(etudiant.getCv());
-        byte[] cvDechiffre = dechiffrer(cvChiffre);
+        byte[] cvDechiffre = encryptageCV.dechiffrer(cvChiffre);
         return new CvDTO(cvDechiffre);
     }
 
@@ -151,6 +115,4 @@ public class EtudiantService {
                 .map(offre -> new OffreDTO().toDTO(offre))
                 .toList();
     }
-
-
 }

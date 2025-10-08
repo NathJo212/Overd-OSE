@@ -1,6 +1,7 @@
 package com.backend.service;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
+import com.backend.util.EncryptageCV;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.Exceptions.UtilisateurPasTrouveException;
 import com.backend.modele.Employeur;
@@ -43,6 +44,9 @@ public class EtudiantServiceTest {
 
     @Mock
     private OffreRepository offreRepository;
+
+    @Mock
+    private EncryptageCV encryptageCV;
 
     @InjectMocks
     private EtudiantService etudiantService;
@@ -157,13 +161,10 @@ public class EtudiantServiceTest {
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
 
-        EtudiantService spyService = spy(etudiantService);
-        doReturn("CV en bytes".getBytes())
-                .when(spyService)
-                .dechiffrer(anyString());
+        when(encryptageCV.dechiffrer(anyString())).thenReturn("CV en bytes".getBytes());
 
         // Act
-        var cvDTO = spyService.getCvEtudiantConnecte();
+        var cvDTO = etudiantService.getCvEtudiantConnecte();
 
         // Assert
         assertNotNull(cvDTO);

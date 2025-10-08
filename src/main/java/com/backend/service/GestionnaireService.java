@@ -10,6 +10,7 @@ import com.backend.persistence.GestionnaireRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.OffreDTO;
+import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,12 +29,14 @@ public class GestionnaireService {
     private final GestionnaireRepository gestionnaireRepository;
     private final PasswordEncoder passwordEncoder;
     private final EtudiantRepository etudiantRepository;
+    private final EncryptageCV encryptageCV;
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository,  EncryptageCV encryptageCV) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
+        this.encryptageCV = encryptageCV;
     }
 
     @Transactional
@@ -143,7 +146,19 @@ public class GestionnaireService {
 
         List<Etudiant> etudiants = etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE);
         return etudiants.stream()
-                .map(etudiant -> new EtudiantDTO().toDTO(etudiant))
+                .map(etudiant -> {
+                    EtudiantDTO dto = new EtudiantDTO().toDTO(etudiant);
+                    try {
+                        if (etudiant.getCv() != null && etudiant.getCv().length > 0) {
+                            String cvChiffre = new String(etudiant.getCv());
+                            byte[] cvDechiffre = encryptageCV.dechiffrer(cvChiffre);
+                            dto.setCv(cvDechiffre);
+                        }
+                    } catch (Exception e) {
+                        dto.setCv(null);
+                    }
+                    return dto;
+                })
                 .toList();
     }
 

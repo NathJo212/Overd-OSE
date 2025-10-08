@@ -25,21 +25,16 @@ export interface EmployeurDTO {
     contact: string;
 }
 
-export interface ProgrammeDTO {
-    code: string;
-    nom: string;
-}
-
 export interface EtudiantDTO {
     id?: number;
     email: string;
     telephone: string;
     nom: string;
     prenom: string;
-    progEtude?: ProgrammeDTO;
+    progEtude?: string;
     session: string;
     annee: string;
-    cv?: number[];
+    cv?: string;
     statutCV?: string;
     messageRefusCV?: string;
 }
