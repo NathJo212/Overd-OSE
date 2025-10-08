@@ -119,12 +119,12 @@ public class GestionnaireServiceTest {
         Offre offre = new Offre(
                 "Développeur java",
                 "Dev java/spring",
-                LocalDate.of(2026, 1, 16),
-                LocalDate.of(2026, 1, 17),
+                LocalDate.of(2027, 1, 16),
+                LocalDate.of(2027, 1, 17),
                 Programme.P420_B0,
                 "Montréal",
                 "25$/h",
-                LocalDate.of(2025, 9, 10),
+                LocalDate.of(2026, 9, 10),
                 employeur
         );
 
