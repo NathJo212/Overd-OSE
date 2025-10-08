@@ -1,6 +1,7 @@
 package com.backend.service;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
+import com.backend.persistence.UtilisateurRepository;
 import com.backend.util.EncryptageCV;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.Exceptions.UtilisateurPasTrouveException;
@@ -44,6 +45,9 @@ public class EtudiantServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private UtilisateurRepository  utilisateurRepository;
+
+    @Mock
     private OffreRepository offreRepository;
 
     @Mock
@@ -71,7 +75,7 @@ public class EtudiantServiceTest {
     public void testCreationEtudiant() throws MotPasseInvalideException {
         // Arrange
         Etudiant etudiant = new Etudiant( "etudiant@example.com", "Etudiant128&", "987-654-3210", "Martin", "Durand", Programme.P388_A1, "Automne", "2025");
-        when(etudiantRepository.existsByEmail(etudiant.getEmail())).thenReturn(false);
+        when(utilisateurRepository.existsByEmail(etudiant.getEmail())).thenReturn(false);
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("encodedPassword");
         when(etudiantRepository.save(any(Etudiant.class))).thenReturn(etudiant);
 
@@ -86,7 +90,7 @@ public class EtudiantServiceTest {
     public void testCreationEtudiant_MotDePasseInvalide() {
         // Arrange
         Etudiant etudiant = new Etudiant( "etudiant@example.com", "abc", "987-654-3210", "Martin", "Durand", Programme.P388_A1, "Automne", "2025");
-        when(etudiantRepository.existsByEmail(etudiant.getEmail())).thenReturn(false);
+        when(utilisateurRepository.existsByEmail(etudiant.getEmail())).thenReturn(false);
 
         // Act & Assert
         assertThrows(
@@ -100,7 +104,7 @@ public class EtudiantServiceTest {
         // Arrange
         String email = "mon@etudiant.com";
         Etudiant etudiant = new Etudiant(email, "Etudiant128&", "987-654-3210", "Martin", "Durand", Programme.P200_B1, "Automne", "2025");
-        when(etudiantRepository.existsByEmail(email)).thenReturn(false);
+        when(utilisateurRepository.existsByEmail(email)).thenReturn(false);
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("encodedPassword");
         when(etudiantRepository.save(any(Etudiant.class))).thenReturn(etudiant);
 
@@ -108,7 +112,7 @@ public class EtudiantServiceTest {
         etudiantService.creerEtudiant(etudiant.getEmail(), etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P200_B1, etudiant.getSession(), etudiant.getAnnee());
 
         // Simule que l'email existe déjà pour le deuxième compte
-        when(etudiantRepository.existsByEmail(email)).thenReturn(true);
+        when(utilisateurRepository.existsByEmail(email)).thenReturn(true);
 
         // Act & Assert
         assertThrows(
