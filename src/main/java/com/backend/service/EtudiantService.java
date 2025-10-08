@@ -12,7 +12,6 @@ import com.backend.service.DTO.CvDTO;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
-import com.backend.service.DTO.StatutCvDTO;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
@@ -21,14 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.FileInputStream;
-import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 
