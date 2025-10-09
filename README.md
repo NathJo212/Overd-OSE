@@ -1,4 +1,4 @@
 # Overd-OSE
 
-- **Objectif 1 - Flux de travail avec les branches Git : D'ici la fin du sprint, établir une convention de nommage des branches (format feature/description), faire en sorte que chaque membre de l'équipe crée et fusionne avec succès au moins 1 branche de fonctionnalité via un merge avec révision par les pairs, et documenter le flux de travail dans un canal Discord d'équipe.**
-- **Objectif 2 - Composants UI cohérents : D'ici la fin du sprint, créer au moins 3 composants React standardisés (par exemple: Button, InternshipCard, SearchBar) avec un style cohérent utilisant tailwind, et les intégrer dans au moins 2 pages du portail de stages (par exemple: page de login et page de recherche des offres en étant un étudiant).**
+- **Point d'action 1: S'assurer de faire après chaque daily des merge des autres branche pour avoir les nouveautés des autres branches**
+- **Point d'action 2: Avant la démo au moins 2 personnes doivent regarder l'application et s'assurer qu'il n'y a pas d'incohérence**
