@@ -46,7 +46,7 @@ export interface OffreDTO {
     description: string;
     date_debut: string;
     date_fin: string;
-    progEtude?: string;
+    progEtude?: any;
     lieuStage?: string;
     remuneration?: string;
     dateLimite?: string;

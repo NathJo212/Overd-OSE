@@ -11,7 +11,7 @@
     "session": "Session:"
   },
   "messages": {
-    "pending": "Pending",
+    "pending": "Pending for approval",
     "noResumes": "No pending resumes.",
     "approvedSuccess": "Resume approved successfully",
     "refusedSuccess": "Resume refused successfully",

@@ -16,7 +16,7 @@
     "approved": "approuvée",
     "refused": "refusée",
     "expired": "expirée",
-    "pending": "en attente"
+    "pending": "En attente d'approbation"
   },
   "start": "Début:",
   "end": "Fin:",

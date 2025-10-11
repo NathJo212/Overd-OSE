@@ -53,30 +53,17 @@ class EmployeurService {
             const data = await response.json();
 
             // ✅ Vérifier si erreur dans MessageRetourDTO
-            if (data.erreur) {
+            if (data?.erreur) {
                 console.error('Erreur lors de la création du compte:', data.erreur);
-
                 const error: any = new Error(data.erreur.message || 'Erreur de création de compte');
-                error.response = {
-                    data: {
-                        erreur: data.erreur  // Structure MessageRetourDTO
-                    }
-                };
+                error.response = { data };
                 throw error;
             }
 
             if (!response.ok) {
                 console.error('Erreur HTTP:', response.status, data);
-
                 const error: any = new Error(`Erreur HTTP: ${response.status}`);
-                error.response = {
-                    data: {
-                        erreur: {
-                            errorCode: 'ERROR_000',
-                            message: error.message
-                        }
-                    }
-                };
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
                 throw error;
             }
 
@@ -154,29 +141,16 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // ✅ Vérifier si erreur dans MessageRetourDTO
-            if (data.erreur) {
+            if (data?.erreur) {
                 console.error('Erreur lors de la création de l\'offre:', data.erreur);
-
                 const error: any = new Error(data.erreur.message || 'Erreur de création d\'offre');
-                error.response = {
-                    data: {
-                        erreur: data.erreur
-                    }
-                };
+                error.response = { data };
                 throw error;
             }
 
             if (!response.ok) {
                 const error: any = new Error(`Erreur HTTP: ${response.status}`);
-                error.response = {
-                    data: {
-                        erreur: {
-                            errorCode: 'ERROR_000',
-                            message: error.message
-                        }
-                    }
-                };
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
                 throw error;
             }
 
@@ -244,3 +218,4 @@ class EmployeurService {
 // Export d'une instance unique (Singleton)
 export const employeurService = new EmployeurService();
 export default employeurService;
+
