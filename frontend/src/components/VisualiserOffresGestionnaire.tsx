@@ -100,7 +100,7 @@ const VisualiserOffresGestionnaire = () => {
             return (
                 <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-medium flex items-center gap-1">
                     <XCircle className="w-3 h-3" />
-                    {t("filters.all")}
+                    {t("filters.refused")}
                 </span>
             );
         }

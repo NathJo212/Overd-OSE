@@ -17,7 +17,7 @@
     "deadline": "Date limite:"
   },
   "messages": {
-    "pending": "En attente",
+    "pending": "En attente d'approbation",
     "noOffers": "Aucune offre trouvée.",
     "approvedSuccess": "Offre approuvée avec succès",
     "refusedSuccess": "Offre refusée avec succès",

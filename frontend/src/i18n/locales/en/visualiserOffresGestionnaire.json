@@ -4,7 +4,7 @@
   "textFilter": "Filter by status",
   "filters": {
     "all": "All",
-    "pending": "Pending",
+    "pending": "Pending for approval",
     "approved": "Approved",
     "refused": "Refused",
     "expired": "Expired"
