@@ -21,7 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -123,7 +125,7 @@ public class EtudiantService {
 
     @Transactional
     public CandidatureDTO postulerOffre(Long offreId, String lettreMotivation)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+            throws Exception {
         Etudiant etudiant = getEtudiantConnecte();
 
         if (etudiant.getStatutCV() != Etudiant.StatutCV.APPROUVE) {
@@ -145,20 +147,43 @@ public class EtudiantService {
             throw new IllegalStateException("Vous avez déjà postulé à cette offre");
         }
 
-        Candidature candidature = new Candidature(etudiant, offre, lettreMotivation);
+        byte[] lettreMotivationChiffree = null;
+        if (lettreMotivation != null && !lettreMotivation.isEmpty()) {
+            byte[] lettreBytes = lettreMotivation.getBytes(StandardCharsets.UTF_8);
+            String lettreChiffree = encryptageCV.chiffrer(lettreBytes);
+            lettreMotivationChiffree = lettreChiffree.getBytes(StandardCharsets.UTF_8);
+        }
+
+        Candidature candidature = new Candidature(etudiant, offre, lettreMotivationChiffree);
         candidature = candidatureRepository.save(candidature);
 
-        return new CandidatureDTO().toDTO(candidature);
+        return new CandidatureDTO().toDTO(candidature, lettreMotivation);
     }
 
     @Transactional
-    public List<CandidatureDTO> getMesCandidatures()
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<CandidatureDTO> getMesCandidatures() throws Exception {
         Etudiant etudiant = getEtudiantConnecte();
         List<Candidature> candidatures = candidatureRepository.findAllByEtudiant(etudiant);
-        return candidatures.stream()
-                .map(c -> new CandidatureDTO().toDTO(c))
-                .toList();
+
+        List<CandidatureDTO> candidatureDTOs = new ArrayList<>();
+        for (Candidature candidature : candidatures) {
+            String lettreMotivationDechiffree = null;
+
+            if (candidature.getLettreMotivation() != null && candidature.getLettreMotivation().length > 0) {
+                try {
+                    String lettreChiffree = new String(candidature.getLettreMotivation(), StandardCharsets.UTF_8);
+                    byte[] lettreDechiffree = encryptageCV.dechiffrer(lettreChiffree);
+                    lettreMotivationDechiffree = new String(lettreDechiffree, StandardCharsets.UTF_8);
+                } catch (Exception e) {
+                    // If decryption fails, leave it null
+                    lettreMotivationDechiffree = null;
+                }
+            }
+
+            candidatureDTOs.add(new CandidatureDTO().toDTO(candidature, lettreMotivationDechiffree));
+        }
+
+        return candidatureDTOs;
     }
 
     @Transactional

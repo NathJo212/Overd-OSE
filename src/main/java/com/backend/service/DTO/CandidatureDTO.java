@@ -22,14 +22,14 @@ public class CandidatureDTO {
     private String lettreMotivation;
     private String messageReponse;
 
-    public CandidatureDTO toDTO(Candidature candidature) {
+    public CandidatureDTO toDTO(Candidature candidature, String lettreMotivationDechiffree) {
         this.id = candidature.getId();
         this.offreId = candidature.getOffre().getId();
         this.offreTitre = candidature.getOffre().getTitre();
         this.employeurNom = candidature.getOffre().getEmployeur().getContact();
         this.dateCandidature = candidature.getDateCandidature();
         this.statut = candidature.getStatut().name();
-        this.lettreMotivation = candidature.getLettreMotivation();
+        this.lettreMotivation = lettreMotivationDechiffree;
         this.messageReponse = candidature.getMessageReponse();
         return this;
     }

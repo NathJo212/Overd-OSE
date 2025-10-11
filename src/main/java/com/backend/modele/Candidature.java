@@ -40,13 +40,14 @@ public class Candidature {
     @Column(name = "statut", nullable = false)
     private StatutCandidature statut = StatutCandidature.EN_ATTENTE;
 
-    @Column(name = "lettre_motivation", length = 2000)
-    private String lettreMotivation;
+    @Lob
+    @Column(name = "lettre_motivation")
+    private byte[] lettreMotivation;
 
     @Column(name = "message_reponse", length = 1000)
     private String messageReponse;
 
-    public Candidature(Etudiant etudiant, Offre offre, String lettreMotivation) {
+    public Candidature(Etudiant etudiant, Offre offre, byte[] lettreMotivation) {
         this.etudiant = etudiant;
         this.offre = offre;
         this.lettreMotivation = lettreMotivation;
