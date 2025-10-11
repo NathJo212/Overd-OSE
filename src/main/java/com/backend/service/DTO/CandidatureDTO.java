@@ -1,0 +1,36 @@
+package com.backend.service.DTO;
+
+import com.backend.modele.Candidature;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class CandidatureDTO {
+    private Long id;
+    private Long offreId;
+    private String offreTitre;
+    private String employeurNom;
+    private LocalDateTime dateCandidature;
+    private String statut;
+    private String lettreMotivation;
+    private String messageReponse;
+
+    public CandidatureDTO toDTO(Candidature candidature) {
+        this.id = candidature.getId();
+        this.offreId = candidature.getOffre().getId();
+        this.offreTitre = candidature.getOffre().getTitre();
+        this.employeurNom = candidature.getOffre().getEmployeur().getContact();
+        this.dateCandidature = candidature.getDateCandidature();
+        this.statut = candidature.getStatut().name();
+        this.lettreMotivation = candidature.getLettreMotivation();
+        this.messageReponse = candidature.getMessageReponse();
+        return this;
+    }
+}

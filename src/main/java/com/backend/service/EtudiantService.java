@@ -4,16 +4,15 @@ import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.Exceptions.UtilisateurPasTrouveException;
+import com.backend.modele.Candidature;
 import com.backend.modele.Etudiant;
 import com.backend.modele.Offre;
 import com.backend.modele.Programme;
+import com.backend.persistence.CandidatureRepository;
 import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.UtilisateurRepository;
-import com.backend.service.DTO.CvDTO;
+import com.backend.service.DTO.*;
 import com.backend.persistence.OffreRepository;
-import com.backend.service.DTO.OffreDTO;
-import com.backend.service.DTO.ProgrammeDTO;
-import com.backend.service.DTO.StatutCvDTO;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
@@ -22,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -33,13 +33,15 @@ public class EtudiantService {
     private final OffreRepository offreRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final EncryptageCV encryptageCV;
+    private final CandidatureRepository candidatureRepository;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository,  EncryptageCV encryptageCV) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.encryptageCV = encryptageCV;
+        this.candidatureRepository = candidatureRepository;
     }
 
     @Transactional
@@ -118,4 +120,74 @@ public class EtudiantService {
         dto.setMessageRefusCV(etudiant.getMessageRefusCV());
         return dto;
     }
+
+    @Transactional
+    public CandidatureDTO postulerOffre(Long offreId, String lettreMotivation)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        if (etudiant.getStatutCV() != Etudiant.StatutCV.APPROUVE) {
+            throw new IllegalStateException("Votre CV doit être approuvé avant de postuler");
+        }
+
+        Offre offre = offreRepository.findById(offreId)
+                .orElseThrow(() -> new IllegalArgumentException("Offre non trouvée"));
+
+        if (offre.getStatutApprouve() != Offre.StatutApprouve.APPROUVE) {
+            throw new IllegalStateException("Cette offre n'est pas disponible pour les candidatures");
+        }
+
+        if (offre.getDateLimite() != null && LocalDate.now().isAfter(offre.getDateLimite())) {
+            throw new IllegalStateException("La date limite de candidature est dépassée");
+        }
+
+        if (candidatureRepository.existsByEtudiantAndOffre(etudiant, offre)) {
+            throw new IllegalStateException("Vous avez déjà postulé à cette offre");
+        }
+
+        Candidature candidature = new Candidature(etudiant, offre, lettreMotivation);
+        candidature = candidatureRepository.save(candidature);
+
+        return new CandidatureDTO().toDTO(candidature);
+    }
+
+    @Transactional
+    public List<CandidatureDTO> getMesCandidatures()
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+        List<Candidature> candidatures = candidatureRepository.findAllByEtudiant(etudiant);
+        return candidatures.stream()
+                .map(c -> new CandidatureDTO().toDTO(c))
+                .toList();
+    }
+
+    @Transactional
+    public void retirerCandidature(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE) {
+            throw new IllegalStateException("Seules les candidatures en attente peuvent être retirées");
+        }
+
+        candidature.setStatut(Candidature.StatutCandidature.RETIREE);
+        candidatureRepository.save(candidature);
+    }
+
+    public boolean aPostuleOffre(Long offreId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+        Offre offre = offreRepository.findById(offreId)
+                .orElseThrow(() -> new IllegalArgumentException("Offre non trouvée"));
+        return candidatureRepository.existsByEtudiantAndOffre(etudiant, offre);
+    }
+
+
 }
