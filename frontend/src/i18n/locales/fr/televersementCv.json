@@ -21,7 +21,8 @@
       "subtitle": "Votre CV est disponible",
       "available": "CV disponible",
       "canApply": "Vous pouvez postuler aux offres de stage avec ce CV",
-      "downloadButton": "Télécharger mon CV"
+      "downloadButton": "Regarder mon CV",
+      "previewTitle": "Mon CV"
     },
 
     "info": {

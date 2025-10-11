@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Upload, FileText, Download, CheckCircle, AlertCircle, X, ArrowLeft } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, X, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import etudiantService from "../services/EtudiantService.ts";
@@ -15,6 +15,8 @@ const TeleversementCv = () => {
     const [cvExistant, setCvExistant] = useState<boolean>(false);
     const [statutCv, setStatutCv] = useState<string | null>(null);
     const [messageRefus, setMessageRefus] = useState<string | null>(null);
+    const [showCVModal, setShowCVModal] = useState(false);
+    const [cvData, setCvData] = useState<string | null>(null);
 
     const handleSelectionFichier = (e: React.ChangeEvent<HTMLInputElement>) => {
         const fichierSelectionne = e.target.files?.[0];
@@ -71,11 +73,12 @@ const TeleversementCv = () => {
         }
     };
 
-    const handleTelechargerCv = async () => {
+    const handleShowCV = async () => {
         setChargement(true);
         try {
-            await etudiantService.telechargerCv();
-            setMessage({ type: 'success', texte: t('cv.success.downloaded') });
+            const cv = await etudiantService.regarderCV();
+            setCvData(cv);
+            setShowCVModal(true);
         } catch (error) {
             setMessage({
                 type: 'error',
@@ -84,6 +87,11 @@ const TeleversementCv = () => {
         } finally {
             setChargement(false);
         }
+    };
+
+    const closeCVModal = () => {
+        setShowCVModal(false);
+        setCvData(null);
     };
 
     const verifierCvExistant = async () => {
@@ -277,14 +285,14 @@ const TeleversementCv = () => {
                                 </div>
                             </div>
                             <button
-                                onClick={handleTelechargerCv}
+                                onClick={handleShowCV}
                                 disabled={chargement}
                                 className="w-full bg-green-600 text-white py-3 px-4 rounded-xl font-medium
                      hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500
                      focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
                      transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
                             >
-                                <Download className="w-5 h-5" />
+                                <FileText className="w-5 h-5" />
                                 {t('cv.current.downloadButton')}
                             </button>
                         </div>
@@ -314,14 +322,14 @@ const TeleversementCv = () => {
                                 </div>
                             )}
                             <button
-                                onClick={handleTelechargerCv}
+                                onClick={handleShowCV}
                                 disabled={chargement}
                                 className="mt-6 w-full bg-red-600 text-white py-3 px-4 rounded-xl font-medium
                 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500
                 focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
                 transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
                             >
-                                <Download className="w-5 h-5" />
+                                <FileText className="w-5 h-5" />
                                 {t('cv.current.downloadButton')}
                             </button>
                         </div>
@@ -344,14 +352,14 @@ const TeleversementCv = () => {
                                 </div>
                             </div>
                             <button
-                                onClick={handleTelechargerCv}
+                                onClick={handleShowCV}
                                 disabled={chargement}
                                 className="mt-6 w-full bg-amber-600 text-white py-3 px-4 rounded-xl font-medium
                 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500
                 focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
                 transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
                             >
-                                <Download className="w-5 h-5" />
+                                <FileText className="w-5 h-5" />
                                 {t('cv.current.downloadButton')}
                             </button>
                         </div>
@@ -388,6 +396,27 @@ const TeleversementCv = () => {
                                     <p className="text-sm text-gray-700">
                                         {t('cv.info.cvRequired')} <span className="font-medium">{t('cv.info.required')}</span> {t('cv.info.toApply')}
                                     </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {showCVModal && cvData && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                                <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
+                                    <h3 className="text-xl font-semibold">{t("cv.current.previewTitle")}</h3>
+                                    <button onClick={closeCVModal} className="text-white hover:text-gray-200">
+                                        <X className="h-6 w-6" />
+                                    </button>
+                                </div>
+                                <div className="p-6 overflow-y-auto max-h-[calc(95vh-80px)]">
+                                    <iframe
+                                        src={`data:application/pdf;base64,${cvData}`}
+                                        className="w-full h-[600px] border rounded"
+                                        title="CV Preview"
+                                        allow="fullscreen"
+                                    />
                                 </div>
                             </div>
                         </div>

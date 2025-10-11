@@ -156,42 +156,48 @@ class EtudiantService {
         return sessionStorage.getItem('authToken');
     }
 
-    async telechargerCv(): Promise<void> {
+    async regarderCV(): Promise<string> {
         try {
             const token = this.getAuthToken();
-            if (!token) {
-                throw new Error('Vous devez être connecté pour télécharger votre CV');
-            }
+            if (!token) throw new Error("Vous devez être connecté");
 
             const response = await fetch(`${this.baseUrl}/cv`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                },
+                    Authorization: `Bearer ${token}`
+                }
             });
 
             if (!response.ok) {
-                throw new Error('Aucun CV trouvé ou erreur lors de la récupération');
+                throw new Error("Erreur lors du téléchargement du CV.");
             }
 
             const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'cv.pdf';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+
+            if (blob.type !== 'application/pdf') {
+                throw new Error("Le fichier reçu n'est pas un PDF.");
+            }
+
+            return await this.blobToBase64(blob);
 
         } catch (error) {
-            if (error instanceof Error) {
-                throw new Error(`Erreur lors du téléchargement du CV: ${error.message}`);
-            } else {
-                throw new Error('Erreur inconnue lors du téléchargement du CV');
-            }
+            throw new Error(error instanceof Error ? error.message : 'Erreur inconnue');
         }
     }
+
+    private blobToBase64(blob: Blob): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                const base64 = result.split(',')[1]; // Supprimer le préfixe
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    }
+
 
     /**
      * Téléverse un CV pour l'étudiant connecté
