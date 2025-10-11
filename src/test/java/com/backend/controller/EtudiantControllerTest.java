@@ -2,12 +2,9 @@ package com.backend.controller;
 
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.service.DTO.CvDTO;
-import com.backend.service.DTO.OffreDTO;
-import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.service.DTO.*;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
-import com.backend.service.DTO.EtudiantDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -254,4 +251,149 @@ class EtudiantControllerTest {
         mockMvc.perform(get("/OSEetudiant/cv"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @DisplayName("POST /OSEetudiant/candidatures -> succès de la candidature")
+    void postulerOffre_success_returnsCreatedAndMessage() throws Exception {
+        // Arrange
+        when(etudiantService.postulerOffre(1L, "Motivation")).thenReturn(new CandidatureDTO());
+
+        // Act & Assert
+        mockMvc.perform(post("/OSEetudiant/candidatures")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"offreId\":1, \"lettreMotivation\":\"Motivation\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Candidature soumise avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("POST /OSEetudiant/candidatures -> retourne 400 si état invalide ou offre inexistante")
+    void postulerOffre_badRequest_returnsError() throws Exception {
+        // Arrange
+        doThrow(new IllegalStateException("Votre CV doit être approuvé avant de postuler"))
+                .when(etudiantService).postulerOffre(1L, "Motivation");
+
+        // Act & Assert
+        mockMvc.perform(post("/OSEetudiant/candidatures")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"offreId\":1, \"lettreMotivation\":\"Motivation\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_002"))
+                .andExpect(jsonPath("$.erreur.message").value("Votre CV doit être approuvé avant de postuler"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEetudiant/candidatures -> retourne 500 si erreur interne")
+    void postulerOffre_internalError_returnsServerError() throws Exception {
+        // Arrange
+        doThrow(new RuntimeException("Erreur inattendue"))
+                .when(etudiantService).postulerOffre(1L, "Motivation");
+
+        // Act & Assert
+        mockMvc.perform(post("/OSEetudiant/candidatures")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"offreId\":1, \"lettreMotivation\":\"Motivation\"}"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_003"))
+                .andExpect(jsonPath("$.erreur.message").value("Erreur lors de la candidature"));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/candidatures -> succès récupération liste candidatures")
+    void getMesCandidatures_success_returnsList() throws Exception {
+        // Arrange
+        CandidatureDTO cand1 = new CandidatureDTO();
+        cand1.setLettreMotivation("Motivation 1");
+        CandidatureDTO cand2 = new CandidatureDTO();
+        cand2.setLettreMotivation("Motivation 2");
+
+        when(etudiantService.getMesCandidatures()).thenReturn(List.of(cand1, cand2));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/candidatures"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].lettreMotivation").value("Motivation 1"))
+                .andExpect(jsonPath("$[1].lettreMotivation").value("Motivation 2"));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/candidatures -> erreur interne renvoie 500")
+    void getMesCandidatures_internalError_returns500() throws Exception {
+        // Arrange
+        when(etudiantService.getMesCandidatures()).thenThrow(new RuntimeException("Erreur DB"));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/candidatures"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/candidatures/{id}/retirer -> succès retrait candidature")
+    void retirerCandidature_success_returnsOkAndMessage() throws Exception {
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/5/retirer"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Candidature retirée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/candidatures/{id}/retirer -> erreur état invalide")
+    void retirerCandidature_badRequest_returnsError() throws Exception {
+        // Arrange
+        doThrow(new IllegalStateException("Candidature déjà traitée"))
+                .when(etudiantService).retirerCandidature(5L);
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/5/retirer"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_005"))
+                .andExpect(jsonPath("$.erreur.message").value("Candidature déjà traitée"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/candidatures/{id}/retirer -> erreur interne renvoie 500")
+    void retirerCandidature_internalError_returns500() throws Exception {
+        // Arrange
+        doThrow(new RuntimeException("Erreur inattendue"))
+                .when(etudiantService).retirerCandidature(5L);
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/5/retirer"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_006"))
+                .andExpect(jsonPath("$.erreur.message").value("Erreur lors du retrait de la candidature"));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/offres/{id}/a-postule -> succès retourne vrai ou faux")
+    void aPostuleOffre_success_returnsOkAndBoolean() throws Exception {
+        // Arrange
+        when(etudiantService.aPostuleOffre(10L)).thenReturn(true);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/offres/10/a-postule"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.aPostule").value(true));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/offres/{id}/a-postule -> erreur interne retourne 500")
+    void aPostuleOffre_internalError_returns500() throws Exception {
+        // Arrange
+        when(etudiantService.aPostuleOffre(10L)).thenThrow(new RuntimeException("Erreur"));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/offres/10/a-postule"))
+                .andExpect(status().isInternalServerError());
+    }
+
+
 }
