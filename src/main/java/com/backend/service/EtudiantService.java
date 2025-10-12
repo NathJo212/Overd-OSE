@@ -124,7 +124,7 @@ public class EtudiantService {
     }
 
     @Transactional
-    public CandidatureDTO postulerOffre(Long offreId, String lettreMotivation)
+    public CandidatureDTO postulerOffre(Long offreId, MultipartFile lettreMotivationFichier)
             throws Exception {
         Etudiant etudiant = getEtudiantConnecte();
 
@@ -148,8 +148,8 @@ public class EtudiantService {
         }
 
         byte[] lettreMotivationChiffree = null;
-        if (lettreMotivation != null && !lettreMotivation.isEmpty()) {
-            byte[] lettreBytes = lettreMotivation.getBytes(StandardCharsets.UTF_8);
+        if (lettreMotivationFichier != null && !lettreMotivationFichier.isEmpty()) {
+            byte[] lettreBytes = lettreMotivationFichier.getBytes();
             String lettreChiffree = encryptageCV.chiffrer(lettreBytes);
             lettreMotivationChiffree = lettreChiffree.getBytes(StandardCharsets.UTF_8);
         }
@@ -157,7 +157,7 @@ public class EtudiantService {
         Candidature candidature = new Candidature(etudiant, offre, lettreMotivationChiffree);
         candidature = candidatureRepository.save(candidature);
 
-        return new CandidatureDTO().toDTO(candidature, lettreMotivation);
+        return new CandidatureDTO().toDTO(candidature);
     }
 
     @Transactional
@@ -167,23 +167,58 @@ public class EtudiantService {
 
         List<CandidatureDTO> candidatureDTOs = new ArrayList<>();
         for (Candidature candidature : candidatures) {
-            String lettreMotivationDechiffree = null;
-
-            if (candidature.getLettreMotivation() != null && candidature.getLettreMotivation().length > 0) {
-                try {
-                    String lettreChiffree = new String(candidature.getLettreMotivation(), StandardCharsets.UTF_8);
-                    byte[] lettreDechiffree = encryptageCV.dechiffrer(lettreChiffree);
-                    lettreMotivationDechiffree = new String(lettreDechiffree, StandardCharsets.UTF_8);
-                } catch (Exception e) {
-                    // If decryption fails, leave it null
-                    lettreMotivationDechiffree = null;
-                }
-            }
-
-            candidatureDTOs.add(new CandidatureDTO().toDTO(candidature, lettreMotivationDechiffree));
+            candidatureDTOs.add(new CandidatureDTO().toDTO(candidature));
         }
 
         return candidatureDTOs;
+    }
+
+    @Transactional
+    public byte[] getCvPourCandidature(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
+            throw new IllegalArgumentException("CV non trouvé pour cette candidature");
+        }
+
+        try {
+            String cvChiffre = new String(etudiant.getCv());
+            return encryptageCV.dechiffrer(cvChiffre);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du déchiffrement du CV", e);
+        }
+    }
+
+    @Transactional
+    public byte[] getLettreMotivationPourCandidature(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (candidature.getLettreMotivation() == null || candidature.getLettreMotivation().length == 0) {
+            throw new IllegalArgumentException("Lettre de motivation non trouvée pour cette candidature");
+        }
+
+        try {
+            String lettreChiffree = new String(candidature.getLettreMotivation(), StandardCharsets.UTF_8);
+            return encryptageCV.dechiffrer(lettreChiffree);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du déchiffrement de la lettre de motivation", e);
+        }
     }
 
     @Transactional
@@ -213,6 +248,5 @@ public class EtudiantService {
                 .orElseThrow(() -> new IllegalArgumentException("Offre non trouvée"));
         return candidatureRepository.existsByEtudiantAndOffre(etudiant, offre);
     }
-
 
 }

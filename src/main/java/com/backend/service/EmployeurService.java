@@ -33,7 +33,7 @@ public class EmployeurService {
     private final UtilisateurRepository utilisateurRepository;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider,  UtilisateurRepository utilisateurRepository) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;

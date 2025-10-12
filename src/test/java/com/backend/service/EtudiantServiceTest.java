@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,6 +33,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -258,12 +260,12 @@ public class EtudiantServiceTest {
 
     @Test
     public void testPostulerOffre_Succes() throws Exception {
-        // Arrange
         Etudiant etudiant = new Etudiant();
         etudiant.setEmail("etudiant@test.com");
         etudiant.setStatutCV(Etudiant.StatutCV.APPROUVE);
 
-        Employeur employeur = new Employeur("employeur@example.com", "encodedPass", "514-000-0000", "TechCorp", "John Doe");
+        Employeur employeur = new Employeur("employeur@example.com", "encodedPass",
+                "514-000-0000", "TechCorp", "John Doe");
 
         Offre offre = new Offre();
         offre.setId(1L);
@@ -271,102 +273,197 @@ public class EtudiantServiceTest {
         offre.setDateLimite(LocalDate.now().plusDays(5));
         offre.setEmployeur(employeur);
 
+        MockMultipartFile lettreFile = new MockMultipartFile(
+                "lettreMotivation", "lettre.pdf", "application/pdf",
+                "Contenu de la lettre".getBytes()
+        );
+
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
-        when(offreRepository.findById(1L)).thenReturn(java.util.Optional.of(offre));
+        when(offreRepository.findById(1L)).thenReturn(Optional.of(offre));
         when(candidatureRepository.existsByEtudiantAndOffre(etudiant, offre)).thenReturn(false);
-        when(encryptageCV.chiffrer(any())).thenReturn("chiffree");
+        when(encryptageCV.chiffrer(any())).thenReturn("lettreChiffree");
         when(candidatureRepository.save(any(Candidature.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // Act
-        var result = etudiantService.postulerOffre(1L, "Ma belle lettre");
+        var result = etudiantService.postulerOffre(1L, lettreFile);
 
-        // Assert
         assertNotNull(result);
         verify(candidatureRepository, times(1)).save(any(Candidature.class));
     }
 
-
     @Test
     public void testPostulerOffre_CvNonApprouve_Throw() {
-        // Arrange
         Etudiant etudiant = new Etudiant();
         etudiant.setEmail("etudiant@test.com");
         etudiant.setStatutCV(Etudiant.StatutCV.ATTENTE);
 
+        MockMultipartFile lettreFile = new MockMultipartFile(
+                "lettreMotivation", "lettre.pdf", "application/pdf",
+                "Contenu de la lettre".getBytes()
+        );
+
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
 
-        // Act & Assert
         assertThrows(IllegalStateException.class,
-                () -> etudiantService.postulerOffre(1L, "Lettre"),
+                () -> etudiantService.postulerOffre(1L, lettreFile),
                 "Doit refuser car le CV n'est pas approuvé");
     }
 
     @Test
-    public void testGetMesCandidatures_Succes_Dechiffrement() throws Exception {
-        // Arrange
-        Etudiant etudiant = new Etudiant();
-        etudiant.setEmail("etudiant@test.com");
+    public void testGetMesCandidatures_Succes() throws Exception {
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+        lenient().when(etudiant.getCv()).thenReturn("cvChiffre".getBytes());
 
         Employeur employeur = new Employeur("emp@test.com", "pass", "514-000-0000", "Corp", "Contact");
+
         Offre offre = new Offre();
         offre.setId(5L);
+        offre.setTitre("Stage développement");
         offre.setEmployeur(employeur);
 
         Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        candidature.setEtudiant(etudiant);
         candidature.setOffre(offre);
-        candidature.setLettreMotivation("texteChiffre".getBytes(StandardCharsets.UTF_8));
+        candidature.setLettreMotivation("lettreChiffree".getBytes(StandardCharsets.UTF_8));
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
         when(candidatureRepository.findAllByEtudiant(etudiant)).thenReturn(List.of(candidature));
-        when(encryptageCV.dechiffrer(anyString())).thenReturn("Lettre déchiffrée".getBytes(StandardCharsets.UTF_8));
 
-        // Act
         List<CandidatureDTO> result = etudiantService.getMesCandidatures();
 
-        // Assert
         assertEquals(1, result.size());
-        assertEquals("Lettre déchiffrée", result.get(0).getLettreMotivation());
+        assertEquals(10L, result.get(0).getId());
+        assertEquals("Stage développement", result.get(0).getOffreTitre());
+        assertTrue(result.get(0).isACv());
+        assertTrue(result.get(0).isALettreMotivation());
     }
-
 
     @Test
-    public void testGetMesCandidatures_DechiffrementEchoue() throws Exception {
-        // Arrange
-        Etudiant etudiant = new Etudiant();
-        etudiant.setEmail("etudiant@test.com");
+    public void testGetMesCandidatures_SansLettreMotivation() throws Exception {
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+        lenient().when(etudiant.getCv()).thenReturn("cvChiffre".getBytes());
 
         Employeur employeur = new Employeur("emp@test.com", "pass", "514-000-0000", "Corp", "Contact");
+
         Offre offre = new Offre();
         offre.setId(5L);
+        offre.setTitre("Stage développement");
         offre.setEmployeur(employeur);
 
         Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        candidature.setEtudiant(etudiant);
         candidature.setOffre(offre);
-        candidature.setLettreMotivation("texteChiffre".getBytes(StandardCharsets.UTF_8));
+        candidature.setLettreMotivation(null);
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
         when(candidatureRepository.findAllByEtudiant(etudiant)).thenReturn(List.of(candidature));
-        when(encryptageCV.dechiffrer(anyString())).thenThrow(new RuntimeException("Erreur de déchiffrement"));
 
-        // Act
         List<CandidatureDTO> result = etudiantService.getMesCandidatures();
 
-        // Assert
         assertEquals(1, result.size());
-        assertNull(result.get(0).getLettreMotivation());
+        assertTrue(result.get(0).isACv());
+        assertFalse(result.get(0).isALettreMotivation());
     }
 
+    @Test
+    public void testGetCvPourCandidature_Succes() throws Exception {
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+        lenient().when(etudiant.getCv()).thenReturn("cvChiffre".getBytes());
+
+        Candidature candidature = new Candidature();
+        candidature.setId(5L);
+        candidature.setEtudiant(etudiant);
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+        when(candidatureRepository.findById(5L)).thenReturn(Optional.of(candidature));
+        when(encryptageCV.dechiffrer(anyString())).thenReturn("CV déchiffré".getBytes());
+
+        byte[] result = etudiantService.getCvPourCandidature(5L);
+
+        assertNotNull(result);
+        assertArrayEquals("CV déchiffré".getBytes(), result);
+    }
+
+    @Test
+    public void testGetCvPourCandidature_MauvaisEtudiant_Throw() {
+        Etudiant etudiantConnecte = mock(Etudiant.class);
+        Etudiant autreEtudiant = mock(Etudiant.class);
+
+        lenient().when(etudiantConnecte.getId()).thenReturn(1L);
+        lenient().when(etudiantConnecte.getEmail()).thenReturn("etudiant@test.com");
+        lenient().when(autreEtudiant.getId()).thenReturn(2L);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(5L);
+        candidature.setEtudiant(autreEtudiant);
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiantConnecte);
+        when(candidatureRepository.findById(5L)).thenReturn(Optional.of(candidature));
+
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> etudiantService.getCvPourCandidature(5L));
+    }
+
+    @Test
+    public void testGetLettreMotivationPourCandidature_Succes() throws Exception {
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Candidature candidature = new Candidature();
+        candidature.setId(5L);
+        candidature.setEtudiant(etudiant);
+        candidature.setLettreMotivation("lettreChiffree".getBytes(StandardCharsets.UTF_8));
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+        when(candidatureRepository.findById(5L)).thenReturn(Optional.of(candidature));
+        when(encryptageCV.dechiffrer(anyString())).thenReturn("Lettre déchiffrée".getBytes());
+
+        byte[] result = etudiantService.getLettreMotivationPourCandidature(5L);
+
+        assertNotNull(result);
+        assertArrayEquals("Lettre déchiffrée".getBytes(), result);
+    }
+
+    @Test
+    public void testGetLettreMotivationPourCandidature_AucuneLettre_Throw() {
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Candidature candidature = new Candidature();
+        candidature.setId(5L);
+        candidature.setEtudiant(etudiant);
+        candidature.setLettreMotivation(null);
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+        when(candidatureRepository.findById(5L)).thenReturn(Optional.of(candidature));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> etudiantService.getLettreMotivationPourCandidature(5L),
+                "Doit lancer une exception si la lettre n'existe pas");
+    }
 
     @Test
     public void testRetirerCandidature_Succes() throws Exception {
-        // Arrange
         Etudiant etudiant = mock(Etudiant.class);
-        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
         lenient().when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
 
         Candidature candidature = new Candidature();
         candidature.setStatut(Candidature.StatutCandidature.EN_ATTENTE);
@@ -374,20 +471,16 @@ public class EtudiantServiceTest {
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
-        when(candidatureRepository.findById(5L)).thenReturn(java.util.Optional.of(candidature));
+        when(candidatureRepository.findById(5L)).thenReturn(Optional.of(candidature));
 
-        // Act
         etudiantService.retirerCandidature(5L);
 
-        // Assert
         verify(candidatureRepository, times(1)).save(any(Candidature.class));
         assertEquals(Candidature.StatutCandidature.RETIREE, candidature.getStatut());
     }
 
-
     @Test
     public void testRetirerCandidature_MauvaisEtudiant_Throw() {
-        // Arrange
         Etudiant etudiantConnecte = mock(Etudiant.class);
         Etudiant autreEtudiant = mock(Etudiant.class);
 
@@ -401,17 +494,33 @@ public class EtudiantServiceTest {
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiantConnecte);
-        when(candidatureRepository.findById(3L)).thenReturn(java.util.Optional.of(candidature));
+        when(candidatureRepository.findById(3L)).thenReturn(Optional.of(candidature));
 
-        // Act & Assert
         assertThrows(ActionNonAutoriseeException.class,
                 () -> etudiantService.retirerCandidature(3L));
     }
 
+    @Test
+    public void testRetirerCandidature_StatutInvalide_Throw() {
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Candidature candidature = new Candidature();
+        candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+        candidature.setEtudiant(etudiant);
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+        when(candidatureRepository.findById(5L)).thenReturn(Optional.of(candidature));
+
+        assertThrows(IllegalStateException.class,
+                () -> etudiantService.retirerCandidature(5L),
+                "Ne peut retirer qu'une candidature EN_ATTENTE");
+    }
 
     @Test
     public void testAPostuleOffre_Succes() throws Exception {
-        // Arrange
         Etudiant etudiant = new Etudiant();
         etudiant.setEmail("etudiant@test.com");
 
@@ -420,28 +529,24 @@ public class EtudiantServiceTest {
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
-        when(offreRepository.findById(1L)).thenReturn(java.util.Optional.of(offre));
+        when(offreRepository.findById(1L)).thenReturn(Optional.of(offre));
         when(candidatureRepository.existsByEtudiantAndOffre(etudiant, offre)).thenReturn(true);
 
-        // Act
         boolean result = etudiantService.aPostuleOffre(1L);
 
-        // Assert
         assertTrue(result);
         verify(candidatureRepository, times(1)).existsByEtudiantAndOffre(etudiant, offre);
     }
 
     @Test
     public void testAPostuleOffre_OffreNonTrouvee_Throw() {
-        // Arrange
         Etudiant etudiant = new Etudiant();
         etudiant.setEmail("etudiant@test.com");
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
-        when(offreRepository.findById(99L)).thenReturn(java.util.Optional.empty());
+        when(offreRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(IllegalArgumentException.class,
                 () -> etudiantService.aPostuleOffre(99L));
     }

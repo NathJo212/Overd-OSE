@@ -91,14 +91,11 @@ public class EtudiantController {
 
     @PostMapping("/candidatures")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> postulerOffre(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<MessageRetourDTO> postulerOffre(
+            @RequestParam("offreId") Long offreId,
+            @RequestParam(value = "lettreMotivation", required = false) MultipartFile lettreMotivationFichier) {
         try {
-            Long offreId = Long.valueOf(request.get("offreId").toString());
-            String lettreMotivation = request.get("lettreMotivation") != null
-                    ? request.get("lettreMotivation").toString()
-                    : null;
-
-            CandidatureDTO candidature = etudiantService.postulerOffre(offreId, lettreMotivation);
+            etudiantService.postulerOffre(offreId, lettreMotivationFichier);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Candidature soumise avec succès", null));
         } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
@@ -122,6 +119,42 @@ public class EtudiantController {
         } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/candidatures/{id}/cv")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getCvCandidature(@PathVariable Long id) {
+        try {
+            byte[] cv = etudiantService.getCvPourCandidature(id);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"cv.pdf\"")
+                    .header("Content-Type", "application/pdf")
+                    .body(cv);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/candidatures/{id}/lettre-motivation")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getLettreMotivationCandidature(@PathVariable Long id) {
+        try {
+            byte[] lettreMotivation = etudiantService.getLettreMotivationPourCandidature(id);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"lettre-motivation.pdf\"")
+                    .header("Content-Type", "application/pdf")
+                    .body(lettreMotivation);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
