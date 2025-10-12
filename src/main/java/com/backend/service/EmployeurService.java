@@ -1,27 +1,30 @@
 package com.backend.service;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.DateInvalideException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.Exceptions.*;
 import com.backend.config.JwtTokenProvider;
-import com.backend.modele.Employeur;
-import com.backend.modele.Offre;
-import com.backend.modele.Programme;
+import com.backend.modele.*;
+import com.backend.persistence.CandidatureRepository;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.CandidatureDTO;
 import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.DTO.OffreDTO;
+import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import com.backend.modele.Etudiant;
 
 @Service
 public class EmployeurService {
@@ -31,14 +34,18 @@ public class EmployeurService {
     private final OffreRepository offreRepository;
     JwtTokenProvider jwtTokenProvider;
     private final UtilisateurRepository utilisateurRepository;
+    private final CandidatureRepository candidatureRepository;
+    private final EncryptageCV encryptageCV;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
         this.jwtTokenProvider = jwtTokenProvider;
         this.utilisateurRepository = utilisateurRepository;
+        this.candidatureRepository = candidatureRepository;
+        this.encryptageCV = encryptageCV;
     }
 
     @Transactional
@@ -88,4 +95,107 @@ public class EmployeurService {
         OffreDTO offreDTO = new OffreDTO();
         return offres.stream().map(offreDTO::toDTO).toList();
     }
+
+    // Add this helper method to EmployeurService (similar to getEtudiantConnecte)
+    public Employeur getEmployeurConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isEmployeur = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("EMPLOYEUR"));
+        if (!isEmployeur) {
+            throw new ActionNonAutoriseeException();
+        }
+        String email = auth.getName();
+        Employeur employeur = employeurRepository.findByEmail(email);
+        if (employeur == null) {
+            throw new UtilisateurPasTrouveException();
+        }
+        return employeur;
+    }
+
+    @Transactional
+    public List<CandidatureDTO> getCandidaturesPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
+
+        List<Candidature> candidatures = new ArrayList<>();
+        for (Offre offre : offres) {
+            candidatures.addAll(offre.getCandidatures());
+        }
+
+        return candidatures.stream()
+                .map(candidature -> new CandidatureDTO().toDTO(candidature))
+                .toList();
+    }
+
+    @Transactional
+    public CandidatureDTO getCandidatureSpecifique(Long candidatureId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+
+        if (!candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        return new CandidatureDTO().toDTO(candidature);
+    }
+
+    @Transactional
+    public byte[] getCvPourCandidature(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+
+        // Verify this candidature belongs to an offre owned by this employer
+        if (!candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        Etudiant etudiant = candidature.getEtudiant();
+
+        // Force the fetch by accessing a property
+        etudiant.getEmail(); // This ensures the entity is loaded
+
+        if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
+            throw new IllegalArgumentException("CV non trouvé pour cette candidature");
+        }
+
+        try {
+            String cvChiffre = new String(etudiant.getCv(), StandardCharsets.UTF_8);
+            return encryptageCV.dechiffrer(cvChiffre);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du déchiffrement du CV: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public byte[] getLettreMotivationPourCandidature(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+
+        // Verify this candidature belongs to an offre owned by this employer
+        if (!candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (candidature.getLettreMotivation() == null || candidature.getLettreMotivation().length == 0) {
+            throw new IllegalArgumentException("Lettre de motivation non trouvée pour cette candidature");
+        }
+
+        try {
+            String lettreChiffree = new String(candidature.getLettreMotivation(), StandardCharsets.UTF_8);
+            return encryptageCV.dechiffrer(lettreChiffree);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du déchiffrement de la lettre de motivation: " + e.getMessage(), e);
+        }
+    }
+
+
 }

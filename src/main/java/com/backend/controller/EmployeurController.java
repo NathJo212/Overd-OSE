@@ -3,11 +3,7 @@ package com.backend.controller;
 import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.service.DTO.AuthResponseDTO;
-import com.backend.service.DTO.EmployeurDTO;
-import com.backend.service.DTO.ErrorResponse;
-import com.backend.service.DTO.MessageRetourDTO;
-import com.backend.service.DTO.OffreDTO;
+import com.backend.service.DTO.*;
 import com.backend.service.EmployeurService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,4 +65,69 @@ public class EmployeurController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    @GetMapping("/candidatures")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<CandidatureDTO>> getAllCandidatures() {
+        try {
+            List<CandidatureDTO> candidatures = employeurService.getCandidaturesPourEmployeur();
+            return ResponseEntity.ok(candidatures);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/candidatures/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<CandidatureDTO> getCandidatureSpecifique(@PathVariable Long id) {
+        try {
+            CandidatureDTO candidature = employeurService.getCandidatureSpecifique(id);
+            return ResponseEntity.ok(candidature);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/candidatures/{id}/cv")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getCvCandidature(@PathVariable Long id) {
+        try {
+            byte[] cv = employeurService.getCvPourCandidature(id);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"cv.pdf\"")
+                    .header("Content-Type", "application/pdf")
+                    .body(cv);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/candidatures/{id}/lettre-motivation")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getLettreMotivationCandidature(@PathVariable Long id) {
+        try {
+            byte[] lettreMotivation = employeurService.getLettreMotivationPourCandidature(id);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"lettre-motivation.pdf\"")
+                    .header("Content-Type", "application/pdf")
+                    .body(lettreMotivation);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
