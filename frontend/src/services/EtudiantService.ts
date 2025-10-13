@@ -169,7 +169,7 @@ class EtudiantService {
             });
 
             if (!response.ok) {
-                throw new Error("Erreur lors du téléchargement du CV.");
+                throw new Error("Erreur lors du visionnement du CV.");
             }
 
             const blob = await response.blob();
