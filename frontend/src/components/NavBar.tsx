@@ -1,7 +1,7 @@
 // src/components/NavBar.tsx - Version avec liens pour Gestionnaire
 import { useNavigate, NavLink } from "react-router-dom";
-import { LogOut, Menu, X, FileText, Briefcase } from "lucide-react";
-import { useState } from "react";
+import { LogOut, Menu, X, FileText, Briefcase, User } from "lucide-react";
+import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,26 @@ const NavBar = () => {
     const role = sessionStorage.getItem("userType");
     const { t } = useTranslation(['navbar']);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [userFullName, setUserFullName] = useState('');
+
+    useEffect(() => {
+        if (isConnected) {
+            try {
+                const userData = sessionStorage.getItem('userData');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    const prenom = user.prenom || '';
+                    const nom = user.nom || '';
+                    const fullName = `${prenom} ${nom}`.trim();
+                    if (fullName) {
+                        setUserFullName(fullName);
+                    }
+                }
+            } catch (e) {
+                console.warn('Unable to parse userData', e);
+            }
+        }
+    }, [isConnected]);
 
     const handleLogout = async () => {
         await utilisateurService.deconnexion();
@@ -23,14 +43,26 @@ const NavBar = () => {
             <nav className="bg-gradient-to-r m-4 rounded-2xl from-blue-600 to-blue-700 shadow-lg shadow-blue-500/20 backdrop-blur-md border border-white/10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
-                        {/* Logo et titre */}
-                        <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md">
-                                <span className="text-blue-600 font-bold text-xl">📚</span>
+                        {/* Logo, titre et nom utilisateur */}
+                        <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md">
+                                    <span className="text-blue-600 font-bold text-xl">📚</span>
+                                </div>
+                                <span className="font-bold text-xl text-white tracking-tight">
+                                    Overd-OSE
+                                </span>
                             </div>
-                            <span className="font-bold text-xl text-white tracking-tight">
-                                Overd-OSE
-                            </span>
+
+                            {/* User name display - Desktop */}
+                            {isConnected && userFullName && (
+                                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                                    <User className="w-4 h-4 text-white/80" />
+                                    <span className="text-white/90 font-medium text-sm">
+                                        {userFullName}
+                                    </span>
+                                </div>
+                            )}
                         </div>
 
                         {/* Desktop menu */}
@@ -100,6 +132,16 @@ const NavBar = () => {
                 {mobileMenuOpen && (
                     <div className="md:hidden bg-blue-700 border-t border-white/10">
                         <div className="px-4 py-4 space-y-3">
+                            {/* User name display - Mobile */}
+                            {isConnected && userFullName && (
+                                <div className="flex items-center gap-2 px-4 py-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 mb-2">
+                                    <User className="w-4 h-4 text-white/80" />
+                                    <span className="text-white/90 font-medium text-sm">
+                                        {userFullName}
+                                    </span>
+                                </div>
+                            )}
+
                             {/* Liens pour GESTIONNAIRE (Mobile) */}
                             {isConnected && role === "GESTIONNAIRE" && (
                                 <>
