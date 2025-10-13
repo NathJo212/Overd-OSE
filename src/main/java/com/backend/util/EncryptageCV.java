@@ -12,7 +12,7 @@ import java.util.Base64;
 
 @Component
 public class EncryptageCV {
-    public SecretKey chargerCleDepuisKeyStore() throws Exception {
+    private SecretKey chargerCleDepuisKeyStore() throws Exception {
         String keystorePath = "keystore.jks";
         String keystorePassword = System.getenv("KEYSTORE_PASSWORD");
         String keyAlias = "cle_travail";
