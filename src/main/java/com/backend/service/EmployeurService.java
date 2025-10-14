@@ -140,10 +140,6 @@ public class EmployeurService {
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
 
-        if (!candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
-            throw new ActionNonAutoriseeException();
-        }
-
         return new CandidatureDTO().toDTO(candidature);
     }
 
@@ -154,10 +150,6 @@ public class EmployeurService {
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
-
-        if (!candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
-            throw new ActionNonAutoriseeException();
-        }
 
         Etudiant etudiant = candidature.getEtudiant();
 
@@ -180,10 +172,6 @@ public class EmployeurService {
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
-
-        if (!candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
-            throw new ActionNonAutoriseeException();
-        }
 
         if (candidature.getLettreMotivation() == null ||
                 candidature.getLettreMotivation().length == 0) {

@@ -1,6 +1,7 @@
 package com.backend.controller;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
+import com.backend.Exceptions.CandidatureNonTrouveeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.service.DTO.*;
@@ -87,7 +88,7 @@ public class EmployeurController {
             return ResponseEntity.ok(candidature);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (IllegalArgumentException e) {
+        } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -105,7 +106,7 @@ public class EmployeurController {
                     .body(cv);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (IllegalArgumentException e) {
+        } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -123,7 +124,7 @@ public class EmployeurController {
                     .body(lettreMotivation);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (IllegalArgumentException e) {
+        } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
