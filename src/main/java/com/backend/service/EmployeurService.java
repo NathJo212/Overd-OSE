@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -216,5 +215,37 @@ public class EmployeurService {
         convocationEntrevueRepository.save(convocation);
         candidature.setConvocationEntrevue(convocation);
         candidatureRepository.save(candidature);
+    }
+
+    @Transactional
+    public void modifierConvocation(ConvocationEntrevueDTO dto) throws CandidatureNonTrouveeException {
+        Candidature candidature = candidatureRepository.findById(dto.candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
+        if (convocation == null) {
+            throw new CandidatureNonTrouveeException();
+        }
+
+        if (dto.getDateHeure() != null) convocation.setDateHeure(dto.getDateHeure());
+        if (dto.lieuOuLien != null) convocation.setLieuOuLien(dto.lieuOuLien);
+        if (dto.message != null) convocation.setMessage(dto.message);
+        convocation.setStatut(ConvocationEntrevue.StatutConvocation.MODIFIE);
+
+        convocationEntrevueRepository.save(convocation);
+    }
+
+    @Transactional
+    public void annulerConvocation(Long candidatureId) throws CandidatureNonTrouveeException {
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
+        if (convocation == null) {
+            throw new CandidatureNonTrouveeException();
+        }
+
+        convocation.setStatut(ConvocationEntrevue.StatutConvocation.ANNULEE);
+        convocationEntrevueRepository.save(convocation);
     }
 }

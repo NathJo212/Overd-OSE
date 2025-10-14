@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "convocation_entrevue")
 @Getter
+@Setter
 @NoArgsConstructor
 public class ConvocationEntrevue {
 

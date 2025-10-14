@@ -150,4 +150,30 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse("INTERNAL_ERROR", e.getMessage())));
         }
     }
+    @PutMapping("/candidatures/convocation")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> modifierConvocation(@RequestBody ConvocationEntrevueDTO dto){
+        try{
+            employeurService.modifierConvocation(dto);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new MessageRetourDTO("Convocation modifiée avec succès", null));
+        } catch (CandidatureNonTrouveeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+        }
+    }
+
+    @PutMapping("/candidatures/{id}/convocation/annuler")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> annulerConvocation(@PathVariable Long id){
+        try{
+            employeurService.annulerConvocation(id);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new MessageRetourDTO("Convocation annulée avec succès", null));
+        } catch (CandidatureNonTrouveeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+        }
+    }
+
 }
