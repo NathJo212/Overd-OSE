@@ -1,27 +1,32 @@
 package com.backend.service;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.Exceptions.*;
 import com.backend.config.JwtTokenProvider;
-import com.backend.modele.Employeur;
-import com.backend.modele.Offre;
-import com.backend.modele.Programme;
+import com.backend.modele.*;
+import com.backend.persistence.CandidatureRepository;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.util.EncryptageCV;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -44,6 +49,18 @@ public class EmployeurServiceTest {
 
     @InjectMocks
     private EmployeurService employeurService;
+
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private EncryptageCV encryptageCV;
+
+    @Mock
+    private CandidatureRepository candidatureRepository;
+
+    @Mock
+    private Authentication authentication;
 
     @Test
     public void testCreationEmployeur() throws MotPasseInvalideException {
@@ -143,7 +160,7 @@ public class EmployeurServiceTest {
         verify(jwtTokenProvider, times(1)).isEmployeur(anyString(), any());
         verify(employeurRepository, times(1)).findByEmail("employeur@test.com");
         verify(offreRepository, times(1)).findOffreByEmployeurId(employeur.getId());
-        org.junit.jupiter.api.Assertions.assertEquals(2, result.size());
+        assertEquals(2, result.size());
     }
 
     @Test

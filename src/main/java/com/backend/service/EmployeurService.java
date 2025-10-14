@@ -96,26 +96,30 @@ public class EmployeurService {
         return offres.stream().map(offreDTO::toDTO).toList();
     }
 
-    // Add this helper method to EmployeurService (similar to getEtudiantConnecte)
     public Employeur getEmployeurConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
         boolean isEmployeur = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("EMPLOYEUR"));
+
         if (!isEmployeur) {
             throw new ActionNonAutoriseeException();
         }
+
         String email = auth.getName();
         Employeur employeur = employeurRepository.findByEmail(email);
+
         if (employeur == null) {
             throw new UtilisateurPasTrouveException();
         }
+
         return employeur;
     }
 
     @Transactional
-    public List<CandidatureDTO> getCandidaturesPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<CandidatureDTO> getCandidaturesPourEmployeur()
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
-
         List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
 
         List<Candidature> candidatures = new ArrayList<>();
@@ -129,11 +133,12 @@ public class EmployeurService {
     }
 
     @Transactional
-    public CandidatureDTO getCandidatureSpecifique(Long candidatureId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public CandidatureDTO getCandidatureSpecifique(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonTrouveeException {
         Employeur employeur = getEmployeurConnecte();
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
-                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+                .orElseThrow(CandidatureNonTrouveeException::new);
 
         if (!candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
@@ -144,57 +149,59 @@ public class EmployeurService {
 
     @Transactional
     public byte[] getCvPourCandidature(Long candidatureId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CVNonExistantException, CandidatureNonTrouveeException {
         Employeur employeur = getEmployeurConnecte();
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
-                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+                .orElseThrow(CandidatureNonTrouveeException::new);
 
-        // Verify this candidature belongs to an offre owned by this employer
         if (!candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
 
         Etudiant etudiant = candidature.getEtudiant();
 
-        // Force the fetch by accessing a property
-        etudiant.getEmail(); // This ensures the entity is loaded
-
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
-            throw new IllegalArgumentException("CV non trouvé pour cette candidature");
+            throw new CVNonExistantException();
         }
 
         try {
             String cvChiffre = new String(etudiant.getCv(), StandardCharsets.UTF_8);
             return encryptageCV.dechiffrer(cvChiffre);
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du déchiffrement du CV: " + e.getMessage(), e);
+            throw new CVNonExistantException();
         }
     }
 
     @Transactional
     public byte[] getLettreMotivationPourCandidature(Long candidatureId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CVNonExistantException, CandidatureNonTrouveeException {
         Employeur employeur = getEmployeurConnecte();
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
-                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+                .orElseThrow(CandidatureNonTrouveeException::new);
 
-        // Verify this candidature belongs to an offre owned by this employer
         if (!candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
 
-        if (candidature.getLettreMotivation() == null || candidature.getLettreMotivation().length == 0) {
-            throw new IllegalArgumentException("Lettre de motivation non trouvée pour cette candidature");
+        if (candidature.getLettreMotivation() == null ||
+                candidature.getLettreMotivation().length == 0) {
+            throw new CVNonExistantException();
         }
 
         try {
-            String lettreChiffree = new String(candidature.getLettreMotivation(), StandardCharsets.UTF_8);
+            String lettreChiffree = new String(candidature.getLettreMotivation(),
+                    StandardCharsets.UTF_8);
             return encryptageCV.dechiffrer(lettreChiffree);
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du déchiffrement de la lettre de motivation: " + e.getMessage(), e);
+            throw new CVNonExistantException();
         }
+    }
+
+    private String extractEmailFromToken(String token) {
+        String cleanToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+        return jwtTokenProvider.getEmailFromJWT(cleanToken);
     }
 
 

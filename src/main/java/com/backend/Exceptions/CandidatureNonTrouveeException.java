@@ -1,7 +1,13 @@
 package com.backend.Exceptions;
 
+import lombok.Getter;
+
+@Getter
 public class CandidatureNonTrouveeException extends RuntimeException {
-  public CandidatureNonTrouveeException(String message) {
-    super(message);
-  }
+    private final ErrorCode errorCode;
+
+    public CandidatureNonTrouveeException() {
+        super("Candidature non trouvée");
+        this.errorCode = ErrorCode.CANDIDATURE_NOT_FOUND;
+    }
 }
