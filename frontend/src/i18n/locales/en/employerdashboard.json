@@ -9,7 +9,7 @@
   "status": {
     "refused": "Refused",
     "approved": "Approved",
-    "pending": "Pending"
+    "pending": "Pending for approval"
   },
   "clickToSeeRefuseReason": "Click to see the reason for refusal",
   "start": "Start",
@@ -27,4 +27,3 @@
     "welcomeLogin": "Login successful! Welcome to your dashboard."
   }
 }
-

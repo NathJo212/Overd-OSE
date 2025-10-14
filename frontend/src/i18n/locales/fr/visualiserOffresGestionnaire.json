@@ -1,10 +1,10 @@
 {
   "title": "Visualiser toutes les offres",
   "subtitle": "Consultez et filtrez toutes les offres de stage selon leur statut",
-  "textFilter": "Trier par statut",
+  "textFilter": "Filtrer par statut",
   "filters": {
     "all": "Toutes",
-    "pending": "En attente",
+    "pending": "En attente d'approbation",
     "approved": "Approuvées",
     "refused": "Refusées",
     "expired": "Expirées"
@@ -16,7 +16,7 @@
     "approved": "approuvée",
     "refused": "refusée",
     "expired": "expirée",
-    "pending": "en attente"
+    "pending": "En attente d'approbation"
   },
   "start": "Début:",
   "end": "Fin:",

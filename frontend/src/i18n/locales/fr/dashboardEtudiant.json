@@ -2,8 +2,7 @@
   "welcome": "Bienvenue sur votre espace étudiant",
   "subtitle": "Gérez votre profil et découvrez les opportunités de stage disponibles",
   "notifications": {
-    "registration": "Bienvenue ! Votre compte a été créé et vous êtes connecté avec succès.",
-    "login": "Connexion réussie ! Bienvenue sur votre tableau de bord."
+    "registration": "Bienvenue ! Votre compte a été créé et vous êtes connecté avec succès."
   },
   "cards": {
     "cv": {

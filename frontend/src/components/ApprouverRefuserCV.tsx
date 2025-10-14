@@ -219,7 +219,7 @@ const ApprouverRefuserCV = () => {
                                         <div className="flex flex-col sm:flex-row gap-3">
                                             <button
                                                 onClick={() => handleViewCV(etudiant)}
-                                                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium flex items-center justify-center gap-2"
+                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center justify-center gap-2"
                                             >
                                                 <FileText className="h-4 w-4" />
                                                 {t("cvmanager:actions.viewCV")}

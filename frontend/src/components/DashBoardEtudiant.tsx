@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { CheckCircle, X, Upload, FileText } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
@@ -8,7 +8,7 @@ import OffresApprouvees from "./OffresApprouvees.tsx";
 const DashBoardEtudiant = () => {
     const { t } = useTranslation('dashboardEtudiant');
     const navigate = useNavigate();
-    useLocation();
+    const [userFullName, setUserFullName] = useState('');
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
 
@@ -19,18 +19,32 @@ const DashBoardEtudiant = () => {
             return;
         }
 
+        // Récupérer le nom complet de l'utilisateur
+        try {
+            const userData = sessionStorage.getItem('userData');
+            if (userData) {
+                const user = JSON.parse(userData);
+                const prenom = user.prenom || '';
+                const nom = user.nom || '';
+                const fullName = `${prenom} ${nom}`.trim();
+                if (fullName) {
+                    setUserFullName(fullName);
+                }
+            }
+        } catch (e) {
+            console.warn('Unable to parse userData', e);
+        }
+
         const fromRegistration = sessionStorage.getItem('fromRegistration');
-        const fromLogin = sessionStorage.getItem('fromLogin');
 
         if (fromRegistration === 'true') {
             setNotificationMessage(t('notifications.registration'));
             setShowNotification(true);
             sessionStorage.removeItem('fromRegistration');
-        } else if (fromLogin === 'true') {
-            setNotificationMessage(t('notifications.login'));
-            setShowNotification(true);
-            sessionStorage.removeItem('fromLogin');
         }
+
+        // Nettoyer le flag de login sans afficher de notification
+        sessionStorage.removeItem('fromLogin');
 
         if (showNotification) {
             const timer = setTimeout(() => {
@@ -82,7 +96,7 @@ const DashBoardEtudiant = () => {
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {t('welcome')}
+                        {t('welcome')}{userFullName && `, ${userFullName}`}!
                     </h1>
                     <p className="text-gray-600">
                         {t('subtitle')}

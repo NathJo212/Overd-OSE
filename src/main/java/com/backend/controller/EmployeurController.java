@@ -2,6 +2,7 @@ package com.backend.controller;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.CandidatureNonTrouveeException;
+import com.backend.Exceptions.DateInvalideException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.service.DTO.*;
@@ -53,6 +54,10 @@ public class EmployeurController {
         } catch (ActionNonAutoriseeException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (DateInvalideException e) {
+            // Date invalid (e.g. end before start) -> return validation-style error
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         }
     }
 
