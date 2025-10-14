@@ -1,9 +1,6 @@
 package com.backend.service;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.Exceptions.UtilisateurPasTrouveException;
+import com.backend.Exceptions.*;
 import com.backend.modele.Candidature;
 import com.backend.modele.Etudiant;
 import com.backend.modele.Offre;
@@ -77,19 +74,19 @@ public class EtudiantService {
     public CvDTO getCvEtudiantConnecte() throws Exception {
         Etudiant etudiant = getEtudiantConnecte();
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
-            throw new RuntimeException("CV non trouvé pour l'étudiant");
+            throw new CVNonExistantException();
         }
         String cvChiffre = new String(etudiant.getCv());
         byte[] cvDechiffre = encryptageCV.dechiffrer(cvChiffre);
         return new CvDTO(cvDechiffre);
     }
 
-    public void verifierFichierPdf(MultipartFile fichier) {
+    public void verifierFichierPdf(MultipartFile fichier) throws CvNonApprouveException {
         if (!"application/pdf".equalsIgnoreCase(fichier.getContentType())) {
-            throw new IllegalArgumentException("Le fichier doit être au format PDF.");
+            throw new CvNonApprouveException();
         }
         if (!fichier.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
-            throw new IllegalArgumentException("L'extension du fichier doit être .pdf.");
+            throw new CvNonApprouveException();
         }
     }
 
@@ -129,22 +126,22 @@ public class EtudiantService {
         Etudiant etudiant = getEtudiantConnecte();
 
         if (etudiant.getStatutCV() != Etudiant.StatutCV.APPROUVE) {
-            throw new IllegalStateException("Votre CV doit être approuvé avant de postuler");
+            throw new CvNonApprouveException();
         }
 
         Offre offre = offreRepository.findById(offreId)
-                .orElseThrow(() -> new IllegalArgumentException("Offre non trouvée"));
+                .orElseThrow(OffreNonDisponible::new);
 
         if (offre.getStatutApprouve() != Offre.StatutApprouve.APPROUVE) {
-            throw new IllegalStateException("Cette offre n'est pas disponible pour les candidatures");
+            throw new OffreNonDisponible();
         }
 
         if (offre.getDateLimite() != null && LocalDate.now().isAfter(offre.getDateLimite())) {
-            throw new IllegalStateException("La date limite de candidature est dépassée");
+            throw new OffreNonDisponible();
         }
 
         if (candidatureRepository.existsByEtudiantAndOffre(etudiant, offre)) {
-            throw new IllegalStateException("Vous avez déjà postulé à cette offre");
+            throw new OffreNonDisponible();
         }
 
         byte[] lettreMotivationChiffree = null;
@@ -175,66 +172,66 @@ public class EtudiantService {
 
     @Transactional
     public byte[] getCvPourCandidature(Long candidatureId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException {
         Etudiant etudiant = getEtudiantConnecte();
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
-                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+                .orElseThrow(CandidatureNonDisponibleException::new);
 
         if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
             throw new ActionNonAutoriseeException();
         }
 
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
-            throw new IllegalArgumentException("CV non trouvé pour cette candidature");
+            throw new CVNonExistantException();
         }
 
         try {
             String cvChiffre = new String(etudiant.getCv());
             return encryptageCV.dechiffrer(cvChiffre);
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du déchiffrement du CV", e);
+            throw new CVNonExistantException();
         }
     }
 
     @Transactional
     public byte[] getLettreMotivationPourCandidature(Long candidatureId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException, LettreDeMotivationNonDisponibleException {
         Etudiant etudiant = getEtudiantConnecte();
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
-                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+                .orElseThrow(CandidatureNonDisponibleException::new);
 
         if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
             throw new ActionNonAutoriseeException();
         }
 
         if (candidature.getLettreMotivation() == null || candidature.getLettreMotivation().length == 0) {
-            throw new IllegalArgumentException("Lettre de motivation non trouvée pour cette candidature");
+            throw new LettreDeMotivationNonDisponibleException();
         }
 
         try {
             String lettreChiffree = new String(candidature.getLettreMotivation(), StandardCharsets.UTF_8);
             return encryptageCV.dechiffrer(lettreChiffree);
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du déchiffrement de la lettre de motivation", e);
+            throw new LettreDeMotivationNonDisponibleException();
         }
     }
 
     @Transactional
     public void retirerCandidature(Long candidatureId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException {
         Etudiant etudiant = getEtudiantConnecte();
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
-                .orElseThrow(() -> new IllegalArgumentException("Candidature non trouvée"));
+                .orElseThrow(CandidatureNonDisponibleException::new);
 
         if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
             throw new ActionNonAutoriseeException();
         }
 
         if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE) {
-            throw new IllegalStateException("Seules les candidatures en attente peuvent être retirées");
+            throw new CandidatureNonDisponibleException();
         }
 
         candidature.setStatut(Candidature.StatutCandidature.RETIREE);
@@ -242,10 +239,10 @@ public class EtudiantService {
     }
 
     public boolean aPostuleOffre(Long offreId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, OffreNonExistantException {
         Etudiant etudiant = getEtudiantConnecte();
         Offre offre = offreRepository.findById(offreId)
-                .orElseThrow(() -> new IllegalArgumentException("Offre non trouvée"));
+                .orElseThrow(OffreNonExistantException::new);
         return candidatureRepository.existsByEtudiantAndOffre(etudiant, offre);
     }
 

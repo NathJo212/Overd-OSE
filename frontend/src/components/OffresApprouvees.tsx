@@ -1,8 +1,9 @@
 import {useEffect, useState} from "react";
-import {ArrowUpDown, ChevronDown, Search, SlidersHorizontal} from "lucide-react";
+import {ArrowUpDown, ChevronDown, Search, SlidersHorizontal, CheckCircle} from "lucide-react";
 import {useTranslation} from 'react-i18next';
 import etudiantService from "../services/EtudiantService";
 import utilisateurService from "../services/UtilisateurService";
+import ModalPostuler from "./ModalPostuler";
 
 interface EmployeurDTO {
     id?: number;
@@ -34,12 +35,20 @@ const OffresApprouvees = () => {
     const [programmes, setProgrammes] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProgramme, setSelectedProgramme] = useState<string>("TOUS");
     const [sortBy, setSortBy] = useState<string>("datePublication");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const [showFilters, setShowFilters] = useState(false);
+
+    // Modal de postulation
+    const [showPostulerModal, setShowPostulerModal] = useState(false);
+    const [selectedOffre, setSelectedOffre] = useState<OffreDTO | null>(null);
+
+    // Suivre les offres déjà postulées
+    const [offresPostulees, setOffresPostulees] = useState<Set<number>>(new Set());
 
     useEffect(() => {
         chargerDonnees().then();
@@ -61,6 +70,17 @@ const OffresApprouvees = () => {
 
             setOffres(offresData);
             setProgrammes(programmesData);
+
+            // Vérifier pour chaque offre si l'étudiant a déjà postulé
+            const postuleesSet = new Set<number>();
+            for (const offre of offresData) {
+                const aPostule = await etudiantService.aPostuleOffre(offre.id);
+                if (aPostule) {
+                    postuleesSet.add(offre.id);
+                }
+            }
+            setOffresPostulees(postuleesSet);
+
         } catch (err) {
             if (err instanceof Error) {
                 if (err.message.includes('Failed to fetch') || err.message.includes('fetch')) {
@@ -162,6 +182,30 @@ const OffresApprouvees = () => {
         setSortOrder(prev => prev === "asc" ? "desc" : "asc");
     };
 
+    const handlePostulerClick = (offre: OffreDTO) => {
+        setSelectedOffre(offre);
+        setShowPostulerModal(true);
+    };
+
+    const handlePostuler = async (offreId: number, lettreMotivation?: File) => {
+        await etudiantService.postulerOffre(offreId, lettreMotivation);
+    };
+
+    const handlePostulerSuccess = () => {
+        setShowPostulerModal(false);
+        if (selectedOffre) {
+            setOffresPostulees(prev => new Set(prev).add(selectedOffre.id));
+        }
+        setSelectedOffre(null);
+        setSuccessMessage(t('postuler.success') || 'Candidature soumise avec succès !');
+        setTimeout(() => setSuccessMessage(null), 5000);
+    };
+
+    const handleCloseModal = () => {
+        setShowPostulerModal(false);
+        setSelectedOffre(null);
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center py-12">
@@ -186,6 +230,16 @@ const OffresApprouvees = () => {
 
     return (
         <div className="space-y-6">
+            {/* Message de succès */}
+            {successMessage && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <p className="text-sm font-medium text-green-900">{successMessage}</p>
+                    </div>
+                </div>
+            )}
+
             <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
@@ -275,56 +329,85 @@ const OffresApprouvees = () => {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {offresFiltered.map((offre) => (
-                        <div
-                            key={offre.id}
-                            className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
-                        >
-                            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                                <div className="flex-1">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                                        {offre.titre}
-                                    </h3>
-                                    <p className="text-blue-600 font-medium mb-3">
-                                        {offre.employeurDTO.nomEntreprise}
-                                    </p>
-                                    <p className="text-gray-700 text-sm mb-4 line-clamp-2">
-                                        {offre.description}
-                                    </p>
+                    {offresFiltered.map((offre) => {
+                        const aDejaPostule = offresPostulees.has(offre.id);
 
-                                    <div className="flex flex-wrap gap-2">
-                                        <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                                            {getProgrammeLabel(offre.progEtude)}
-                                        </span>
-                                        <span className="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
-                                            {offre.lieuStage}
-                                        </span>
-                                        <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                                            {offre.remuneration}
-                                        </span>
-                                        <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                                            {calculateDuree(offre.date_debut, offre.date_fin)} {t('card.jours')}
-                                        </span>
-                                    </div>
-                                </div>
+                        return (
+                            <div
+                                key={offre.id}
+                                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
+                            >
+                                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                    <div className="flex-1">
+                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                                            {offre.titre}
+                                        </h3>
+                                        <p className="text-blue-600 font-medium mb-3">
+                                            {offre.employeurDTO.nomEntreprise}
+                                        </p>
+                                        <p className="text-gray-700 text-sm mb-4 line-clamp-2">
+                                            {offre.description}
+                                        </p>
 
-                                <div className="lg:w-64 flex flex-col gap-3">
-                                    <div className="text-sm">
-                                        <p className="text-gray-600">
-                                            <span className="font-medium">{t('card.periode')}</span> {offre.date_debut} → {offre.date_fin}
-                                        </p>
-                                        <p className="text-gray-600 mt-1">
-                                            <span className="font-medium">{t('card.dateLimite')}</span> {offre.dateLimite}
-                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                                                {getProgrammeLabel(offre.progEtude)}
+                                            </span>
+                                            <span className="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
+                                                {offre.lieuStage}
+                                            </span>
+                                            <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                                                {offre.remuneration}
+                                            </span>
+                                            <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                                                {calculateDuree(offre.date_debut, offre.date_fin)} {t('card.jours')}
+                                            </span>
+                                            {aDejaPostule && (
+                                                <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-medium rounded-full flex items-center gap-1">
+                                                    <CheckCircle className="w-3 h-3" />
+                                                    {t('card.dejaPostule') || 'Déjà postulé'}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                                        {t('card.postuler')}
-                                    </button>
+
+                                    <div className="lg:w-64 flex flex-col gap-3">
+                                        <div className="text-sm">
+                                            <p className="text-gray-600">
+                                                <span className="font-medium">{t('card.periode')}</span> {offre.date_debut} → {offre.date_fin}
+                                            </p>
+                                            <p className="text-gray-600 mt-1">
+                                                <span className="font-medium">{t('card.dateLimite')}</span> {offre.dateLimite}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => handlePostulerClick(offre)}
+                                            disabled={aDejaPostule}
+                                            className={`w-full px-4 py-2 rounded-lg transition-colors font-medium ${
+                                                aDejaPostule
+                                                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                                            }`}
+                                        >
+                                            {aDejaPostule ? (t('card.dejaPostule') || 'Déjà postulé') : (t('card.postuler') || 'Postuler')}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
+            )}
+
+            {/* Modal de postulation */}
+            {showPostulerModal && selectedOffre && (
+                <ModalPostuler
+                    offreId={selectedOffre.id}
+                    offreTitre={selectedOffre.titre}
+                    onClose={handleCloseModal}
+                    onSuccess={handlePostulerSuccess}
+                    onPostuler={handlePostuler}
+                />
             )}
         </div>
     );

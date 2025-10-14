@@ -261,20 +261,6 @@ class EtudiantService {
         }
     }
 
-
-    /**
-     * Extrait la valeur numérique de la rémunération pour le tri
-     * @param remuneration - La chaîne de rémunération
-     * @returns La valeur numérique
-     */
-    extractRemunerationValue(remuneration: string): number {
-        const match = remuneration.match(/[\d,]+/);
-        if (match) {
-            return parseFloat(match[0].replace(',', '.'));
-        }
-        return 0;
-    }
-
     async getInfosCv(): Promise<{ statutCV?: string; messageRefusCV?: string } | null> {
         try {
             const token = this.getAuthToken();
@@ -316,6 +302,118 @@ class EtudiantService {
             session: formData.session,
             annee: formData.anneeEtude
         };
+    }
+
+    /**
+     * Postuler une offre de stage
+     * @param offreId - L'ID de l'offre
+     * @param lettreMotivation - Fichier PDF de la lettre de motivation (optionnel)
+     * @returns Promise avec la réponse du serveur
+     */
+    async postulerOffre(offreId: number, lettreMotivation?: File): Promise<MessageRetour> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour postuler');
+            }
+
+            const formData = new FormData();
+            formData.append('offreId', offreId.toString());
+
+            if (lettreMotivation) {
+                formData.append('lettreMotivation', lettreMotivation);
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors de la candidature:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la candidature');
+                error.response = {
+                    data: {
+                        erreur: data.erreur
+                    }
+                };
+                throw error;
+            }
+
+            if (!response.ok) {
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = {
+                    data: {
+                        erreur: {
+                            errorCode: 'ERROR_000',
+                            message: error.message
+                        }
+                    }
+                };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * Vérifie si l'étudiant a déjà postulé une offre
+     * @param offreId - L'ID de l'offre
+     * @returns Promise<boolean> - true si déjà postule, false sinon
+     */
+    async aPostuleOffre(offreId: number): Promise<boolean> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                return false;
+            }
+
+            const response = await fetch(`${this.baseUrl}/offres/${offreId}/a-postule`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+
+            if (!response.ok) {
+                return false;
+            }
+
+            const data = await response.json();
+            return data.aPostule || false;
+
+        } catch (error) {
+            console.error('Erreur lors de la vérification de la candidature:', error);
+            return false;
+        }
     }
 }
 
