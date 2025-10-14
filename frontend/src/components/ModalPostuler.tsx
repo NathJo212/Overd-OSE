@@ -73,7 +73,7 @@ const ModalPostuler = ({ offreId, offreTitre, onClose, onSuccess, onPostuler }: 
                 if (e.target === e.currentTarget) onClose();
             }}
         >
-            <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 animate-fade-in">
+            <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 animate-fade-in">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold text-gray-900">
                         {t('offresStageApprouve:postuler.title') || 'Postuler à l\'offre'}
