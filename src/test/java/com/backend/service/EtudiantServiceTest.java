@@ -1,13 +1,11 @@
 package com.backend.service;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
+import com.backend.Exceptions.*;
 import com.backend.modele.*;
 import com.backend.persistence.CandidatureRepository;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.CandidatureDTO;
 import com.backend.util.EncryptageCV;
-import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.Exceptions.UtilisateurPasTrouveException;
 import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.OffreDTO;
@@ -293,6 +291,7 @@ public class EtudiantServiceTest {
 
     @Test
     public void testPostulerOffre_CvNonApprouve_Throw() {
+        // Arrange: student with CV not approved
         Etudiant etudiant = new Etudiant();
         etudiant.setEmail("etudiant@test.com");
         etudiant.setStatutCV(Etudiant.StatutCV.ATTENTE);
@@ -305,10 +304,16 @@ public class EtudiantServiceTest {
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
 
-        assertThrows(IllegalStateException.class,
-                () -> etudiantService.postulerOffre(1L, lettreFile),
-                "Doit refuser car le CV n'est pas approuvé");
+        // Act & Assert: expect CvNonApprouveException
+        CvNonApprouveException exception = assertThrows(
+                CvNonApprouveException.class,
+                () -> etudiantService.postulerOffre(1L, lettreFile)
+        );
+
+        assertEquals("Le CV n'a pas été approuvé", exception.getMessage());
     }
+
+
 
     @Test
     public void testGetMesCandidatures_Succes() throws Exception {
@@ -441,6 +446,7 @@ public class EtudiantServiceTest {
 
     @Test
     public void testGetLettreMotivationPourCandidature_AucuneLettre_Throw() {
+        // Arrange: mock student
         Etudiant etudiant = mock(Etudiant.class);
         lenient().when(etudiant.getId()).thenReturn(1L);
         lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
@@ -454,10 +460,15 @@ public class EtudiantServiceTest {
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
         when(candidatureRepository.findById(5L)).thenReturn(Optional.of(candidature));
 
-        assertThrows(IllegalArgumentException.class,
-                () -> etudiantService.getLettreMotivationPourCandidature(5L),
-                "Doit lancer une exception si la lettre n'existe pas");
+        // Act & Assert: expect LettreDeMotivationNonDisponibleException
+        LettreDeMotivationNonDisponibleException exception = assertThrows(
+                LettreDeMotivationNonDisponibleException.class,
+                () -> etudiantService.getLettreMotivationPourCandidature(5L)
+        );
+
+        assertEquals("Lettre de motivation non disponible", exception.getMessage());
     }
+
 
     @Test
     public void testRetirerCandidature_Succes() throws Exception {
@@ -514,7 +525,7 @@ public class EtudiantServiceTest {
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
         when(candidatureRepository.findById(5L)).thenReturn(Optional.of(candidature));
 
-        assertThrows(IllegalStateException.class,
+        assertThrows(CandidatureNonDisponibleException.class,
                 () -> etudiantService.retirerCandidature(5L),
                 "Ne peut retirer qu'une candidature EN_ATTENTE");
     }
@@ -547,7 +558,7 @@ public class EtudiantServiceTest {
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
         when(offreRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(OffreNonExistantException.class,
                 () -> etudiantService.aPostuleOffre(99L));
     }
 

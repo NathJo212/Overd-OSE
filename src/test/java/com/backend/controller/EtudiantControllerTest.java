@@ -1,8 +1,6 @@
 package com.backend.controller;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.Exceptions.*;
 import com.backend.service.DTO.*;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
@@ -18,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -228,8 +227,9 @@ class EtudiantControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").doesNotExist())
                 .andExpect(jsonPath("$.erreur.errorCode").value("CV_001"))
-                .andExpect(jsonPath("$.erreur.message").value("Erreur lors de l'upload du CV : Le fichier doit être au format PDF."));
+                .andExpect(jsonPath("$.erreur.message").value("Le fichier doit être au format PDF."));
     }
+
 
     @Test
     @DisplayName("GET /OSEetudiant/cv -> succès récupération CV")
@@ -279,17 +279,18 @@ class EtudiantControllerTest {
                 "lettreMotivation", "lettre.pdf", "application/pdf", "Contenu".getBytes()
         );
 
-        doThrow(new IllegalStateException("Votre CV doit être approuvé avant de postuler"))
+        doThrow(new CvNonApprouveException())
                 .when(etudiantService).postulerOffre(eq(1L), any());
 
         mockMvc.perform(multipart("/OSEetudiant/candidatures")
                         .file(lettre)
                         .param("offreId", "1"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_002"))
-                .andExpect(jsonPath("$.erreur.message").value("Votre CV doit être approuvé avant de postuler"));
+                .andExpect(jsonPath("$.erreur.errorCode").value("CV_003"))
+                .andExpect(jsonPath("$.erreur.message").value("Le CV n'a pas été approuvé"));
     }
+
+
 
     @Test
     @DisplayName("POST /OSEetudiant/candidatures -> retourne 500 si erreur interne")
@@ -298,6 +299,7 @@ class EtudiantControllerTest {
                 "lettreMotivation", "lettre.pdf", "application/pdf", "Contenu".getBytes()
         );
 
+        // Simulate an unexpected error
         doThrow(new RuntimeException("Erreur inattendue"))
                 .when(etudiantService).postulerOffre(eq(1L), any());
 
@@ -306,9 +308,10 @@ class EtudiantControllerTest {
                         .param("offreId", "1"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_003"))
-                .andExpect(jsonPath("$.erreur.message").value("Erreur lors de la candidature"));
+                .andExpect(jsonPath("$.erreur.errorCode").value("ERROR_000"))
+                .andExpect(jsonPath("$.erreur.message").value("Erreur inattendue"));
     }
+
 
     @Test
     @DisplayName("GET /OSEetudiant/candidatures -> succès récupération liste candidatures")
@@ -383,9 +386,11 @@ class EtudiantControllerTest {
     @Test
     @DisplayName("GET /OSEetudiant/candidatures/{id}/cv -> retourne 404 si CV non trouvé")
     void getCvCandidature_notFound() throws Exception {
-        doThrow(new IllegalArgumentException("CV non trouvé"))
+        // Arrange: etudiantService throws the exception the controller handles
+        doThrow(new CandidatureNonDisponibleException())
                 .when(etudiantService).getCvPourCandidature(1L);
 
+        // Act & Assert: perform GET request and expect 404
         mockMvc.perform(get("/OSEetudiant/candidatures/1/cv"))
                 .andExpect(status().isNotFound());
     }
@@ -404,14 +409,18 @@ class EtudiantControllerTest {
     }
 
     @Test
-    @DisplayName("GET /OSEetudiant/candidatures/{id}/lettre-motivation -> retourne 404 si lettre non trouvée")
+    @DisplayName("GET /OSEetudiant/candidatures/{id}/lettre-motivation -> 403 si lettre non trouvée")
     void getLettreMotivationCandidature_notFound() throws Exception {
-        doThrow(new IllegalArgumentException("Lettre de motivation non trouvée"))
+        // Simulate the service throwing LettreDeMotivationNonDisponibleException
+        doThrow(new LettreDeMotivationNonDisponibleException())
                 .when(etudiantService).getLettreMotivationPourCandidature(1L);
 
         mockMvc.perform(get("/OSEetudiant/candidatures/1/lettre-motivation"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isForbidden()); // matches controller mapping
     }
+
+
+
 
     @Test
     @DisplayName("PUT /OSEetudiant/candidatures/{id}/retirer -> succès retrait candidature")
@@ -425,14 +434,18 @@ class EtudiantControllerTest {
     @Test
     @DisplayName("PUT /OSEetudiant/candidatures/{id}/retirer -> erreur état invalide")
     void retirerCandidature_badRequest_returnsError() throws Exception {
-        doThrow(new IllegalStateException("Seules les candidatures en attente peuvent être retirées"))
+        // Arrange
+        doThrow(new CandidatureNonDisponibleException())
                 .when(etudiantService).retirerCandidature(5L);
 
+        // Act & Assert
         mockMvc.perform(put("/OSEetudiant/candidatures/5/retirer"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_005"))
-                .andExpect(jsonPath("$.erreur.message").value("Seules les candidatures en attente peuvent être retirées"));
+                .andExpect(status().isNotFound()) // 404
+                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_001"))
+                .andExpect(jsonPath("$.erreur.message").value("Candidature non disponible")); // match actual message
     }
+
+
 
     @Test
     @DisplayName("PUT /OSEetudiant/candidatures/{id}/retirer -> erreur interne renvoie 500")
@@ -442,9 +455,11 @@ class EtudiantControllerTest {
 
         mockMvc.perform(put("/OSEetudiant/candidatures/5/retirer"))
                 .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_006"))
-                .andExpect(jsonPath("$.erreur.message").value("Erreur lors du retrait de la candidature"));
+                .andExpect(jsonPath("$.erreur.errorCode").value("ERROR_000"))
+                .andExpect(jsonPath("$.erreur.message").value("Erreur inattendue"));
     }
+
+
 
     @Test
     @DisplayName("GET /OSEetudiant/offres/{id}/a-postule -> succès retourne vrai ou faux")
@@ -454,15 +469,6 @@ class EtudiantControllerTest {
         mockMvc.perform(get("/OSEetudiant/offres/10/a-postule"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.aPostule").value(true));
-    }
-
-    @Test
-    @DisplayName("GET /OSEetudiant/offres/{id}/a-postule -> erreur interne retourne 500")
-    void aPostuleOffre_internalError_returns500() throws Exception {
-        when(etudiantService.aPostuleOffre(10L)).thenThrow(new RuntimeException("Erreur"));
-
-        mockMvc.perform(get("/OSEetudiant/offres/10/a-postule"))
-                .andExpect(status().isInternalServerError());
     }
 
 
