@@ -10,6 +10,7 @@
   "OFFER_002": "Cette offre a déjà été vérifiée",
   "CV_001": "Erreur lors du téléversement du CV",
   "CV_002": "Ce CV a déjà été vérifié",
+  "CV_003": "Votre CV n'est pas encore approuvé. Veuillez attendre l'approbation avant de postuler.",
   "ERROR_000": "Une erreur est survenue",
   "NETWORK_ERROR": "Erreur de connexion au serveur"
 }
