@@ -8,6 +8,7 @@
   "AUTHORIZATION_001": "Action non autorisée",
   "OFFER_001": "Offre non trouvée",
   "OFFER_002": "Cette offre a déjà été vérifiée",
+  "OFFER_003": "La date de fin doit être postérieure à la date de début",
   "CV_001": "Erreur lors du téléversement du CV",
   "CV_002": "Ce CV a déjà été vérifié",
   "CV_003": "Votre CV n'est pas encore approuvé. Veuillez attendre l'approbation avant de postuler.",

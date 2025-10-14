@@ -9,7 +9,7 @@
   "status": {
     "refused": "Refusée",
     "approved": "Approuvée",
-    "pending": "En attente"
+    "pending": "En attente d'approbation"
   },
   "clickToSeeRefuseReason": "Cliquez pour voir la raison du refus",
   "start": "Début",
@@ -27,4 +27,3 @@
     "welcomeLogin": "Connexion réussie ! Bienvenue sur votre tableau de bord."
   }
 }
-

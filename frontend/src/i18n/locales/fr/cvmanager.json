@@ -11,7 +11,7 @@
     "session": "Session:"
   },
   "messages": {
-    "pending": "En attente",
+    "pending": "En attente d'approbation",
     "noResumes": "Aucun CV en attente.",
     "approvedSuccess": "CV approuvé avec succès",
     "refusedSuccess": "CV refusé avec succès",

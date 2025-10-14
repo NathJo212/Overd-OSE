@@ -1,6 +1,5 @@
 import {useEffect, useState} from 'react'
-import { useNavigate } from 'react-router-dom'
-import { NavLink } from "react-router"
+import { useNavigate, NavLink } from 'react-router'
 import { LogIn, Mail, Lock, CheckCircle, AlertCircle } from 'lucide-react'
 import utilisateurService from '../services/UtilisateurService'
 import * as React from "react";
@@ -122,6 +121,48 @@ const Login = () => {
 
             // Erreur inconnue
             else {
+                setBackendErrorCodes(['ERROR_000']);
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleTestLogin = async (userType: 'EMPLOYEUR' | 'ETUDIANT' | 'GESTIONNAIRE') => {
+        setLoading(true)
+        setValidationErrors([])
+        setBackendErrorCodes([])
+        setSuccessMessage('')
+
+        let testCredentials: FormData
+        if (userType === 'EMPLOYEUR') {
+            testCredentials = { email: 'mon@employeur.com', password: 'Employeur123%' }
+        } else if (userType === 'ETUDIANT') {
+            testCredentials = { email: 'etudiant@example.com', password: 'Etudiant128&' }
+        } else {
+            testCredentials = { email: 'gestionnaire@example.com', password: 'Gestion128&' }
+        }
+
+        try {
+            const loginData = utilisateurService.formatLoginDataForAPI(testCredentials)
+            const authResponse = await utilisateurService.authentifier(loginData)
+
+            if (authResponse) {
+                setSuccessMessage(t('login:messages.success'))
+                sessionStorage.setItem('fromLogin', 'true');
+
+                setTimeout(() => {
+                    navigate(userType === 'EMPLOYEUR' ? '/dashboard-employeur' :
+                            userType === 'ETUDIANT' ? '/dashboard-etudiant' :
+                            '/offres-stages-gestionnaire')
+                }, 1500)
+            }
+
+        } catch (error: any) {
+            console.error('Erreur lors de la connexion test:', error);
+            if (error.code === 'ERR_NETWORK') {
+                setBackendErrorCodes(['NETWORK_ERROR']);
+            } else {
                 setBackendErrorCodes(['ERROR_000']);
             }
         } finally {
@@ -260,6 +301,38 @@ const Login = () => {
                             )}
                         </button>
                     </form>
+
+                    {/* Quick-login buttons (dev only) */}
+                    <div className="mt-6">
+                        <p className="text-sm text-slate-600 mb-2">Comptes de test — développement seulement :</p>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                disabled={loading}
+                                onClick={() => handleTestLogin('EMPLOYEUR')}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
+                            >
+                                Se connecter en tant qu'Employeur
+                            </button>
+                            <button
+                                type="button"
+                                disabled={loading}
+                                onClick={() => handleTestLogin('ETUDIANT')}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
+                            >
+                                Se connecter en tant qu'Étudiant
+                            </button>
+                            <button
+                                type="button"
+                                disabled={loading}
+                                onClick={() => handleTestLogin('GESTIONNAIRE')}
+                                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
+                            >
+                                Se connecter en tant que Gestionnaire
+                            </button>
+                        </div>
+                        <p className="text-xs text-rose-600 mt-2">Pour tests seulement — ne pas utiliser en production.</p>
+                    </div>
 
                     {/* Lien d'inscription */}
                     <div className="mt-6 pt-6 border-t border-gray-200 text-center">

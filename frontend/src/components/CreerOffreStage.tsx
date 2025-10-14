@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 const CreerOffreStage = () => {
     const { t } = useTranslation(["offercreate"]);
+    const { t: tErrors } = useTranslation('errors');
     const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
 
@@ -105,17 +106,35 @@ const CreerOffreStage = () => {
             const responseData = error.response?.data;
 
             if (!responseData) {
-                setErrors(['Une erreur est survenue']);
+                setErrors([tErrors('ERROR_000')]);
                 return;
             }
 
             if (responseData.erreur?.errorCode) {
-                setErrors([`Erreur: ${responseData.erreur.message || responseData.erreur.errorCode}`]);
+                const code = responseData.erreur.errorCode;
+                const backendMessage = responseData.erreur.message;
+                const translated = tErrors(code);
+                // tErrors returns the key when missing; prefer backend message if present
+                if (backendMessage) {
+                    setErrors([backendMessage]);
+                } else if (translated && translated !== code) {
+                    setErrors([translated]);
+                } else {
+                    setErrors([code]);
+                }
+                return;
             }
-        } finally {
-            setLoading(false);
-        }
-    };
+
+            if (responseData.errorResponse?.errorCode) {
+                const code = responseData.errorResponse.errorCode;
+                const translated = tErrors(code);
+                setErrors([translated && translated !== code ? translated : code]);
+                return;
+            }
+         } finally {
+             setLoading(false);
+         }
+     };
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -345,3 +364,4 @@ const CreerOffreStage = () => {
 };
 
 export default CreerOffreStage;
+

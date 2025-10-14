@@ -21,7 +21,8 @@
       "subtitle": "Your resume is available",
       "available": "Resume available",
       "canApply": "You can apply for internship offers with this resume",
-      "downloadButton": "Download my resume"
+      "previewButton": "View my resume",
+      "previewTitle": "My resume"
     },
 
     "info": {

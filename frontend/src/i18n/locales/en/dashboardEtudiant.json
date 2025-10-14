@@ -2,8 +2,7 @@
   "welcome": "Welcome to your student portal",
   "subtitle": "Manage your profile and discover available internship opportunities",
   "notifications": {
-    "registration": "Welcome! Your account has been created and you are successfully logged in.",
-    "login": "Login successful! Welcome to your dashboard."
+    "registration": "Welcome! Your account has been created and you are successfully logged in."
   },
   "cards": {
     "cv": {
