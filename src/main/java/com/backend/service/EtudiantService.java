@@ -1,19 +1,15 @@
 package com.backend.service;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.Exceptions.UtilisateurPasTrouveException;
+import com.backend.Exceptions.*;
+import com.backend.modele.Candidature;
 import com.backend.modele.Etudiant;
 import com.backend.modele.Offre;
 import com.backend.modele.Programme;
+import com.backend.persistence.CandidatureRepository;
 import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.UtilisateurRepository;
-import com.backend.service.DTO.CvDTO;
+import com.backend.service.DTO.*;
 import com.backend.persistence.OffreRepository;
-import com.backend.service.DTO.OffreDTO;
-import com.backend.service.DTO.ProgrammeDTO;
-import com.backend.service.DTO.StatutCvDTO;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
@@ -22,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -33,13 +32,15 @@ public class EtudiantService {
     private final OffreRepository offreRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final EncryptageCV encryptageCV;
+    private final CandidatureRepository candidatureRepository;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository,  EncryptageCV encryptageCV) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.encryptageCV = encryptageCV;
+        this.candidatureRepository = candidatureRepository;
     }
 
     @Transactional
@@ -73,19 +74,19 @@ public class EtudiantService {
     public CvDTO getCvEtudiantConnecte() throws Exception {
         Etudiant etudiant = getEtudiantConnecte();
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
-            throw new RuntimeException("CV non trouvé pour l'étudiant");
+            throw new CVNonExistantException();
         }
         String cvChiffre = new String(etudiant.getCv());
         byte[] cvDechiffre = encryptageCV.dechiffrer(cvChiffre);
         return new CvDTO(cvDechiffre);
     }
 
-    public void verifierFichierPdf(MultipartFile fichier) {
+    public void verifierFichierPdf(MultipartFile fichier) throws CvNonApprouveException {
         if (!"application/pdf".equalsIgnoreCase(fichier.getContentType())) {
-            throw new IllegalArgumentException("Le fichier doit être au format PDF.");
+            throw new CvNonApprouveException();
         }
         if (!fichier.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
-            throw new IllegalArgumentException("L'extension du fichier doit être .pdf.");
+            throw new CvNonApprouveException();
         }
     }
 
@@ -118,4 +119,131 @@ public class EtudiantService {
         dto.setMessageRefusCV(etudiant.getMessageRefusCV());
         return dto;
     }
+
+    @Transactional
+    public CandidatureDTO postulerOffre(Long offreId, MultipartFile lettreMotivationFichier)
+            throws Exception {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        if (etudiant.getStatutCV() != Etudiant.StatutCV.APPROUVE) {
+            throw new CvNonApprouveException();
+        }
+
+        Offre offre = offreRepository.findById(offreId)
+                .orElseThrow(OffreNonDisponible::new);
+
+        if (offre.getStatutApprouve() != Offre.StatutApprouve.APPROUVE) {
+            throw new OffreNonDisponible();
+        }
+
+        if (offre.getDateLimite() != null && LocalDate.now().isAfter(offre.getDateLimite())) {
+            throw new OffreNonDisponible();
+        }
+
+        if (candidatureRepository.existsByEtudiantAndOffre(etudiant, offre)) {
+            throw new OffreNonDisponible();
+        }
+
+        byte[] lettreMotivationChiffree = null;
+        if (lettreMotivationFichier != null && !lettreMotivationFichier.isEmpty()) {
+            byte[] lettreBytes = lettreMotivationFichier.getBytes();
+            String lettreChiffree = encryptageCV.chiffrer(lettreBytes);
+            lettreMotivationChiffree = lettreChiffree.getBytes(StandardCharsets.UTF_8);
+        }
+
+        Candidature candidature = new Candidature(etudiant, offre, lettreMotivationChiffree);
+        candidature = candidatureRepository.save(candidature);
+
+        return new CandidatureDTO().toDTO(candidature);
+    }
+
+    @Transactional
+    public List<CandidatureDTO> getMesCandidatures() throws Exception {
+        Etudiant etudiant = getEtudiantConnecte();
+        List<Candidature> candidatures = candidatureRepository.findAllByEtudiant(etudiant);
+
+        List<CandidatureDTO> candidatureDTOs = new ArrayList<>();
+        for (Candidature candidature : candidatures) {
+            candidatureDTOs.add(new CandidatureDTO().toDTO(candidature));
+        }
+
+        return candidatureDTOs;
+    }
+
+    @Transactional
+    public byte[] getCvPourCandidature(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonDisponibleException::new);
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
+            throw new CVNonExistantException();
+        }
+
+        try {
+            String cvChiffre = new String(etudiant.getCv());
+            return encryptageCV.dechiffrer(cvChiffre);
+        } catch (Exception e) {
+            throw new CVNonExistantException();
+        }
+    }
+
+    @Transactional
+    public byte[] getLettreMotivationPourCandidature(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException, LettreDeMotivationNonDisponibleException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonDisponibleException::new);
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (candidature.getLettreMotivation() == null || candidature.getLettreMotivation().length == 0) {
+            throw new LettreDeMotivationNonDisponibleException();
+        }
+
+        try {
+            String lettreChiffree = new String(candidature.getLettreMotivation(), StandardCharsets.UTF_8);
+            return encryptageCV.dechiffrer(lettreChiffree);
+        } catch (Exception e) {
+            throw new LettreDeMotivationNonDisponibleException();
+        }
+    }
+
+    @Transactional
+    public void retirerCandidature(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonDisponibleException::new);
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE) {
+            throw new CandidatureNonDisponibleException();
+        }
+
+        candidature.setStatut(Candidature.StatutCandidature.RETIREE);
+        candidatureRepository.save(candidature);
+    }
+
+    public boolean aPostuleOffre(Long offreId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, OffreNonExistantException {
+        Etudiant etudiant = getEtudiantConnecte();
+        Offre offre = offreRepository.findById(offreId)
+                .orElseThrow(OffreNonExistantException::new);
+        return candidatureRepository.existsByEtudiantAndOffre(etudiant, offre);
+    }
+
 }

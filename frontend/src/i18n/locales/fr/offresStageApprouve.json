@@ -30,7 +30,27 @@
     "periode": "Période:",
     "dateLimite": "Date limite:",
     "jours": "jours",
-    "postuler": "Postuler"
+    "postuler": "Postuler",
+    "dejaPostule": "Déjà postulé"
+  },
+  "postuler": {
+    "title": "Postuler à l'offre",
+    "subtitle": "Vous postulez pour",
+    "lettreMotivation": "Lettre de motivation",
+    "optional": "optionnel",
+    "clickToUpload": "Cliquer pour téléverser",
+    "pdfOnly": "PDF uniquement (max 5MB)",
+    "removeFile": "Retirer le fichier",
+    "cvInfo": "Votre CV approuvé sera automatiquement inclus dans votre candidature.",
+    "submit": "Soumettre ma candidature",
+    "submitting": "Envoi en cours...",
+    "cancel": "Annuler",
+    "success": "Candidature soumise avec succès !",
+    "errors": {
+      "pdfOnly": "Seuls les fichiers PDF sont acceptés",
+      "maxSize": "La taille maximale est de {{size}} MB",
+      "submitFailed": "Erreur lors de la candidature"
+    }
   },
   "error": {
     "loading": "Erreur lors du chargement des données",

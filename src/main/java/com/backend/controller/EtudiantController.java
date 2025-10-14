@@ -1,9 +1,6 @@
 package com.backend.controller;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.Exceptions.UtilisateurPasTrouveException;
+import com.backend.Exceptions.*;
 import com.backend.service.DTO.*;
 import com.backend.service.EtudiantService;
 import org.springframework.http.HttpStatus;
@@ -12,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/OSEetudiant")
@@ -49,7 +47,7 @@ public class EtudiantController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageRetourDTO("CV sauvegardé avec succès", null));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageRetourDTO(null, new ErrorResponse("CV_001", "Erreur lors de l'upload du CV : " + e.getMessage())));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageRetourDTO(null, new ErrorResponse("CV_001", e.getMessage())));
         }
     }
 
@@ -88,4 +86,114 @@ public class EtudiantController {
         }
     }
 
+    @PostMapping("/candidatures")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> postulerOffre(
+            @RequestParam("offreId") Long offreId,
+            @RequestParam(value = "lettreMotivation", required = false) MultipartFile lettreMotivationFichier) {
+        try {
+            etudiantService.postulerOffre(offreId, lettreMotivationFichier);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageRetourDTO("Candidature soumise avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("AUTHORIZATION_001", e.getMessage())));
+        } catch (OffreNonExistantException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("OFFER_001", e.getMessage())));
+        } catch (CvNonApprouveException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CV_003", e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("AUTH_003", e.getMessage())));
+        } catch (LettreDeMotivationNonDisponibleException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CAND_002", e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_000", e.getMessage())));
+        }
+    }
+
+    @GetMapping("/candidatures")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<CandidatureDTO>> getMesCandidatures() {
+        try {
+            List<CandidatureDTO> candidatures = etudiantService.getMesCandidatures();
+            return ResponseEntity.ok(candidatures);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/candidatures/{id}/cv")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getCvCandidature(@PathVariable Long id) {
+        try {
+            byte[] cv = etudiantService.getCvPourCandidature(id);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"cv.pdf\"")
+                    .header("Content-Type", "application/pdf")
+                    .body(cv);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (CandidatureNonDisponibleException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @GetMapping("/candidatures/{id}/lettre-motivation")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getLettreMotivationCandidature(@PathVariable Long id) {
+        try {
+            byte[] lettreMotivation = etudiantService.getLettreMotivationPourCandidature(id);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"lettre-motivation.pdf\"")
+                    .header("Content-Type", "application/pdf")
+                    .body(lettreMotivation);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException | CandidatureNonDisponibleException |
+                 LettreDeMotivationNonDisponibleException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @PutMapping("/candidatures/{id}/retirer")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> retirerCandidature(@PathVariable Long id) {
+        try {
+            etudiantService.retirerCandidature(id);
+            return ResponseEntity.ok()
+                    .body(new MessageRetourDTO("Candidature retirée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("AUTHORIZATION_001", e.getMessage())));
+        } catch (CandidatureNonDisponibleException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CAND_001", e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("AUTH_003", e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_000", e.getMessage())));
+        }
+    }
+
+    @GetMapping("/offres/{id}/a-postule")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<Map<String, Boolean>> aPostuleOffre(@PathVariable Long id) {
+        try {
+            boolean aPostule = etudiantService.aPostuleOffre(id);
+            return ResponseEntity.ok(Map.of("aPostule", aPostule));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (OffreNonExistantException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 }

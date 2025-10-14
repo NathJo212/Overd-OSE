@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Setter
 @Getter
@@ -39,6 +42,9 @@ public class Etudiant extends Utilisateur {
         REFUSE,
         AUCUN
     }
+
+    @OneToMany(mappedBy = "etudiant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Candidature> candidatures = new ArrayList<>();
 
     public Etudiant(String email, String password, String telephone, String prenom, String nom,
                     Programme progEtude, String session, String annee) {

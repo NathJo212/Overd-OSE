@@ -8,7 +8,6 @@ import lombok.Getter;
  */
 @Getter
 public enum ErrorCode {
-    // Authentification
     AUTHENTICATION_FAILED("AUTH_001"),
     INVALID_JWT_TOKEN("AUTH_002"),
     USER_NOT_FOUND("AUTH_003"),
@@ -27,10 +26,14 @@ public enum ErrorCode {
 
     // CV
     ERROR_UPLOAD_CV("CV_001"),
-    CV_ALREADY_VERIFIED("CV_002"),  // NEW: Add this line
+    CV_ALREADY_VERIFIED("CV_002"),
+    CV_NOT_APPROVED("CV_003"),
 
     // Général
-    UNKNOWN_ERROR("ERROR_000");
+    UNKNOWN_ERROR("ERROR_000"),
+    CANDIDATURE_NON_DISPONIBLE("CAND_001"),
+    LETTRE_MOTIVATION_NON_DISPONIBLE("CAND_002");
+
 
     private final String code;
 
