@@ -151,6 +151,12 @@ public class EmployeurService {
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
 
+        if (candidature.getOffre() == null ||
+                candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
         Etudiant etudiant = candidature.getEtudiant();
 
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
@@ -172,6 +178,12 @@ public class EmployeurService {
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
+
+        if (candidature.getOffre() == null ||
+                candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
 
         if (candidature.getLettreMotivation() == null ||
                 candidature.getLettreMotivation().length == 0) {
