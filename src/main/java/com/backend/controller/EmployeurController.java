@@ -1,10 +1,6 @@
 package com.backend.controller;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.CandidatureNonTrouveeException;
-import com.backend.Exceptions.DateInvalideException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.Exceptions.*;
 import com.backend.service.DTO.*;
 import com.backend.service.EmployeurService;
 import org.springframework.http.HttpStatus;
@@ -136,4 +132,22 @@ public class EmployeurController {
         }
     }
 
+    @PostMapping("/candidatures/convocation")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> creerConvocation(@RequestBody ConvocationEntrevueDTO dto){
+        try {
+            employeurService.creerConvocation(dto);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageRetourDTO("Convocation créée avec succès", null));
+        } catch (CandidatureNonTrouveeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+        } catch (ConvocationDejaExistanteException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CONVOCATION_EXISTS", e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("INTERNAL_ERROR", e.getMessage())));
+        }
+    }
 }

@@ -27,6 +27,9 @@ public enum ErrorCode {
     // Candidature
     CANDIDATURE_NOT_FOUND("CAND_001"),
 
+    // Convocation
+    CONVOCATION_DEJA_EXISTANTE("CONVO_001"),
+
     // CV
     ERROR_UPLOAD_CV("CV_001"),
     CV_ALREADY_VERIFIED("CV_002"),

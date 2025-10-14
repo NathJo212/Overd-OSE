@@ -3,14 +3,8 @@ package com.backend.service;
 import com.backend.Exceptions.*;
 import com.backend.config.JwtTokenProvider;
 import com.backend.modele.*;
-import com.backend.persistence.CandidatureRepository;
-import com.backend.persistence.EmployeurRepository;
-import com.backend.persistence.OffreRepository;
-import com.backend.persistence.UtilisateurRepository;
-import com.backend.service.DTO.AuthResponseDTO;
-import com.backend.service.DTO.CandidatureDTO;
-import com.backend.service.DTO.ProgrammeDTO;
-import com.backend.service.DTO.OffreDTO;
+import com.backend.persistence.*;
+import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -36,9 +31,10 @@ public class EmployeurService {
     private final UtilisateurRepository utilisateurRepository;
     private final CandidatureRepository candidatureRepository;
     private final EncryptageCV encryptageCV;
+    private final ConvocationEntrevueRepository convocationEntrevueRepository;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -46,6 +42,7 @@ public class EmployeurService {
         this.utilisateurRepository = utilisateurRepository;
         this.candidatureRepository = candidatureRepository;
         this.encryptageCV = encryptageCV;
+        this.convocationEntrevueRepository = convocationEntrevueRepository;
     }
 
     @Transactional
@@ -205,4 +202,19 @@ public class EmployeurService {
     }
 
 
+    @Transactional
+    public void creerConvocation(ConvocationEntrevueDTO dto) throws ConvocationDejaExistanteException, CandidatureNonTrouveeException {
+        Candidature candidature = candidatureRepository.findById(dto.candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        if (candidature.getConvocationEntrevue() != null) {
+            throw new ConvocationDejaExistanteException();
+        }
+
+        ConvocationEntrevue convocation = new ConvocationEntrevue(candidature, dto.getDateHeure(), dto.lieuOuLien,  dto.message);
+
+        convocationEntrevueRepository.save(convocation);
+        candidature.setConvocationEntrevue(convocation);
+        candidatureRepository.save(candidature);
+    }
 }
