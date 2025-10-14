@@ -8,6 +8,7 @@ import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.CandidatureDTO;
 import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.util.EncryptageCV;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -174,4 +176,508 @@ public class EmployeurServiceTest {
             employeurService.OffrePourEmployeur(utilisateur);
         });
     }
+
+    @Test
+    public void testGetEmployeurConnecte_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        // Act
+        Employeur result = employeurService.getEmployeurConnecte();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(email, result.getEmail());
+        verify(employeurRepository, times(1)).findByEmail(email);
+    }
+
+    @Test
+    public void testGetEmployeurConnecte_NonEmployeur() {
+        // Arrange
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ETUDIANT")
+        );
+
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.getEmployeurConnecte();
+        });
+    }
+
+    @Test
+    public void testGetEmployeurConnecte_EmployeurNonTrouve() {
+        // Arrange
+        String email = "inexistant@test.com";
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(null);
+
+        // Act & Assert
+        assertThrows(UtilisateurPasTrouveException.class, () -> {
+            employeurService.getEmployeurConnecte();
+        });
+    }
+
+    @Test
+    public void testGetCandidaturesPourEmployeur_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        Offre offre1 = new Offre("Titre 1", "Description 1",
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 5, 1), employeur);
+
+        Offre offre2 = new Offre("Titre 2", "Description 2",
+                LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 6, 1), employeur);
+
+        Candidature candidature1 = new Candidature(etudiant, offre1, null);
+        Candidature candidature2 = new Candidature(etudiant, offre2, null);
+
+        offre1.getCandidatures().add(candidature1);
+        offre2.getCandidatures().add(candidature2);
+
+        when(offreRepository.findOffreByEmployeurId(employeur.getId()))
+                .thenReturn(Arrays.asList(offre1, offre2));
+
+        // Act
+        List<CandidatureDTO> result = employeurService.getCandidaturesPourEmployeur();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(offreRepository, times(1)).findOffreByEmployeurId(employeur.getId());
+    }
+
+    @Test
+    public void testGetCandidaturesPourEmployeur_AucuneCandidature() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Offre offre = new Offre("Titre", "Description",
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 5, 1), employeur);
+
+        when(offreRepository.findOffreByEmployeurId(employeur.getId()))
+                .thenReturn(Collections.singletonList(offre));
+
+        // Act
+        List<CandidatureDTO> result = employeurService.getCandidaturesPourEmployeur();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testGetCandidatureSpecifique_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        Offre offre = new Offre("Titre", "Description",
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 5, 1), employeur);
+
+        Candidature candidature = new Candidature(etudiant, offre, null);
+        Long candidatureId = 1L;
+
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.of(candidature));
+
+        // Act
+        CandidatureDTO result = employeurService.getCandidatureSpecifique(candidatureId);
+
+        // Assert
+        assertNotNull(result);
+        verify(candidatureRepository, times(1)).findById(candidatureId);
+    }
+
+    @Test
+    public void testGetCandidatureSpecifique_CandidatureNonTrouvee() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Long candidatureId = 999L;
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CandidatureNonTrouveeException.class, () -> {
+            employeurService.getCandidatureSpecifique(candidatureId);
+        });
+    }
+
+    @Test
+    public void testGetCvPourCandidature_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        String cvChiffre = "cvChiffreTest";
+        etudiant.setCv(cvChiffre.getBytes(StandardCharsets.UTF_8));
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(employeur);
+
+        Candidature candidature = new Candidature(etudiant, offre, null);
+        Long candidatureId = 1L;
+
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.of(candidature));
+
+        byte[] cvDechiffre = "CV déchiffré".getBytes();
+        when(encryptageCV.dechiffrer(cvChiffre)).thenReturn(cvDechiffre);
+
+        // Act
+        byte[] result = employeurService.getCvPourCandidature(candidatureId);
+
+        // Assert
+        assertNotNull(result);
+        assertArrayEquals(cvDechiffre, result);
+        verify(encryptageCV, times(1)).dechiffrer(cvChiffre);
+    }
+
+    @Test
+    public void testGetCvPourCandidature_CandidatureNonTrouvee() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Long candidatureId = 999L;
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CandidatureNonTrouveeException.class, () -> {
+            employeurService.getCvPourCandidature(candidatureId);
+        });
+    }
+
+    @Test
+    public void testGetCvPourCandidature_NonAutorise() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Employeur autreEmployeur = mock(Employeur.class);
+        when(autreEmployeur.getId()).thenReturn(2L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        etudiant.setCv("cvChiffre".getBytes());
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(autreEmployeur);
+
+        Candidature candidature = new Candidature(etudiant, offre, null);
+        Long candidatureId = 1L;
+
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.getCvPourCandidature(candidatureId);
+        });
+    }
+
+    @Test
+    public void testGetCvPourCandidature_CvNonExistant() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        // Pas de CV
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(employeur);
+
+        Candidature candidature = new Candidature(etudiant, offre, null);
+        Long candidatureId = 1L;
+
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(CVNonExistantException.class, () -> {
+            employeurService.getCvPourCandidature(candidatureId);
+        });
+    }
+
+    @Test
+    public void testGetLettreMotivationPourCandidature_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(employeur);
+
+        String lettreChiffree = "lettreChiffreeTest";
+        Candidature candidature = new Candidature(etudiant, offre,
+                lettreChiffree.getBytes(StandardCharsets.UTF_8));
+        Long candidatureId = 1L;
+
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.of(candidature));
+
+        byte[] lettreDechiffree = "Lettre déchiffrée".getBytes();
+        when(encryptageCV.dechiffrer(lettreChiffree)).thenReturn(lettreDechiffree);
+
+        // Act
+        byte[] result = employeurService.getLettreMotivationPourCandidature(candidatureId);
+
+        // Assert
+        assertNotNull(result);
+        assertArrayEquals(lettreDechiffree, result);
+        verify(encryptageCV, times(1)).dechiffrer(lettreChiffree);
+    }
+
+
+    @Test
+    public void testGetLettreMotivationPourCandidature_CandidatureNonTrouvee() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Long candidatureId = 999L;
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CandidatureNonTrouveeException.class, () -> {
+            employeurService.getLettreMotivationPourCandidature(candidatureId);
+        });
+    }
+
+    @Test
+    public void testGetLettreMotivationPourCandidature_NonAutorise() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Employeur autreEmployeur = mock(Employeur.class);
+        when(autreEmployeur.getId()).thenReturn(2L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(autreEmployeur);
+
+        Candidature candidature = new Candidature(etudiant, offre, "lettre".getBytes());
+        Long candidatureId = 1L;
+
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.getLettreMotivationPourCandidature(candidatureId);
+        });
+    }
+
+    @Test
+    public void testGetLettreMotivationPourCandidature_LettreNonExistante() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(employeur);
+
+        Candidature candidature = new Candidature(etudiant, offre, null);
+        Long candidatureId = 1L;
+
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(CVNonExistantException.class, () -> {
+            employeurService.getLettreMotivationPourCandidature(candidatureId);
+        });
+    }
+
+    @Test
+    public void testCreerOffreDeStage_DateInvalide() {
+        // Arrange
+        AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer validToken");
+        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(true);
+
+        // Act & Assert - Date de fin avant date de début
+        assertThrows(DateInvalideException.class, () -> {
+            employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
+                    LocalDate.of(2024, 6, 1), LocalDate.of(2024, 1, 1),
+                    ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1));
+        });
+    }
+
 }
