@@ -7,8 +7,10 @@ import com.backend.persistence.CandidatureRepository;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.persistence.UtilisateurRepository;
+import com.backend.persistence.ConvocationEntrevueRepository;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.CandidatureDTO;
+import com.backend.service.DTO.ConvocationEntrevueDTO;
 import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.util.EncryptageCV;
 import org.junit.jupiter.api.Test;
@@ -16,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -60,6 +61,9 @@ public class EmployeurServiceTest {
 
     @Mock
     private CandidatureRepository candidatureRepository;
+
+    @Mock
+    private ConvocationEntrevueRepository convocationEntrevueRepository;
 
     @Mock
     private Authentication authentication;
@@ -680,4 +684,129 @@ public class EmployeurServiceTest {
         });
     }
 
+    @Test
+    public void testCreerConvocation_Succes() throws Exception {
+        // Arrange
+        Candidature candidature = new Candidature();
+        candidature.setId(1L);
+        Offre offre = mock(Offre.class);
+        candidature.setOffre(offre);
+
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.candidatureId = 1L;
+
+        when(candidatureRepository.findById(1L)).thenReturn(Optional.of(candidature));
+        when(convocationEntrevueRepository.save(any(ConvocationEntrevue.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Act & Assert
+        assertDoesNotThrow(() -> employeurService.creerConvocation(dto));
+    }
+
+    @Test
+    public void testCreerConvocation_CandidatureNonTrouvee() {
+        // Arrange
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.candidatureId = 2L;
+        when(candidatureRepository.findById(2L)).thenReturn(Optional.empty());
+        // Act & Assert
+        assertThrows(CandidatureNonTrouveeException.class, () -> employeurService.creerConvocation(dto));
+    }
+
+    @Test
+    public void testCreerConvocation_DejaExistante() {
+        // Arrange
+        Offre offre = mock(Offre.class);
+        Candidature candidature = new Candidature();
+        candidature.setId(3L);
+        candidature.setOffre(offre);
+        ConvocationEntrevue convocation = new ConvocationEntrevue();
+        candidature.setConvocationEntrevue(convocation);
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.candidatureId = 3L;
+        when(candidatureRepository.findById(3L)).thenReturn(Optional.of(candidature));
+        // Act & Assert
+        assertThrows(ConvocationDejaExistanteException.class, () -> employeurService.creerConvocation(dto));
+    }
+
+    @Test
+    public void testModifierConvocation_Succes() {
+        // Arrange
+        Offre offre = mock(Offre.class);
+        Candidature candidature = new Candidature();
+        candidature.setId(4L);
+        candidature.setOffre(offre);
+        ConvocationEntrevue convocation = new ConvocationEntrevue();
+        candidature.setConvocationEntrevue(convocation);
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.candidatureId = 4L;
+        when(candidatureRepository.findById(4L)).thenReturn(Optional.of(candidature));
+        when(convocationEntrevueRepository.save(any(ConvocationEntrevue.class))).thenAnswer(inv -> inv.getArgument(0));
+        // Act & Assert
+        assertDoesNotThrow(() -> employeurService.modifierConvocation(dto));
+    }
+
+    @Test
+    public void testModifierConvocation_CandidatureNonTrouvee() {
+        // Arrange
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.candidatureId = 5L;
+        when(candidatureRepository.findById(5L)).thenReturn(Optional.empty());
+        // Act & Assert
+        assertThrows(CandidatureNonTrouveeException.class, () -> employeurService.modifierConvocation(dto));
+    }
+
+    @Test
+    public void testAnnulerConvocation_Succes() {
+        // Arrange
+        Offre offre = mock(Offre.class);
+        Candidature candidature = new Candidature();
+        candidature.setId(6L);
+        candidature.setOffre(offre);
+        ConvocationEntrevue convocation = new ConvocationEntrevue();
+        candidature.setConvocationEntrevue(convocation);
+        when(candidatureRepository.findById(6L)).thenReturn(Optional.of(candidature));
+        when(convocationEntrevueRepository.save(any(ConvocationEntrevue.class))).thenAnswer(inv -> inv.getArgument(0));
+        // Act & Assert
+        assertDoesNotThrow(() -> employeurService.annulerConvocation(6L));
+    }
+
+    @Test
+    public void testAnnulerConvocation_CandidatureNonTrouvee() {
+        // Arrange
+        when(candidatureRepository.findById(7L)).thenReturn(Optional.empty());
+        // Act & Assert
+        assertThrows(CandidatureNonTrouveeException.class, () -> employeurService.annulerConvocation(7L));
+    }
+
+    @Test
+    public void testGetConvocationsPourEmployeur_Succes() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass1234A!", "tel", "nom", "contact");
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Offre offre = mock(Offre.class);
+        List<Offre> offres = List.of(offre);
+        Candidature candidature = new Candidature();
+        candidature.setOffre(offre);
+        ConvocationEntrevue convocation = new ConvocationEntrevue();
+        convocation.setCandidature(candidature);
+        candidature.setConvocationEntrevue(convocation);
+        List<Candidature> candidatures = List.of(candidature);
+        when(offreRepository.findAllByEmployeur(employeur)).thenReturn(offres);
+        when(candidatureRepository.findAllByOffreIn(offres)).thenReturn(candidatures);
+        // Act
+        List<ConvocationEntrevueDTO> result = employeurService.getConvocationsPourEmployeur();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
 }
