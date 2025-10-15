@@ -7,6 +7,7 @@ import com.backend.service.UtilisateurService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -471,5 +472,49 @@ class EtudiantControllerTest {
                 .andExpect(jsonPath("$.aPostule").value(true));
     }
 
+    @Test
+    void getConvocationPourCandidature_success() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.candidatureId = 1L;
+        dto.dateHeure = LocalDateTime.of(2025, 10, 20, 14, 0);
+        dto.lieuOuLien = "Zoom";
+        dto.message = "Merci de vous connecter à l’heure";
+        dto.statut = "CONVOQUEE";
+
+        Mockito.when(etudiantService.getConvocationPourCandidature(1L)).thenReturn(dto);
+
+        mockMvc.perform(get("/OSEetudiant/candidatures/1/convocation"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.candidatureId").value(1L))
+                .andExpect(jsonPath("$.lieuOuLien").value("Zoom"))
+                .andExpect(jsonPath("$.statut").value("CONVOQUEE"));
+    }
+
+    @Test
+    void getConvocationPourCandidature_actionNonAutorisee() throws Exception {
+        Mockito.when(etudiantService.getConvocationPourCandidature(anyLong()))
+                .thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEetudiant/candidatures/2/convocation"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getConvocationPourCandidature_utilisateurPasTrouve() throws Exception {
+        Mockito.when(etudiantService.getConvocationPourCandidature(anyLong()))
+                .thenThrow(new UtilisateurPasTrouveException());
+
+        mockMvc.perform(get("/OSEetudiant/candidatures/3/convocation"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getConvocationPourCandidature_nonTrouvee() throws Exception {
+        Mockito.when(etudiantService.getConvocationPourCandidature(anyLong()))
+                .thenThrow(new ConvocationNonTrouveeException());
+
+        mockMvc.perform(get("/OSEetudiant/candidatures/4/convocation"))
+                .andExpect(status().isNotFound());
+    }
 
 }

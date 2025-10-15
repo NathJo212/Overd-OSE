@@ -5,6 +5,7 @@ import com.backend.modele.*;
 import com.backend.persistence.CandidatureRepository;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.CandidatureDTO;
+import com.backend.service.DTO.ConvocationEntrevueDTO;
 import com.backend.util.EncryptageCV;
 import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.OffreRepository;
@@ -26,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -562,5 +564,77 @@ public class EtudiantServiceTest {
                 () -> etudiantService.aPostuleOffre(99L));
     }
 
+    @Test
+    void getConvocationPourCandidature_success() throws Exception {
+        // Création d'un vrai étudiant
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
 
+        Offre offre = new Offre();
+
+        // Candidature liée à l'étudiant
+        Candidature candidature = new Candidature();
+        candidature.setId(123L);
+        candidature.setEtudiant(etudiant);
+        candidature.setOffre(offre);
+
+        ConvocationEntrevue convocation = new ConvocationEntrevue();
+        convocation.setCandidature(candidature);
+        convocation.setDateHeure(LocalDateTime.of(2025, 10, 20, 14, 0));
+        convocation.setLieuOuLien("Zoom");
+        convocation.setMessage("Merci de vous connecter à l’heure");
+
+        candidature.setConvocationEntrevue(convocation);
+
+        // Mock pour getEtudiantConnecte()
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+        when(candidatureRepository.findById(anyLong())).thenReturn(Optional.of(candidature));
+
+        ConvocationEntrevueDTO result = etudiantService.getConvocationPourCandidature(1L);
+
+        assertNotNull(result);
+        assertEquals(convocation.getDateHeure(), result.getDateHeure());
+        assertEquals("Zoom", result.getLieuOuLien());
+        assertEquals("Merci de vous connecter à l’heure", result.getMessage());
+    }
+
+    @Test
+    void getConvocationPourCandidature_nonTrouvee() {
+        Long candidatureId = 2L;
+        Etudiant etudiant = mock(Etudiant.class);
+
+        // Simule qu'un étudiant existe avec cet email
+        when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        // Simule qu'aucune candidature n'est trouvée
+        when(candidatureRepository.findById(candidatureId)).thenReturn(Optional.empty());
+
+        assertThrows(ConvocationNonTrouveeException.class, () -> {
+            etudiantService.getConvocationPourCandidature(candidatureId);
+        });
+    }
+
+    @Test
+    void getConvocationPourCandidature_actionNonAutorisee() {
+        Long candidatureId = 3L;
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        Etudiant autreEtudiant = mock(Etudiant.class);
+        when(autreEtudiant.getId()).thenReturn(2L);
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(autreEtudiant);
+
+        // Mock pour que l'étudiant connecté soit trouvé
+        when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+        when(candidatureRepository.findById(candidatureId)).thenReturn(Optional.of(candidature));
+
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            etudiantService.getConvocationPourCandidature(candidatureId);
+        });
+    }
 }
