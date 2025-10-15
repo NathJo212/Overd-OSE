@@ -9,6 +9,7 @@ import Accueil from './components/Accueil.tsx';
 import Login from "./components/Login.tsx";
 import InscriptionEtudiant from "./components/InscriptionEtudiant.tsx";
 import CreerOffreStage from "./components/CreerOffreStage.tsx";
+import CreerConvocation from "./components/CreerConvocation.tsx";
 import DashBoardEmployeur from "./components/DashBoardEmployeur.tsx";
 import DashBoardEtudiant from "./components/DashBoardEtudiant.tsx";
 import AccepterRefuserOffres from './components/AccepterRefuserOffres.tsx';
@@ -27,6 +28,7 @@ const router = createBrowserRouter(
             <Route path="dashboard-employeur" element={<DashBoardEmployeur/>}/>
             <Route path="dashboard-etudiant" element={<DashBoardEtudiant/>}/>
             <Route path="offre-stage" element={<CreerOffreStage/>}/>
+            <Route path="creer-convocation" element={<CreerConvocation/>}/>
             <Route path="offres-stages-gestionnaire" element={<AccepterRefuserOffres/>}/>
             <Route path="visualiser-offres" element={<VisualiserOffresGestionnaire/>}/>
             <Route path="cvs-etudiants-gestionnaire" element={<ApprouverRefuserCV/>}/>

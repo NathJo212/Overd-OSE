@@ -1,0 +1,49 @@
+{
+  "title": "Create an Interview",
+  "subtitle": "Fill out the form to invite a student to an interview",
+  "return": {
+    "message": "Back"
+  },
+  "form": {
+    "title": "Interview Title",
+    "description": "Description",
+    "student": "Student",
+    "internshipOffer": "Internship Offer",
+    "interviewDate": "Interview Date",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "location": "Interview Location or Link",
+    "additionalNotes": "Additional Notes"
+  },
+  "placeholders": {
+    "title": "Ex: Interview for Web Development Internship",
+    "description": "Describe the purpose of the interview...",
+    "selectStudent": "Select a student",
+    "selectOffer": "Select an offer",
+    "location": "Ex: Office 205, 123 Main Street, Montreal",
+    "additionalNotes": "Special instructions, documents to bring, etc."
+  },
+  "buttons": {
+    "cancel": "Cancel",
+    "create": "Create Interview",
+    "creating": "Creating..."
+  },
+  "errors": {
+    "errorMessageSection": "Validation Errors",
+    "titleRequired": "Title is required",
+    "descriptionRequired": "Description is required",
+    "interviewDateRequired": "Interview date is required",
+    "startTimeRequired": "Start time is required",
+    "endTimeRequired": "End time is required",
+    "locationRequired": "Location is required",
+    "studentRequired": "Student is required",
+    "internshipOfferRequired": "Internship offer is required",
+    "endTimeAfterStartTime": "End time must be after start time",
+    "genericError": "An error occurred while creating the interview"
+  },
+  "success": {
+    "convocationCreated": "Interview created successfully!",
+    "redirecting": "Redirecting..."
+  }
+}
+

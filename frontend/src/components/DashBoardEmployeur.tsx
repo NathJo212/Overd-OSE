@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router";
 import { employeurService } from "../services/EmployeurService";
-import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap } from 'lucide-react';
+import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap, CalendarPlus } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 
@@ -105,12 +105,21 @@ const DashBoardEmployeur = () => {
                         <h1 className="text-3xl font-bold text-gray-800 mb-6">
                             {t("employerdashboard:title")}
                         </h1>
-                        <NavLink
-                            to="/offre-stage"
-                            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105"
-                        >
-                            {t("employerdashboard:createOffer")}
-                        </NavLink>
+                        <div className="flex flex-wrap gap-4 justify-center">
+                            <NavLink
+                                to="/offre-stage"
+                                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105"
+                            >
+                                {t("employerdashboard:createOffer")}
+                            </NavLink>
+                            <NavLink
+                                to="/creer-convocation"
+                                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105"
+                            >
+                                <CalendarPlus className="w-5 h-5" />
+                                Créer une convocation
+                            </NavLink>
+                        </div>
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-2xl p-8">

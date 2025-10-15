@@ -31,6 +31,8 @@ import televersementCvFr from './locales/fr/televersementCv.json';
 import televersementCvEn from './locales/en/televersementCv.json';
 import visualiserOffresGestionnaireFr from './locales/fr/visualiserOffresGestionnaire.json';
 import visualiserOffresGestionnaireEn from './locales/en/visualiserOffresGestionnaire.json';
+import convocationFr from './locales/fr/convocation.json';
+import convocationEn from './locales/en/convocation.json';
 
 const resources = {
     fr: {
@@ -48,6 +50,7 @@ const resources = {
         programmes: frProgrammes,
         televersementCv: televersementCvFr,
         visualiserOffresGestionnaire : visualiserOffresGestionnaireFr,
+        convocation: convocationFr,
     },
     en: {
         registration: registrationEn,
@@ -64,6 +67,7 @@ const resources = {
         programmes: enProgrammes,
         televersementCv: televersementCvEn,
         visualiserOffresGestionnaire : visualiserOffresGestionnaireEn,
+        convocation: convocationEn,
     }
 };
 

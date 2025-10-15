@@ -1,0 +1,49 @@
+{
+  "title": "Créer une convocation",
+  "subtitle": "Remplissez le formulaire pour convoquer un étudiant à une entrevue",
+  "form": {
+    "title": "Titre de la convocation",
+    "description": "Description",
+    "student": "Étudiant",
+    "internshipOffer": "Offre de stage",
+    "interviewDate": "Date d'entrevue",
+    "startTime": "Heure de début",
+    "endTime": "Heure de fin",
+    "location": "Lieu de l'entrevue",
+    "additionalNotes": "Notes supplémentaires"
+  },
+  "placeholders": {
+    "title": "Ex: Entrevue pour stage en développement web",
+    "description": "Décrivez l'objet de l'entrevue...",
+    "selectStudent": "Sélectionner un étudiant",
+    "selectOffer": "Sélectionner une offre",
+    "location": "Ex: Bureau 205, 123 Rue Principale, Montréal",
+    "additionalNotes": "Instructions particulières, documents à apporter, etc."
+  },
+  "button": {
+    "cancel": "Annuler",
+    "create": "Créer la convocation",
+    "creating": "Création en cours..."
+  },
+  "errors": {
+    "errorMessageSection": "Erreurs de validation",
+    "titleRequired": "Le titre est requis.",
+    "descriptionRequired": "La description est requise.",
+    "interviewDateRequired": "La date d'entrevue est requise.",
+    "startTimeRequired": "L'heure de début est requise.",
+    "endTimeRequired": "L'heure de fin est requise.",
+    "locationRequired": "Le lieu est requis.",
+    "studentRequired": "L'étudiant est requis.",
+    "internshipOfferRequired": "L'offre de stage est requise.",
+    "endTimeAfterStartTime": "L'heure de fin doit être après l'heure de début.",
+    "genericError": "Une erreur est survenue lors de la création de la convocation."
+  },
+  "success": {
+    "convocationCreated": "Convocation créée avec succès !",
+    "redirecting": "Redirection en cours..."
+  },
+  "return": {
+    "message": "Retour"
+  }
+}
+
