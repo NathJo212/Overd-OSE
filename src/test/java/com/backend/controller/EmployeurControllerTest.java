@@ -9,6 +9,10 @@ import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.CandidatureDTO;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.service.DTO.ConvocationEntrevueDTO;
+import com.backend.Exceptions.ConvocationDejaExistanteException;
+import com.backend.service.DTO.MessageRetourDTO;
+import com.backend.service.DTO.ErrorResponse;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
@@ -32,6 +36,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
@@ -444,6 +449,137 @@ class EmployeurControllerTest {
         // Act & Assert
         mockMvc.perform(get("/OSEemployeur/candidatures/{id}/lettre-motivation", candidatureId)
                         .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/convocation retourne 201 sur succès")
+    void creerConvocation_success_returnsCreated() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        mockMvc.perform(post("/OSEemployeur/candidatures/convocation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Convocation créée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/convocation retourne 404 si candidature non trouvée")
+    void creerConvocation_candidatureNonTrouvee_returnsNotFound() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        doThrow(new CandidatureNonTrouveeException()).when(employeurService).creerConvocation(any(ConvocationEntrevueDTO.class));
+        mockMvc.perform(post("/OSEemployeur/candidatures/convocation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CANDIDATURE_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/convocation retourne 409 si convocation déjà existante")
+    void creerConvocation_convocationDejaExistante_returnsConflict() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        doThrow(new ConvocationDejaExistanteException()).when(employeurService).creerConvocation(any(ConvocationEntrevueDTO.class));
+        mockMvc.perform(post("/OSEemployeur/candidatures/convocation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CONVOCATION_EXISTS"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/convocation retourne 500 sur erreur interne")
+    void creerConvocation_internalError_returnsInternalServerError() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        doThrow(new RuntimeException("Erreur interne")).when(employeurService).creerConvocation(any(ConvocationEntrevueDTO.class));
+        mockMvc.perform(post("/OSEemployeur/candidatures/convocation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("INTERNAL_ERROR"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEemployeur/candidatures/convocation retourne 200 sur succès")
+    void modifierConvocation_success_returnsOk() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        mockMvc.perform(put("/OSEemployeur/candidatures/convocation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Convocation modifiée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEemployeur/candidatures/convocation retourne 404 si candidature non trouvée")
+    void modifierConvocation_candidatureNonTrouvee_returnsNotFound() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        doThrow(new CandidatureNonTrouveeException()).when(employeurService).modifierConvocation(any(ConvocationEntrevueDTO.class));
+        mockMvc.perform(put("/OSEemployeur/candidatures/convocation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CANDIDATURE_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEemployeur/candidatures/{id}/convocation/annuler retourne 200 sur succès")
+    void annulerConvocation_success_returnsOk() throws Exception {
+        Long candidatureId = 1L;
+        mockMvc.perform(put("/OSEemployeur/candidatures/{id}/convocation/annuler", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Convocation annulée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEemployeur/candidatures/{id}/convocation/annuler retourne 404 si candidature non trouvée")
+    void annulerConvocation_candidatureNonTrouvee_returnsNotFound() throws Exception {
+        Long candidatureId = 999L;
+        doThrow(new CandidatureNonTrouveeException()).when(employeurService).annulerConvocation(candidatureId);
+        mockMvc.perform(put("/OSEemployeur/candidatures/{id}/convocation/annuler", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CANDIDATURE_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/convocations retourne 200 et liste de convocations")
+    void getConvocationsPourEmployeur_success_returnsOkAndList() throws Exception {
+        ConvocationEntrevueDTO conv1 = new ConvocationEntrevueDTO();
+        ConvocationEntrevueDTO conv2 = new ConvocationEntrevueDTO();
+        when(employeurService.getConvocationsPourEmployeur()).thenReturn(java.util.List.of(conv1, conv2));
+        mockMvc.perform(get("/OSEemployeur/convocations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/convocations retourne 403 si action non autorisée")
+    void getConvocationsPourEmployeur_actionNonAutorisee_returnsForbidden() throws Exception {
+        when(employeurService.getConvocationsPourEmployeur()).thenThrow(new ActionNonAutoriseeException());
+        mockMvc.perform(get("/OSEemployeur/convocations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/convocations retourne 500 sur erreur interne")
+    void getConvocationsPourEmployeur_internalError_returnsInternalServerError() throws Exception {
+        when(employeurService.getConvocationsPourEmployeur()).thenThrow(new RuntimeException("Erreur interne"));
+        mockMvc.perform(get("/OSEemployeur/convocations")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError());
     }
 
