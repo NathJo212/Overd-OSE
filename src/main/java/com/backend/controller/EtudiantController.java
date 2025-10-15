@@ -196,4 +196,19 @@ public class EtudiantController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    @GetMapping("/candidatures/{id}/convocation")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<ConvocationEntrevueDTO> getConvocationPourCandidature(@PathVariable Long id) {
+        try {
+            ConvocationEntrevueDTO convocation = etudiantService.getConvocationPourCandidature(id);
+            return ResponseEntity.ok(convocation);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (ConvocationNonTrouveeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

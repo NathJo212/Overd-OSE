@@ -176,4 +176,17 @@ public class EmployeurController {
         }
     }
 
+    @GetMapping("/convocations")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<ConvocationEntrevueDTO>> getConvocationsPourEmployeur() {
+        try {
+            List<ConvocationEntrevueDTO> convocations = employeurService.getConvocationsPourEmployeur();
+            return ResponseEntity.ok(convocations);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

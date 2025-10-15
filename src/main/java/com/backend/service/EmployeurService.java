@@ -248,4 +248,25 @@ public class EmployeurService {
         convocation.setStatut(ConvocationEntrevue.StatutConvocation.ANNULEE);
         convocationEntrevueRepository.save(convocation);
     }
+
+    @Transactional
+    public List<ConvocationEntrevueDTO> getConvocationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        // Récupérer l’employeur connecté (à adapter selon votre logique d’authentification)
+        Employeur employeur = getEmployeurConnecte();
+
+        // Récupérer toutes les offres de l’employeur
+        List<Offre> offres = offreRepository.findAllByEmployeur(employeur);
+
+        // Récupérer toutes les candidatures pour ces offres
+        List<Candidature> candidatures = candidatureRepository.findAllByOffreIn(offres);
+
+        // Pour chaque candidature, récupérer la convocation si elle existe
+        List<ConvocationEntrevueDTO> convocations = new ArrayList<>();
+        for (Candidature candidature : candidatures) {
+            if (candidature.getConvocationEntrevue() != null) {
+                convocations.add(new ConvocationEntrevueDTO().toDTO(candidature.getConvocationEntrevue()));
+            }
+        }
+        return convocations;
+    }
 }

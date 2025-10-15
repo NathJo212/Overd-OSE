@@ -246,4 +246,24 @@ public class EtudiantService {
         return candidatureRepository.existsByEtudiantAndOffre(etudiant, offre);
     }
 
+    @Transactional
+    public ConvocationEntrevueDTO getConvocationPourCandidature(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, ConvocationNonTrouveeException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(ConvocationNonTrouveeException::new);
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        // Supposons que la convocation est stockée dans la candidature ou liée par une relation
+        if (candidature.getConvocationEntrevue() == null) {
+            throw new ConvocationNonTrouveeException();
+        }
+
+        // Conversion en DTO (adaptez selon votre structure)
+        return new ConvocationEntrevueDTO().toDTO(candidature.getConvocationEntrevue());
+    }
 }

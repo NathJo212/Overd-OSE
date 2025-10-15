@@ -29,6 +29,7 @@ public enum ErrorCode {
 
     // Convocation
     CONVOCATION_DEJA_EXISTANTE("CONVO_001"),
+    CONVOCATION_NON_TROUVE("CONVO_002"),
 
     // CV
     ERROR_UPLOAD_CV("CV_001"),
