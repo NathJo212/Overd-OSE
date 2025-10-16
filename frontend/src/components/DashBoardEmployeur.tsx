@@ -111,6 +111,10 @@ const DashBoardEmployeur = () => {
                         >
                             {t("employerdashboard:createOffer")}
                         </NavLink>
+
+                        <NavLink to="/candidatures-recues" className="inline-block ml-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                            {t("employerdashboard:myApplications")}
+                        </NavLink>
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-2xl p-8">

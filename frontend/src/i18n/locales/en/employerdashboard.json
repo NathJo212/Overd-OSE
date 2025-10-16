@@ -25,6 +25,7 @@
   "notifications": {
     "welcomeCreated": "Welcome! Your account has been created and you are now logged in.",
     "welcomeLogin": "Login successful! Welcome to your dashboard."
-  }
+  },
+  "myApplications": "View applications for my offers"
 }
 
