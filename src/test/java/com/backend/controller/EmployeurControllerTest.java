@@ -1,10 +1,12 @@
 package com.backend.controller;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
+import com.backend.Exceptions.CandidatureNonTrouveeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.modele.Employeur;
 import com.backend.service.DTO.AuthResponseDTO;
+import com.backend.service.DTO.CandidatureDTO;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.service.EmployeurService;
@@ -28,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -210,4 +213,239 @@ class EmployeurControllerTest {
                         .content(objectMapper.writeValueAsString(authResponse)))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures retourne 200 et liste de candidatures")
+    void getAllCandidatures_success_returnsOkAndList() throws Exception {
+        // Arrange
+        CandidatureDTO candidature1 = new CandidatureDTO();
+        candidature1.setId(1L);
+
+        CandidatureDTO candidature2 = new CandidatureDTO();
+        candidature2.setId(2L);
+
+        when(employeurService.getCandidaturesPourEmployeur())
+                .thenReturn(java.util.List.of(candidature1, candidature2));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].id").value(2));
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures retourne 403 si non autorisé")
+    void getAllCandidatures_nonAutorise_returnsForbidden() throws Exception {
+        // Arrange
+        doThrow(new ActionNonAutoriseeException())
+                .when(employeurService).getCandidaturesPourEmployeur();
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures retourne 500 sur erreur interne")
+    void getAllCandidatures_internalError_returnsInternalServerError() throws Exception {
+        // Arrange
+        when(employeurService.getCandidaturesPourEmployeur())
+                .thenThrow(new RuntimeException("Erreur interne"));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id} retourne 200 et candidature spécifique")
+    void getCandidatureSpecifique_success_returnsOkAndCandidature() throws Exception {
+        // Arrange
+        Long candidatureId = 1L;
+        CandidatureDTO candidature = new CandidatureDTO();
+        candidature.setId(candidatureId);
+
+        when(employeurService.getCandidatureSpecifique(candidatureId))
+                .thenReturn(candidature);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(candidatureId));
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id} retourne 403 si non autorisé")
+    void getCandidatureSpecifique_nonAutorise_returnsForbidden() throws Exception {
+        // Arrange
+        Long candidatureId = 1L;
+        doThrow(new ActionNonAutoriseeException())
+                .when(employeurService).getCandidatureSpecifique(candidatureId);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id} retourne 404 si candidature non trouvée")
+    void getCandidatureSpecifique_nonTrouvee_returnsNotFound() throws Exception {
+        // Arrange
+        Long candidatureId = 999L;
+        doThrow(new CandidatureNonTrouveeException())
+                .when(employeurService).getCandidatureSpecifique(candidatureId);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id} retourne 500 sur erreur interne")
+    void getCandidatureSpecifique_internalError_returnsInternalServerError() throws Exception {
+        // Arrange
+        Long candidatureId = 1L;
+        when(employeurService.getCandidatureSpecifique(candidatureId))
+                .thenThrow(new RuntimeException("Erreur interne"));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id}/cv retourne 200 et fichier PDF")
+    void getCvCandidature_success_returnsOkAndPdf() throws Exception {
+        // Arrange
+        Long candidatureId = 1L;
+        byte[] cvBytes = "CV Content".getBytes();
+
+        when(employeurService.getCvPourCandidature(candidatureId))
+                .thenReturn(cvBytes);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}/cv", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"cv.pdf\""))
+                .andExpect(header().string("Content-Type", "application/pdf"))
+                .andExpect(content().bytes(cvBytes));
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id}/cv retourne 403 si non autorisé")
+    void getCvCandidature_nonAutorise_returnsForbidden() throws Exception {
+        // Arrange
+        Long candidatureId = 1L;
+        doThrow(new ActionNonAutoriseeException())
+                .when(employeurService).getCvPourCandidature(candidatureId);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}/cv", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id}/cv retourne 404 si candidature non trouvée")
+    void getCvCandidature_candidatureNonTrouvee_returnsNotFound() throws Exception {
+        // Arrange
+        Long candidatureId = 999L;
+        doThrow(new CandidatureNonTrouveeException())
+                .when(employeurService).getCvPourCandidature(candidatureId);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}/cv", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id}/cv retourne 500 sur erreur interne")
+    void getCvCandidature_internalError_returnsInternalServerError() throws Exception {
+        // Arrange
+        Long candidatureId = 1L;
+        when(employeurService.getCvPourCandidature(candidatureId))
+                .thenThrow(new RuntimeException("Erreur interne"));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}/cv", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id}/lettre-motivation retourne 200 et fichier PDF")
+    void getLettreMotivationCandidature_success_returnsOkAndPdf() throws Exception {
+        // Arrange
+        Long candidatureId = 1L;
+        byte[] lettreBytes = "Lettre de motivation content".getBytes();
+
+        when(employeurService.getLettreMotivationPourCandidature(candidatureId))
+                .thenReturn(lettreBytes);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}/lettre-motivation", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"lettre-motivation.pdf\""))
+                .andExpect(header().string("Content-Type", "application/pdf"))
+                .andExpect(content().bytes(lettreBytes));
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id}/lettre-motivation retourne 403 si non autorisé")
+    void getLettreMotivationCandidature_nonAutorise_returnsForbidden() throws Exception {
+        // Arrange
+        Long candidatureId = 1L;
+        doThrow(new ActionNonAutoriseeException())
+                .when(employeurService).getLettreMotivationPourCandidature(candidatureId);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}/lettre-motivation", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id}/lettre-motivation retourne 404 si candidature non trouvée")
+    void getLettreMotivationCandidature_candidatureNonTrouvee_returnsNotFound() throws Exception {
+        // Arrange
+        Long candidatureId = 999L;
+        doThrow(new CandidatureNonTrouveeException())
+                .when(employeurService).getLettreMotivationPourCandidature(candidatureId);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}/lettre-motivation", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/candidatures/{id}/lettre-motivation retourne 500 sur erreur interne")
+    void getLettreMotivationCandidature_internalError_returnsInternalServerError() throws Exception {
+        // Arrange
+        Long candidatureId = 1L;
+        when(employeurService.getLettreMotivationPourCandidature(candidatureId))
+                .thenThrow(new RuntimeException("Erreur interne"));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEemployeur/candidatures/{id}/lettre-motivation", candidatureId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+
 }

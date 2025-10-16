@@ -24,6 +24,9 @@ public enum ErrorCode {
     OFFER_ALREADY_VERIFIED("OFFER_002"),
     OFFER_DATE_INVALID("OFFER_003"),
 
+    // Candidature
+    CANDIDATURE_NOT_FOUND("CAND_001"),
+
     // CV
     ERROR_UPLOAD_CV("CV_001"),
     CV_ALREADY_VERIFIED("CV_002"),
