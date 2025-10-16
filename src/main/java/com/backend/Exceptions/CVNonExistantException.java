@@ -10,9 +10,4 @@ public class CVNonExistantException extends RuntimeException {
         super("CV non trouvé ou n'existe pas");
         this.errorCode = ErrorCode.ERROR_UPLOAD_CV;
     }
-
-    public CVNonExistantException(String message) {
-        super(message);
-        this.errorCode = ErrorCode.ERROR_UPLOAD_CV;
-    }
 }

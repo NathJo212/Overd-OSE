@@ -30,7 +30,27 @@
     "periode": "Period:",
     "dateLimite": "Deadline:",
     "jours": "days",
-    "postuler": "Apply"
+    "postuler": "Apply",
+    "dejaPostule": "Already applied"
+  },
+  "postuler": {
+    "title": "Apply for the offer",
+    "subtitle": "You are applying for",
+    "lettreMotivation": "Cover letter",
+    "optional": "optional",
+    "clickToUpload": "Click to upload",
+    "pdfOnly": "PDF only (max 5MB)",
+    "removeFile": "Remove file",
+    "cvInfo": "Your approved CV will be automatically included in your application.",
+    "submit": "Submit my application",
+    "submitting": "Submitting...",
+    "cancel": "Cancel",
+    "success": "Application submitted successfully!",
+    "errors": {
+      "pdfOnly": "Only PDF files are accepted",
+      "maxSize": "Maximum size is {{size}} MB",
+      "submitFailed": "Error submitting application"
+    }
   },
   "error": {
     "loading": "Error loading data",

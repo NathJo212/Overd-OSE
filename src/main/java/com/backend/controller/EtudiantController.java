@@ -1,9 +1,6 @@
 package com.backend.controller;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.Exceptions.UtilisateurPasTrouveException;
+import com.backend.Exceptions.*;
 import com.backend.service.DTO.*;
 import com.backend.service.EtudiantService;
 import org.springframework.http.HttpStatus;
@@ -50,7 +47,7 @@ public class EtudiantController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageRetourDTO("CV sauvegardé avec succès", null));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageRetourDTO(null, new ErrorResponse("CV_001", "Erreur lors de l'upload du CV : " + e.getMessage())));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageRetourDTO(null, new ErrorResponse("CV_001", e.getMessage())));
         }
     }
 
@@ -98,15 +95,24 @@ public class EtudiantController {
             etudiantService.postulerOffre(offreId, lettreMotivationFichier);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Candidature soumise avec succès", null));
-        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+        } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CAND_001", e.getMessage())));
-        } catch (IllegalStateException | IllegalArgumentException e) {
+                    .body(new MessageRetourDTO(null, new ErrorResponse("AUTHORIZATION_001", e.getMessage())));
+        } catch (OffreNonExistantException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("OFFER_001", e.getMessage())));
+        } catch (CvNonApprouveException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CV_003", e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("AUTH_003", e.getMessage())));
+        } catch (LettreDeMotivationNonDisponibleException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageRetourDTO(null, new ErrorResponse("CAND_002", e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CAND_003", "Erreur lors de la candidature")));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_000", e.getMessage())));
         }
     }
 
@@ -134,10 +140,8 @@ public class EtudiantController {
                     .body(cv);
         } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (IllegalArgumentException e) {
+        } catch (CandidatureNonDisponibleException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -150,12 +154,9 @@ public class EtudiantController {
                     .header("Content-Disposition", "attachment; filename=\"lettre-motivation.pdf\"")
                     .header("Content-Type", "application/pdf")
                     .body(lettreMotivation);
-        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException | CandidatureNonDisponibleException |
+                 LettreDeMotivationNonDisponibleException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -166,15 +167,18 @@ public class EtudiantController {
             etudiantService.retirerCandidature(id);
             return ResponseEntity.ok()
                     .body(new MessageRetourDTO("Candidature retirée avec succès", null));
-        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+        } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CAND_004", e.getMessage())));
-        } catch (IllegalStateException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CAND_005", e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("AUTHORIZATION_001", e.getMessage())));
+        } catch (CandidatureNonDisponibleException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CAND_001", e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("AUTH_003", e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CAND_006", "Erreur lors du retrait de la candidature")));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_000", e.getMessage())));
         }
     }
 
@@ -184,10 +188,12 @@ public class EtudiantController {
         try {
             boolean aPostule = etudiantService.aPostuleOffre(id);
             return ResponseEntity.ok(Map.of("aPostule", aPostule));
-        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+        } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (OffreNonExistantException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }
