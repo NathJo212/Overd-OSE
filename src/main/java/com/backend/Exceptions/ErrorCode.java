@@ -26,6 +26,7 @@ public enum ErrorCode {
 
     // Candidature
     CANDIDATURE_NOT_FOUND("CAND_001"),
+    CANDIDATURE_ALREADY_VERIFIED("CAND_002"),
 
     // Convocation
     CONVOCATION_DEJA_EXISTANTE("CONVO_001"),

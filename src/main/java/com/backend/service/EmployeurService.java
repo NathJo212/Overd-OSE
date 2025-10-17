@@ -251,16 +251,12 @@ public class EmployeurService {
 
     @Transactional
     public List<ConvocationEntrevueDTO> getConvocationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
-        // Récupérer l’employeur connecté (à adapter selon votre logique d’authentification)
         Employeur employeur = getEmployeurConnecte();
 
-        // Récupérer toutes les offres de l’employeur
         List<Offre> offres = offreRepository.findAllByEmployeur(employeur);
 
-        // Récupérer toutes les candidatures pour ces offres
         List<Candidature> candidatures = candidatureRepository.findAllByOffreIn(offres);
 
-        // Pour chaque candidature, récupérer la convocation si elle existe
         List<ConvocationEntrevueDTO> convocations = new ArrayList<>();
         for (Candidature candidature : candidatures) {
             if (candidature.getConvocationEntrevue() != null) {
@@ -268,5 +264,42 @@ public class EmployeurService {
             }
         }
         return convocations;
+    }
+
+    @Transactional
+    public void approuverCandidature(Long candidatureId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, CandidatureDejaVerifieException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        if (candidature.getOffre() == null || candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+        if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE){
+            throw new CandidatureDejaVerifieException();
+        }
+        candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+        candidatureRepository.save(candidature);
+    }
+
+    @Transactional
+    public void refuserCandidature(Long candidatureId, String raison) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, CandidatureDejaVerifieException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        if (candidature.getOffre() == null || candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+        if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE){
+            throw new CandidatureDejaVerifieException();
+        }
+        candidature.setStatut(Candidature.StatutCandidature.REFUSEE);
+        candidature.setMessageReponse(raison);
+        candidatureRepository.save(candidature);
     }
 }

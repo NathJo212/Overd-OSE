@@ -141,13 +141,13 @@ public class EmployeurController {
                     .body(new MessageRetourDTO("Convocation créée avec succès", null));
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (ConvocationDejaExistanteException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CONVOCATION_EXISTS", e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("INTERNAL_ERROR", e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
     @PutMapping("/candidatures/convocation")
@@ -159,7 +159,7 @@ public class EmployeurController {
                     .body(new MessageRetourDTO("Convocation modifiée avec succès", null));
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         }
     }
 
@@ -172,7 +172,7 @@ public class EmployeurController {
                     .body(new MessageRetourDTO("Convocation annulée avec succès", null));
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         }
     }
 
@@ -189,4 +189,52 @@ public class EmployeurController {
         }
     }
 
+    @PostMapping ("/candidatures/{id}/approuver")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> approuverCandidature(@PathVariable Long id) {
+        try {
+            employeurService.approuverCandidature(id);
+            return ResponseEntity.ok(new MessageRetourDTO("Candidature approuvée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        }catch (CandidatureNonTrouveeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        }catch (CandidatureDejaVerifieException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+        }
+    }
+
+    @PostMapping("/candidatures/{id}/refuser")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> refuserCandidature(@PathVariable Long id, @RequestBody RaisonDTO raison) {
+        try {
+            employeurService.refuserCandidature(id, raison.getRaison());
+            return ResponseEntity.ok(new MessageRetourDTO("Candidature refusée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (UtilisateurPasTrouveException  e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (CandidatureNonTrouveeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        }catch (CandidatureDejaVerifieException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+        }
+    }
 }
