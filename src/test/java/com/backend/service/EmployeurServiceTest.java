@@ -809,4 +809,233 @@ public class EmployeurServiceTest {
         assertNotNull(result);
         assertEquals(1, result.size());
     }
+
+    @Test
+    public void testApprouverCandidature_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(employeur);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        candidature.setOffre(offre);
+        candidature.setStatut(Candidature.StatutCandidature.EN_ATTENTE);
+
+        when(candidatureRepository.findById(10L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertDoesNotThrow(() -> employeurService.approuverCandidature(10L));
+        verify(candidatureRepository, times(1)).save(candidature);
+    }
+
+    @Test
+    public void testApprouverCandidature_CandidatureNonTrouvee() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        when(candidatureRepository.findById(11L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CandidatureNonTrouveeException.class, () -> employeurService.approuverCandidature(11L));
+    }
+
+    @Test
+    public void testApprouverCandidature_NonAutorise() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Employeur autre = mock(Employeur.class);
+        when(autre.getId()).thenReturn(2L);
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(autre);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(12L);
+        candidature.setOffre(offre);
+        candidature.setStatut(Candidature.StatutCandidature.EN_ATTENTE);
+
+        when(candidatureRepository.findById(12L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.approuverCandidature(12L));
+    }
+
+    @Test
+    public void testApprouverCandidature_DejaVerifie() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(employeur);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(13L);
+        candidature.setOffre(offre);
+        candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+
+        when(candidatureRepository.findById(13L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(CandidatureDejaVerifieException.class, () -> employeurService.approuverCandidature(13L));
+    }
+
+    @Test
+    public void testRefuserCandidature_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(employeur);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(14L);
+        candidature.setOffre(offre);
+        candidature.setStatut(Candidature.StatutCandidature.EN_ATTENTE);
+
+        when(candidatureRepository.findById(14L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertDoesNotThrow(() -> employeurService.refuserCandidature(14L, "Pas assez d'expérience"));
+        assertEquals("Pas assez d'expérience", candidature.getMessageReponse());
+        verify(candidatureRepository, times(1)).save(candidature);
+    }
+
+    @Test
+    public void testRefuserCandidature_CandidatureNonTrouvee() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        when(candidatureRepository.findById(11L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CandidatureNonTrouveeException.class, () -> employeurService.refuserCandidature(11L,"Pas bon pour ce travail"));
+    }
+
+    @Test
+    public void testRefuserCandidature_NonAutorise() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Employeur autre = mock(Employeur.class);
+        when(autre.getId()).thenReturn(2L);
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(autre);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(12L);
+        candidature.setOffre(offre);
+        candidature.setStatut(Candidature.StatutCandidature.EN_ATTENTE);
+
+        when(candidatureRepository.findById(12L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.refuserCandidature(12L, "Pas bon pour ce travail"));
+    }
+
+    @Test
+    public void testRefuserCandidature_DejaVerifie() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Offre offre = mock(Offre.class);
+        when(offre.getEmployeur()).thenReturn(employeur);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(15L);
+        candidature.setOffre(offre);
+        candidature.setStatut(Candidature.StatutCandidature.REFUSEE);
+
+        when(candidatureRepository.findById(15L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(CandidatureDejaVerifieException.class, () -> employeurService.refuserCandidature(15L, "Raison"));
+    }
 }

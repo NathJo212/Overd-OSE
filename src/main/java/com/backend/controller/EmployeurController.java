@@ -198,14 +198,14 @@ public class EmployeurController {
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (UtilisateurPasTrouveException e) {
+        } catch (UtilisateurPasTrouveException  e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        }catch (CandidatureNonTrouveeException e) {
+        } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        }catch (CandidatureDejaVerifieException e){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        } catch (CandidatureDejaVerifieException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -228,11 +228,10 @@ public class EmployeurController {
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        }catch (CandidatureDejaVerifieException e){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        } catch (CandidatureDejaVerifieException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        }
-        catch (Exception e) {
+        }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
