@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { employeurService } from "../services/EmployeurService";
 import {
-    Users, Calendar, Mail, FileText, CheckCircle, XCircle, Clock,
-    Download, Filter, Search, Briefcase, RefreshCw, X, Eye
+    Users, Calendar, Mail, FileText, CheckCircle, XCircle, Clock, Filter, Search, Briefcase, RefreshCw, X, Eye, ArrowLeft
 } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -18,9 +17,16 @@ interface CandidatureRecue {
     etudiantEmail: string;
     dateCandidature: string;
     statut: string;
-    acv: boolean;  // ✅ changé
-    alettreMotivation: boolean;  // ✅ changé
+    acv: boolean;
+    alettreMotivation: boolean;
     messageReponse?: string;
+}
+
+interface DocumentPreview {
+    prenom: string;
+    nom: string;
+    cv?: string;
+    lettre?: string;
 }
 
 const CandidaturesRecues = () => {
@@ -35,6 +41,8 @@ const CandidaturesRecues = () => {
     const [offreFilter, setOffreFilter] = useState<string>("ALL");
     const [selectedCandidature, setSelectedCandidature] = useState<CandidatureRecue | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [selectedDocument, setSelectedDocument] = useState<DocumentPreview | null>(null);
+    const [showDocumentModal, setShowDocumentModal] = useState(false);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -148,40 +156,57 @@ const CandidaturesRecues = () => {
         return offres.sort();
     };
 
-    const handleTelechargerCV = async (candidatureId: number, e?: React.MouseEvent) => {
+    const blobToBase64 = (blob: Blob): Promise<string> =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const dataUrl = reader.result as string;
+                const base64 = dataUrl.split(',')[1] || '';
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+    const handleRegarderCV = async (candidatureId: number, e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
         try {
             const blob = await employeurService.telechargerCvCandidature(candidatureId);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `cv-candidature-${candidatureId}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        } catch (error) {
-            console.error('Erreur téléchargement CV:', error);
+            const base64 = await blobToBase64(blob);
+
+            setSelectedDocument({
+                prenom: selectedCandidature?.etudiantPrenom ?? '',
+                nom: selectedCandidature?.etudiantNom ?? '',
+                cv: base64
+            });
+            setShowDocumentModal(true);
+        } catch (err) {
+            console.error('Erreur affichage CV :', err);
             setError(t("candidaturesrecues:errors.downloadCV"));
         }
     };
 
-    const handleTelechargerLettreMotivation = async (candidatureId: number, e?: React.MouseEvent) => {
+    const handleRegarderLettreMotivation = async (candidatureId: number, e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
         try {
             const blob = await employeurService.telechargerLettreMotivationCandidature(candidatureId);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `lettre-motivation-candidature-${candidatureId}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        } catch (error) {
-            console.error('Erreur téléchargement lettre:', error);
+            const base64 = await blobToBase64(blob);
+
+            setSelectedDocument({
+                prenom: selectedCandidature?.etudiantPrenom ?? '',
+                nom: selectedCandidature?.etudiantNom ?? '',
+                lettre: base64
+            });
+            setShowDocumentModal(true);
+        } catch (err) {
+            console.error('Erreur affichage lettre :', err);
             setError(t("candidaturesrecues:errors.downloadLetter"));
         }
+    };
+
+    const closeDocumentModal = () => {
+        setShowDocumentModal(false);
+        setSelectedDocument(null);
     };
 
     const handleOpenModal = (candidature: CandidatureRecue) => {
@@ -220,6 +245,14 @@ const CandidaturesRecues = () => {
             <NavBar />
             <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Bouton retour */}
+                    <button
+                        onClick={() => navigate('/dashboard-employeur')}
+                        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                        <span className="font-medium">{t('candidaturesrecues:backToDashboard')}</span>
+                    </button>
 
                     {/* Header */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -520,7 +553,7 @@ const CandidaturesRecues = () => {
                                 <div className="space-y-3">
                                     {selectedCandidature.acv && (
                                         <button
-                                            onClick={(e) => handleTelechargerCV(selectedCandidature.id, e)}
+                                            onClick={(e) => handleRegarderCV(selectedCandidature.id, e)}
                                             className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
                                         >
                                             <div className="flex items-center gap-3">
@@ -532,13 +565,13 @@ const CandidaturesRecues = () => {
                                                     <p className="text-sm text-gray-500">Document PDF</p>
                                                 </div>
                                             </div>
-                                            <Download className="w-5 h-5 text-gray-400" />
+                                            <Eye className="w-5 h-5 text-gray-400" />
                                         </button>
                                     )}
 
                                     {selectedCandidature.alettreMotivation && (
                                         <button
-                                            onClick={(e) => handleTelechargerLettreMotivation(selectedCandidature.id, e)}
+                                            onClick={(e) => handleRegarderLettreMotivation(selectedCandidature.id, e)}
                                             className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
                                         >
                                             <div className="flex items-center gap-3">
@@ -550,7 +583,7 @@ const CandidaturesRecues = () => {
                                                     <p className="text-sm text-gray-500">Document PDF</p>
                                                 </div>
                                             </div>
-                                            <Download className="w-5 h-5 text-gray-400" />
+                                            <Eye className="w-5 h-5 text-gray-400" />
                                         </button>
                                     )}
 
@@ -579,6 +612,36 @@ const CandidaturesRecues = () => {
                             >
                                 Fermer
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showDocumentModal && selectedDocument && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                        <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
+                            <h3 className="text-xl font-semibold">
+                                {selectedDocument.cv ? t("cvmanager:cvModal.title") : t("cvmanager:cvModal.letterTitle")} - {selectedDocument.prenom} {selectedDocument.nom}
+                            </h3>
+                            <button onClick={closeDocumentModal} className="text-white hover:text-gray-200">
+                                <X className="h-6 w-6" />
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto max-h-[calc(95vh-80px)]">
+                            {selectedDocument.cv || selectedDocument.lettre ? (
+                                <iframe
+                                    src={`data:application/pdf;base64,${selectedDocument.cv ?? selectedDocument.lettre}`}
+                                    className="w-full h-[600px] border rounded"
+                                    title="Document Preview"
+                                    allow="fullscreen"
+                                />
+                            ) : (
+                                <div className="text-center py-12">
+                                    <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                    <p className="text-gray-600">{t("cvmanager:cvModal.noPreview")}</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

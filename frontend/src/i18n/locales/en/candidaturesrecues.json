@@ -1,24 +1,25 @@
 {
   "title": "Applications Received",
   "subtitle": "Manage student applications for your internship offers",
+  "backToDashboard": "Back to dashboard",
   "loading": "Loading applications...",
   "coverLetter": "Cover letter",
   "searchPlaceholder": "Search by name, email or offer...",
   "resultsFound": "result(s) found",
   "status": {
-    "pending": "Pending",
+    "pending": "Applied",
     "accepted": "Accepted",
     "refused": "Refused"
   },
   "stats": {
     "total": "Total",
-    "pending": "Pending",
+    "pending": "Applied",
     "accepted": "Accepted",
     "refused": "Refused"
   },
   "filters": {
     "all": "All statuses",
-    "pending": "Pending",
+    "pending": "Applied",
     "accepted": "Accepted",
     "refused": "Refused",
     "allOffers": "All offers"
