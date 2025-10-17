@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { employeurService } from "../services/EmployeurService";
 import {
     Users, Calendar, Mail, FileText, CheckCircle, XCircle, Clock,
-    Download, Filter, Search, Briefcase, RefreshCw
+    Download, Filter, Search, Briefcase, RefreshCw, X, Eye
 } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
+import * as React from "react";
 
 interface CandidatureRecue {
     id: number;
@@ -17,8 +18,8 @@ interface CandidatureRecue {
     etudiantEmail: string;
     dateCandidature: string;
     statut: string;
-    aCv: boolean;
-    aLettreMotivation: boolean;
+    acv: boolean;  // ✅ changé
+    alettreMotivation: boolean;  // ✅ changé
     messageReponse?: string;
 }
 
@@ -32,6 +33,8 @@ const CandidaturesRecues = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("ALL");
     const [offreFilter, setOffreFilter] = useState<string>("ALL");
+    const [selectedCandidature, setSelectedCandidature] = useState<CandidatureRecue | null>(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -40,7 +43,7 @@ const CandidaturesRecues = () => {
             return;
         }
 
-        loadCandidatures().then();
+        loadCandidatures();
     }, [navigate]);
 
     useEffect(() => {
@@ -52,6 +55,7 @@ const CandidaturesRecues = () => {
             setLoading(true);
             setError("");
             const data = await employeurService.getCandidaturesRecues();
+            console.log("📦 Candidatures reçues:", data); // ✅ AJOUTE CECI
             setCandidatures(data);
         } catch (err) {
             setError(t("candidaturesrecues:errors.loadCandidatures"));
@@ -144,7 +148,8 @@ const CandidaturesRecues = () => {
         return offres.sort();
     };
 
-    const handleTelechargerCV = async (candidatureId: number) => {
+    const handleTelechargerCV = async (candidatureId: number, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
         try {
             const blob = await employeurService.telechargerCvCandidature(candidatureId);
             const url = window.URL.createObjectURL(blob);
@@ -161,7 +166,8 @@ const CandidaturesRecues = () => {
         }
     };
 
-    const handleTelechargerLettreMotivation = async (candidatureId: number) => {
+    const handleTelechargerLettreMotivation = async (candidatureId: number, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
         try {
             const blob = await employeurService.telechargerLettreMotivationCandidature(candidatureId);
             const url = window.URL.createObjectURL(blob);
@@ -176,6 +182,16 @@ const CandidaturesRecues = () => {
             console.error('Erreur téléchargement lettre:', error);
             setError(t("candidaturesrecues:errors.downloadLetter"));
         }
+    };
+
+    const handleOpenModal = (candidature: CandidatureRecue) => {
+        setSelectedCandidature(candidature);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedCandidature(null);
     };
 
     const stats = getStatistics();
@@ -372,7 +388,8 @@ const CandidaturesRecues = () => {
                                 {filteredCandidatures.map((candidature) => (
                                     <div
                                         key={candidature.id}
-                                        className="border border-gray-200 rounded-lg p-5 hover:border-blue-300 hover:shadow-md transition-all duration-200"
+                                        onClick={() => handleOpenModal(candidature)}
+                                        className="border border-gray-200 rounded-lg p-5 hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-pointer"
                                     >
                                         <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                                             <div className="flex-1 space-y-3">
@@ -405,44 +422,36 @@ const CandidaturesRecues = () => {
                                                 {/* Documents */}
                                                 <div className="flex flex-wrap gap-2">
                                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium ${
-                                                        candidature.aCv
+                                                        candidature.acv
                                                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                                             : 'bg-gray-100 text-gray-500 border border-gray-200'
                                                     }`}>
                                                         <FileText className="w-3.5 h-3.5" />
-                                                        CV {candidature.aCv ? '✓' : '✗'}
+                                                        CV {candidature.acv ? '✓' : '✗'}
                                                     </span>
                                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium ${
-                                                        candidature.aLettreMotivation
+                                                        candidature.alettreMotivation
                                                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                                             : 'bg-gray-100 text-gray-500 border border-gray-200'
                                                     }`}>
                                                         <FileText className="w-3.5 h-3.5" />
-                                                        {t("candidaturesrecues:coverLetter")} {candidature.aLettreMotivation ? '✓' : '✗'}
+                                                        {t("candidaturesrecues:coverLetter")} {candidature.alettreMotivation ? '✓' : '✗'}
                                                     </span>
                                                 </div>
                                             </div>
 
                                             {/* Actions */}
                                             <div className="flex flex-row lg:flex-col gap-2">
-                                                {candidature.aCv && (
-                                                    <button
-                                                        onClick={() => handleTelechargerCV(candidature.id)}
-                                                        className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-                                                    >
-                                                        <Download className="w-4 h-4" />
-                                                        CV
-                                                    </button>
-                                                )}
-                                                {candidature.aLettreMotivation && (
-                                                    <button
-                                                        onClick={() => handleTelechargerLettreMotivation(candidature.id)}
-                                                        className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
-                                                    >
-                                                        <Download className="w-4 h-4" />
-                                                        Lettre
-                                                    </button>
-                                                )}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleOpenModal(candidature);
+                                                    }}
+                                                    className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    {t("candidaturesrecues:viewDetails")}
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -452,6 +461,128 @@ const CandidaturesRecues = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Modal de détails */}
+            {showModal && selectedCandidature && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        {/* Header Modal */}
+                        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
+                                </h2>
+                                <p className="text-sm text-gray-600 mt-1">Candidature #{selectedCandidature.id}</p>
+                            </div>
+                            <button
+                                onClick={handleCloseModal}
+                                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Contenu Modal */}
+                        <div className="p-6 space-y-6">
+                            {/* Statut */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">Statut</label>
+                                {getStatutBadge(selectedCandidature.statut)}
+                            </div>
+
+                            {/* Offre */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">Offre de stage</label>
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+                                    <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                    <span className="text-blue-900 font-medium">{selectedCandidature.offreTitre}</span>
+                                </div>
+                            </div>
+
+                            {/* Contact */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">Contact</label>
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-3 text-gray-700">
+                                        <Mail className="w-5 h-5 text-gray-400" />
+                                        <span>{selectedCandidature.etudiantEmail}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-gray-700">
+                                        <Calendar className="w-5 h-5 text-gray-400" />
+                                        <span>Postuléle {formatDate(selectedCandidature.dateCandidature)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Documents */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-3">Documents</label>
+                                <div className="space-y-3">
+                                    {selectedCandidature.acv && (
+                                        <button
+                                            onClick={(e) => handleTelechargerCV(selectedCandidature.id, e)}
+                                            className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                    <FileText className="w-5 h-5 text-blue-600" />
+                                                </div>
+                                                <div className="text-left">
+                                                    <p className="font-medium text-gray-900">Curriculum Vitae</p>
+                                                    <p className="text-sm text-gray-500">Document PDF</p>
+                                                </div>
+                                            </div>
+                                            <Download className="w-5 h-5 text-gray-400" />
+                                        </button>
+                                    )}
+
+                                    {selectedCandidature.alettreMotivation && (
+                                        <button
+                                            onClick={(e) => handleTelechargerLettreMotivation(selectedCandidature.id, e)}
+                                            className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                    <FileText className="w-5 h-5 text-purple-600" />
+                                                </div>
+                                                <div className="text-left">
+                                                    <p className="font-medium text-gray-900">Lettre de motivation</p>
+                                                    <p className="text-sm text-gray-500">Document PDF</p>
+                                                </div>
+                                            </div>
+                                            <Download className="w-5 h-5 text-gray-400" />
+                                        </button>
+                                    )}
+
+                                    {!selectedCandidature.acv && !selectedCandidature.alettreMotivation && (
+                                        <p className="text-sm text-gray-500 text-center py-4">Aucun document disponible</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Message de réponse si existe */}
+                            {selectedCandidature.messageReponse && (
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700 block mb-2">Message</label>
+                                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                        <p className="text-gray-700">{selectedCandidature.messageReponse}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer Modal */}
+                        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
+                            <button
+                                onClick={handleCloseModal}
+                                className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

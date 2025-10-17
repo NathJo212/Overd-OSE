@@ -31,6 +31,8 @@ import televersementCvFr from './locales/fr/televersementCv.json';
 import televersementCvEn from './locales/en/televersementCv.json';
 import visualiserOffresGestionnaireFr from './locales/fr/visualiserOffresGestionnaire.json';
 import visualiserOffresGestionnaireEn from './locales/en/visualiserOffresGestionnaire.json';
+import candidaturesrecuesEn from './locales/en/candidaturesrecues.json';
+import candidaturesrecuesFr from './locales/fr/candidaturesrecues.json';
 
 const resources = {
     fr: {
@@ -48,6 +50,7 @@ const resources = {
         programmes: frProgrammes,
         televersementCv: televersementCvFr,
         visualiserOffresGestionnaire : visualiserOffresGestionnaireFr,
+        candidaturesrecues: candidaturesrecuesFr,
     },
     en: {
         registration: registrationEn,
@@ -64,6 +67,7 @@ const resources = {
         programmes: enProgrammes,
         televersementCv: televersementCvEn,
         visualiserOffresGestionnaire : visualiserOffresGestionnaireEn,
+        candidaturesrecues: candidaturesrecuesEn,
     }
 };
 

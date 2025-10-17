@@ -33,8 +33,8 @@ export interface CandidatureRecueDTO {
     etudiantEmail: string;
     dateCandidature: string;
     statut: string;
-    aCv: boolean;
-    aLettreMotivation: boolean;
+    acv: boolean;  // ✅ tout en minuscule
+    alettreMotivation: boolean;  // ✅ tout en minuscule
     messageReponse?: string;
 }
 

@@ -17,6 +17,9 @@ public class CandidatureDTO {
     private Long offreId;
     private String offreTitre;
     private String employeurNom;
+    private String etudiantNom;        // ✅ AJOUTÉ
+    private String etudiantPrenom;     // ✅ AJOUTÉ
+    private String etudiantEmail;      // ✅ AJOUTÉ
     private LocalDateTime dateCandidature;
     private String statut;
     private boolean aCv;
@@ -28,6 +31,12 @@ public class CandidatureDTO {
         this.offreId = candidature.getOffre().getId();
         this.offreTitre = candidature.getOffre().getTitre();
         this.employeurNom = candidature.getOffre().getEmployeur().getContact();
+
+        // ✅ AJOUT DES INFORMATIONS ÉTUDIANT
+        this.etudiantNom = candidature.getEtudiant().getNom();
+        this.etudiantPrenom = candidature.getEtudiant().getPrenom();
+        this.etudiantEmail = candidature.getEtudiant().getEmail();
+
         this.dateCandidature = candidature.getDateCandidature();
         this.statut = candidature.getStatut().name();
         this.aCv = candidature.getEtudiant().getCv() != null && candidature.getEtudiant().getCv().length > 0;
