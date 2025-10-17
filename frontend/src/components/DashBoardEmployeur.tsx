@@ -105,22 +105,15 @@ const DashBoardEmployeur = () => {
                         <h1 className="text-3xl font-bold text-gray-800 mb-6">
                             {t("employerdashboard:title")}
                         </h1>
-                        <NavLink
-                            to="/offre-stage"
-                            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105"
-                        >
-                            {t("employerdashboard:createOffer")}
-                        </NavLink>
-
-                        <NavLink to="/candidatures-recues" className="inline-block ml-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
-                            {t("employerdashboard:myApplications")}
-                        </NavLink>
                         <div className="flex flex-wrap gap-4 justify-center">
                             <NavLink
                                 to="/offre-stage"
                                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105"
                             >
                                 {t("employerdashboard:createOffer")}
+                            </NavLink>
+                            <NavLink to="/candidatures-recues" className="inline-block ml-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                                {t("employerdashboard:myApplications")}
                             </NavLink>
                             <NavLink
                                 to="/creer-convocation"
