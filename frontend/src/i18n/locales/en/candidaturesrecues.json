@@ -1,0 +1,76 @@
+{
+  "title": "Applications Received",
+  "subtitle": "Manage student applications for your internship offers",
+  "backToDashboard": "Back to dashboard",
+  "loading": "Loading applications...",
+  "coverLetter": "Cover letter",
+  "searchPlaceholder": "Search by name, email or offer...",
+  "resultsFound": "result(s) found",
+  "status": {
+    "pending": "Applied",
+    "accepted": "Accepted",
+    "refused": "Refused"
+  },
+  "stats": {
+    "total": "Total",
+    "pending": "Applied",
+    "accepted": "Accepted",
+    "refused": "Refused"
+  },
+  "filters": {
+    "all": "All statuses",
+    "pending": "Applied",
+    "accepted": "Accepted",
+    "refused": "Refused",
+    "allOffers": "All offers"
+  },
+  "noCandidatures": {
+    "title": "No applications received",
+    "subtitle": "Applications will appear here when students apply to your offers"
+  },
+  "noResults": {
+    "title": "No results",
+    "subtitle": "Try modifying your search criteria"
+  },
+  "errors": {
+    "loadCandidatures": "Error loading applications",
+    "downloadCV": "Error downloading CV",
+    "downloadLetter": "Error downloading cover letter",
+    "viewCV": "Error displaying CV",
+    "viewLetter": "Error displaying cover letter",
+    "loadDocument": "Error loading document"
+  },
+  "actions": {
+    "viewCV": "View CV",
+    "viewLetter": "View cover letter",
+    "download": "Download"
+  },
+  "modal": {
+    "title": "Document preview",
+    "close": "Close",
+    "error": "Error loading document",
+    "noPreview": "Preview unavailable for this file type"
+  },
+  "viewDetails": "View details",
+  "labels": {
+    "status": "Status",
+    "internshipOffer": "Internship offer",
+    "contact": "Contact",
+    "appliedOn": "Applied on",
+    "documents": "Documents",
+    "curriculumVitae": "Curriculum Vitae",
+    "documentPdf": "PDF document",
+    "noDocumentAvailable": "No document available",
+    "message": "Message",
+    "close": "Close",
+    "refresh": "Refresh",
+    "applicationNumber": "Application #"
+  },
+  "documentCards": {
+    "cvTitle": "Curriculum Vitae",
+    "cvSubtitle": "PDF document",
+    "letterTitle": "Cover letter",
+    "letterSubtitle": "PDF document",
+    "noDocument": "No document available"
+  }
+}

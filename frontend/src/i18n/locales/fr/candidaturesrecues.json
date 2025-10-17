@@ -1,0 +1,76 @@
+{
+  "title": "Candidatures reçues",
+  "subtitle": "Gérez les candidatures des étudiants pour vos offres de stage",
+  "backToDashboard": "Retour au tableau de bord",
+  "loading": "Chargement des candidatures...",
+  "coverLetter": "Lettre de motivation",
+  "searchPlaceholder": "Rechercher par nom, email ou offre...",
+  "resultsFound": "résultat(s) trouvé(s)",
+  "status": {
+    "pending": "Postulé",
+    "accepted": "Acceptée",
+    "refused": "Refusée"
+  },
+  "stats": {
+    "total": "Total",
+    "pending": "Postulé",
+    "accepted": "Acceptées",
+    "refused": "Refusées"
+  },
+  "filters": {
+    "all": "Tous les statuts",
+    "pending": "Postulé",
+    "accepted": "Acceptées",
+    "refused": "Refusées",
+    "allOffers": "Toutes les offres"
+  },
+  "noCandidatures": {
+    "title": "Aucune candidature reçue",
+    "subtitle": "Les candidatures apparaîtront ici lorsque des étudiants postuleront à vos offres"
+  },
+  "noResults": {
+    "title": "Aucun résultat",
+    "subtitle": "Essayez de modifier vos critères de recherche"
+  },
+  "errors": {
+    "loadCandidatures": "Erreur lors du chargement des candidatures",
+    "downloadCV": "Erreur lors du téléchargement du CV",
+    "downloadLetter": "Erreur lors du téléchargement de la lettre de motivation",
+    "viewCV": "Erreur lors de l'affichage du CV",
+    "viewLetter": "Erreur lors de l'affichage de la lettre de motivation",
+    "loadDocument": "Erreur lors du chargement du document"
+  },
+  "actions": {
+    "viewCV": "Regarder le CV",
+    "viewLetter": "Regarder la lettre de motivation",
+    "download": "Télécharger"
+  },
+  "modal": {
+    "title": "Aperçu du document",
+    "close": "Fermer",
+    "error": "Erreur lors du chargement du document",
+    "noPreview": "Aperçu indisponible pour ce type de fichier"
+  },
+  "viewDetails": "Voir les détails",
+  "labels": {
+    "status": "Statut",
+    "internshipOffer": "Offre de stage",
+    "contact": "Contact",
+    "appliedOn": "Postulé le",
+    "documents": "Documents",
+    "curriculumVitae": "Curriculum Vitae",
+    "documentPdf": "Document PDF",
+    "noDocumentAvailable": "Aucun document disponible",
+    "message": "Message",
+    "close": "Fermer",
+    "refresh": "Actualiser",
+    "applicationNumber": "Candidature #"
+  },
+  "documentCards": {
+    "cvTitle": "Curriculum Vitae",
+    "cvSubtitle": "Document PDF",
+    "letterTitle": "Lettre de motivation",
+    "letterSubtitle": "Document PDF",
+    "noDocument": "Aucun document disponible"
+  }
+}

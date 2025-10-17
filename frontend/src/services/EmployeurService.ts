@@ -24,6 +24,20 @@ export interface OffreStageDTO {
     utilisateur: { token: string };
 }
 
+export interface CandidatureRecueDTO {
+    id: number;
+    offreId: number;
+    offreTitre: string;
+    etudiantNom: string;
+    etudiantPrenom: string;
+    etudiantEmail: string;
+    dateCandidature: string;
+    statut: string;
+    acv: boolean;  // ✅ tout en minuscule
+    alettreMotivation: boolean;  // ✅ tout en minuscule
+    messageReponse?: string;
+}
+
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const EMPLOYEUR_ENDPOINT = '/OSEemployeur';
@@ -211,6 +225,127 @@ class EmployeurService {
                 data: { errorCode: 'ERROR_000' }
             };
             throw genericError;
+        }
+    }
+
+    /**
+     * Récupère les candidatures reçues pour les offres de l'employeur
+     * @returns Promise avec la liste des candidatures
+     */
+    async getCandidaturesRecues(): Promise<CandidatureRecueDTO[]> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des candidatures');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getCandidaturesRecues:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Récupère une candidature spécifique par son ID
+     * @param id - L'ID de la candidature
+     * @returns Promise avec les détails de la candidature
+     */
+    async getCandidatureSpecifique(id: number): Promise<CandidatureRecueDTO> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération de la candidature');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getCandidatureSpecifique:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Télécharge le CV d'une candidature
+     * @param id - L'ID de la candidature
+     * @returns Promise avec le blob du PDF
+     */
+    async telechargerCvCandidature(id: number): Promise<Blob> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${id}/cv`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du téléchargement du CV');
+            }
+
+            return await response.blob();
+        } catch (error) {
+            console.error('Erreur telechargerCvCandidature:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Télécharge la lettre de motivation d'une candidature
+     * @param id - L'ID de la candidature
+     * @returns Promise avec le blob du PDF
+     */
+    async telechargerLettreMotivationCandidature(id: number): Promise<Blob> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${id}/lettre-motivation`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du téléchargement de la lettre de motivation');
+            }
+
+            return await response.blob();
+        } catch (error) {
+            console.error('Erreur telechargerLettreMotivationCandidature:', error);
+            throw error;
         }
     }
 }

@@ -17,6 +17,7 @@ import ApprouverRefuserCV from './components/ApprouverRefuserCV.tsx';
 import VisualiserOffresGestionnaire from './components/VisualiserOffresGestionnaire.tsx';
 import LayoutGlobal from './components/LayoutGlobal.tsx';
 import TeleversementCv from './components/TeleversementCv.tsx';
+import CandidaturesRecues from "./components/CandidaturesRecues.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
             <Route path="visualiser-offres" element={<VisualiserOffresGestionnaire/>}/>
             <Route path="cvs-etudiants-gestionnaire" element={<ApprouverRefuserCV/>}/>
             <Route path="televersement-cv" element={<TeleversementCv/>}/>
+            <Route path="candidatures-recues" element={<CandidaturesRecues/>}/>
         </Route>
     )
 );
