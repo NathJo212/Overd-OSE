@@ -35,7 +35,42 @@
   "errors": {
     "loadCandidatures": "Error loading applications",
     "downloadCV": "Error downloading CV",
-    "downloadLetter": "Error downloading cover letter"
+    "downloadLetter": "Error downloading cover letter",
+    "viewCV": "Error displaying CV",
+    "viewLetter": "Error displaying cover letter",
+    "loadDocument": "Error loading document"
   },
-  "viewDetails": "View details"
+  "actions": {
+    "viewCV": "View CV",
+    "viewLetter": "View cover letter",
+    "download": "Download"
+  },
+  "modal": {
+    "title": "Document preview",
+    "close": "Close",
+    "error": "Error loading document",
+    "noPreview": "Preview unavailable for this file type"
+  },
+  "viewDetails": "View details",
+  "labels": {
+    "status": "Status",
+    "internshipOffer": "Internship offer",
+    "contact": "Contact",
+    "appliedOn": "Applied on",
+    "documents": "Documents",
+    "curriculumVitae": "Curriculum Vitae",
+    "documentPdf": "PDF document",
+    "noDocumentAvailable": "No document available",
+    "message": "Message",
+    "close": "Close",
+    "refresh": "Refresh",
+    "applicationNumber": "Application #"
+  },
+  "documentCards": {
+    "cvTitle": "Curriculum Vitae",
+    "cvSubtitle": "PDF document",
+    "letterTitle": "Cover letter",
+    "letterSubtitle": "PDF document",
+    "noDocument": "No document available"
+  }
 }

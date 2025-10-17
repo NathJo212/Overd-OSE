@@ -2,7 +2,20 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { employeurService } from "../services/EmployeurService";
 import {
-    Users, Calendar, Mail, FileText, CheckCircle, XCircle, Clock, Filter, Search, Briefcase, RefreshCw, X, Eye, ArrowLeft
+    Users,
+    Calendar,
+    Mail,
+    FileText,
+    CheckCircle,
+    XCircle,
+    Clock,
+    Filter,
+    Search,
+    Briefcase,
+    RefreshCw,
+    X,
+    Eye,
+    ArrowLeft,
 } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -63,7 +76,6 @@ const CandidaturesRecues = () => {
             setLoading(true);
             setError("");
             const data = await employeurService.getCandidaturesRecues();
-            console.log("📦 Candidatures reçues:", data); // ✅ AJOUTE CECI
             setCandidatures(data);
         } catch (err) {
             setError(t("candidaturesrecues:errors.loadCandidatures"));
@@ -271,7 +283,7 @@ const CandidaturesRecues = () => {
                             <button
                                 onClick={loadCandidatures}
                                 className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Actualiser"
+                                title={t("candidaturesrecues:labels.refresh")}
                             >
                                 <RefreshCw className="w-5 h-5" />
                             </button>
@@ -505,7 +517,7 @@ const CandidaturesRecues = () => {
                                 <h2 className="text-2xl font-bold text-gray-900">
                                     {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
                                 </h2>
-                                <p className="text-sm text-gray-600 mt-1">Candidature #{selectedCandidature.id}</p>
+                                <p className="text-sm text-gray-600 mt-1">{t("candidaturesrecues:labels.applicationNumber")}{selectedCandidature.id}</p>
                             </div>
                             <button
                                 onClick={handleCloseModal}
@@ -519,13 +531,13 @@ const CandidaturesRecues = () => {
                         <div className="p-6 space-y-6">
                             {/* Statut */}
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">Statut</label>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.status")}</label>
                                 {getStatutBadge(selectedCandidature.statut)}
                             </div>
 
                             {/* Offre */}
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">Offre de stage</label>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.internshipOffer")}</label>
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
                                     <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                     <span className="text-blue-900 font-medium">{selectedCandidature.offreTitre}</span>
@@ -534,7 +546,7 @@ const CandidaturesRecues = () => {
 
                             {/* Contact */}
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">Contact</label>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.contact")}</label>
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-3 text-gray-700">
                                         <Mail className="w-5 h-5 text-gray-400" />
@@ -542,14 +554,14 @@ const CandidaturesRecues = () => {
                                     </div>
                                     <div className="flex items-center gap-3 text-gray-700">
                                         <Calendar className="w-5 h-5 text-gray-400" />
-                                        <span>Postuléle {formatDate(selectedCandidature.dateCandidature)}</span>
+                                        <span>{t("candidaturesrecues:labels.appliedOn")} {formatDate(selectedCandidature.dateCandidature)}</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Documents */}
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-3">Documents</label>
+                                <label className="text-sm font-medium text-gray-700 block mb-3">{t("candidaturesrecues:labels.documents")}</label>
                                 <div className="space-y-3">
                                     {selectedCandidature.acv && (
                                         <button
@@ -561,8 +573,8 @@ const CandidaturesRecues = () => {
                                                     <FileText className="w-5 h-5 text-blue-600" />
                                                 </div>
                                                 <div className="text-left">
-                                                    <p className="font-medium text-gray-900">Curriculum Vitae</p>
-                                                    <p className="text-sm text-gray-500">Document PDF</p>
+                                                    <p className="font-medium text-gray-900">{t("candidaturesrecues:documentCards.cvTitle")}</p>
+                                                    <p className="text-sm text-gray-500">{t("candidaturesrecues:documentCards.cvSubtitle")}</p>
                                                 </div>
                                             </div>
                                             <Eye className="w-5 h-5 text-gray-400" />
@@ -579,8 +591,8 @@ const CandidaturesRecues = () => {
                                                     <FileText className="w-5 h-5 text-purple-600" />
                                                 </div>
                                                 <div className="text-left">
-                                                    <p className="font-medium text-gray-900">Lettre de motivation</p>
-                                                    <p className="text-sm text-gray-500">Document PDF</p>
+                                                    <p className="font-medium text-gray-900">{t("candidaturesrecues:documentCards.letterTitle")}</p>
+                                                    <p className="text-sm text-gray-500">{t("candidaturesrecues:documentCards.letterSubtitle")}</p>
                                                 </div>
                                             </div>
                                             <Eye className="w-5 h-5 text-gray-400" />
@@ -588,7 +600,7 @@ const CandidaturesRecues = () => {
                                     )}
 
                                     {!selectedCandidature.acv && !selectedCandidature.alettreMotivation && (
-                                        <p className="text-sm text-gray-500 text-center py-4">Aucun document disponible</p>
+                                        <p className="text-sm text-gray-500 text-center py-4">{t("candidaturesrecues:documentCards.noDocument")}</p>
                                     )}
                                 </div>
                             </div>
@@ -596,7 +608,7 @@ const CandidaturesRecues = () => {
                             {/* Message de réponse si existe */}
                             {selectedCandidature.messageReponse && (
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700 block mb-2">Message</label>
+                                    <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
                                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                                         <p className="text-gray-700">{selectedCandidature.messageReponse}</p>
                                     </div>
@@ -610,7 +622,7 @@ const CandidaturesRecues = () => {
                                 onClick={handleCloseModal}
                                 className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
                             >
-                                Fermer
+                                {t("candidaturesrecues:labels.close")}
                             </button>
                         </div>
                     </div>
@@ -622,9 +634,9 @@ const CandidaturesRecues = () => {
                     <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
                         <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
                             <h3 className="text-xl font-semibold">
-                                {selectedDocument.cv ? t("cvmanager:cvModal.title") : t("cvmanager:cvModal.letterTitle")} - {selectedDocument.prenom} {selectedDocument.nom}
+                                {selectedDocument.cv ? t("candidaturesrecues:documentCards.cvTitle") : t("candidaturesrecues:documentCards.letterTitle")} - {selectedDocument.prenom} {selectedDocument.nom}
                             </h3>
-                            <button onClick={closeDocumentModal} className="text-white hover:text-gray-200">
+                            <button onClick={closeDocumentModal} className="text-white hover:text-gray-200" aria-label={t("candidaturesrecues:modal.close")}>
                                 <X className="h-6 w-6" />
                             </button>
                         </div>
@@ -633,13 +645,13 @@ const CandidaturesRecues = () => {
                                 <iframe
                                     src={`data:application/pdf;base64,${selectedDocument.cv ?? selectedDocument.lettre}`}
                                     className="w-full h-[600px] border rounded"
-                                    title="Document Preview"
+                                    title={t("candidaturesrecues:modal.title")}
                                     allow="fullscreen"
                                 />
                             ) : (
                                 <div className="text-center py-12">
                                     <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-600">{t("cvmanager:cvModal.noPreview")}</p>
+                                    <p className="text-gray-600">{t("candidaturesrecues:modal.noPreview")}</p>
                                 </div>
                             )}
                         </div>
@@ -651,3 +663,4 @@ const CandidaturesRecues = () => {
 };
 
 export default CandidaturesRecues;
+
