@@ -17,5 +17,15 @@
   "offers": {
     "title": "Available Internship Offers",
     "subtitle": "Explore and apply to opportunities that match your profile"
+  },
+  "convocations": {
+    "title": "My Interviews",
+    "refresh": "Refresh",
+    "loading": "Loading interviews...",
+    "empty": "No interviews at the moment.",
+    "view": "View",
+    "close": "Close",
+    "location": "Location",
+    "employer": "Employer"
   }
 }

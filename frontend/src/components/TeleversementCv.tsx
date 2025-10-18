@@ -106,6 +106,14 @@ const TeleversementCv = () => {
 
     // Vérifier si un CV existe au chargement du composant et vérification du statut du cv
     useEffect(() => {
+        const token = sessionStorage.getItem("authToken");
+        const role = sessionStorage.getItem("userType");
+
+        if (!token || role !== "ETUDIANT") {
+            navigate("/login");
+            return;
+        }
+
         const chargerInfosCv = async () => {
             await verifierCvExistant();
             const infos = await etudiantService.getInfosCv();
@@ -113,7 +121,7 @@ const TeleversementCv = () => {
             setMessageRefus(infos?.messageRefusCV ?? null);
         };
         chargerInfosCv();
-    }, []);
+    }, [navigate]);
 
     return (
         <div className="bg-gray-50 min-h-screen">

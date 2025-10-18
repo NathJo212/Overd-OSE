@@ -1,9 +1,10 @@
-import {useState} from "react";
-import { useNavigate } from "react-router-dom";
+import {useState, useEffect} from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Calendar, Clock, MapPin, Users, FileText, CheckCircle, X, ArrowLeft, User } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
 import { useTranslation } from 'react-i18next';
+import { employeurService } from '../services/EmployeurService';
 
 interface ConvocationFormData {
     titre: string;
@@ -20,6 +21,10 @@ interface ConvocationFormData {
 const CreerConvocation = () => {
     const { t } = useTranslation(["convocation"]);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // If coming from candidatures page, we may receive state to prefill the form
+    const incomingState = (location as any).state || {};
 
     const [formData, setFormData] = useState<ConvocationFormData>({
         titre: "",
@@ -33,9 +38,47 @@ const CreerConvocation = () => {
         noteSupplementaire: "",
     });
 
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [existingConvocationId, setExistingConvocationId] = useState<number | null>(null);
+    const [candidatureId, setCandidatureId] = useState<number | null>(null);
+
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
     const [successMessage, setSuccessMessage] = useState<string>("");
+
+    // Prefill from incoming state when available
+    useEffect(() => {
+        if (incomingState) {
+            const { candidatureId, etudiantPrenom, etudiantNom, offreTitre, convocation } = incomingState;
+            if (candidatureId) setCandidatureId(candidatureId);
+            if (etudiantPrenom || etudiantNom) {
+                setFormData(prev => ({ ...prev, etudiant: `${etudiantPrenom || ''} ${etudiantNom || ''}`.trim() }));
+            }
+            if (offreTitre) setFormData(prev => ({ ...prev, offreStage: offreTitre }));
+            if (convocation) {
+                // convocation expected shape: { id, dateHeure, lieuOuLien, message }
+                setIsEditMode(true);
+                try {
+                    const dt = new Date(convocation.dateHeure);
+                    const dateStr = dt.toISOString().split('T')[0];
+                    const timeStr = dt.toTimeString().split(':').slice(0,2).join(':');
+                    setFormData(prev => ({
+                        ...prev,
+                        titre: prev.titre || t('convocation:defaults.title'),
+                        description: convocation.message || prev.description,
+                        dateEntrevue: dateStr,
+                        heureDebut: timeStr,
+                        heureFin: timeStr,
+                        lieu: convocation.lieuOuLien || prev.lieu,
+                        noteSupplementaire: prev.noteSupplementaire
+                    }));
+                } catch(e) {
+                    // ignore parsing errors
+                }
+                if (convocation.id) setExistingConvocationId(convocation.id);
+            }
+        }
+    }, [incomingState, t]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -73,22 +116,65 @@ const CreerConvocation = () => {
             return;
         }
 
+        if (!candidatureId) {
+            setErrors([t('convocation:errors.missingCandidature')]);
+            return;
+        }
+
         setLoading(true);
 
         try {
-            // TODO: Intégration avec le backend
-            // await convocationService.creerConvocation(formData);
+            // Build date-time
+            const dateTime = new Date(`${formData.dateEntrevue}T${formData.heureDebut}:00`);
 
-            // Simulation de la création
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const payload = {
+                dateHeure: dateTime.toISOString(),
+                lieuOuLien: formData.lieu,
+                message: formData.noteSupplementaire || formData.description
+            };
 
-            setSuccessMessage(t("convocation:success.convocationCreated"));
+            if (isEditMode && existingConvocationId) {
+                // modify existing convocation
+                await employeurService.modifierConvocation(existingConvocationId, payload);
+                setSuccessMessage(t('convocation:success.convocationUpdated'));
+            } else {
+                // If there's already a convocation for this candidature, ask for confirmation to overwrite
+                if (incomingState?.convocation) {
+                    const ok = window.confirm(t('convocation:confirm.overwrite'));
+                    if (!ok) {
+                        setLoading(false);
+                        return;
+                    }
+                }
+
+                await employeurService.creerConvocation(candidatureId, payload);
+                setSuccessMessage(t('convocation:success.convocationCreated'));
+            }
+
             setTimeout(() => {
-                navigate("/dashboard-employeur"); // Ajuster selon le rôle
-            }, 2000);
+                navigate("/candidatures-recues");
+            }, 1500);
         } catch (error: any) {
             console.error('Erreur lors de la création de la convocation:', error);
-            setErrors([t('convocation:errors.genericError')]);
+            const msg = error?.message || t('convocation:errors.genericError');
+            setErrors([msg]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCancelConvocation = async () => {
+        if (!existingConvocationId) return;
+        const confirmCancel = window.confirm(t('convocation:confirm.cancel'));
+        if (!confirmCancel) return;
+        setLoading(true);
+        try {
+            await employeurService.annulerConvocation(existingConvocationId);
+            setSuccessMessage(t('convocation:success.convocationCanceled'));
+            setTimeout(() => navigate('/candidatures-recues'), 1200);
+        } catch (err: any) {
+            console.error('Erreur annulation convocation:', err);
+            setErrors([err?.message || t('convocation:errors.genericError')]);
         } finally {
             setLoading(false);
         }
@@ -111,7 +197,7 @@ const CreerConvocation = () => {
                         </button>
                     </div>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {t("convocation:title")}
+                        {isEditMode ? t("convocation:titleEdit") : t("convocation:title")}
                     </h1>
                     <p className="text-gray-600">
                         {t("convocation:subtitle")}
@@ -310,14 +396,25 @@ const CreerConvocation = () => {
 
                         {/* Boutons */}
                         <div className="flex gap-4 pt-4">
-                            <button
-                                type="button"
-                                onClick={() => navigate(-1)}
-                                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200"
-                                disabled={loading}
-                            >
-                                {t("convocation:button.cancel")}
-                            </button>
+                             <button
+                                 type="button"
+                                 onClick={() => navigate(-1)}
+                                 className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all duration-200"
+                                 disabled={loading}
+                             >
+                                 {t("convocation:button.cancel")}
+                             </button>
+                            {isEditMode && (
+                                <button
+                                    type="button"
+                                    onClick={handleCancelConvocation}
+                                    className="px-6 py-3 border-2 border-red-300 text-red-700 font-medium rounded-xl hover:bg-red-50 transition-all duration-200"
+                                    disabled={loading}
+                                >
+                                    {t('convocation:button.cancelConvocation')}
+                                </button>
+                            )}
+
                             <button
                                 type="submit"
                                 className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -335,12 +432,12 @@ const CreerConvocation = () => {
                                     </>
                                 )}
                             </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
+                         </div>
+                     </div>
+                 </form>
+             </div>
+         </div>
+     );
+ };
 
-export default CreerConvocation;
+ export default CreerConvocation;
