@@ -1,0 +1,40 @@
+{
+  "title": "Candidatures reçues",
+  "subtitle": "Gérez les candidatures des étudiants pour vos offres de stage",
+  "loading": "Chargement des candidatures...",
+  "coverLetter": "Lettre de motivation",
+  "searchPlaceholder": "Rechercher par nom, email ou offre...",
+  "resultsFound": "résultat(s) trouvé(s)",
+  "status": {
+    "pending": "En attente",
+    "accepted": "Acceptée",
+    "refused": "Refusée"
+  },
+  "stats": {
+    "total": "Total",
+    "pending": "En attente",
+    "accepted": "Acceptées",
+    "refused": "Refusées"
+  },
+  "filters": {
+    "all": "Tous les statuts",
+    "pending": "En attente",
+    "accepted": "Acceptées",
+    "refused": "Refusées",
+    "allOffers": "Toutes les offres"
+  },
+  "noCandidatures": {
+    "title": "Aucune candidature reçue",
+    "subtitle": "Les candidatures apparaîtront ici lorsque des étudiants postuleront à vos offres"
+  },
+  "noResults": {
+    "title": "Aucun résultat",
+    "subtitle": "Essayez de modifier vos critères de recherche"
+  },
+  "errors": {
+    "loadCandidatures": "Erreur lors du chargement des candidatures",
+    "downloadCV": "Erreur lors du téléchargement du CV",
+    "downloadLetter": "Erreur lors du téléchargement de la lettre de motivation"
+  },
+    "viewDetails": "Voir les détails"
+}
