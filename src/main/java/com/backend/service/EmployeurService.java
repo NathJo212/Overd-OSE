@@ -8,6 +8,7 @@ import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +18,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import com.backend.modele.Etudiant;
 
 @Service
@@ -31,9 +34,11 @@ public class EmployeurService {
     private final CandidatureRepository candidatureRepository;
     private final EncryptageCV encryptageCV;
     private final ConvocationEntrevueRepository convocationEntrevueRepository;
+    private final NotificationRepository notificationRepository;
+    private final MessageSource messageSource;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, MessageSource messageSource) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -42,6 +47,8 @@ public class EmployeurService {
         this.candidatureRepository = candidatureRepository;
         this.encryptageCV = encryptageCV;
         this.convocationEntrevueRepository = convocationEntrevueRepository;
+        this.notificationRepository = notificationRepository;
+        this.messageSource = messageSource;
     }
 
     @Transactional
@@ -215,6 +222,17 @@ public class EmployeurService {
         convocationEntrevueRepository.save(convocation);
         candidature.setConvocationEntrevue(convocation);
         candidatureRepository.save(candidature);
+
+        // créer et sauvegarder la notification pour l'étudiant lié
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("convocation.created");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
     }
 
     @Transactional
@@ -233,6 +251,17 @@ public class EmployeurService {
         convocation.setStatut(ConvocationEntrevue.StatutConvocation.MODIFIE);
 
         convocationEntrevueRepository.save(convocation);
+
+        // notification de modification pour l'étudiant
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("convocation.modified");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
     }
 
     @Transactional
@@ -247,6 +276,17 @@ public class EmployeurService {
 
         convocation.setStatut(ConvocationEntrevue.StatutConvocation.ANNULEE);
         convocationEntrevueRepository.save(convocation);
+
+        // notification d'annulation pour l'étudiant
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("convocation.cancelled");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
     }
 
     @Transactional
