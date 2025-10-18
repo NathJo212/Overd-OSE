@@ -56,8 +56,14 @@ const CandidaturesRecues = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState<DocumentPreview | null>(null);
     const [showDocumentModal, setShowDocumentModal] = useState(false);
-    const [convocationError, setConvocationError] = useState<string | null>(null);
-    const [convocationSuccess, setConvocationSuccess] = useState<string | null>(null);
+
+    // Load notifications from localStorage on mount
+    const [convocationError, setConvocationError] = useState<string | null>(() => {
+        return localStorage.getItem('convocationError') || null;
+    });
+    const [convocationSuccess, setConvocationSuccess] = useState<string | null>(() => {
+        return localStorage.getItem('convocationSuccess') || null;
+    });
     const [creatingConvocationId, setCreatingConvocationId] = useState<number | null>(null);
 
     // Modal state for convocation creation
@@ -68,6 +74,23 @@ const CandidaturesRecues = () => {
         lieu: '',
         message: ''
     });
+
+    // Effect to persist notifications in localStorage
+    useEffect(() => {
+        if (convocationError) {
+            localStorage.setItem('convocationError', convocationError);
+        } else {
+            localStorage.removeItem('convocationError');
+        }
+    }, [convocationError]);
+
+    useEffect(() => {
+        if (convocationSuccess) {
+            localStorage.setItem('convocationSuccess', convocationSuccess);
+        } else {
+            localStorage.removeItem('convocationSuccess');
+        }
+    }, [convocationSuccess]);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -315,8 +338,6 @@ const CandidaturesRecues = () => {
             setConvocationError(msg);
         } finally {
             setCreatingConvocationId(null);
-            // clear success after a short delay
-            setTimeout(() => setConvocationSuccess(null), 4000);
         }
     };
 
@@ -462,9 +483,18 @@ const CandidaturesRecues = () => {
                     {/* Convocation Success Message */}
                     {convocationSuccess && (
                         <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-                            <div className="flex items-center gap-3">
-                                <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                                <p className="text-sm text-emerald-800 font-medium">{convocationSuccess}</p>
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                                    <p className="text-sm text-emerald-800 font-medium">{convocationSuccess}</p>
+                                </div>
+                                <button
+                                    onClick={() => setConvocationSuccess(null)}
+                                    className="p-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100 rounded transition-colors"
+                                    aria-label="Fermer"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
                             </div>
                         </div>
                     )}
@@ -472,9 +502,18 @@ const CandidaturesRecues = () => {
                     {/* Convocation Error Message */}
                     {convocationError && (
                         <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                            <div className="flex items-center gap-3">
-                                <XCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
-                                <p className="text-sm text-rose-800 font-medium">{convocationError}</p>
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <XCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+                                    <p className="text-sm text-rose-800 font-medium">{convocationError}</p>
+                                </div>
+                                <button
+                                    onClick={() => setConvocationError(null)}
+                                    className="p-1 text-rose-600 hover:text-rose-800 hover:bg-rose-100 rounded transition-colors"
+                                    aria-label="Fermer"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
                             </div>
                         </div>
                     )}
@@ -810,20 +849,22 @@ const CandidaturesRecues = () => {
                             {/* Formulaire de convocation */}
                             <div>
                                 <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.dateHeure")}</label>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-4">
                                     <input
                                         type="date"
                                         name="dateEntrevue"
                                         value={convocationFormData.dateEntrevue}
                                         onChange={handleConvocationFormChange}
-                                        className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="ex: 25/10/2025"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                     />
                                     <input
                                         type="time"
                                         name="heureDebut"
                                         value={convocationFormData.heureDebut}
                                         onChange={handleConvocationFormChange}
-                                        className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="10:00"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                     />
                                 </div>
                             </div>
@@ -835,8 +876,8 @@ const CandidaturesRecues = () => {
                                     name="lieu"
                                     value={convocationFormData.lieu}
                                     onChange={handleConvocationFormChange}
-                                    className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder={t("candidaturesrecues:placeholders.lieu")}
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                    placeholder="ex: Bureau 301, 123 Rue Principale ou https://meet.google.com/abc-defg-hij"
                                 />
                             </div>
 
@@ -846,9 +887,9 @@ const CandidaturesRecues = () => {
                                     name="message"
                                     value={convocationFormData.message}
                                     onChange={handleConvocationFormChange}
-                                    className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    rows={3}
-                                    placeholder={t("candidaturesrecues:placeholders.message")}
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                                    rows={4}
+                                    placeholder={`ex: Bonjour ${selectedCandidature.etudiantPrenom},\n\nNous aimerions vous rencontrer pour discuter de votre candidature pour le poste de ${selectedCandidature.offreTitre}.\n\nCordialement`}
                                 />
                             </div>
                         </div>

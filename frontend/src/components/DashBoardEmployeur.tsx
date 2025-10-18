@@ -2,9 +2,22 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router";
 import { employeurService } from "../services/EmployeurService";
-import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap, CalendarPlus } from 'lucide-react';
+import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap, Clock, Edit, Trash2, RefreshCw } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
+
+// Type défini localement pour éviter les problèmes de cache
+interface ConvocationEntrevueDTO {
+    id?: number;
+    candidatureId: number;
+    dateHeure: string;
+    lieuOuLien: string;
+    message: string;
+    offreTitre?: string;
+    employeurNom?: string;
+    etudiantNom?: string;
+    etudiantPrenom?: string;
+}
 
 const DashBoardEmployeur = () => {
     const { t } = useTranslation(["employerdashboard"]);
@@ -15,6 +28,11 @@ const DashBoardEmployeur = () => {
     const [offres, setOffres] = useState<any[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [modalReason, setModalReason] = useState("");
+    const [convocations, setConvocations] = useState<ConvocationEntrevueDTO[]>([]);
+    const [loadingConvocations, setLoadingConvocations] = useState(false);
+    const [selectedConvocation, setSelectedConvocation] = useState<ConvocationEntrevueDTO | null>(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editForm, setEditForm] = useState({ dateHeure: '', lieuOuLien: '', message: '' });
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -27,26 +45,23 @@ const DashBoardEmployeur = () => {
                     .then(offres => setOffres(offres))
                     .catch(() => setNotificationMessage(t("employerdashboard:errors.loadOffers")));
             }
+            loadConvocations();
             return;
         }
 
-        // Vérifier si l'utilisateur vient d'une inscription ou connexion réussie
         const fromRegistration = sessionStorage.getItem('fromRegistration');
         const fromLogin = sessionStorage.getItem('fromLogin');
 
         if (fromRegistration === 'true') {
             setNotificationMessage(t('employerdashboard:notifications.welcomeCreated'));
             setShowNotification(true);
-            // Nettoyer le flag pour éviter de re-montrer la notification
             sessionStorage.removeItem('fromRegistration');
         } else if (fromLogin === 'true') {
             setNotificationMessage(t('employerdashboard:notifications.welcomeLogin'));
             setShowNotification(true);
-            // Nettoyer le flag pour éviter de re-montrer la notification
             sessionStorage.removeItem('fromLogin');
         }
 
-        // Auto-fermer la notification après 5 secondes
         if (showNotification) {
             const timer = setTimeout(() => {
                 setShowNotification(false);
@@ -56,6 +71,18 @@ const DashBoardEmployeur = () => {
         }
     }, [navigate, showNotification, t]);
 
+    const loadConvocations = async () => {
+        try {
+            setLoadingConvocations(true);
+            const convs = await employeurService.getConvocations();
+            setConvocations(convs || []);
+        } catch (e) {
+            console.error('Erreur chargement convocations:', e);
+        } finally {
+            setLoadingConvocations(false);
+        }
+    };
+
     const handleCloseNotification = () => {
         setShowNotification(false);
     };
@@ -63,6 +90,45 @@ const DashBoardEmployeur = () => {
     const handleRefuseClick = (reason: string) => {
         setModalReason(reason || "Aucune raison fournie");
         setShowModal(true);
+    };
+
+    const handleEditConvocation = (conv: ConvocationEntrevueDTO) => {
+        setSelectedConvocation(conv);
+        setEditForm({
+            dateHeure: conv.dateHeure,
+            lieuOuLien: conv.lieuOuLien,
+            message: conv.message
+        });
+        setShowEditModal(true);
+    };
+
+    const handleSaveEdit = async () => {
+        if (!selectedConvocation) return;
+
+        try {
+            await employeurService.modifierConvocation(selectedConvocation.candidatureId, editForm);
+            setNotificationMessage('Convocation modifiée avec succès');
+            setShowNotification(true);
+            setShowEditModal(false);
+            loadConvocations();
+        } catch (error: any) {
+            setNotificationMessage(error.message || 'Erreur lors de la modification');
+            setShowNotification(true);
+        }
+    };
+
+    const handleDeleteConvocation = async (conv: ConvocationEntrevueDTO) => {
+        if (!window.confirm('Êtes-vous sûr de vouloir annuler cette convocation?')) return;
+
+        try {
+            await employeurService.annulerConvocation(conv.candidatureId);
+            setNotificationMessage('Convocation annulée avec succès');
+            setShowNotification(true);
+            loadConvocations();
+        } catch (error: any) {
+            setNotificationMessage(error.message || 'Erreur lors de l\'annulation');
+            setShowNotification(true);
+        }
     };
 
     return (
@@ -112,19 +178,81 @@ const DashBoardEmployeur = () => {
                             >
                                 {t("employerdashboard:createOffer")}
                             </NavLink>
-                            <NavLink to="/candidatures-recues" className="inline-block ml-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                            <NavLink to="/candidatures-recues" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
                                 {t("employerdashboard:myApplications")}
-                            </NavLink>
-                            <NavLink
-                                to="/creer-convocation"
-                                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105"
-                            >
-                                <CalendarPlus className="w-5 h-5" />
-                                Créer une convocation
                             </NavLink>
                         </div>
                     </div>
 
+                    {/* Convocations Section */}
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-2xl font-semibold text-gray-800">Mes Convocations</h2>
+                            <button
+                                onClick={loadConvocations}
+                                className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
+                                disabled={loadingConvocations}
+                            >
+                                <RefreshCw className={`w-4 h-4 ${loadingConvocations ? 'animate-spin' : ''}`} />
+                                Actualiser
+                            </button>
+                        </div>
+
+                        {loadingConvocations ? (
+                            <div className="text-center py-8 text-gray-600">Chargement...</div>
+                        ) : convocations.length === 0 ? (
+                            <div className="text-center py-12">
+                                <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                <p className="text-gray-500">Aucune convocation à venir</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {convocations.map(conv => (
+                                    <div key={conv.id} className="border-2 border-blue-200 bg-blue-50 rounded-xl p-6">
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                                    {conv.offreTitre || 'Convocation'}
+                                                </h3>
+                                                <p className="text-sm text-gray-600 flex items-center gap-2 mb-1">
+                                                    <Calendar className="w-4 h-4" />
+                                                    {new Date(conv.dateHeure).toLocaleString('fr-CA')}
+                                                </p>
+                                                <p className="text-sm text-gray-600 flex items-center gap-2 mb-1">
+                                                    <MapPin className="w-4 h-4" />
+                                                    {conv.lieuOuLien}
+                                                </p>
+                                                {conv.etudiantNom && conv.etudiantPrenom && (
+                                                    <p className="text-sm text-blue-700 font-medium mt-2">
+                                                        Étudiant: {conv.etudiantPrenom} {conv.etudiantNom}
+                                                    </p>
+                                                )}
+                                                <p className="text-sm text-gray-700 mt-3">{conv.message}</p>
+                                            </div>
+                                            <div className="flex flex-col gap-2 ml-4">
+                                                <button
+                                                    onClick={() => handleEditConvocation(conv)}
+                                                    className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                    Modifier
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteConvocation(conv)}
+                                                    className="px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                    Annuler
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Offres Section */}
                     <div className="bg-white rounded-2xl shadow-2xl p-8">
                         <h2 className="text-2xl font-semibold text-gray-800 mb-6">
                             {t("employerdashboard:myOffers")}
@@ -217,24 +345,75 @@ const DashBoardEmployeur = () => {
                         )}
                     </div>
                 </div>
+
+                {/* Edit Convocation Modal */}
+                {showEditModal && (
+                    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30">
+                        <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
+                            <div className="bg-blue-50 px-6 py-4 rounded-t-xl border-b border-blue-100">
+                                <h3 className="text-xl font-semibold text-blue-700">Modifier la convocation</h3>
+                            </div>
+                            <div className="px-6 py-6 space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Date et heure</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={editForm.dateHeure}
+                                        onChange={(e) => setEditForm({...editForm, dateHeure: e.target.value})}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Lieu ou lien</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.lieuOuLien}
+                                        onChange={(e) => setEditForm({...editForm, lieuOuLien: e.target.value})}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                                    <textarea
+                                        value={editForm.message}
+                                        onChange={(e) => setEditForm({...editForm, message: e.target.value})}
+                                        rows={4}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                </div>
+                            </div>
+                            <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
+                                <button
+                                    className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                                    onClick={() => setShowEditModal(false)}
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    onClick={handleSaveEdit}
+                                >
+                                    Enregistrer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Refusal Reason Modal */}
                 {showModal && (
                     <div className="fixed inset-0 flex items-center justify-center p-4 z-50" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
                         <div className="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4">
-                            {/* Modal Header */}
                             <div className="bg-red-50 px-6 py-4 rounded-t-xl border-b border-red-100">
                                 <div className="flex items-center justify-center">
                                     <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                        <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
-                                        </svg>
+                                        <X className="w-6 h-6 text-red-600" />
                                     </div>
                                     <h3 className="text-xl font-semibold text-red-700">
                                         {t("employerdashboard:modal.refusedTitle")}
                                     </h3>
                                 </div>
                             </div>
-
-                            {/* Modal Body */}
                             <div className="px-6 py-6">
                                 <p className="text-gray-600 text-sm mb-2">{t("employerdashboard:modal.refusedReason")}</p>
                                 <div className="bg-gray-50 p-4 rounded-lg border">
@@ -243,8 +422,6 @@ const DashBoardEmployeur = () => {
                                     </p>
                                 </div>
                             </div>
-
-                            {/* Modal Footer */}
                             <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end">
                                 <button
                                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
