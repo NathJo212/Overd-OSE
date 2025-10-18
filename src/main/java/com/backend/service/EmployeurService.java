@@ -322,6 +322,16 @@ public class EmployeurService {
         }
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
         candidatureRepository.save(candidature);
+
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("offre.approved");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
     }
 
     @Transactional
@@ -341,5 +351,15 @@ public class EmployeurService {
         candidature.setStatut(Candidature.StatutCandidature.REFUSEE);
         candidature.setMessageReponse(raison);
         candidatureRepository.save(candidature);
+
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("offre.refused");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
     }
 }
