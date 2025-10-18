@@ -11,6 +11,9 @@ import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.modele.Notification;
+import com.backend.persistence.NotificationRepository;
+import com.backend.service.DTO.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,11 +58,20 @@ public class EtudiantServiceTest {
     @Mock
     private EncryptageCV encryptageCV;
 
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private NotificationRepository notificationRepository;
+
     @InjectMocks
     private EtudiantService etudiantService;
 
     @Mock
     private CandidatureRepository candidatureRepository;
+
+    @Mock
+    private Authentication authentication;
 
     @BeforeEach
     void setupSecurityContext() {
@@ -74,6 +86,131 @@ public class EtudiantServiceTest {
         lenient().when(securityContext.getAuthentication()).thenReturn(auth);
 
         SecurityContextHolder.setContext(securityContext);
+    }
+
+    @Test
+    public void testGetNotificationsPourEtudiantConnecte_returnsList() throws Exception {
+        // Arrange
+        Etudiant etu = new Etudiant();
+        etu.setEmail("etudiant@test.com");
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etu);
+
+        Notification n = new Notification();
+        n.setId(7L);
+        n.setUtilisateur(etu);
+        n.setMessageKey("notif.key");
+        n.setMessageParam("param");
+        n.setLu(false);
+        n.setDateCreation(LocalDateTime.now());
+
+        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etu)).thenReturn(List.of(n));
+
+        // Act
+        var dtos = etudiantService.getNotificationsPourEtudiantConnecte();
+
+        // Assert
+        assertNotNull(dtos);
+        assertEquals(1, dtos.size());
+        NotificationDTO dto = dtos.get(0);
+        assertEquals(7L, dto.getId());
+        assertEquals("notif.key", dto.getMessageKey());
+        assertEquals("param", dto.getMessageParam());
+        assertFalse(dto.isLu());
+    }
+
+    @Test
+    public void testGetNotificationsPourEtudiantConnecte_notForConnectedEtudiant_returnsEmpty() throws Exception {
+        // Arrange
+        String email = "etudiant@test.com";
+        Etudiant etu = mock(Etudiant.class);
+        etu.setEmail(email);
+
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ETUDIANT")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        when(etudiantRepository.existsByEmail(email)).thenReturn(true);
+        when(etudiantRepository.findByEmail(email)).thenReturn(etu);
+
+        Etudiant autre = mock(Etudiant.class);
+
+        Notification n = new Notification();
+        n.setId(7L);
+        n.setUtilisateur(autre); // appartient à un autre étudiant
+        n.setMessageKey("notif.key");
+        n.setMessageParam("param");
+        n.setLu(false);
+        n.setDateCreation(LocalDateTime.now());
+
+        // Le dépôt ne doit pas retourner la notification de l'autre étudiant pour 'etu'
+        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etu)).thenReturn(Collections.emptyList());
+
+        // Act
+        var dtos = etudiantService.getNotificationsPourEtudiantConnecte();
+
+        // Assert
+        assertNotNull(dtos);
+        assertTrue(dtos.isEmpty());
+    }
+
+    @Test
+    public void testMarquerNotificationLu_success() throws Exception {
+        // Arrange
+        Etudiant etu = mock(Etudiant.class);
+        etu.setEmail("etudiant@test.com");
+        when(etu.getId()).thenReturn(60L);
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etu);
+
+        Notification notif = new Notification();
+        notif.setId(8L);
+        notif.setUtilisateur(etu);
+        notif.setLu(false);
+
+        when(notificationRepository.findById(8L)).thenReturn(Optional.of(notif));
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        var result = etudiantService.marquerNotificationLu(8L, true);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(8L, result.getId());
+        assertTrue(result.isLu());
+        verify(notificationRepository, times(1)).save(any(Notification.class));
+    }
+
+    @Test
+    public void testMarquerNotificationLu_unauthorized() throws Exception {
+        // Arrange
+        Etudiant etu = mock(Etudiant.class);
+        etu.setEmail("etudiant@test.com");
+        when(etu.getId()).thenReturn(70L);
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etu);
+
+        Etudiant autre = mock(Etudiant.class);
+        when(autre.getId()).thenReturn(99L);
+
+        Notification notif = new Notification();
+        notif.setId(9L);
+        notif.setUtilisateur(autre);
+        notif.setLu(false);
+
+        when(notificationRepository.findById(9L)).thenReturn(Optional.of(notif));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> etudiantService.marquerNotificationLu(9L, true));
+        verify(notificationRepository, never()).save(any());
     }
 
     @Test

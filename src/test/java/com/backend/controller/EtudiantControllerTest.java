@@ -517,4 +517,78 @@ class EtudiantControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("GET /OSEetudiant/notifications -> retourne liste de notifications")
+    void getNotifications_success_returnsList() throws Exception {
+        NotificationDTO dto = new NotificationDTO(1L, "key", "param", false, LocalDateTime.now());
+        when(etudiantService.getNotificationsPourEtudiantConnecte()).thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/OSEetudiant/notifications").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/notifications -> retourne 403 si action non autorisée")
+    void getNotifications_actionNonAutorisee_returnsForbidden() throws Exception {
+        when(etudiantService.getNotificationsPourEtudiantConnecte()).thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEetudiant/notifications").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/notifications -> retourne 403 si utilisateur non trouvé")
+    void getNotifications_utilisateurPasTrouve_returnsForbidden() throws Exception {
+        when(etudiantService.getNotificationsPourEtudiantConnecte()).thenThrow(new UtilisateurPasTrouveException());
+
+        mockMvc.perform(get("/OSEetudiant/notifications").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/notifications -> retourne 500 sur erreur interne")
+    void getNotifications_internalError_returnsInternalServerError() throws Exception {
+        when(etudiantService.getNotificationsPourEtudiantConnecte()).thenThrow(new RuntimeException("Erreur interne"));
+
+        mockMvc.perform(get("/OSEetudiant/notifications").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/notifications/{id}/lu -> marque notification lue et retourne 200")
+    void marquerNotificationLu_success_returnsOk() throws Exception {
+        when(etudiantService.marquerNotificationLu(eq(2L), eq(true))).thenReturn(new NotificationDTO(2L, "k", "p", true, LocalDateTime.now()));
+
+        mockMvc.perform(put("/OSEetudiant/notifications/2/lu")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Notification marquée comme lue"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/notifications/{id}/lu -> retourne 403 si action non autorisée")
+    void marquerNotificationLu_actionNonAutorisee_returnsForbidden() throws Exception {
+        when(etudiantService.marquerNotificationLu(eq(2L), eq(true))).thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(put("/OSEetudiant/notifications/2/lu")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("true"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/notifications/{id}/lu -> retourne 500 sur erreur interne")
+    void marquerNotificationLu_internalError_returnsInternalServerError() throws Exception {
+        when(etudiantService.marquerNotificationLu(eq(2L), eq(true))).thenThrow(new RuntimeException("Erreur interne"));
+
+        mockMvc.perform(put("/OSEetudiant/notifications/2/lu")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("true"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
 }
