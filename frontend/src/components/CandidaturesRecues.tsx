@@ -307,39 +307,39 @@ const CandidaturesRecues = () => {
 
             // Validate form
             if (!convocationFormData.dateEntrevue || !convocationFormData.heureDebut || !convocationFormData.lieu.trim()) {
-                setConvocationError('Veuillez remplir tous les champs obligatoires');
+                setConvocationError(t("candidaturesrecues:errors.fillRequiredFields"));
                 setCreatingConvocationId(null);
                 return;
             }
 
-            // Build ISO datetime
-            const dateTime = new Date(`${convocationFormData.dateEntrevue}T${convocationFormData.heureDebut}:00`);
-            const dateHeure = dateTime.toISOString();
+             // Build ISO datetime
+             const dateTime = new Date(`${convocationFormData.dateEntrevue}T${convocationFormData.heureDebut}:00`);
+             const dateHeure = dateTime.toISOString();
 
-            console.log('Date construite:', dateHeure);
+             console.log('Date construite:', dateHeure);
 
-            const payload = {
-                dateHeure,
-                lieuOuLien: convocationFormData.lieu,
-                message: convocationFormData.message || `Convocation pour ${selectedCandidature.etudiantPrenom} ${selectedCandidature.etudiantNom}`
-            };
+             const payload = {
+                 dateHeure,
+                 lieuOuLien: convocationFormData.lieu,
+                message: convocationFormData.message || t('candidaturesrecues:placeholders.messageTemplate', { prenom: selectedCandidature.etudiantPrenom, offre: selectedCandidature.offreTitre })
+             };
 
-            console.log('Payload à envoyer:', payload);
-            console.log('Appel de creerConvocation avec candidatureId:', selectedCandidature.id);
+             console.log('Payload à envoyer:', payload);
+             console.log('Appel de creerConvocation avec candidatureId:', selectedCandidature.id);
 
-            await employeurService.creerConvocation(selectedCandidature.id, payload);
-            setConvocationSuccess('Convocation créée avec succès');
-            setShowConvocationModal(false);
-            // Refresh candidatures to reflect convocation if backend returns it
-            await loadCandidatures();
-        } catch (err: any) {
+             await employeurService.creerConvocation(selectedCandidature.id, payload);
+            setConvocationSuccess(t('candidaturesrecues:messages.convocationCreated'));
+             setShowConvocationModal(false);
+             // Refresh candidatures to reflect convocation if backend returns it
+             await loadCandidatures();
+         } catch (err: any) {
             console.error('Erreur créer convocation:', err);
-            const msg = err?.message || 'Erreur lors de la création de la convocation';
-            setConvocationError(msg);
-        } finally {
-            setCreatingConvocationId(null);
-        }
-    };
+            const msg = err?.message || null;
+            setConvocationError(msg || t('candidaturesrecues:errors.createConvocation'));
+         } finally {
+             setCreatingConvocationId(null);
+         }
+     };
 
     const handleCloseConvocationModal = () => {
         setShowConvocationModal(false);
@@ -664,7 +664,7 @@ const CandidaturesRecues = () => {
                                                     className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                                                 >
                                                     <Calendar className="w-4 h-4" />
-                                                    {creatingConvocationId === candidature.id ? 'Création...' : 'Créer convocation'}
+                                                    {creatingConvocationId === candidature.id ? t('candidaturesrecues:creating') : t('candidaturesrecues:createConvocation')}
                                                 </button>
                                             </div>
                                         </div>
@@ -877,7 +877,7 @@ const CandidaturesRecues = () => {
                                     value={convocationFormData.lieu}
                                     onChange={handleConvocationFormChange}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                    placeholder="ex: Bureau 301, 123 Rue Principale ou https://meet.google.com/abc-defg-hij"
+                                    placeholder={t('candidaturesrecues:placeholders.lieu')}
                                 />
                             </div>
 
@@ -889,7 +889,7 @@ const CandidaturesRecues = () => {
                                     onChange={handleConvocationFormChange}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
                                     rows={4}
-                                    placeholder={`ex: Bonjour ${selectedCandidature.etudiantPrenom},\n\nNous aimerions vous rencontrer pour discuter de votre candidature pour le poste de ${selectedCandidature.offreTitre}.\n\nCordialement`}
+                                    placeholder={t('candidaturesrecues:placeholders.messageTemplate', { prenom: selectedCandidature.etudiantPrenom, offre: selectedCandidature.offreTitre })}
                                 />
                             </div>
                         </div>

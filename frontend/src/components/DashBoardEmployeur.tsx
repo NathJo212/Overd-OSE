@@ -20,7 +20,7 @@ interface ConvocationEntrevueDTO {
 }
 
 const DashBoardEmployeur = () => {
-    const { t } = useTranslation(["employerdashboard"]);
+    const { t, i18n } = useTranslation(["employerdashboard"]);
     const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
     const [showNotification, setShowNotification] = useState(false);
@@ -88,7 +88,7 @@ const DashBoardEmployeur = () => {
     };
 
     const handleRefuseClick = (reason: string) => {
-        setModalReason(reason || "Aucune raison fournie");
+        setModalReason(reason || t('employerdashboard:convocations.noReasonProvided'));
         setShowModal(true);
     };
 
@@ -107,26 +107,26 @@ const DashBoardEmployeur = () => {
 
         try {
             await employeurService.modifierConvocation(selectedConvocation.candidatureId, editForm);
-            setNotificationMessage('Convocation modifiée avec succès');
+            setNotificationMessage(t('employerdashboard:convocations.messages.edited'));
             setShowNotification(true);
             setShowEditModal(false);
             loadConvocations();
         } catch (error: any) {
-            setNotificationMessage(error.message || 'Erreur lors de la modification');
+            setNotificationMessage(error.message || t('employerdashboard:convocations.messages.editError'));
             setShowNotification(true);
         }
     };
 
     const handleDeleteConvocation = async (conv: ConvocationEntrevueDTO) => {
-        if (!window.confirm('Êtes-vous sûr de vouloir annuler cette convocation?')) return;
+        if (!window.confirm(t('employerdashboard:convocations.confirmDelete'))) return;
 
         try {
             await employeurService.annulerConvocation(conv.candidatureId);
-            setNotificationMessage('Convocation annulée avec succès');
+            setNotificationMessage(t('employerdashboard:convocations.messages.deleted'));
             setShowNotification(true);
             loadConvocations();
         } catch (error: any) {
-            setNotificationMessage(error.message || 'Erreur lors de l\'annulation');
+            setNotificationMessage(error.message || t('employerdashboard:convocations.messages.deleteError'));
             setShowNotification(true);
         }
     };
@@ -153,7 +153,7 @@ const DashBoardEmployeur = () => {
                                         onClick={handleCloseNotification}
                                         className="bg-green-50 rounded-md inline-flex text-green-400 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                                     >
-                                        <span className="sr-only">Fermer</span>
+                                        <span className="sr-only">{t('employerdashboard:modal.close')}</span>
                                         <X className="h-5 w-5" />
                                     </button>
                                 </div>
@@ -184,26 +184,26 @@ const DashBoardEmployeur = () => {
                         </div>
                     </div>
 
-                    {/* Convocations Section */}
+                    {/* Convocations Section (re-added) */}
                     <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-semibold text-gray-800">Mes Convocations</h2>
+                            <h2 className="text-2xl font-semibold text-gray-800">{t('employerdashboard:convocations.title')}</h2>
                             <button
                                 onClick={loadConvocations}
                                 className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
                                 disabled={loadingConvocations}
                             >
                                 <RefreshCw className={`w-4 h-4 ${loadingConvocations ? 'animate-spin' : ''}`} />
-                                Actualiser
+                                {t('employerdashboard:convocations.refresh')}
                             </button>
                         </div>
 
                         {loadingConvocations ? (
-                            <div className="text-center py-8 text-gray-600">Chargement...</div>
+                            <div className="text-center py-8 text-gray-600">{t('employerdashboard:convocations.loading')}</div>
                         ) : convocations.length === 0 ? (
                             <div className="text-center py-12">
                                 <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                                <p className="text-gray-500">Aucune convocation à venir</p>
+                                <p className="text-gray-500">{t('employerdashboard:convocations.noneTitle')}</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -212,11 +212,11 @@ const DashBoardEmployeur = () => {
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                                                    {conv.offreTitre || 'Convocation'}
+                                                    {conv.offreTitre || t('employerdashboard:convocations.defaultTitle')}
                                                 </h3>
                                                 <p className="text-sm text-gray-600 flex items-center gap-2 mb-1">
                                                     <Calendar className="w-4 h-4" />
-                                                    {new Date(conv.dateHeure).toLocaleString('fr-CA')}
+                                                    {new Date(conv.dateHeure).toLocaleString(i18n?.language?.startsWith('fr') ? 'fr-CA' : 'en-CA')}
                                                 </p>
                                                 <p className="text-sm text-gray-600 flex items-center gap-2 mb-1">
                                                     <MapPin className="w-4 h-4" />
@@ -224,7 +224,7 @@ const DashBoardEmployeur = () => {
                                                 </p>
                                                 {conv.etudiantNom && conv.etudiantPrenom && (
                                                     <p className="text-sm text-blue-700 font-medium mt-2">
-                                                        Étudiant: {conv.etudiantPrenom} {conv.etudiantNom}
+                                                        {t('employerdashboard:convocations.student')}: {conv.etudiantPrenom} {conv.etudiantNom}
                                                     </p>
                                                 )}
                                                 <p className="text-sm text-gray-700 mt-3">{conv.message}</p>
@@ -235,14 +235,14 @@ const DashBoardEmployeur = () => {
                                                     className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
                                                 >
                                                     <Edit className="w-4 h-4" />
-                                                    Modifier
+                                                    {t('employerdashboard:convocations.edit')}
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteConvocation(conv)}
                                                     className="px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
-                                                    Annuler
+                                                    {t('employerdashboard:convocations.delete')}
                                                 </button>
                                             </div>
                                         </div>
@@ -351,11 +351,11 @@ const DashBoardEmployeur = () => {
                     <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30">
                         <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
                             <div className="bg-blue-50 px-6 py-4 rounded-t-xl border-b border-blue-100">
-                                <h3 className="text-xl font-semibold text-blue-700">Modifier la convocation</h3>
+                                <h3 className="text-xl font-semibold text-blue-700">{t('employerdashboard:convocations.editModal.title')}</h3>
                             </div>
                             <div className="px-6 py-6 space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Date et heure</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('employerdashboard:convocations.editModal.dateTime')}</label>
                                     <input
                                         type="datetime-local"
                                         value={editForm.dateHeure}
@@ -364,7 +364,7 @@ const DashBoardEmployeur = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Lieu ou lien</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('employerdashboard:convocations.editModal.location')}</label>
                                     <input
                                         type="text"
                                         value={editForm.lieuOuLien}
@@ -373,7 +373,7 @@ const DashBoardEmployeur = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('employerdashboard:convocations.editModal.message')}</label>
                                     <textarea
                                         value={editForm.message}
                                         onChange={(e) => setEditForm({...editForm, message: e.target.value})}
@@ -387,13 +387,13 @@ const DashBoardEmployeur = () => {
                                     className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
                                     onClick={() => setShowEditModal(false)}
                                 >
-                                    Annuler
+                                    {t('employerdashboard:convocations.editModal.cancel')}
                                 </button>
                                 <button
                                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                                     onClick={handleSaveEdit}
                                 >
-                                    Enregistrer
+                                    {t('employerdashboard:convocations.editModal.save')}
                                 </button>
                             </div>
                         </div>

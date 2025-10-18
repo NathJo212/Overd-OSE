@@ -26,5 +26,30 @@
     "welcomeCreated": "Bienvenue ! Votre compte a été créé et vous êtes maintenant connecté.",
     "welcomeLogin": "Connexion réussie ! Bienvenue sur votre tableau de bord."
   },
-    "myApplications": "Voir les candidatures de mes offres"
+  "myApplications": "Voir les candidatures de mes offres",
+  "convocations": {
+    "title": "Mes convocations",
+    "refresh": "Actualiser",
+    "loading": "Chargement...",
+    "noneTitle": "Aucune convocation à venir",
+    "defaultTitle": "Convocation",
+    "student": "Étudiant",
+    "edit": "Modifier",
+    "delete": "Annuler",
+    "confirmDelete": "Êtes-vous sûr de vouloir annuler cette convocation?",
+    "messages": {
+      "edited": "Convocation modifiée avec succès",
+      "deleted": "Convocation annulée avec succès",
+      "editError": "Erreur lors de la modification de la convocation",
+      "deleteError": "Erreur lors de l'annulation de la convocation"
+    },
+    "editModal": {
+      "title": "Modifier la convocation",
+      "dateTime": "Date et heure",
+      "location": "Lieu ou lien",
+      "message": "Message",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    }
+  }
 }

@@ -38,7 +38,9 @@
     "downloadLetter": "Error downloading cover letter",
     "viewCV": "Error displaying CV",
     "viewLetter": "Error displaying cover letter",
-    "loadDocument": "Error loading document"
+    "loadDocument": "Error loading document",
+    "createConvocation": "Error creating interview",
+    "fillRequiredFields": "Please fill all required fields"
   },
   "actions": {
     "viewCV": "View CV",
@@ -80,8 +82,12 @@
   "for": "for",
   "creating": "Creating...",
   "create": "Create Interview",
+  "messages": {
+    "convocationCreated": "Interview created successfully"
+  },
   "placeholders": {
     "lieu": "Ex: Room 301, Building A or https://meet.google.com/...",
-    "message": "Optional message for the student..."
+    "message": "Optional message for the student...",
+    "messageTemplate": "ex: Hello {{prenom}},\n\nWe would like to meet to discuss your application for the position {{offre}}.\n\nBest regards"
   }
 }

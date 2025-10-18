@@ -38,7 +38,9 @@
     "downloadLetter": "Erreur lors du téléchargement de la lettre de motivation",
     "viewCV": "Erreur lors de l'affichage du CV",
     "viewLetter": "Erreur lors de l'affichage de la lettre de motivation",
-    "loadDocument": "Erreur lors du chargement du document"
+    "loadDocument": "Erreur lors du chargement du document",
+    "createConvocation": "Erreur lors de la création de la convocation",
+    "fillRequiredFields": "Veuillez remplir tous les champs obligatoires"
   },
   "actions": {
     "viewCV": "Regarder le CV",
@@ -80,8 +82,12 @@
   "for": "pour",
   "creating": "Création en cours...",
   "create": "Créer la convocation",
+  "messages": {
+    "convocationCreated": "Convocation créée avec succès"
+  },
   "placeholders": {
     "lieu": "Ex: Salle 301, Bâtiment A ou https://meet.google.com/...",
-    "message": "Message facultatif pour l'étudiant..."
+    "message": "Message facultatif pour l'étudiant...",
+    "messageTemplate": "ex: Bonjour {{prenom}},\n\nNous aimerions vous rencontrer pour discuter de votre candidature pour le poste de {{offre}}.\n\nCordialement"
   }
 }
