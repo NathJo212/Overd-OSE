@@ -64,7 +64,10 @@
     "message": "Message",
     "close": "Close",
     "refresh": "Refresh",
-    "applicationNumber": "Application #"
+    "applicationNumber": "Application #",
+    "dateHeure": "Date and time",
+    "lieu": "Interview location",
+    "cancel": "Cancel"
   },
   "documentCards": {
     "cvTitle": "Curriculum Vitae",
@@ -72,5 +75,13 @@
     "letterTitle": "Cover letter",
     "letterSubtitle": "PDF document",
     "noDocument": "No document available"
+  },
+  "createConvocation": "Create Interview",
+  "for": "for",
+  "creating": "Creating...",
+  "create": "Create Interview",
+  "placeholders": {
+    "lieu": "Ex: Room 301, Building A or https://meet.google.com/...",
+    "message": "Optional message for the student..."
   }
 }

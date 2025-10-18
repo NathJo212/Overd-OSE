@@ -64,7 +64,10 @@
     "message": "Message",
     "close": "Fermer",
     "refresh": "Actualiser",
-    "applicationNumber": "Candidature #"
+    "applicationNumber": "Candidature #",
+    "dateHeure": "Date et heure",
+    "lieu": "Lieu de l'entrevue",
+    "cancel": "Annuler"
   },
   "documentCards": {
     "cvTitle": "Curriculum Vitae",
@@ -72,5 +75,13 @@
     "letterTitle": "Lettre de motivation",
     "letterSubtitle": "Document PDF",
     "noDocument": "Aucun document disponible"
+  },
+  "createConvocation": "Créer une convocation",
+  "for": "pour",
+  "creating": "Création en cours...",
+  "create": "Créer la convocation",
+  "placeholders": {
+    "lieu": "Ex: Salle 301, Bâtiment A ou https://meet.google.com/...",
+    "message": "Message facultatif pour l'étudiant..."
   }
 }

@@ -18,9 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import com.backend.modele.Etudiant;
 
 @Service
@@ -291,16 +289,12 @@ public class EmployeurService {
 
     @Transactional
     public List<ConvocationEntrevueDTO> getConvocationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
-        // Récupérer l’employeur connecté (à adapter selon votre logique d’authentification)
         Employeur employeur = getEmployeurConnecte();
 
-        // Récupérer toutes les offres de l’employeur
         List<Offre> offres = offreRepository.findAllByEmployeur(employeur);
 
-        // Récupérer toutes les candidatures pour ces offres
         List<Candidature> candidatures = candidatureRepository.findAllByOffreIn(offres);
 
-        // Pour chaque candidature, récupérer la convocation si elle existe
         List<ConvocationEntrevueDTO> convocations = new ArrayList<>();
         for (Candidature candidature : candidatures) {
             if (candidature.getConvocationEntrevue() != null) {
@@ -309,4 +303,5 @@ public class EmployeurService {
         }
         return convocations;
     }
+
 }
