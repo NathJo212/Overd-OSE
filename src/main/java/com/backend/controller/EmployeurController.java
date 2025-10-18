@@ -136,29 +136,27 @@ public class EmployeurController {
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> creerConvocation(@RequestBody ConvocationEntrevueDTO dto){
         try {
-            System.out.println("=== Création de convocation ===");
-            System.out.println("Candidature ID reçu: " + dto.candidatureId);
-            System.out.println("Date/Heure: " + dto.dateHeure);
-            System.out.println("Lieu: " + dto.lieuOuLien);
-            System.out.println("Message: " + dto.message);
-
             employeurService.creerConvocation(dto);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Convocation créée avec succès", null));
         } catch (CandidatureNonTrouveeException e) {
-            System.err.println("Candidature non trouvée pour l'ID: " + dto.candidatureId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", "Candidature non trouvée avec l'ID: " + dto.candidatureId)));
         } catch (ConvocationDejaExistanteException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new MessageRetourDTO(null, new ErrorResponse("CONVOCATION_EXISTS", e.getMessage())));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à créer une convocation pour cette candidature")));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
         } catch (Exception e) {
-            System.err.println("Erreur lors de la création de la convocation: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageRetourDTO(null, new ErrorResponse("INTERNAL_ERROR", e.getMessage())));
         }
     }
+
     @PutMapping("/candidatures/convocation")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> modifierConvocation(@RequestBody ConvocationEntrevueDTO dto){
@@ -169,6 +167,12 @@ public class EmployeurController {
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à modifier cette convocation")));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
         }
     }
 
@@ -182,6 +186,12 @@ public class EmployeurController {
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à annuler cette convocation")));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
         }
     }
 
