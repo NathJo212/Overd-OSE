@@ -1,0 +1,39 @@
+{
+  "title": "Mes candidatures",
+  "subtitle": "Suivez l'état de toutes vos candidatures",
+  "backToDashboard": "Retour au tableau de bord",
+  "loading": "Chargement des candidatures...",
+  "search": "Rechercher",
+  "searchPlaceholder": "Rechercher par titre ou entreprise...",
+  "filterByStatus": "Filtrer par statut",
+  "stats": {
+    "total": "Total",
+    "pending": "En attente",
+    "accepted": "Acceptées",
+    "refused": "Refusées"
+  },
+  "filters": {
+    "all": "Tous",
+    "pending": "En attente",
+    "accepted": "Acceptées",
+    "refused": "Refusées"
+  },
+  "status": {
+    "pending": "En attente",
+    "accepted": "Acceptée",
+    "refused": "Refusée"
+  },
+  "appliedOn": "Postulé le",
+  "employerMessage": "Message de l'employeur:",
+  "noCandidatures": {
+    "title": "Aucune candidature trouvée",
+    "noResults": "Essayez de modifier vos filtres de recherche.",
+    "neverApplied": "Vous n'avez pas encore postulé à des offres de stage.",
+    "viewOffers": "Voir les offres disponibles"
+  },
+  "errors": {
+    "loading": "Erreur lors du chargement des candidatures",
+    "notAuthenticated": "Vous devez être connecté"
+  }
+}
+

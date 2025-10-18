@@ -1,0 +1,39 @@
+{
+  "title": "My Applications",
+  "subtitle": "Track the status of all your applications",
+  "backToDashboard": "Back to dashboard",
+  "loading": "Loading applications...",
+  "search": "Search",
+  "searchPlaceholder": "Search by title or company...",
+  "filterByStatus": "Filter by status",
+  "stats": {
+    "total": "Total",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "refused": "Refused"
+  },
+  "filters": {
+    "all": "All",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "refused": "Refused"
+  },
+  "status": {
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "refused": "Refused"
+  },
+  "appliedOn": "Applied on",
+  "employerMessage": "Employer's message:",
+  "noCandidatures": {
+    "title": "No applications found",
+    "noResults": "Try modifying your search filters.",
+    "neverApplied": "You haven't applied to any internship offers yet.",
+    "viewOffers": "View available offers"
+  },
+  "errors": {
+    "loading": "Error loading applications",
+    "notAuthenticated": "You must be logged in"
+  }
+}
+

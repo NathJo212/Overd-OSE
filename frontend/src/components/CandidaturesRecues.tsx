@@ -56,6 +56,18 @@ const CandidaturesRecues = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState<DocumentPreview | null>(null);
     const [showDocumentModal, setShowDocumentModal] = useState(false);
+    const [convocationError, setConvocationError] = useState<string | null>(null);
+    const [convocationSuccess, setConvocationSuccess] = useState<string | null>(null);
+    const [creatingConvocationId, setCreatingConvocationId] = useState<number | null>(null);
+
+    // Modal state for convocation creation
+    const [showConvocationModal, setShowConvocationModal] = useState(false);
+    const [convocationFormData, setConvocationFormData] = useState({
+        dateEntrevue: '',
+        heureDebut: '',
+        lieu: '',
+        message: ''
+    });
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -231,6 +243,94 @@ const CandidaturesRecues = () => {
         setSelectedCandidature(null);
     };
 
+    const handleCreerConvocation = async (candidature: CandidatureRecue, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        setConvocationError(null);
+        setConvocationSuccess(null);
+        setSelectedCandidature(candidature);
+
+        // Pre-fill default values
+        const date = new Date();
+        date.setDate(date.getDate() + 7);
+        const dateStr = date.toISOString().split('T')[0];
+        const timeStr = '10:00';
+
+        setConvocationFormData({
+            dateEntrevue: dateStr,
+            heureDebut: timeStr,
+            lieu: 'À confirmer',
+            message: `Convocation pour ${candidature.etudiantPrenom} ${candidature.etudiantNom} - Offre: ${candidature.offreTitre}`
+        });
+
+        setShowConvocationModal(true);
+    };
+
+    const handleConvocationFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setConvocationFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmitConvocation = async () => {
+        if (!selectedCandidature) return;
+
+        setConvocationError(null);
+        setConvocationSuccess(null);
+        setCreatingConvocationId(selectedCandidature.id);
+
+        try {
+            console.log('=== Début de la création de convocation ===');
+            console.log('Candidature sélectionnée:', selectedCandidature);
+            console.log('ID de la candidature:', selectedCandidature.id);
+
+            // Validate form
+            if (!convocationFormData.dateEntrevue || !convocationFormData.heureDebut || !convocationFormData.lieu.trim()) {
+                setConvocationError('Veuillez remplir tous les champs obligatoires');
+                setCreatingConvocationId(null);
+                return;
+            }
+
+            // Build ISO datetime
+            const dateTime = new Date(`${convocationFormData.dateEntrevue}T${convocationFormData.heureDebut}:00`);
+            const dateHeure = dateTime.toISOString();
+
+            console.log('Date construite:', dateHeure);
+
+            const payload = {
+                dateHeure,
+                lieuOuLien: convocationFormData.lieu,
+                message: convocationFormData.message || `Convocation pour ${selectedCandidature.etudiantPrenom} ${selectedCandidature.etudiantNom}`
+            };
+
+            console.log('Payload à envoyer:', payload);
+            console.log('Appel de creerConvocation avec candidatureId:', selectedCandidature.id);
+
+            await employeurService.creerConvocation(selectedCandidature.id, payload);
+            setConvocationSuccess('Convocation créée avec succès');
+            setShowConvocationModal(false);
+            // Refresh candidatures to reflect convocation if backend returns it
+            await loadCandidatures();
+        } catch (err: any) {
+            console.error('Erreur créer convocation:', err);
+            const msg = err?.message || 'Erreur lors de la création de la convocation';
+            setConvocationError(msg);
+        } finally {
+            setCreatingConvocationId(null);
+            // clear success after a short delay
+            setTimeout(() => setConvocationSuccess(null), 4000);
+        }
+    };
+
+    const handleCloseConvocationModal = () => {
+        setShowConvocationModal(false);
+        setSelectedCandidature(null);
+        setConvocationFormData({
+            dateEntrevue: '',
+            heureDebut: '',
+            lieu: '',
+            message: ''
+        });
+    };
+
     const stats = getStatistics();
     const offresUniques = getUniqueOffres();
 
@@ -253,7 +353,7 @@ const CandidaturesRecues = () => {
     }
 
     return (
-        <>
+        <div>
             <NavBar />
             <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto space-y-6">
@@ -355,6 +455,26 @@ const CandidaturesRecues = () => {
                             <div className="flex items-center gap-3">
                                 <XCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
                                 <p className="text-sm text-rose-800 font-medium">{error}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Convocation Success Message */}
+                    {convocationSuccess && (
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                            <div className="flex items-center gap-3">
+                                <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                                <p className="text-sm text-emerald-800 font-medium">{convocationSuccess}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Convocation Error Message */}
+                    {convocationError && (
+                        <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                            <div className="flex items-center gap-3">
+                                <XCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+                                <p className="text-sm text-rose-800 font-medium">{convocationError}</p>
                             </div>
                         </div>
                     )}
@@ -497,6 +617,16 @@ const CandidaturesRecues = () => {
                                                     <Eye className="w-4 h-4" />
                                                     {t("candidaturesrecues:viewDetails")}
                                                 </button>
+
+                                                {/* Create convocation button */}
+                                                <button
+                                                    onClick={(e) => handleCreerConvocation(candidature, e)}
+                                                    disabled={creatingConvocationId === candidature.id}
+                                                    className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                                                >
+                                                    <Calendar className="w-4 h-4" />
+                                                    {creatingConvocationId === candidature.id ? 'Création...' : 'Créer convocation'}
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -504,132 +634,129 @@ const CandidaturesRecues = () => {
                             </div>
                         )}
                     </div>
-                </div>
-            </div>
 
-            {/* Modal de détails */}
-            {showModal && selectedCandidature && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        {/* Header Modal */}
-                        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
-                                </h2>
-                                <p className="text-sm text-gray-600 mt-1">{t("candidaturesrecues:labels.applicationNumber")}{selectedCandidature.id}</p>
-                            </div>
-                            <button
-                                onClick={handleCloseModal}
-                                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-
-                        {/* Contenu Modal */}
-                        <div className="p-6 space-y-6">
-                            {/* Statut */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.status")}</label>
-                                {getStatutBadge(selectedCandidature.statut)}
-                            </div>
-
-                            {/* Offre */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.internshipOffer")}</label>
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
-                                    <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                                    <span className="text-blue-900 font-medium">{selectedCandidature.offreTitre}</span>
-                                </div>
-                            </div>
-
-                            {/* Contact */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.contact")}</label>
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-3 text-gray-700">
-                                        <Mail className="w-5 h-5 text-gray-400" />
-                                        <span>{selectedCandidature.etudiantEmail}</span>
+                    {showModal && selectedCandidature && (
+                        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                                {/* Header Modal */}
+                                <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-gray-900">
+                                            {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
+                                        </h2>
+                                        <p className="text-sm text-gray-600 mt-1">{t("candidaturesrecues:labels.applicationNumber")}{selectedCandidature.id}</p>
                                     </div>
-                                    <div className="flex items-center gap-3 text-gray-700">
-                                        <Calendar className="w-5 h-5 text-gray-400" />
-                                        <span>{t("candidaturesrecues:labels.appliedOn")} {formatDate(selectedCandidature.dateCandidature)}</span>
-                                    </div>
+                                    <button
+                                        onClick={handleCloseModal}
+                                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                    >
+                                        <X className="w-6 h-6" />
+                                    </button>
                                 </div>
-                            </div>
 
-                            {/* Documents */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-3">{t("candidaturesrecues:labels.documents")}</label>
-                                <div className="space-y-3">
-                                    {selectedCandidature.acv && (
-                                        <button
-                                            onClick={(e) => handleRegarderCV(selectedCandidature.id, e)}
-                                            className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                    <FileText className="w-5 h-5 text-blue-600" />
-                                                </div>
-                                                <div className="text-left">
-                                                    <p className="font-medium text-gray-900">{t("candidaturesrecues:documentCards.cvTitle")}</p>
-                                                    <p className="text-sm text-gray-500">{t("candidaturesrecues:documentCards.cvSubtitle")}</p>
-                                                </div>
+                                {/* Contenu Modal */}
+                                <div className="p-6 space-y-6">
+                                    {/* Statut */}
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.status")}</label>
+                                        {getStatutBadge(selectedCandidature.statut)}
+                                    </div>
+
+                                    {/* Offre */}
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.internshipOffer")}</label>
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+                                            <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                            <span className="text-blue-900 font-medium">{selectedCandidature.offreTitre}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Contact */}
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.contact")}</label>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-3 text-gray-700">
+                                                <Mail className="w-5 h-5 text-gray-400" />
+                                                <span>{selectedCandidature.etudiantEmail}</span>
                                             </div>
-                                            <Eye className="w-5 h-5 text-gray-400" />
-                                        </button>
-                                    )}
-
-                                    {selectedCandidature.alettreMotivation && (
-                                        <button
-                                            onClick={(e) => handleRegarderLettreMotivation(selectedCandidature.id, e)}
-                                            className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                                    <FileText className="w-5 h-5 text-purple-600" />
-                                                </div>
-                                                <div className="text-left">
-                                                    <p className="font-medium text-gray-900">{t("candidaturesrecues:documentCards.letterTitle")}</p>
-                                                    <p className="text-sm text-gray-500">{t("candidaturesrecues:documentCards.letterSubtitle")}</p>
-                                                </div>
+                                            <div className="flex items-center gap-3 text-gray-700">
+                                                <Calendar className="w-5 h-5 text-gray-400" />
+                                                <span>{t("candidaturesrecues:labels.appliedOn")} {formatDate(selectedCandidature.dateCandidature)}</span>
                                             </div>
-                                            <Eye className="w-5 h-5 text-gray-400" />
-                                        </button>
-                                    )}
+                                        </div>
+                                    </div>
 
-                                    {!selectedCandidature.acv && !selectedCandidature.alettreMotivation && (
-                                        <p className="text-sm text-gray-500 text-center py-4">{t("candidaturesrecues:documentCards.noDocument")}</p>
+                                    {/* Documents */}
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 block mb-3">{t("candidaturesrecues:labels.documents")}</label>
+                                        <div className="space-y-3">
+                                            {selectedCandidature.acv && (
+                                                <button
+                                                    onClick={(e) => handleRegarderCV(selectedCandidature.id, e)}
+                                                    className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                            <FileText className="w-5 h-5 text-blue-600" />
+                                                        </div>
+                                                        <div className="text-left">
+                                                            <p className="font-medium text-gray-900">{t("candidaturesrecues:documentCards.cvTitle")}</p>
+                                                            <p className="text-sm text-gray-500">{t("candidaturesrecues:documentCards.cvSubtitle")}</p>
+                                                        </div>
+                                                    </div>
+                                                    <Eye className="w-5 h-5 text-gray-400" />
+                                                </button>
+                                            )}
+
+                                            {selectedCandidature.alettreMotivation && (
+                                                <button
+                                                    onClick={(e) => handleRegarderLettreMotivation(selectedCandidature.id, e)}
+                                                    className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                            <FileText className="w-5 h-5 text-purple-600" />
+                                                        </div>
+                                                        <div className="text-left">
+                                                            <p className="font-medium text-gray-900">{t("candidaturesrecues:documentCards.letterTitle")}</p>
+                                                            <p className="text-sm text-gray-500">{t("candidaturesrecues:documentCards.letterSubtitle")}</p>
+                                                        </div>
+                                                    </div>
+                                                    <Eye className="w-5 h-5 text-gray-400" />
+                                                </button>
+                                            )}
+
+                                            {!selectedCandidature.acv && !selectedCandidature.alettreMotivation && (
+                                                <p className="text-sm text-gray-500 text-center py-4">{t("candidaturesrecues:documentCards.noDocument")}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Message de réponse si existe */}
+                                    {selectedCandidature.messageReponse && (
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
+                                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                                <p className="text-gray-700">{selectedCandidature.messageReponse}</p>
+                                            </div>
+                                        </div>
                                     )}
+                                </div>
+
+                                {/* Footer Modal */}
+                                <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
+                                    <button
+                                        onClick={handleCloseModal}
+                                        className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                                    >
+                                        {t("candidaturesrecues:labels.close")}
+                                    </button>
                                 </div>
                             </div>
-
-                            {/* Message de réponse si existe */}
-                            {selectedCandidature.messageReponse && (
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
-                                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                        <p className="text-gray-700">{selectedCandidature.messageReponse}</p>
-                                    </div>
-                                </div>
-                            )}
                         </div>
+                    )}
 
-                        {/* Footer Modal */}
-                        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
-                            <button
-                                onClick={handleCloseModal}
-                                className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                {t("candidaturesrecues:labels.close")}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showDocumentModal && selectedDocument && (
+                    {showDocumentModal && selectedDocument && (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
                         <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
@@ -658,9 +785,97 @@ const CandidaturesRecues = () => {
                     </div>
                 </div>
             )}
-        </>
+
+            {showConvocationModal && selectedCandidature && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                        {/* Header Modal */}
+                        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    {t("candidaturesrecues:createConvocation")}
+                                </h2>
+                                <p className="text-sm text-gray-600 mt-1">{t("candidaturesrecues:for")} {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}</p>
+                            </div>
+                            <button
+                                onClick={handleCloseConvocationModal}
+                                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Contenu Modal */}
+                        <div className="p-6 space-y-6">
+                            {/* Formulaire de convocation */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.dateHeure")}</label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <input
+                                        type="date"
+                                        name="dateEntrevue"
+                                        value={convocationFormData.dateEntrevue}
+                                        onChange={handleConvocationFormChange}
+                                        className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <input
+                                        type="time"
+                                        name="heureDebut"
+                                        value={convocationFormData.heureDebut}
+                                        onChange={handleConvocationFormChange}
+                                        className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.lieu")}</label>
+                                <input
+                                    type="text"
+                                    name="lieu"
+                                    value={convocationFormData.lieu}
+                                    onChange={handleConvocationFormChange}
+                                    className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder={t("candidaturesrecues:placeholders.lieu")}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
+                                <textarea
+                                    name="message"
+                                    value={convocationFormData.message}
+                                    onChange={handleConvocationFormChange}
+                                    className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    rows={3}
+                                    placeholder={t("candidaturesrecues:placeholders.message")}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Footer Modal */}
+                        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
+                            <button
+                                onClick={handleCloseConvocationModal}
+                                className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                                {t("candidaturesrecues:labels.cancel")}
+                            </button>
+                            <button
+                                onClick={handleSubmitConvocation}
+                                disabled={creatingConvocationId !== null}
+                                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+                            >
+                                {creatingConvocationId !== null ? t("candidaturesrecues:creating") : t("candidaturesrecues:create")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+                </div>
+            </div>
+        </div>
     );
 };
 
 export default CandidaturesRecues;
-

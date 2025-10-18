@@ -41,6 +41,16 @@ export interface OffreDTO {
     employeurDTO: EmployeurDTO;
 }
 
+export interface ConvocationDTO {
+    id: number;
+    candidatureId: number;
+    dateHeure: string;
+    lieuOuLien: string;
+    message: string;
+    offreTitre?: string;
+    employeurNom?: string;
+}
+
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const ETUDIANT_ENDPOINT = '/OSEetudiant';
@@ -418,6 +428,34 @@ class EtudiantService {
         } catch (error) {
             console.error('Erreur lors de la vérification de la candidature:', error);
             return false;
+        }
+    }
+
+    /**
+     * Récupère toutes les convocations de l'étudiant connecté
+     * @returns Promise avec la liste des convocations
+     */
+    async getConvocations(): Promise<ConvocationDTO[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) return [];
+
+            const response = await fetch(`${this.baseUrl}/convocations`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getConvocations:', error);
+            return [];
         }
     }
 }

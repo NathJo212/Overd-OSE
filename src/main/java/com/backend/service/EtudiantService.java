@@ -5,13 +5,16 @@ import com.backend.modele.Candidature;
 import com.backend.modele.Etudiant;
 import com.backend.modele.Offre;
 import com.backend.modele.Programme;
+import com.backend.modele.Notification;
 import com.backend.persistence.CandidatureRepository;
 import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.UtilisateurRepository;
+import com.backend.persistence.NotificationRepository;
 import com.backend.service.DTO.*;
 import com.backend.persistence.OffreRepository;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +25,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class EtudiantService {
@@ -33,14 +38,18 @@ public class EtudiantService {
     private final UtilisateurRepository utilisateurRepository;
     private final EncryptageCV encryptageCV;
     private final CandidatureRepository candidatureRepository;
+    private final NotificationRepository notificationRepository;
+    private final MessageSource messageSource;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, MessageSource messageSource) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.encryptageCV = encryptageCV;
         this.candidatureRepository = candidatureRepository;
+        this.notificationRepository = notificationRepository;
+        this.messageSource = messageSource;
     }
 
     @Transactional
@@ -266,4 +275,27 @@ public class EtudiantService {
         // Conversion en DTO (adaptez selon votre structure)
         return new ConvocationEntrevueDTO().toDTO(candidature.getConvocationEntrevue());
     }
+
+    @Transactional
+    public List<NotificationDTO> getNotificationsPourEtudiantConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+        List<Notification> notes = notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etudiant);
+        return notes.stream()
+                .map(n -> new NotificationDTO(n.getId(), n.getMessageKey(), n.getMessageParam(), n.isLu(), n.getDateCreation()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public NotificationDTO marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, Exception {
+        Etudiant etudiant = getEtudiantConnecte();
+        Notification notif = notificationRepository.findById(notificationId).orElseThrow(() -> new Exception("Notification non trouvée"));
+        if (notif.getUtilisateur() == null || !notif.getUtilisateur().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+        notif.setLu(lu);
+        notificationRepository.save(notif);
+
+        return new NotificationDTO(notif.getId(), notif.getMessageKey(), notif.getMessageParam(), notif.isLu(), notif.getDateCreation());
+    }
+
 }

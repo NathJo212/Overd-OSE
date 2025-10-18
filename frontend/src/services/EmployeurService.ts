@@ -36,6 +36,14 @@ export interface CandidatureRecueDTO {
     acv: boolean;  // ✅ tout en minuscule
     alettreMotivation: boolean;  // ✅ tout en minuscule
     messageReponse?: string;
+    // optional convocation info (backend may return it)
+    convocationEntrevue?: {
+        id: number;
+        dateHeure: string;
+        lieuOuLien: string;
+        message: string;
+        statut?: string;
+    } | null;
 }
 
 // Configuration de l'API
@@ -348,9 +356,122 @@ class EmployeurService {
             throw error;
         }
     }
+
+    /**
+     * Crée une convocation pour une candidature donnée
+     * @param candidatureId - ID de la candidature
+     * @param convocation - données de la convocation
+     */
+    async creerConvocation(candidatureId: number, convocation: { dateHeure: string; lieuOuLien: string; message: string }): Promise<any> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) throw new Error('Vous devez être connecté');
+
+            // Le backend attend candidatureId dans le body
+            const payload = {
+                candidatureId: candidatureId,
+                dateHeure: convocation.dateHeure,
+                lieuOuLien: convocation.lieuOuLien,
+                message: convocation.message
+            };
+
+            console.log('=== Envoi de la convocation ===');
+            console.log('Candidature ID:', candidatureId);
+            console.log('Payload complet:', JSON.stringify(payload, null, 2));
+            console.log('URL:', `${this.baseUrl}/creerConvocation`);
+
+            const response = await fetch(`${this.baseUrl}/creerConvocation`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            console.log('Response status:', response.status);
+            const data = await response.json().catch(() => ({}));
+            console.log('Response data:', data);
+
+            if (!response.ok) {
+                // Extract error message from backend response
+                const message = data?.erreur?.message || data?.message || `Erreur HTTP: ${response.status}`;
+                const error: any = new Error(message);
+                error.response = { data };
+                throw error;
+            }
+
+            return data;
+        } catch (error: any) {
+            console.error('Erreur creerConvocation:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Modifie une convocation existante
+     */
+    async modifierConvocation(convocationId: number, convocation: { dateHeure: string; lieuOuLien: string; message: string }): Promise<any> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const response = await fetch(`${this.baseUrl}/convocations/${convocationId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(convocation)
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const message = data?.message || `Erreur HTTP: ${response.status}`;
+                const error: any = new Error(message);
+                error.response = { data };
+                throw error;
+            }
+
+            return data;
+        } catch (error: any) {
+            console.error('Erreur modifierConvocation:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Annule (supprime) une convocation
+     */
+    async annulerConvocation(convocationId: number): Promise<any> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const response = await fetch(`${this.baseUrl}/convocations/${convocationId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                const message = data?.message || `Erreur HTTP: ${response.status}`;
+                const error: any = new Error(message);
+                error.response = { data };
+                throw error;
+            }
+
+            return { message: 'Convocation annulée' };
+        } catch (error: any) {
+            console.error('Erreur annulerConvocation:', error);
+            throw error;
+        }
+    }
 }
 
 // Export d'une instance unique (Singleton)
 export const employeurService = new EmployeurService();
 export default employeurService;
-

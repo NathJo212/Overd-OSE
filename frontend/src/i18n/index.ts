@@ -35,6 +35,8 @@ import convocationFr from './locales/fr/convocation.json';
 import convocationEn from './locales/en/convocation.json';
 import candidaturesrecuesEn from './locales/en/candidaturesrecues.json';
 import candidaturesrecuesFr from './locales/fr/candidaturesrecues.json';
+import candidaturesetudiantEn from './locales/en/candidaturesetudiant.json';
+import candidaturesetudiantFr from './locales/fr/candidaturesetudiant.json';
 
 const resources = {
     fr: {
@@ -54,6 +56,7 @@ const resources = {
         visualiserOffresGestionnaire : visualiserOffresGestionnaireFr,
         convocation: convocationFr,
         candidaturesrecues: candidaturesrecuesFr,
+        candidaturesetudiant: candidaturesetudiantFr,
     },
     en: {
         registration: registrationEn,
@@ -72,6 +75,7 @@ const resources = {
         visualiserOffresGestionnaire : visualiserOffresGestionnaireEn,
         convocation: convocationEn,
         candidaturesrecues: candidaturesrecuesEn,
+        candidaturesetudiant: candidaturesetudiantEn,
     }
 };
 

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { CheckCircle, X, Upload, FileText } from "lucide-react";
+import { CheckCircle, X, Upload, FileText, Calendar, MapPin } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
 import OffresApprouvees from "./OffresApprouvees.tsx";
+import etudiantService from '../services/EtudiantService.ts';
+import type { ConvocationDTO } from '../services/EtudiantService.ts';
 
 const DashBoardEtudiant = () => {
     const { t } = useTranslation('dashboardEtudiant');
@@ -11,6 +13,9 @@ const DashBoardEtudiant = () => {
     const [userFullName, setUserFullName] = useState('');
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
+    const [convocations, setConvocations] = useState<ConvocationDTO[]>([]);
+    const [selectedConvocation, setSelectedConvocation] = useState<ConvocationDTO | null>(null);
+    const [loadingConvocations, setLoadingConvocations] = useState(false);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -45,6 +50,19 @@ const DashBoardEtudiant = () => {
 
         // Nettoyer le flag de login sans afficher de notification
         sessionStorage.removeItem('fromLogin');
+
+        // Load convocations for the student
+        (async () => {
+            try {
+                setLoadingConvocations(true);
+                const convs = await etudiantService.getConvocations();
+                setConvocations(convs || []);
+            } catch (e) {
+                console.error('Erreur chargement convocations:', e);
+            } finally {
+                setLoadingConvocations(false);
+            }
+        })();
 
         if (showNotification) {
             const timer = setTimeout(() => {
@@ -153,7 +171,62 @@ const DashBoardEtudiant = () => {
 
                     <OffresApprouvees />
                 </div>
+
+                {/* Convocations section */}
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-2xl font-bold text-gray-900">{t('convocations.title') || 'Convocations'}</h2>
+                        <button onClick={async () => {
+                            setLoadingConvocations(true);
+                            try { const convs = await etudiantService.getConvocations(); setConvocations(convs || []); }
+                            finally { setLoadingConvocations(false); }
+                        }} className="text-sm text-gray-500 hover:text-gray-700">{t('convocations.refresh') || 'Refresh'}</button>
+                    </div>
+
+                    {loadingConvocations ? (
+                        <div className="text-sm text-gray-600">{t('convocations.loading') || 'Loading convocations...'}</div>
+                    ) : convocations.length === 0 ? (
+                        <div className="text-sm text-gray-500">{t('convocations.empty') || 'No convocations at the moment.'}</div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {convocations.map(c => (
+                                <div key={c.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <p className="text-sm text-gray-600 flex items-center gap-2"><Calendar className="w-4 h-4" />{new Date(c.dateHeure).toLocaleString()}</p>
+                                            <p className="text-sm text-gray-600 flex items-center gap-2"><MapPin className="w-4 h-4" />{c.lieuOuLien}</p>
+                                            {c.offreTitre && <p className="text-sm text-blue-700 font-medium mt-2">{c.offreTitre}</p>}
+                                        </div>
+                                        <div className="flex flex-col items-end gap-2">
+                                            <button onClick={() => setSelectedConvocation(c)} className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">{t('convocations.view') || 'View'}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
+
+            {/* Convocation modal */}
+            {selectedConvocation && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl max-w-lg w-full p-6">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className="text-xl font-bold">{selectedConvocation.offreTitre || t('convocations.title')}</h3>
+                                <p className="text-sm text-gray-600 mt-1">{new Date(selectedConvocation.dateHeure).toLocaleString()}</p>
+                            </div>
+                            <button onClick={() => setSelectedConvocation(null)} className="text-gray-500">{t('convocations.close') || 'Close'}</button>
+                        </div>
+                        <div className="mt-4">
+                            <p className="text-sm text-gray-700">{selectedConvocation.message}</p>
+                            <p className="text-sm text-gray-600 mt-3"><strong>{t('convocations.location') || 'Location'}:</strong> {selectedConvocation.lieuOuLien}</p>
+                            {selectedConvocation.employeurNom && <p className="text-sm text-gray-600 mt-1"><strong>{t('convocations.employer') || 'Employer'}:</strong> {selectedConvocation.employeurNom}</p>}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
