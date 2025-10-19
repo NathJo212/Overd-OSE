@@ -50,6 +50,9 @@
       "message": "Message",
       "cancel": "Annuler",
       "save": "Enregistrer"
-    }
+    },
+    "convoked" : "Convoqué",
+    "modified" : "Modifié",
+    "cancelled" : "Annulée"
   }
 }

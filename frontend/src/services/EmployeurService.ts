@@ -55,6 +55,7 @@ export interface ConvocationEntrevueDTO {
     employeurNom?: string;
     etudiantNom?: string;
     etudiantPrenom?: string;
+    statut: 'CONVOQUEE' | 'MODIFIE' | 'ANNULEE';
 }
 
 // Configuration de l'API

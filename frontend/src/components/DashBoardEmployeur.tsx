@@ -6,7 +6,6 @@ import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap, Clock, Edit,
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 
-// Type défini localement pour éviter les problèmes de cache
 interface ConvocationEntrevueDTO {
     id?: number;
     candidatureId: number;
@@ -14,6 +13,7 @@ interface ConvocationEntrevueDTO {
     lieuOuLien: string;
     message: string;
     offreTitre?: string;
+    statut: 'CONVOQUEE' | 'MODIFIE' | 'ANNULEE';
     employeurNom?: string;
     etudiantNom?: string;
     etudiantPrenom?: string;
@@ -80,6 +80,36 @@ const DashBoardEmployeur = () => {
             console.error('Erreur chargement convocations:', e);
         } finally {
             setLoadingConvocations(false);
+        }
+    };
+
+    // Badge pour le statut d'une convocation
+    const getConvocationStatusBadge = (statut: string | undefined) => {
+        if (!statut) return null;
+        switch (statut) {
+            case 'CONVOQUEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        {t('employerdashboard:convocations.convoked')}
+                    </span>
+                );
+            case 'MODIFIE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {t('employerdashboard:convocations.modified')}
+                    </span>
+                );
+            case 'ANNULEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                        <X className="w-4 h-4 mr-1" />
+                        {t('employerdashboard:convocations.cancelled')}
+                    </span>
+                );
+            default:
+                return null;
         }
     };
 
@@ -211,9 +241,14 @@ const DashBoardEmployeur = () => {
                                     <div key={conv.id} className="border-2 border-blue-200 bg-blue-50 rounded-xl p-6">
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
-                                                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                                                    {conv.offreTitre || t('employerdashboard:convocations.defaultTitle')}
-                                                </h3>
+                                                <div className="flex items-center mb-2">
+                                                    <h3 className="text-lg font-semibold text-gray-800">
+                                                        {conv.offreTitre || t('employerdashboard:convocations.defaultTitle')}
+                                                    </h3>
+                                                    {conv.statut && (
+                                                        <div className="ml-4">{getConvocationStatusBadge(conv.statut)}</div>
+                                                    )}
+                                                </div>
                                                 <p className="text-sm text-gray-600 flex items-center gap-2 mb-1">
                                                     <Calendar className="w-4 h-4" />
                                                     {new Date(conv.dateHeure).toLocaleString(i18n?.language?.startsWith('fr') ? 'fr-CA' : 'en-CA')}
@@ -229,22 +264,24 @@ const DashBoardEmployeur = () => {
                                                 )}
                                                 <p className="text-sm text-gray-700 mt-3">{conv.message}</p>
                                             </div>
-                                            <div className="flex flex-col gap-2 ml-4">
-                                                <button
-                                                    onClick={() => handleEditConvocation(conv)}
-                                                    className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                    {t('employerdashboard:convocations.edit')}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteConvocation(conv)}
-                                                    className="px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                    {t('employerdashboard:convocations.delete')}
-                                                </button>
-                                            </div>
+                                            {conv.statut != "ANNULEE" && (
+                                                <div className="flex flex-col gap-2 ml-4">
+                                                    <button
+                                                        onClick={() => handleEditConvocation(conv)}
+                                                        className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                        {t('employerdashboard:convocations.edit')}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteConvocation(conv)}
+                                                        className="px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                        {t('employerdashboard:convocations.delete')}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}

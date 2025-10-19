@@ -85,6 +85,11 @@
   "messages": {
     "convocationCreated": "Interview created successfully"
   },
+  "convocationStatus": {
+    "convoked": "Convoked",
+    "modified": "Modified",
+    "cancelled": "Cancelled"
+  },
   "placeholders": {
     "lieu": "Ex: Room 301, Building A or https://meet.google.com/...",
     "message": "Optional message for the student...",

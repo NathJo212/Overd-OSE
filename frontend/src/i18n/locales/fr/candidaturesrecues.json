@@ -85,6 +85,11 @@
   "messages": {
     "convocationCreated": "Convocation créée avec succès"
   },
+  "convocationStatus": {
+    "convoked" : "Convoqué",
+    "modified" : "Modifié",
+    "cancelled" : "Annulée"
+  },
   "placeholders": {
     "lieu": "Ex: Salle 301, Bâtiment A ou https://meet.google.com/...",
     "message": "Message facultatif pour l'étudiant...",

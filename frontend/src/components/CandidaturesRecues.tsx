@@ -33,6 +33,13 @@ interface CandidatureRecue {
     acv: boolean;
     alettreMotivation: boolean;
     messageReponse?: string;
+    convocation?: {
+        id: number;
+        dateHeure: string;
+        lieuOuLien: string;
+        message: string;
+        statut: 'CONVOQUEE' | 'MODIFIE' | 'ANNULEE';
+    };
 }
 
 interface DocumentPreview {
@@ -187,6 +194,36 @@ const CandidaturesRecues = () => {
                 {config.text}
             </span>
         );
+    };
+
+    // Badge pour le statut d'une convocation (employeur <-> étudiant)
+    const getConvocationStatusBadge = (statut?: 'CONVOQUEE' | 'MODIFIE' | 'ANNULEE') => {
+        if (!statut) return null;
+        switch (statut) {
+            case 'CONVOQUEE':
+                return (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        {t('candidaturesrecues:convocationStatus.convoked')}
+                    </span>
+                );
+            case 'MODIFIE':
+                return (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">
+                        <Clock className="w-3.5 h-3.5" />
+                        {t('candidaturesrecues:convocationStatus.modified')}
+                    </span>
+                );
+            case 'ANNULEE':
+                return (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                        <X className="w-3.5 h-3.5" />
+                        {t('candidaturesrecues:convocationStatus.cancelled')}
+                    </span>
+                );
+            default:
+                return null;
+        }
     };
 
     const getStatistics = () => {
@@ -608,7 +645,12 @@ const CandidaturesRecues = () => {
                                                             {candidature.offreTitre}
                                                         </p>
                                                     </div>
-                                                    {getStatutBadge(candidature.statut)}
+                                                    <div className="flex flex-col items-end gap-2">
+                                                        {getStatutBadge(candidature.statut)}
+                                                        {candidature.convocation?.statut && (
+                                                            <div className="mt-1">{getConvocationStatusBadge(candidature.convocation.statut)}</div>
+                                                        )}
+                                                    </div>
                                                 </div>
 
                                                 {/* Details */}
@@ -658,14 +700,16 @@ const CandidaturesRecues = () => {
                                                 </button>
 
                                                 {/* Create convocation button */}
-                                                <button
-                                                    onClick={(e) => handleCreerConvocation(candidature, e)}
-                                                    disabled={creatingConvocationId === candidature.id}
-                                                    className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
-                                                >
-                                                    <Calendar className="w-4 h-4" />
-                                                    {creatingConvocationId === candidature.id ? t('candidaturesrecues:creating') : t('candidaturesrecues:createConvocation')}
-                                                </button>
+                                                {!candidature.convocation && (
+                                                    <button
+                                                        onClick={(e) => handleCreerConvocation(candidature, e)}
+                                                        disabled={creatingConvocationId === candidature.id}
+                                                        className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                                                    >
+                                                        <Calendar className="w-4 h-4" />
+                                                        {creatingConvocationId === candidature.id ? t('candidaturesrecues:creating') : t('candidaturesrecues:createConvocation')}
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -780,6 +824,25 @@ const CandidaturesRecues = () => {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Convocation section in modal */}
+                                    {selectedCandidature.convocation && (
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700 block mb-2">{t('candidaturesrecues:labels.convocation')}</label>
+                                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                                <div className="flex items-start justify-between">
+                                                    <div>
+                                                        <p className="text-sm text-gray-700"><strong>{t('candidaturesrecues:convocation.date')}</strong> {formatDate(selectedCandidature.convocation.dateHeure)}</p>
+                                                        <p className="text-sm text-gray-700 mt-1"><strong>{t('candidaturesrecues:convocation.location')}</strong> {selectedCandidature.convocation.lieuOuLien}</p>
+                                                        <p className="text-sm text-gray-700 mt-2">{selectedCandidature.convocation.message}</p>
+                                                    </div>
+                                                    <div className="flex-shrink-0">
+                                                        {getConvocationStatusBadge(selectedCandidature.convocation.statut)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Footer Modal */}
@@ -825,7 +888,7 @@ const CandidaturesRecues = () => {
                 </div>
             )}
 
-            {showConvocationModal && selectedCandidature && (
+            {showConvocationModal && selectedCandidature && !selectedCandidature.convocation && (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
                         {/* Header Modal */}

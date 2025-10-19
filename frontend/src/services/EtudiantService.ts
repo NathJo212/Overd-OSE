@@ -49,6 +49,7 @@ export interface ConvocationDTO {
     message: string;
     offreTitre?: string;
     employeurNom?: string;
+    statut?: string;
 }
 
 // Configuration de l'API

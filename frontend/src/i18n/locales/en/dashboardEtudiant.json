@@ -26,6 +26,9 @@
     "view": "View",
     "close": "Close",
     "location": "Location",
-    "employer": "Employer"
+    "employer": "Employer",
+    "convoked": "Convoked",
+    "modified": "Modified",
+    "cancelled": "Cancelled"
   }
 }

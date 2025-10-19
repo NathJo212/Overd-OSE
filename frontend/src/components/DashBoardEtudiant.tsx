@@ -177,6 +177,35 @@ const DashBoardEtudiant = () => {
         }
     };
 
+    // Badge pour le statut d'une convocation
+    const getConvocationStatusBadge = (statut?: string) => {
+        switch (statut) {
+            case 'CONVOQUEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        {t('dashboardEtudiant:convocations.convoked')}
+                    </span>
+                );
+            case 'MODIFIE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                        <Bell className="w-4 h-4 mr-1" />
+                        {t('dashboardEtudiant:convocations.modified')}
+                    </span>
+                );
+            case 'ANNULEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                        <X className="w-4 h-4 mr-1" />
+                        {t('dashboardEtudiant:convocations.cancelled')}
+                    </span>
+                );
+            default:
+                return null;
+        }
+    };
+
     const handleNavigateToCv = () => {
         navigate("/televersement-cv");
     };
@@ -295,6 +324,11 @@ const DashBoardEtudiant = () => {
                                         <div>
                                             <p className="text-sm text-gray-600 flex items-center gap-2"><Calendar className="w-4 h-4" />{new Date(c.dateHeure).toLocaleString()}</p>
                                             <p className="text-sm text-gray-600 flex items-center gap-2"><MapPin className="w-4 h-4" />{c.lieuOuLien}</p>
+                                            {c.statut && (
+                                                <div className="mt-2">
+                                                    {getConvocationStatusBadge(c.statut)}
+                                                </div>
+                                            )}
                                             {c.offreTitre && <p className="text-sm text-blue-700 font-medium mt-2">{c.offreTitre}</p>}
                                         </div>
                                         <div className="flex flex-col items-end gap-2">
@@ -314,7 +348,10 @@ const DashBoardEtudiant = () => {
                     <div className="bg-white rounded-xl max-w-lg w-full p-6">
                         <div className="flex justify-between items-start">
                             <div>
-                                <h3 className="text-xl font-bold">{selectedConvocation.offreTitre || t('convocations.title')}</h3>
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-xl font-bold">{selectedConvocation.offreTitre || t('convocations.title')}</h3>
+                                    {selectedConvocation.statut && getConvocationStatusBadge(selectedConvocation.statut)}
+                                </div>
                                 <p className="text-sm text-gray-600 mt-1">{new Date(selectedConvocation.dateHeure).toLocaleString()}</p>
                             </div>
                             <button onClick={() => setSelectedConvocation(null)} className="text-gray-500">{t('convocations.close') || 'Close'}</button>
