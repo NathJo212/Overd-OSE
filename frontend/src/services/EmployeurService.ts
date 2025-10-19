@@ -115,74 +115,49 @@ class EmployeurService {
         }
     }
 
-
     /**
      * Transforme les données du formulaire en format attendu par l'API
      * @param formData - Les données du formulaire d'inscription
      * @returns Les données formatées pour l'API
      */
     formatFormDataForAPI(formData: {
-        emailProfessionnel: string;
-        motDePasse: string;
-        telephone: string;
         nomEntreprise: string;
-        prenomContact: string;
-        nomContact: string;
+        contact: string;
+        email: string;
+        telephone: string;
+        motDePasse: string;
+        confirmerMotDePasse: string;
     }): EmployeurData {
         return {
-            email: formData.emailProfessionnel,
-            password: formData.motDePasse,
-            telephone: formData.telephone,
             nomEntreprise: formData.nomEntreprise,
-            contact: `${formData.prenomContact} ${formData.nomContact}`.trim()
+            contact: formData.contact,
+            email: formData.email,
+            telephone: formData.telephone,
+            password: formData.motDePasse,
         };
     }
 
-    async creerOffreDeStage(offre: OffreStageDTO): Promise<MessageRetour> {
-        const offreDTO = {
-            authResponseDTO: { token: offre.utilisateur.token },
-            titre: offre.titre,
-            description: offre.description,
-            date_debut: offre.date_debut,
-            date_fin: offre.date_fin,
-            progEtude: offre.progEtude,
-            lieuStage: offre.lieuStage,
-            remuneration: offre.remuneration,
-            dateLimite: offre.dateLimite,
-        };
-
+    async creerOffreStage(offreData: OffreStageDTO): Promise<MessageRetour> {
         try {
             const response = await fetch(`${this.baseUrl}/creerOffre`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${offre.utilisateur.token}`,
                 },
-                body: JSON.stringify(offreDTO),
+                body: JSON.stringify(offreData),
             });
 
             const data = await response.json();
 
-            if (data?.erreur) {
-                console.error('Erreur lors de la création de l\'offre:', data.erreur);
-                const error: any = new Error(data.erreur.message || 'Erreur de création d\'offre');
-                error.response = { data };
-                throw error;
-            }
-
             if (!response.ok) {
-                const error: any = new Error(`Erreur HTTP: ${response.status}`);
-                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                const error: any = new Error('Erreur lors de la création de l\'offre');
+                error.response = { data };
                 throw error;
             }
 
             return data;
 
         } catch (error: any) {
-            if (error.response?.data?.erreur) {
-                throw error;
-            }
-
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
                 networkError.code = 'ERR_NETWORK';
@@ -339,6 +314,7 @@ class EmployeurService {
                 throw new Error('Vous devez être connecté');
             }
 
+            // ✅ ENDPOINT CORRECT avec trait d'union
             const response = await fetch(`${this.baseUrl}/candidatures/${id}/lettre-motivation`, {
                 method: 'GET',
                 headers: {
@@ -358,44 +334,154 @@ class EmployeurService {
     }
 
     /**
-     * Crée une convocation pour une candidature donnée
-     * @param candidatureId - ID de la candidature
-     * @param convocation - données de la convocation
+     * 🆕 NOUVELLE MÉTHODE - Approuve une candidature
+     * @param candidatureId - L'ID de la candidature à approuver
+     * @returns Promise avec la réponse du serveur
+     */
+    async approuverCandidature(candidatureId: number): Promise<MessageRetour> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/approuver`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+
+            // Vérifier si erreur dans MessageRetourDTO
+            if (data?.erreur) {
+                console.error('Erreur lors de l\'approbation de la candidature:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de l\'approbation');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * 🆕 NOUVELLE MÉTHODE - Refuse une candidature avec une raison
+     * @param candidatureId - L'ID de la candidature à refuser
+     * @param raison - La raison du refus
+     * @returns Promise avec la réponse du serveur
+     */
+    async refuserCandidature(candidatureId: number, raison: string): Promise<MessageRetour> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/refuser`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ raison })
+            });
+
+            const data = await response.json();
+
+            // Vérifier si erreur dans MessageRetourDTO
+            if (data?.erreur) {
+                console.error('Erreur lors du refus de la candidature:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * Crée une convocation d'entrevue
      */
     async creerConvocation(candidatureId: number, convocation: { dateHeure: string; lieuOuLien: string; message: string }): Promise<any> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) throw new Error('Vous devez être connecté');
 
-            // Le backend attend candidatureId dans le body
-            const payload = {
-                candidatureId: candidatureId,
-                dateHeure: convocation.dateHeure,
-                lieuOuLien: convocation.lieuOuLien,
-                message: convocation.message
-            };
-
-            console.log('=== Envoi de la convocation ===');
-            console.log('Candidature ID:', candidatureId);
-            console.log('Payload complet:', JSON.stringify(payload, null, 2));
-            console.log('URL:', `${this.baseUrl}/creerConvocation`);
-
-            const response = await fetch(`${this.baseUrl}/creerConvocation`, {
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/convocation`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(convocation)
             });
 
-            console.log('Response status:', response.status);
             const data = await response.json().catch(() => ({}));
-            console.log('Response data:', data);
 
             if (!response.ok) {
-                // Extract error message from backend response
-                const message = data?.erreur?.message || data?.message || `Erreur HTTP: ${response.status}`;
+                const message = data?.message || `Erreur HTTP: ${response.status}`;
                 const error: any = new Error(message);
                 error.response = { data };
                 throw error;

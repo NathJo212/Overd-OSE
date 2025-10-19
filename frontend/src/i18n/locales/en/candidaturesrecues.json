@@ -1,5 +1,5 @@
 {
-  "title": "Applications Received",
+  "title": "Received Applications",
   "subtitle": "Manage student applications for your internship offers",
   "backToDashboard": "Back to dashboard",
   "loading": "Loading applications...",
@@ -38,18 +38,41 @@
     "downloadLetter": "Error downloading cover letter",
     "viewCV": "Error displaying CV",
     "viewLetter": "Error displaying cover letter",
-    "loadDocument": "Error loading document"
+    "loadDocument": "Error loading document",
+    "approveError": "Error approving application",
+    "refuseError": "Error refusing application"
   },
   "actions": {
     "viewCV": "View CV",
     "viewLetter": "View cover letter",
-    "download": "Download"
+    "download": "Download",
+    "approve": "Approve",
+    "refuse": "Refuse",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close",
+    "sending": "Sending..."
   },
   "modal": {
     "title": "Document preview",
     "close": "Close",
     "error": "Error loading document",
     "noPreview": "Preview unavailable for this file type"
+  },
+  "approveModal": {
+    "title": "Approve application",
+    "message": "Are you sure you want to approve this application?",
+    "studentInfo": "Student",
+    "offerInfo": "Offer"
+  },
+  "refuseModal": {
+    "title": "Refuse application",
+    "message": "Please provide a reason for refusal. It will be communicated to the student.",
+    "reasonLabel": "Reason for refusal",
+    "reasonPlaceholder": "E.g.: Profile does not match requirements, lack of experience...",
+    "reasonRequired": "Reason is required.",
+    "studentInfo": "Student",
+    "offerInfo": "Offer"
   },
   "viewDetails": "View details",
   "labels": {
@@ -59,7 +82,7 @@
     "appliedOn": "Applied on",
     "documents": "Documents",
     "curriculumVitae": "Curriculum Vitae",
-    "documentPdf": "PDF document",
+    "documentPdf": "PDF Document",
     "noDocumentAvailable": "No document available",
     "message": "Message",
     "close": "Close",
@@ -68,9 +91,13 @@
   },
   "documentCards": {
     "cvTitle": "Curriculum Vitae",
-    "cvSubtitle": "PDF document",
+    "cvSubtitle": "PDF Document",
     "letterTitle": "Cover letter",
-    "letterSubtitle": "PDF document",
+    "letterSubtitle": "PDF Document",
     "noDocument": "No document available"
+  },
+  "messages": {
+    "approveSuccess": "Application approved successfully",
+    "refuseSuccess": "Application refused successfully"
   }
 }

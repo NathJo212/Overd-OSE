@@ -16,6 +16,8 @@ import {
     X,
     Eye,
     ArrowLeft,
+    Check,
+    AlertTriangle
 } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -59,6 +61,13 @@ const CandidaturesRecues = () => {
     const [convocationError, setConvocationError] = useState<string | null>(null);
     const [convocationSuccess, setConvocationSuccess] = useState<string | null>(null);
     const [creatingConvocationId, setCreatingConvocationId] = useState<number | null>(null);
+
+    // 🆕 États pour les actions d'approbation/refus
+    const [showApproveModal, setShowApproveModal] = useState(false);
+    const [showRefuseModal, setShowRefuseModal] = useState(false);
+    const [actionLoading, setActionLoading] = useState(false);
+    const [refuseReason, setRefuseReason] = useState("");
+    const [candidatureToAction, setCandidatureToAction] = useState<CandidatureRecue | null>(null);
 
     // Modal state for convocation creation
     const [showConvocationModal, setShowConvocationModal] = useState(false);
@@ -118,6 +127,81 @@ const CandidaturesRecues = () => {
         }
 
         setFilteredCandidatures(filtered);
+    };
+
+    // 🆕 Actions pour approuver/refuser
+    const handleApprove = (candidature: CandidatureRecue) => {
+        setCandidatureToAction(candidature);
+        setShowApproveModal(true);
+    };
+
+    const handleRefuse = (candidature: CandidatureRecue) => {
+        setCandidatureToAction(candidature);
+        setRefuseReason("");
+        setShowRefuseModal(true);
+    };
+
+    const confirmApprove = async () => {
+        if (!candidatureToAction) return;
+
+        try {
+            setActionLoading(true);
+            await employeurService.approuverCandidature(candidatureToAction.id);
+
+            // Mettre à jour le statut localement
+            setCandidatures(prev =>
+                prev.map(c =>
+                    c.id === candidatureToAction.id
+                        ? { ...c, statut: 'ACCEPTEE' }
+                        : c
+                )
+            );
+
+            setShowApproveModal(false);
+            setCandidatureToAction(null);
+
+            // Afficher un message de succès
+            console.log(t("candidaturesrecues:messages.approveSuccess"));
+
+        } catch (error: any) {
+            console.error('Erreur lors de l\'approbation:', error);
+            setError(t("candidaturesrecues:errors.approveError"));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const confirmRefuse = async () => {
+        if (!candidatureToAction || !refuseReason.trim()) {
+            return;
+        }
+
+        try {
+            setActionLoading(true);
+            await employeurService.refuserCandidature(candidatureToAction.id, refuseReason.trim());
+
+            // Mettre à jour le statut localement
+            setCandidatures(prev =>
+                prev.map(c =>
+                    c.id === candidatureToAction.id
+                        ? { ...c, statut: 'REFUSEE', messageReponse: refuseReason.trim() }
+                        : c
+                )
+            );
+
+            setShowRefuseModal(false);
+            setCandidatureToAction(null);
+            setRefuseReason("");
+
+            // Afficher un message de succès
+            console.log(t("candidaturesrecues:messages.refuseSuccess"));
+
+        } catch (error: any) {
+            console.error('Erreur lors du refus:', error);
+            setError(t("candidaturesrecues:errors.refuseError"));
+        } finally {
+            setActionLoading(false);
+        }
     };
 
     const formatDate = (dateString: string) => {
@@ -453,7 +537,7 @@ const CandidaturesRecues = () => {
                     {error && (
                         <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
                             <div className="flex items-center gap-3">
-                                <XCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+                                <AlertTriangle className="w-5 h-5 text-rose-600 flex-shrink-0" />
                                 <p className="text-sm text-rose-800 font-medium">{error}</p>
                             </div>
                         </div>
@@ -603,6 +687,15 @@ const CandidaturesRecues = () => {
                                                         {t("candidaturesrecues:coverLetter")} {candidature.alettreMotivation ? '✓' : '✗'}
                                                     </span>
                                                 </div>
+
+                                                {/* 🆕 Message de réponse si refusée */}
+                                                {candidature.statut === 'REFUSEE' && candidature.messageReponse && (
+                                                    <div className="bg-rose-50 border border-rose-200 rounded-lg p-3">
+                                                        <p className="text-sm text-rose-800">
+                                                            <span className="font-medium">Raison du refus :</span> {candidature.messageReponse}
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {/* Actions */}
@@ -618,11 +711,37 @@ const CandidaturesRecues = () => {
                                                     {t("candidaturesrecues:viewDetails")}
                                                 </button>
 
+                                                {/* 🆕 Boutons Approuver/Refuser - Visible seulement si EN_ATTENTE */}
+                                                {candidature.statut === 'EN_ATTENTE' && (
+                                                    <>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleApprove(candidature);
+                                                            }}
+                                                            className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                        >
+                                                            <Check className="w-4 h-4" />
+                                                            {t("candidaturesrecues:actions.approve")}
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleRefuse(candidature);
+                                                            }}
+                                                            className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                            {t("candidaturesrecues:actions.refuse")}
+                                                        </button>
+                                                    </>
+                                                )}
+
                                                 {/* Create convocation button */}
                                                 <button
                                                     onClick={(e) => handleCreerConvocation(candidature, e)}
                                                     disabled={creatingConvocationId === candidature.id}
-                                                    className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                                                    className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                                                 >
                                                     <Calendar className="w-4 h-4" />
                                                     {creatingConvocationId === candidature.id ? 'Création...' : 'Créer convocation'}
@@ -635,6 +754,124 @@ const CandidaturesRecues = () => {
                         )}
                     </div>
 
+                    {/* 🆕 Modal d'approbation */}
+                    {showApproveModal && candidatureToAction && (
+                        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                                <div className="p-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                                            <Check className="w-5 h-5 text-emerald-600" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            {t("candidaturesrecues:approveModal.title")}
+                                        </h3>
+                                    </div>
+
+                                    <p className="text-gray-600 mb-4">
+                                        {t("candidaturesrecues:approveModal.message")}
+                                    </p>
+
+                                    <div className="bg-gray-50 rounded-lg p-3 mb-6">
+                                        <p className="text-sm text-gray-600 mb-1">{t("candidaturesrecues:approveModal.studentInfo")} :</p>
+                                        <p className="font-medium">{candidatureToAction.etudiantPrenom} {candidatureToAction.etudiantNom}</p>
+                                        <p className="text-sm text-gray-600 mt-2 mb-1">{t("candidaturesrecues:approveModal.offerInfo")} :</p>
+                                        <p className="font-medium">{candidatureToAction.offreTitre}</p>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => {
+                                                setShowApproveModal(false);
+                                                setCandidatureToAction(null);
+                                            }}
+                                            className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                            disabled={actionLoading}
+                                        >
+                                            {t("candidaturesrecues:actions.cancel")}
+                                        </button>
+                                        <button
+                                            onClick={confirmApprove}
+                                            disabled={actionLoading}
+                                            className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                                        >
+                                            {actionLoading ? t("candidaturesrecues:actions.sending") : t("candidaturesrecues:actions.confirm")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 🆕 Modal de refus */}
+                    {showRefuseModal && candidatureToAction && (
+                        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                                <div className="p-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
+                                            <X className="w-5 h-5 text-rose-600" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            {t("candidaturesrecues:refuseModal.title")}
+                                        </h3>
+                                    </div>
+
+                                    <p className="text-gray-600 mb-4">
+                                        {t("candidaturesrecues:refuseModal.message")}
+                                    </p>
+
+                                    <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                                        <p className="text-sm text-gray-600 mb-1">{t("candidaturesrecues:refuseModal.studentInfo")} :</p>
+                                        <p className="font-medium">{candidatureToAction.etudiantPrenom} {candidatureToAction.etudiantNom}</p>
+                                        <p className="text-sm text-gray-600 mt-2 mb-1">{t("candidaturesrecues:refuseModal.offerInfo")} :</p>
+                                        <p className="font-medium">{candidatureToAction.offreTitre}</p>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            {t("candidaturesrecues:refuseModal.reasonLabel")} *
+                                        </label>
+                                        <textarea
+                                            value={refuseReason}
+                                            onChange={(e) => setRefuseReason(e.target.value)}
+                                            placeholder={t("candidaturesrecues:refuseModal.reasonPlaceholder")}
+                                            rows={4}
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                        />
+                                        {!refuseReason.trim() && (
+                                            <p className="text-sm text-rose-600 mt-1">
+                                                {t("candidaturesrecues:refuseModal.reasonRequired")}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => {
+                                                setShowRefuseModal(false);
+                                                setCandidatureToAction(null);
+                                                setRefuseReason("");
+                                            }}
+                                            className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                            disabled={actionLoading}
+                                        >
+                                            {t("candidaturesrecues:actions.cancel")}
+                                        </button>
+                                        <button
+                                            onClick={confirmRefuse}
+                                            disabled={actionLoading || !refuseReason.trim()}
+                                            className="flex-1 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors disabled:opacity-50"
+                                        >
+                                            {actionLoading ? t("candidaturesrecues:actions.sending") : t("candidaturesrecues:actions.confirm")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Modal de détails (existant) */}
                     {showModal && selectedCandidature && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -756,122 +993,124 @@ const CandidaturesRecues = () => {
                         </div>
                     )}
 
+                    {/* Modal d'aperçu document (existant) */}
                     {showDocumentModal && selectedDocument && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-                        <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
-                            <h3 className="text-xl font-semibold">
-                                {selectedDocument.cv ? t("candidaturesrecues:documentCards.cvTitle") : t("candidaturesrecues:documentCards.letterTitle")} - {selectedDocument.prenom} {selectedDocument.nom}
-                            </h3>
-                            <button onClick={closeDocumentModal} className="text-white hover:text-gray-200" aria-label={t("candidaturesrecues:modal.close")}>
-                                <X className="h-6 w-6" />
-                            </button>
-                        </div>
-                        <div className="p-6 overflow-y-auto max-h-[calc(95vh-80px)]">
-                            {selectedDocument.cv || selectedDocument.lettre ? (
-                                <iframe
-                                    src={`data:application/pdf;base64,${selectedDocument.cv ?? selectedDocument.lettre}`}
-                                    className="w-full h-[600px] border rounded"
-                                    title={t("candidaturesrecues:modal.title")}
-                                    allow="fullscreen"
-                                />
-                            ) : (
-                                <div className="text-center py-12">
-                                    <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-600">{t("candidaturesrecues:modal.noPreview")}</p>
+                        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                                <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
+                                    <h3 className="text-xl font-semibold">
+                                        {selectedDocument.cv ? t("candidaturesrecues:documentCards.cvTitle") : t("candidaturesrecues:documentCards.letterTitle")} - {selectedDocument.prenom} {selectedDocument.nom}
+                                    </h3>
+                                    <button onClick={closeDocumentModal} className="text-white hover:text-gray-200" aria-label={t("candidaturesrecues:modal.close")}>
+                                        <X className="h-6 w-6" />
+                                    </button>
                                 </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showConvocationModal && selectedCandidature && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-                        {/* Header Modal */}
-                        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    {t("candidaturesrecues:createConvocation")}
-                                </h2>
-                                <p className="text-sm text-gray-600 mt-1">{t("candidaturesrecues:for")} {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}</p>
-                            </div>
-                            <button
-                                onClick={handleCloseConvocationModal}
-                                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-
-                        {/* Contenu Modal */}
-                        <div className="p-6 space-y-6">
-                            {/* Formulaire de convocation */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.dateHeure")}</label>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <input
-                                        type="date"
-                                        name="dateEntrevue"
-                                        value={convocationFormData.dateEntrevue}
-                                        onChange={handleConvocationFormChange}
-                                        className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
-                                    <input
-                                        type="time"
-                                        name="heureDebut"
-                                        value={convocationFormData.heureDebut}
-                                        onChange={handleConvocationFormChange}
-                                        className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
+                                <div className="p-6 overflow-y-auto max-h-[calc(95vh-80px)]">
+                                    {selectedDocument.cv || selectedDocument.lettre ? (
+                                        <iframe
+                                            src={`data:application/pdf;base64,${selectedDocument.cv ?? selectedDocument.lettre}`}
+                                            className="w-full h-[600px] border rounded"
+                                            title={t("candidaturesrecues:modal.title")}
+                                            allow="fullscreen"
+                                        />
+                                    ) : (
+                                        <div className="text-center py-12">
+                                            <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                            <p className="text-gray-600">{t("candidaturesrecues:modal.noPreview")}</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
+                        </div>
+                    )}
 
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.lieu")}</label>
-                                <input
-                                    type="text"
-                                    name="lieu"
-                                    value={convocationFormData.lieu}
-                                    onChange={handleConvocationFormChange}
-                                    className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder={t("candidaturesrecues:placeholders.lieu")}
-                                />
-                            </div>
+                    {/* Modal de création de convocation (existant) */}
+                    {showConvocationModal && selectedCandidature && (
+                        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                                {/* Header Modal */}
+                                <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-gray-900">
+                                            {t("candidaturesrecues:createConvocation")}
+                                        </h2>
+                                        <p className="text-sm text-gray-600 mt-1">{t("candidaturesrecues:for")} {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}</p>
+                                    </div>
+                                    <button
+                                        onClick={handleCloseConvocationModal}
+                                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                    >
+                                        <X className="w-6 h-6" />
+                                    </button>
+                                </div>
 
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
-                                <textarea
-                                    name="message"
-                                    value={convocationFormData.message}
-                                    onChange={handleConvocationFormChange}
-                                    className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    rows={3}
-                                    placeholder={t("candidaturesrecues:placeholders.message")}
-                                />
+                                {/* Contenu Modal */}
+                                <div className="p-6 space-y-6">
+                                    {/* Formulaire de convocation */}
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.dateHeure")}</label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <input
+                                                type="date"
+                                                name="dateEntrevue"
+                                                value={convocationFormData.dateEntrevue}
+                                                onChange={handleConvocationFormChange}
+                                                className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                            <input
+                                                type="time"
+                                                name="heureDebut"
+                                                value={convocationFormData.heureDebut}
+                                                onChange={handleConvocationFormChange}
+                                                className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.lieu")}</label>
+                                        <input
+                                            type="text"
+                                            name="lieu"
+                                            value={convocationFormData.lieu}
+                                            onChange={handleConvocationFormChange}
+                                            className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                                            placeholder={t("candidaturesrecues:placeholders.lieu")}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
+                                        <textarea
+                                            name="message"
+                                            value={convocationFormData.message}
+                                            onChange={handleConvocationFormChange}
+                                            className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                                            rows={3}
+                                            placeholder={t("candidaturesrecues:placeholders.message")}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Footer Modal */}
+                                <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
+                                    <button
+                                        onClick={handleCloseConvocationModal}
+                                        className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                                    >
+                                        {t("candidaturesrecues:labels.cancel")}
+                                    </button>
+                                    <button
+                                        onClick={handleSubmitConvocation}
+                                        disabled={creatingConvocationId !== null}
+                                        className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+                                    >
+                                        {creatingConvocationId !== null ? t("candidaturesrecues:creating") : t("candidaturesrecues:create")}
+                                    </button>
+                                </div>
                             </div>
                         </div>
-
-                        {/* Footer Modal */}
-                        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
-                            <button
-                                onClick={handleCloseConvocationModal}
-                                className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                {t("candidaturesrecues:labels.cancel")}
-                            </button>
-                            <button
-                                onClick={handleSubmitConvocation}
-                                disabled={creatingConvocationId !== null}
-                                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
-                            >
-                                {creatingConvocationId !== null ? t("candidaturesrecues:creating") : t("candidaturesrecues:create")}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                    )}
                 </div>
             </div>
         </div>

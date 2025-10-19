@@ -38,18 +38,41 @@
     "downloadLetter": "Erreur lors du téléchargement de la lettre de motivation",
     "viewCV": "Erreur lors de l'affichage du CV",
     "viewLetter": "Erreur lors de l'affichage de la lettre de motivation",
-    "loadDocument": "Erreur lors du chargement du document"
+    "loadDocument": "Erreur lors du chargement du document",
+    "approveError": "Erreur lors de l'approbation de la candidature",
+    "refuseError": "Erreur lors du refus de la candidature"
   },
   "actions": {
     "viewCV": "Regarder le CV",
     "viewLetter": "Regarder la lettre de motivation",
-    "download": "Télécharger"
+    "download": "Télécharger",
+    "approve": "Approuver",
+    "refuse": "Refuser",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "sending": "Envoi..."
   },
   "modal": {
     "title": "Aperçu du document",
     "close": "Fermer",
     "error": "Erreur lors du chargement du document",
     "noPreview": "Aperçu indisponible pour ce type de fichier"
+  },
+  "approveModal": {
+    "title": "Approuver la candidature",
+    "message": "Êtes-vous sûr de vouloir approuver cette candidature ?",
+    "studentInfo": "Étudiant",
+    "offerInfo": "Offre"
+  },
+  "refuseModal": {
+    "title": "Refuser la candidature",
+    "message": "Veuillez indiquer la raison du refus. Elle sera communiquée à l'étudiant.",
+    "reasonLabel": "Raison du refus",
+    "reasonPlaceholder": "Ex: Profil ne correspondant pas aux exigences, manque d'expérience...",
+    "reasonRequired": "La raison est obligatoire.",
+    "studentInfo": "Étudiant",
+    "offerInfo": "Offre"
   },
   "viewDetails": "Voir les détails",
   "labels": {
@@ -72,5 +95,9 @@
     "letterTitle": "Lettre de motivation",
     "letterSubtitle": "Document PDF",
     "noDocument": "Aucun document disponible"
+  },
+  "messages": {
+    "approveSuccess": "Candidature approuvée avec succès",
+    "refuseSuccess": "Candidature refusée avec succès"
   }
 }
