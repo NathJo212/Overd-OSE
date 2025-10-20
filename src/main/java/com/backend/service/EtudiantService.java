@@ -311,7 +311,7 @@ public class EtudiantService {
         }
 
         if (candidature.getStatut() != Candidature.StatutCandidature.ACCEPTEE) {
-            throw new StatutCandidatureInvalideException("La candidature doit être approuvée par l'employeur");
+            throw new StatutCandidatureInvalideException();
         }
 
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT);
@@ -331,7 +331,7 @@ public class EtudiantService {
         }
 
         if (candidature.getStatut() != Candidature.StatutCandidature.ACCEPTEE) {
-            throw new StatutCandidatureInvalideException("La candidature doit être approuvée par l'employeur");
+            throw new StatutCandidatureInvalideException();
         }
 
         candidature.setStatut(Candidature.StatutCandidature.REFUSEE_PAR_ETUDIANT);

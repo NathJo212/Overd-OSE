@@ -591,4 +591,125 @@ class EtudiantControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.erreur").exists());
     }
+
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/accepter -> succès et 200 OK")
+    void accepterOffreApprouvee_success_returnsOkAndMessage() throws Exception {
+        // Arrange
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/accepter", 5L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Offre acceptée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        Mockito.verify(etudiantService).accepterOffreApprouvee(5L);
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/accepter -> 403 Forbidden si ActionNonAutoriseeException")
+    void accepterOffreApprouvee_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
+        doThrow(expectedException)
+                .when(etudiantService).accepterOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/accepter", 5L))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()))
+                .andExpect(jsonPath("$.erreur.message").value("Unauthorized action"));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/accepter -> 404 Not Found si CandidatureNonDisponibleException")
+    void accepterOffreApprouvee_candidatureNotFound_returnsNotFound() throws Exception {
+        // Arrange
+        CandidatureNonDisponibleException expectedException = new CandidatureNonDisponibleException();
+        doThrow(expectedException)
+                .when(etudiantService).accepterOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/accepter", 5L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.CANDIDATURE_NON_DISPONIBLE.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/accepter -> 400 Bad Request si StatutCandidatureInvalideException")
+    void accepterOffreApprouvee_invalidStatus_returnsBadRequest() throws Exception {
+        // Arrange
+        StatutCandidatureInvalideException expectedException = new StatutCandidatureInvalideException();
+        doThrow(expectedException)
+                .when(etudiantService).accepterOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/accepter", 5L))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.STATUT_CANDIDATURE_INVALID.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/refuser -> succès et 200 OK")
+    void refuserOffreApprouvee_success_returnsOkAndMessage() throws Exception {
+        // Arrange
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/refuser", 6L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Offre refusée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        // Verify service method was called
+        Mockito.verify(etudiantService).refuserOffreApprouvee(6L);
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/refuser -> 403 Forbidden si ActionNonAutoriseeException")
+    void refuserOffreApprouvee_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
+        doThrow(expectedException)
+                .when(etudiantService).refuserOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/refuser", 6L))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/refuser -> 404 Not Found si CandidatureNonDisponibleException")
+    void refuserOffreApprouvee_candidatureNotFound_returnsNotFound() throws Exception {
+        // Arrange
+        CandidatureNonDisponibleException expectedException = new CandidatureNonDisponibleException();
+        doThrow(expectedException)
+                .when(etudiantService).refuserOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/refuser", 6L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.CANDIDATURE_NON_DISPONIBLE.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/refuser -> 400 Bad Request si StatutCandidatureInvalideException")
+    void refuserOffreApprouvee_invalidStatus_returnsBadRequest() throws Exception {
+        // Arrange
+        StatutCandidatureInvalideException expectedException = new StatutCandidatureInvalideException();
+        doThrow(expectedException)
+                .when(etudiantService).refuserOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/refuser", 6L))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.STATUT_CANDIDATURE_INVALID.getCode()));
+    }
+
+
 }

@@ -6,7 +6,7 @@ import lombok.Getter;
 public class StatutCandidatureInvalideException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public StatutCandidatureInvalideException(String message) {
+    public StatutCandidatureInvalideException() {
         super("La candidature doit être approuvée par l'employeur avant de pouvoir être acceptée ou refusée par l'étudiant");
         this.errorCode = ErrorCode.STATUT_CANDIDATURE_INVALID;
     }

@@ -774,4 +774,191 @@ public class EtudiantServiceTest {
             etudiantService.getConvocationPourCandidature(candidatureId);
         });
     }
+
+    @Test
+    void accepterOffreApprouvee_succes() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        candidature.setEtudiant(etudiant);
+        candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+
+        when(candidatureRepository.findById(10L)).thenReturn(Optional.of(candidature));
+
+        // Act
+        etudiantService.accepterOffreApprouvee(10L);
+
+        // Assert
+        assertEquals(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT, candidature.getStatut());
+        verify(candidatureRepository, times(1)).save(candidature);
+    }
+
+
+    @Test
+    void accepterOffreApprouvee_candidatureNonTrouvee_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        // This is the essential stub that causes the failure we are testing:
+        when(candidatureRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CandidatureNonDisponibleException.class,
+                () -> etudiantService.accepterOffreApprouvee(99L));
+
+        // Assert that save was never called
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    void accepterOffreApprouvee_actionNonAutorisee_throw() {
+        // Arrange
+        Etudiant etudiantConnecte = mock(Etudiant.class);
+        when(etudiantConnecte.getId()).thenReturn(1L);
+        lenient().when(etudiantConnecte.getEmail()).thenReturn("etudiant@test.com");
+
+        Etudiant autreEtudiant = mock(Etudiant.class);
+        when(autreEtudiant.getId()).thenReturn(2L);
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(autreEtudiant);
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiantConnecte);
+
+        when(candidatureRepository.findById(10L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> etudiantService.accepterOffreApprouvee(10L));
+
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    void accepterOffreApprouvee_statutInvalide_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(etudiant);
+        candidature.setStatut(Candidature.StatutCandidature.EN_ATTENTE); // Statut invalide pour l'action
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        when(candidatureRepository.findById(10L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(StatutCandidatureInvalideException.class,
+                () -> etudiantService.accepterOffreApprouvee(10L));
+
+        verify(candidatureRepository, never()).save(any());
+    }
+
+
+
+    @Test
+    void refuserOffreApprouvee_succes() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Candidature candidature = new Candidature();
+        candidature.setId(20L);
+        candidature.setEtudiant(etudiant);
+        candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        when(candidatureRepository.findById(20L)).thenReturn(Optional.of(candidature));
+
+        // Act
+        etudiantService.refuserOffreApprouvee(20L);
+
+        // Assert
+        assertEquals(Candidature.StatutCandidature.REFUSEE_PAR_ETUDIANT, candidature.getStatut());
+        verify(candidatureRepository, times(1)).save(candidature);
+    }
+
+
+    @Test
+    void refuserOffreApprouvee_candidatureNonTrouvee_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        when(candidatureRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CandidatureNonDisponibleException.class,
+                () -> etudiantService.refuserOffreApprouvee(99L));
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    void refuserOffreApprouvee_actionNonAutorisee_throw() {
+        // Arrange
+        Etudiant etudiantConnecte = mock(Etudiant.class);
+        when(etudiantConnecte.getId()).thenReturn(1L);
+        lenient().when(etudiantConnecte.getEmail()).thenReturn("etudiant@test.com");
+
+        Etudiant autreEtudiant = mock(Etudiant.class);
+        when(autreEtudiant.getId()).thenReturn(2L);
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(autreEtudiant);
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiantConnecte);
+
+        when(candidatureRepository.findById(20L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> etudiantService.refuserOffreApprouvee(20L));
+        verify(candidatureRepository, never()).save(any());
+    }
+
+
+    @Test
+    void refuserOffreApprouvee_statutInvalide_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(etudiant);
+        candidature.setStatut(Candidature.StatutCandidature.REFUSEE); // Statut invalide pour l'action
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        when(candidatureRepository.findById(20L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(StatutCandidatureInvalideException.class,
+                () -> etudiantService.refuserOffreApprouvee(20L));
+        verify(candidatureRepository, never()).save(any());
+    }
+
+
 }
