@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
     FileText,
     CheckCircle,
@@ -29,6 +29,9 @@ interface CandidatureEtudiant {
 const CandidaturesEtudiant = () => {
     const { t } = useTranslation(["candidaturesetudiant"]);
     const navigate = useNavigate();
+    const params = useParams<{ etudiantId?: string }>();
+    const etudiantId = params?.etudiantId;
+
     const [candidatures, setCandidatures] = useState<CandidatureEtudiant[]>([]);
     const [filteredCandidatures, setFilteredCandidatures] = useState<CandidatureEtudiant[]>([]);
     const [loading, setLoading] = useState(true);
@@ -44,23 +47,36 @@ const CandidaturesEtudiant = () => {
         }
 
         loadCandidatures();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [navigate]);
 
     useEffect(() => {
         filterCandidatures();
     }, [searchTerm, statusFilter, candidatures]);
 
-    const loadCandidatures = async () => {
-        try {
-            setLoading(true);
-            setError("");
+    useEffect(() => {
+        // if route param changes, reload
+        loadCandidatures();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [etudiantId]);
 
+    const loadCandidatures = async () => {
+        setLoading(true);
+        setError("");
+
+        try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
-                throw new Error(t('errors.notAuthenticated'));
+                navigate('/login');
+                setLoading(false);
+                return;
             }
 
-            const response = await fetch('http://localhost:8080/OSEetudiant/mes-candidatures', {
+            const endpoint = etudiantId
+                ? `http://localhost:8080/OSEetudiant/candidatures/etudiant/${etudiantId}`
+                : `http://localhost:8080/OSEetudiant/candidatures`;
+
+            const response = await fetch(endpoint, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -68,12 +84,22 @@ const CandidaturesEtudiant = () => {
                 }
             });
 
+            if (response.status === 401) {
+                // token probably expired or unauthorized
+                setError(t('errors.notAuthenticated') || 'Not authenticated');
+                // clear session so UX matches backend auth state
+                // do not auto-clear if you prefer to keep session; adjust as needed
+                // sessionStorage.clear();
+                setLoading(false);
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error(`Erreur HTTP: ${response.status}`);
             }
 
             const data = await response.json();
-            setCandidatures(data);
+            setCandidatures(Array.isArray(data) ? data : []);
         } catch (err: any) {
             setError(err.message || t('errors.loading'));
             console.error(err);
@@ -85,17 +111,15 @@ const CandidaturesEtudiant = () => {
     const filterCandidatures = () => {
         let filtered = [...candidatures];
 
-        // Filter by status
         if (statusFilter !== "ALL") {
             filtered = filtered.filter(c => c.statut === statusFilter);
         }
 
-        // Filter by search term
         if (searchTerm.trim()) {
             const term = searchTerm.toLowerCase();
             filtered = filtered.filter(c =>
-                c.offreTitre.toLowerCase().includes(term) ||
-                c.entrepriseNom.toLowerCase().includes(term)
+                (c.offreTitre || '').toLowerCase().includes(term) ||
+                (c.entrepriseNom || '').toLowerCase().includes(term)
             );
         }
 

@@ -12,6 +12,7 @@
   "CV_001": "Error uploading resume",
   "CV_002": "This resume has already been verified",
   "CV_003": "Your resume is not yet approved. Please wait for approval before applying.",
+  "CONVO_001": "A convocation already exists for this student.",
   "ERROR_000": "An error occurred",
   "NETWORK_ERROR": "Network connection error"
 }

@@ -18,9 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import com.backend.modele.Etudiant;
 
 @Service
@@ -209,9 +207,18 @@ public class EmployeurService {
 
 
     @Transactional
-    public void creerConvocation(ConvocationEntrevueDTO dto) throws ConvocationDejaExistanteException, CandidatureNonTrouveeException {
+    public void creerConvocation(ConvocationEntrevueDTO dto) throws ConvocationDejaExistanteException, CandidatureNonTrouveeException, ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
         Candidature candidature = candidatureRepository.findById(dto.candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
+
+        // Vérifier que la candidature appartient à une offre de cet employeur
+        if (candidature.getOffre() == null ||
+                candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
 
         if (candidature.getConvocationEntrevue() != null) {
             throw new ConvocationDejaExistanteException();
@@ -236,9 +243,18 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void modifierConvocation(ConvocationEntrevueDTO dto) throws CandidatureNonTrouveeException {
+    public void modifierConvocation(ConvocationEntrevueDTO dto) throws CandidatureNonTrouveeException, ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
         Candidature candidature = candidatureRepository.findById(dto.candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
+
+        // Vérifier que la candidature appartient à une offre de cet employeur
+        if (candidature.getOffre() == null ||
+                candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
 
         ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
         if (convocation == null) {
@@ -265,9 +281,18 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void annulerConvocation(Long candidatureId) throws CandidatureNonTrouveeException {
+    public void annulerConvocation(Long candidatureId) throws CandidatureNonTrouveeException, ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
+
+        // Vérifier que la candidature appartient à une offre de cet employeur
+        if (candidature.getOffre() == null ||
+                candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
 
         ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
         if (convocation == null) {
@@ -362,4 +387,5 @@ public class EmployeurService {
             notificationRepository.save(notif);
         }
     }
+
 }

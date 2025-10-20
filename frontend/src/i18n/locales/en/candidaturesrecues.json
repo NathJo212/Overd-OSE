@@ -39,6 +39,9 @@
     "viewCV": "Error displaying CV",
     "viewLetter": "Error displaying cover letter",
     "loadDocument": "Error loading document",
+    "createConvocation": "Error creating interview",
+    "fillRequiredFields": "Please fill all required fields"
+    "loadDocument": "Error loading document",
     "approveError": "Error approving application",
     "refuseError": "Error refusing application"
   },
@@ -87,7 +90,10 @@
     "message": "Message",
     "close": "Close",
     "refresh": "Refresh",
-    "applicationNumber": "Application #"
+    "applicationNumber": "Application #",
+    "dateHeure": "Date and time",
+    "lieu": "Interview location",
+    "cancel": "Cancel"
   },
   "documentCards": {
     "cvTitle": "Curriculum Vitae",
@@ -99,5 +105,22 @@
   "messages": {
     "approveSuccess": "Application approved successfully",
     "refuseSuccess": "Application refused successfully"
+  },
+  "createConvocation": "Create Interview",
+  "for": "for",
+  "creating": "Creating...",
+  "create": "Create Interview",
+  "messages": {
+    "convocationCreated": "Interview created successfully"
+  },
+  "convocationStatus": {
+    "convoked": "Convoked",
+    "modified": "Modified",
+    "cancelled": "Cancelled"
+  },
+  "placeholders": {
+    "lieu": "Ex: Room 301, Building A or https://meet.google.com/...",
+    "message": "Optional message for the student...",
+    "messageTemplate": "ex: Hello {{prenom}},\n\nWe would like to meet to discuss your application for the position {{offre}}.\n\nBest regards"
   }
 }

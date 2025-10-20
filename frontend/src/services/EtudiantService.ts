@@ -49,6 +49,7 @@ export interface ConvocationDTO {
     message: string;
     offreTitre?: string;
     employeurNom?: string;
+    statut?: string;
 }
 
 // Configuration de l'API
@@ -440,7 +441,8 @@ class EtudiantService {
             const token = this.getAuthToken();
             if (!token) return [];
 
-            const response = await fetch(`${this.baseUrl}/convocations`, {
+            // First fetch the student's candidatures
+            const candidaturesResp = await fetch(`${this.baseUrl}/candidatures`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -448,11 +450,50 @@ class EtudiantService {
                 }
             });
 
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP: ${response.status}`);
+            if (!candidaturesResp.ok) {
+                // if unauthorized return empty so UI can show notice
+                if (candidaturesResp.status === 401) return [];
+                throw new Error(`Erreur HTTP candidatures: ${candidaturesResp.status}`);
             }
 
-            return await response.json();
+            const candidatures = await candidaturesResp.json();
+            if (!Array.isArray(candidatures) || candidatures.length === 0) return [];
+
+            // For each candidature, attempt to fetch its convocation (may be 404 if none)
+            const convocationPromises = candidatures.map(async (cand: any) => {
+                try {
+                    const resp = await fetch(`${this.baseUrl}/candidatures/${cand.id}/convocation`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!resp.ok) {
+                        // if not found or unauthorized, return null to filter out later
+                        return null;
+                    }
+
+                    const conv: ConvocationDTO = await resp.json();
+                    // enrich convocation with related info from candidature if available
+                    if (!conv.offreTitre && cand.offreTitre) conv.offreTitre = cand.offreTitre;
+                    if (!conv.employeurNom && cand.entrepriseNom) conv.employeurNom = cand.entrepriseNom;
+                    return conv;
+                } catch (e) {
+                    console.error('Erreur lors de la récupération de la convocation pour candidature', cand.id, e);
+                    return null;
+                }
+            });
+
+            const convs = await Promise.all(convocationPromises);
+            // filter out nulls and past convocations
+            const now = new Date();
+            return convs.filter((c): c is ConvocationDTO => {
+                if (!c) return false;
+                const convDate = new Date(c.dateHeure);
+                return convDate > now;
+            });
         } catch (error) {
             console.error('Erreur getConvocations:', error);
             return [];
