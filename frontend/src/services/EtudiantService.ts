@@ -51,6 +51,17 @@ export interface ConvocationDTO {
     employeurNom?: string;
 }
 
+// Interface pour les candidatures de l'étudiant
+export interface CandidatureEtudiantDTO {
+    id: number;
+    offreId: number;
+    offreTitre: string;
+    employeurNom: string;
+    dateCandidature: string;
+    statut: string;
+    messageReponse?: string;
+}
+
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const ETUDIANT_ENDPOINT = '/OSEetudiant';
@@ -400,6 +411,42 @@ class EtudiantService {
     }
 
     /**
+     * Récupère toutes les candidatures de l'étudiant connecté
+     * @returns Promise avec la liste des candidatures
+     */
+    async getMesCandidatures(): Promise<CandidatureEtudiantDTO[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur getMesCandidatures:', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+            throw error;
+        }
+    }
+
+    /**
      * Vérifie si l'étudiant a déjà postulé une offre
      * @param offreId - L'ID de l'offre
      * @returns Promise<boolean> - true si déjà postule, false sinon
@@ -456,6 +503,130 @@ class EtudiantService {
         } catch (error) {
             console.error('Erreur getConvocations:', error);
             return [];
+        }
+    }
+
+    /**
+     * Accepte une offre de stage approuvée par l'employeur
+     * @param candidatureId - L'ID de la candidature à accepter
+     * @returns Promise avec la réponse du serveur
+     */
+    async accepterOffreApprouvee(candidatureId: number): Promise<{ message: string }> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour accepter une offre');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/accepter`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors de l\'acceptation:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de l\'acceptation de l\'offre');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * Refuse une offre de stage approuvée par l'employeur
+     * @param candidatureId - L'ID de la candidature à refuser
+     * @returns Promise avec la réponse du serveur
+     */
+    async refuserOffreApprouvee(candidatureId: number): Promise<{ message: string }> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour refuser une offre');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/refuser`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors du refus:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus de l\'offre');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
         }
     }
 }
