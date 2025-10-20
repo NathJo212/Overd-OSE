@@ -259,6 +259,16 @@ const CandidaturesRecues = () => {
                 icon: XCircle,
                 text: t("candidaturesrecues:status.refused"),
                 className: "bg-rose-50 text-rose-700 border-rose-200"
+            },
+            'ACCEPTEE_PAR_ETUDIANT': {
+                icon: Check,
+                text: t("candidaturesrecues:status.acceptedByStudent"),
+                className: "bg-emerald-50 text-emerald-700 border-emerald-200"
+            },
+            'REFUSEE_PAR_ETUDIANT': {
+                icon: XCircle,
+                text: t("candidaturesrecues:status.refusedByStudent"),
+                className: "bg-rose-50 text-rose-700 border-rose-200"
             }
         };
 
@@ -272,9 +282,9 @@ const CandidaturesRecues = () => {
 
         return (
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border ${config.className}`}>
-                <Icon className="w-3.5 h-3.5" />
+            <Icon className="w-3.5 h-3.5" />
                 {config.text}
-            </span>
+        </span>
         );
     };
 
@@ -447,7 +457,7 @@ const CandidaturesRecues = () => {
              console.log('Appel de creerConvocation avec candidatureId:', selectedCandidature.id);
 
              await employeurService.creerConvocation(selectedCandidature.id, payload);
-            setConvocationSuccess(t('candidaturesrecues:messages.convocationCreated'));
+             setConvocationSuccess(t('candidaturesrecues:messages.convocationCreated'));
              setShowConvocationModal(false);
              // Refresh candidatures to reflect convocation if backend returns it
              await loadCandidatures();

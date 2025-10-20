@@ -9,7 +9,9 @@
   "status": {
     "pending": "Applied",
     "accepted": "Accepted",
-    "refused": "Refused"
+    "refused": "Refused",
+    "acceptedByStudent": "Accepted by the student",
+    "refusedByStudent": "Refused by the student"
   },
   "stats": {
     "total": "Total",
@@ -41,7 +43,6 @@
     "loadDocument": "Error loading document",
     "createConvocation": "Error creating interview",
     "fillRequiredFields": "Please fill all required fields",
-    "loadDocument": "Error loading document",
     "approveError": "Error approving application",
     "refuseError": "Error refusing application"
   },
@@ -104,15 +105,13 @@
   },
   "messages": {
     "approveSuccess": "Application approved successfully",
-    "refuseSuccess": "Application refused successfully"
+    "refuseSuccess": "Application refused successfully",
+    "convocationCreated": "Interview created successfully"
   },
   "createConvocation": "Create Interview",
   "for": "for",
   "creating": "Creating...",
   "create": "Create Interview",
-  "messages": {
-    "convocationCreated": "Interview created successfully"
-  },
   "convocationStatus": {
     "convoked": "Convoked",
     "modified": "Modified",

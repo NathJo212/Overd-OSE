@@ -9,7 +9,9 @@
   "status": {
     "pending": "Postulé",
     "accepted": "Acceptée",
-    "refused": "Refusée"
+    "refused": "Refusée",
+    "acceptedByStudent": "Acceptée par l'étudiant",
+    "refusedByStudent": "Refusée par l'étudiant"
   },
   "stats": {
     "total": "Total",
@@ -41,7 +43,6 @@
     "loadDocument": "Erreur lors du chargement du document",
     "approveError": "Erreur lors de l'approbation de la candidature",
     "refuseError": "Erreur lors du refus de la candidature",
-    "loadDocument": "Erreur lors du chargement du document",
     "createConvocation": "Erreur lors de la création de la convocation",
     "fillRequiredFields": "Veuillez remplir tous les champs obligatoires"
   },
@@ -106,9 +107,6 @@
   "for": "pour",
   "creating": "Création en cours...",
   "create": "Créer la convocation",
-  "messages": {
-    "convocationCreated": "Convocation créée avec succès"
-  },
   "convocationStatus": {
     "convoked" : "Convoqué",
     "modified" : "Modifié",
@@ -120,6 +118,7 @@
     "messageTemplate": "ex: Bonjour {{prenom}},\n\nNous aimerions vous rencontrer pour discuter de votre candidature pour le poste de {{offre}}.\n\nCordialement"
   },
   "messages": {
+    "convocationCreated": "Convocation créée avec succès",
     "approveSuccess": "Candidature approuvée avec succès",
     "refuseSuccess": "Candidature refusée avec succès"
   }
