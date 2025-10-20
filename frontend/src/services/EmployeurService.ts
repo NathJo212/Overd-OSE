@@ -137,45 +137,55 @@ class EmployeurService {
         };
     }
 
-    async creerOffreStage(offreData: OffreStageDTO): Promise<MessageRetour> {
+    async creerOffreDeStage(offre: OffreStageDTO): Promise<MessageRetour> {
+        const offreDTO = {
+            authResponseDTO: { token: offre.utilisateur.token },
+            titre: offre.titre,
+            description: offre.description,
+            date_debut: offre.date_debut,
+            date_fin: offre.date_fin,
+            progEtude: offre.progEtude,
+            lieuStage: offre.lieuStage,
+            remuneration: offre.remuneration,
+            dateLimite: offre.dateLimite,
+        };
+
         try {
             const response = await fetch(`${this.baseUrl}/creerOffre`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${offre.utilisateur.token}`,
                 },
-                body: JSON.stringify(offreData),
+                body: JSON.stringify(offreDTO),
             });
 
             const data = await response.json();
 
-            if (!response.ok) {
-                const error: any = new Error('Erreur lors de la création de l\'offre');
+            if (data?.erreur) {
+                const error: any = new Error(data.erreur.message || 'Erreur de création d\'offre');
                 error.response = { data };
                 throw error;
             }
 
-            return data;
+            if (!response.ok) {
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
 
+            return data;
         } catch (error: any) {
+            if (error.response?.data?.erreur) throw error;
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
                 networkError.code = 'ERR_NETWORK';
                 throw networkError;
             }
-
-            const genericError: any = new Error(error.message || 'Erreur inconnue');
-            genericError.response = {
-                data: {
-                    erreur: {
-                        errorCode: 'ERROR_000',
-                        message: error.message
-                    }
-                }
-            };
-            throw genericError;
+            throw error;
         }
     }
+
 
     async getOffresParEmployeur(token: string): Promise<any[]> {
         try {
