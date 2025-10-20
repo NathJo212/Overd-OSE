@@ -298,4 +298,44 @@ public class EtudiantService {
         return new NotificationDTO(notif.getId(), notif.getMessageKey(), notif.getMessageParam(), notif.isLu(), notif.getDateCreation());
     }
 
+    @Transactional
+    public void accepterOffreApprouvee(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException, StatutCandidatureInvalideException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonDisponibleException::new);
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (candidature.getStatut() != Candidature.StatutCandidature.ACCEPTEE) {
+            throw new StatutCandidatureInvalideException("La candidature doit être approuvée par l'employeur");
+        }
+
+        candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT);
+        candidatureRepository.save(candidature);
+    }
+
+    @Transactional
+    public void refuserOffreApprouvee(Long candidatureId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException, StatutCandidatureInvalideException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonDisponibleException::new);
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (candidature.getStatut() != Candidature.StatutCandidature.ACCEPTEE) {
+            throw new StatutCandidatureInvalideException("La candidature doit être approuvée par l'employeur");
+        }
+
+        candidature.setStatut(Candidature.StatutCandidature.REFUSEE_PAR_ETUDIANT);
+        candidatureRepository.save(candidature);
+    }
+
 }

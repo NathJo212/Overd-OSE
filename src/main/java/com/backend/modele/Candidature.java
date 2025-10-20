@@ -18,7 +18,9 @@ public class Candidature {
         EN_ATTENTE,
         ACCEPTEE,
         REFUSEE,
-        RETIREE
+        RETIREE,
+        ACCEPTEE_PAR_ETUDIANT,
+        REFUSEE_PAR_ETUDIANT
     }
 
     @Id
