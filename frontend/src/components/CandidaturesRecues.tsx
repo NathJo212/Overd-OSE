@@ -813,28 +813,22 @@ const CandidaturesRecues = () => {
                                                             <X className="w-4 h-4" />
                                                             {t("candidaturesrecues:actions.refuse")}
                                                         </button>
+
                                                     </>
                                                 )}
 
                                                 {/* Create convocation button */}
-                                                {!candidature.convocation && (
+                                                {!candidature.convocation && candidature.statut === 'EN_ATTENTE' && (
                                                     <button
                                                         onClick={(e) => handleCreerConvocation(candidature, e)}
                                                         disabled={creatingConvocationId === candidature.id}
-                                                        className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                                                        className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                                                     >
                                                         <Calendar className="w-4 h-4" />
                                                         {creatingConvocationId === candidature.id ? t('candidaturesrecues:creating') : t('candidaturesrecues:createConvocation')}
                                                     </button>
                                                 )}
-                                                <button
-                                                    onClick={(e) => handleCreerConvocation(candidature, e)}
-                                                    disabled={creatingConvocationId === candidature.id}
-                                                    className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
-                                                >
-                                                    <Calendar className="w-4 h-4" />
-                                                    {creatingConvocationId === candidature.id ? 'Création...' : 'Créer convocation'}
-                                                </button>
+
                                             </div>
                                         </div>
                                     </div>
@@ -1133,7 +1127,7 @@ const CandidaturesRecues = () => {
                     )}
 
                     {/* Modal de création de convocation (existant) */}
-                    {showConvocationModal && selectedCandidature && (
+                    {showConvocationModal && selectedCandidature && !selectedCandidature.convocation && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
                                 {/* Header Modal */}
@@ -1151,24 +1145,6 @@ const CandidaturesRecues = () => {
                                         <X className="w-6 h-6" />
                                     </button>
                                 </div>
-            {showConvocationModal && selectedCandidature && !selectedCandidature.convocation && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-                        {/* Header Modal */}
-                        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    {t("candidaturesrecues:createConvocation")}
-                                </h2>
-                                <p className="text-sm text-gray-600 mt-1">{t("candidaturesrecues:for")} {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}</p>
-                            </div>
-                            <button
-                                onClick={handleCloseConvocationModal}
-                                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
 
                                 {/* Contenu Modal */}
                                 <div className="p-6 space-y-6">
@@ -1192,30 +1168,6 @@ const CandidaturesRecues = () => {
                                             />
                                         </div>
                                     </div>
-                        {/* Contenu Modal */}
-                        <div className="p-6 space-y-6">
-                            {/* Formulaire de convocation */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.dateHeure")}</label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <input
-                                        type="date"
-                                        name="dateEntrevue"
-                                        value={convocationFormData.dateEntrevue}
-                                        onChange={handleConvocationFormChange}
-                                        placeholder="ex: 25/10/2025"
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                    />
-                                    <input
-                                        type="time"
-                                        name="heureDebut"
-                                        value={convocationFormData.heureDebut}
-                                        onChange={handleConvocationFormChange}
-                                        placeholder="10:00"
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                    />
-                                </div>
-                            </div>
 
                                     <div>
                                         <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.lieu")}</label>
@@ -1228,17 +1180,6 @@ const CandidaturesRecues = () => {
                                             placeholder={t("candidaturesrecues:placeholders.lieu")}
                                         />
                                     </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.lieu")}</label>
-                                <input
-                                    type="text"
-                                    name="lieu"
-                                    value={convocationFormData.lieu}
-                                    onChange={handleConvocationFormChange}
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                    placeholder={t('candidaturesrecues:placeholders.lieu')}
-                                />
-                            </div>
 
                                     <div>
                                         <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
@@ -1246,44 +1187,35 @@ const CandidaturesRecues = () => {
                                             name="message"
                                             value={convocationFormData.message}
                                             onChange={handleConvocationFormChange}
-                                            className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-                                            rows={3}
-                                            placeholder={t("candidaturesrecues:placeholders.message")}
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                                            rows={4}
+                                            placeholder={t('candidaturesrecues:placeholders.messageTemplate', { prenom: selectedCandidature.etudiantPrenom, offre: selectedCandidature.offreTitre })}
                                         />
                                     </div>
-                                </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
-                                <textarea
-                                    name="message"
-                                    value={convocationFormData.message}
-                                    onChange={handleConvocationFormChange}
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
-                                    rows={4}
-                                    placeholder={t('candidaturesrecues:placeholders.messageTemplate', { prenom: selectedCandidature.etudiantPrenom, offre: selectedCandidature.offreTitre })}
-                                />
 
-                                {/* Footer Modal */}
-                                <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
-                                    <button
-                                        onClick={handleCloseConvocationModal}
-                                        className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
-                                    >
-                                        {t("candidaturesrecues:labels.cancel")}
-                                    </button>
-                                    <button
-                                        onClick={handleSubmitConvocation}
-                                        disabled={creatingConvocationId !== null}
-                                        className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
-                                    >
-                                        {creatingConvocationId !== null ? t("candidaturesrecues:creating") : t("candidaturesrecues:create")}
-                                    </button>
+                                    {/* Footer Modal */}
+                                    <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
+                                        <button
+                                            onClick={handleCloseConvocationModal}
+                                            className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                                        >
+                                            {t("candidaturesrecues:labels.cancel")}
+                                        </button>
+                                        <button
+                                            onClick={handleSubmitConvocation}
+                                            disabled={creatingConvocationId !== null}
+                                            className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+                                        >
+                                            {creatingConvocationId !== null ? t("candidaturesrecues:creating") : t("candidaturesrecues:create")}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     )}
                 </div>
-            </div></div>
+            </div>
+        </div>
     );
 };
 

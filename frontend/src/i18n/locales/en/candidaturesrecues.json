@@ -40,7 +40,7 @@
     "viewLetter": "Error displaying cover letter",
     "loadDocument": "Error loading document",
     "createConvocation": "Error creating interview",
-    "fillRequiredFields": "Please fill all required fields"
+    "fillRequiredFields": "Please fill all required fields",
     "loadDocument": "Error loading document",
     "approveError": "Error approving application",
     "refuseError": "Error refusing application"
