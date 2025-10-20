@@ -33,9 +33,29 @@ export interface CandidatureRecueDTO {
     etudiantEmail: string;
     dateCandidature: string;
     statut: string;
-    acv: boolean;  // ✅ tout en minuscule
-    alettreMotivation: boolean;  // ✅ tout en minuscule
+    acv: boolean;
+    alettreMotivation: boolean;
     messageReponse?: string;
+    convocationEntrevue?: {
+        id: number;
+        dateHeure: string;
+        lieuOuLien: string;
+        message: string;
+        statut?: string;
+    } | null;
+}
+
+export interface ConvocationEntrevueDTO {
+    id?: number;
+    candidatureId: number;
+    dateHeure: string;
+    lieuOuLien: string;
+    message: string;
+    offreTitre?: string;
+    employeurNom?: string;
+    etudiantNom?: string;
+    etudiantPrenom?: string;
+    statut: 'CONVOQUEE' | 'MODIFIE' | 'ANNULEE';
 }
 
 // Configuration de l'API
@@ -49,11 +69,6 @@ class EmployeurService {
         this.baseUrl = `${API_BASE_URL}${EMPLOYEUR_ENDPOINT}`;
     }
 
-    /**
-     * Crée un nouveau compte employeur
-     * @param employeurData - Les données de l'employeur à créer
-     * @returns Promise avec la réponse du serveur
-     */
     async creerCompte(employeurData: EmployeurData): Promise<MessageRetour> {
         try {
             const response = await fetch(`${this.baseUrl}/creerCompte`, {
@@ -66,7 +81,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // ✅ Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors de la création du compte:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur de création de compte');
@@ -107,26 +121,20 @@ class EmployeurService {
         }
     }
 
-
-    /**
-     * Transforme les données du formulaire en format attendu par l'API
-     * @param formData - Les données du formulaire d'inscription
-     * @returns Les données formatées pour l'API
-     */
     formatFormDataForAPI(formData: {
-        emailProfessionnel: string;
-        motDePasse: string;
-        telephone: string;
         nomEntreprise: string;
-        prenomContact: string;
-        nomContact: string;
+        contact: string;
+        email: string;
+        telephone: string;
+        motDePasse: string;
+        confirmerMotDePasse: string;
     }): EmployeurData {
         return {
-            email: formData.emailProfessionnel,
-            password: formData.motDePasse,
-            telephone: formData.telephone,
             nomEntreprise: formData.nomEntreprise,
-            contact: `${formData.prenomContact} ${formData.nomContact}`.trim()
+            contact: formData.contact,
+            email: formData.email,
+            telephone: formData.telephone,
+            password: formData.motDePasse,
         };
     }
 
@@ -156,7 +164,6 @@ class EmployeurService {
             const data = await response.json();
 
             if (data?.erreur) {
-                console.error('Erreur lors de la création de l\'offre:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur de création d\'offre');
                 error.response = { data };
                 throw error;
@@ -169,28 +176,14 @@ class EmployeurService {
             }
 
             return data;
-
         } catch (error: any) {
-            if (error.response?.data?.erreur) {
-                throw error;
-            }
-
+            if (error.response?.data?.erreur) throw error;
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
                 networkError.code = 'ERR_NETWORK';
                 throw networkError;
             }
-
-            const genericError: any = new Error(error.message || 'Erreur inconnue');
-            genericError.response = {
-                data: {
-                    erreur: {
-                        errorCode: 'ERROR_000',
-                        message: error.message
-                    }
-                }
-            };
-            throw genericError;
+            throw error;
         }
     }
 
@@ -228,10 +221,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Récupère les candidatures reçues pour les offres de l'employeur
-     * @returns Promise avec la liste des candidatures
-     */
     async getCandidaturesRecues(): Promise<CandidatureRecueDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -258,11 +247,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Récupère une candidature spécifique par son ID
-     * @param id - L'ID de la candidature
-     * @returns Promise avec les détails de la candidature
-     */
     async getCandidatureSpecifique(id: number): Promise<CandidatureRecueDTO> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -289,11 +273,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Télécharge le CV d'une candidature
-     * @param id - L'ID de la candidature
-     * @returns Promise avec le blob du PDF
-     */
     async telechargerCvCandidature(id: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -319,11 +298,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Télécharge la lettre de motivation d'une candidature
-     * @param id - L'ID de la candidature
-     * @returns Promise avec le blob du PDF
-     */
     async telechargerLettreMotivationCandidature(id: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -331,6 +305,7 @@ class EmployeurService {
                 throw new Error('Vous devez être connecté');
             }
 
+            // ✅ ENDPOINT CORRECT avec trait d'union
             const response = await fetch(`${this.baseUrl}/candidatures/${id}/lettre-motivation`, {
                 method: 'GET',
                 headers: {
@@ -348,9 +323,261 @@ class EmployeurService {
             throw error;
         }
     }
+
+    async approuverCandidature(candidatureId: number): Promise<MessageRetour> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/approuver`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+
+            // Vérifier si erreur dans MessageRetourDTO
+            if (data?.erreur) {
+                console.error('Erreur lors de l\'approbation de la candidature:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de l\'approbation');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    async refuserCandidature(candidatureId: number, raison: string): Promise<MessageRetour> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/refuser`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ raison })
+            });
+
+            const data = await response.json();
+
+            // Vérifier si erreur dans MessageRetourDTO
+            if (data?.erreur) {
+                console.error('Erreur lors du refus de la candidature:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * Crée une convocation d'entrevue
+     */
+    async creerConvocation(candidatureId: number, convocation: { dateHeure: string; lieuOuLien: string; message: string }): Promise<any> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const payload = {
+                candidatureId: candidatureId,
+                dateHeure: convocation.dateHeure,
+                lieuOuLien: convocation.lieuOuLien,
+                message: convocation.message
+            };
+
+            const response = await fetch(`${this.baseUrl}/creerConvocation`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const message = data?.erreur?.message || data?.message || `Erreur HTTP: ${response.status}`;
+                const error: any = new Error(message);
+                error.response = { data };
+                throw error;
+            }
+
+            return data;
+        } catch (error: any) {
+            console.error('Erreur creerConvocation:', error);
+            throw error;
+        }
+    }
+
+    async getConvocations(): Promise<ConvocationEntrevueDTO[]> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) return [];
+
+            const response = await fetch(`${this.baseUrl}/convocations`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) return [];
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            const convocations: ConvocationEntrevueDTO[] = await response.json();
+
+            const now = new Date();
+            return convocations.filter(conv => {
+                const convDate = new Date(conv.dateHeure);
+                return convDate > now;
+            });
+        } catch (error) {
+            console.error('Erreur getConvocations:', error);
+            return [];
+        }
+    }
+
+    async modifierConvocation(candidatureId: number, convocation: { dateHeure: string; lieuOuLien: string; message: string }): Promise<any> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const payload = {
+                candidatureId: candidatureId,
+                dateHeure: convocation.dateHeure,
+                lieuOuLien: convocation.lieuOuLien,
+                message: convocation.message
+            };
+
+            const response = await fetch(`${this.baseUrl}/candidatures/convocation`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const message = data?.erreur?.message || data?.message || `Erreur HTTP: ${response.status}`;
+                const error: any = new Error(message);
+                error.response = { data };
+                throw error;
+            }
+
+            return data;
+        } catch (error: any) {
+            console.error('Erreur modifierConvocation:', error);
+            throw error;
+        }
+    }
+
+    async annulerConvocation(candidatureId: number): Promise<any> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/convocation/annuler`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const message = data?.erreur?.message || data?.message || `Erreur HTTP: ${response.status}`;
+                const error: any = new Error(message);
+                error.response = { data };
+                throw error;
+            }
+
+            return data;
+        } catch (error: any) {
+            console.error('Erreur annulerConvocation:', error);
+            throw error;
+        }
+    }
 }
 
-// Export d'une instance unique (Singleton)
 export const employeurService = new EmployeurService();
 export default employeurService;
-

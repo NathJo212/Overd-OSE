@@ -17,5 +17,18 @@
   "offers": {
     "title": "Offres de stage disponibles",
     "subtitle": "Explorez et postulez aux opportunités qui correspondent à votre profil"
+  },
+  "convocations": {
+    "title": "Mes convocations",
+    "refresh": "Actualiser",
+    "loading": "Chargement des convocations...",
+    "empty": "Aucune convocation pour le moment.",
+    "view": "Voir",
+    "close": "Fermer",
+    "location": "Lieu",
+    "employer": "Employeur",
+    "convoked" : "Convoqué",
+    "modified" : "Modifié",
+    "cancelled" : "Annulée"
   }
 }

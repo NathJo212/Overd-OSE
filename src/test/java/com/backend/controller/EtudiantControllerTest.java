@@ -7,6 +7,7 @@ import com.backend.service.UtilisateurService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -469,6 +470,245 @@ class EtudiantControllerTest {
         mockMvc.perform(get("/OSEetudiant/offres/10/a-postule"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.aPostule").value(true));
+    }
+
+    @Test
+    void getConvocationPourCandidature_success() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.candidatureId = 1L;
+        dto.dateHeure = LocalDateTime.of(2025, 10, 20, 14, 0);
+        dto.lieuOuLien = "Zoom";
+        dto.message = "Merci de vous connecter à l’heure";
+        dto.statut = "CONVOQUEE";
+
+        Mockito.when(etudiantService.getConvocationPourCandidature(1L)).thenReturn(dto);
+
+        mockMvc.perform(get("/OSEetudiant/candidatures/1/convocation"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.candidatureId").value(1L))
+                .andExpect(jsonPath("$.lieuOuLien").value("Zoom"))
+                .andExpect(jsonPath("$.statut").value("CONVOQUEE"));
+    }
+
+    @Test
+    void getConvocationPourCandidature_actionNonAutorisee() throws Exception {
+        Mockito.when(etudiantService.getConvocationPourCandidature(anyLong()))
+                .thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEetudiant/candidatures/2/convocation"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getConvocationPourCandidature_utilisateurPasTrouve() throws Exception {
+        Mockito.when(etudiantService.getConvocationPourCandidature(anyLong()))
+                .thenThrow(new UtilisateurPasTrouveException());
+
+        mockMvc.perform(get("/OSEetudiant/candidatures/3/convocation"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getConvocationPourCandidature_nonTrouvee() throws Exception {
+        Mockito.when(etudiantService.getConvocationPourCandidature(anyLong()))
+                .thenThrow(new ConvocationNonTrouveeException());
+
+        mockMvc.perform(get("/OSEetudiant/candidatures/4/convocation"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/notifications -> retourne liste de notifications")
+    void getNotifications_success_returnsList() throws Exception {
+        NotificationDTO dto = new NotificationDTO(1L, "key", "param", false, LocalDateTime.now());
+        when(etudiantService.getNotificationsPourEtudiantConnecte()).thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/OSEetudiant/notifications").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/notifications -> retourne 403 si action non autorisée")
+    void getNotifications_actionNonAutorisee_returnsForbidden() throws Exception {
+        when(etudiantService.getNotificationsPourEtudiantConnecte()).thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEetudiant/notifications").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/notifications -> retourne 403 si utilisateur non trouvé")
+    void getNotifications_utilisateurPasTrouve_returnsForbidden() throws Exception {
+        when(etudiantService.getNotificationsPourEtudiantConnecte()).thenThrow(new UtilisateurPasTrouveException());
+
+        mockMvc.perform(get("/OSEetudiant/notifications").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/notifications -> retourne 500 sur erreur interne")
+    void getNotifications_internalError_returnsInternalServerError() throws Exception {
+        when(etudiantService.getNotificationsPourEtudiantConnecte()).thenThrow(new RuntimeException("Erreur interne"));
+
+        mockMvc.perform(get("/OSEetudiant/notifications").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/notifications/{id}/lu -> marque notification lue et retourne 200")
+    void marquerNotificationLu_success_returnsOk() throws Exception {
+        when(etudiantService.marquerNotificationLu(eq(2L), eq(true))).thenReturn(new NotificationDTO(2L, "k", "p", true, LocalDateTime.now()));
+
+        mockMvc.perform(put("/OSEetudiant/notifications/2/lu")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Notification marquée comme lue"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/notifications/{id}/lu -> retourne 403 si action non autorisée")
+    void marquerNotificationLu_actionNonAutorisee_returnsForbidden() throws Exception {
+        when(etudiantService.marquerNotificationLu(eq(2L), eq(true))).thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(put("/OSEetudiant/notifications/2/lu")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("true"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/notifications/{id}/lu -> retourne 500 sur erreur interne")
+    void marquerNotificationLu_internalError_returnsInternalServerError() throws Exception {
+        when(etudiantService.marquerNotificationLu(eq(2L), eq(true))).thenThrow(new RuntimeException("Erreur interne"));
+
+        mockMvc.perform(put("/OSEetudiant/notifications/2/lu")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("true"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/accepter -> succès et 200 OK")
+    void accepterOffreApprouvee_success_returnsOkAndMessage() throws Exception {
+        // Arrange
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/accepter", 5L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Offre acceptée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        Mockito.verify(etudiantService).accepterOffreApprouvee(5L);
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/accepter -> 403 Forbidden si ActionNonAutoriseeException")
+    void accepterOffreApprouvee_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
+        doThrow(expectedException)
+                .when(etudiantService).accepterOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/accepter", 5L))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()))
+                .andExpect(jsonPath("$.erreur.message").value("Unauthorized action"));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/accepter -> 404 Not Found si CandidatureNonDisponibleException")
+    void accepterOffreApprouvee_candidatureNotFound_returnsNotFound() throws Exception {
+        // Arrange
+        CandidatureNonDisponibleException expectedException = new CandidatureNonDisponibleException();
+        doThrow(expectedException)
+                .when(etudiantService).accepterOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/accepter", 5L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.CANDIDATURE_NON_DISPONIBLE.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/accepter -> 400 Bad Request si StatutCandidatureInvalideException")
+    void accepterOffreApprouvee_invalidStatus_returnsBadRequest() throws Exception {
+        // Arrange
+        StatutCandidatureInvalideException expectedException = new StatutCandidatureInvalideException();
+        doThrow(expectedException)
+                .when(etudiantService).accepterOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/accepter", 5L))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.STATUT_CANDIDATURE_INVALID.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/refuser -> succès et 200 OK")
+    void refuserOffreApprouvee_success_returnsOkAndMessage() throws Exception {
+        // Arrange
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/refuser", 6L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Offre refusée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        // Verify service method was called
+        Mockito.verify(etudiantService).refuserOffreApprouvee(6L);
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/refuser -> 403 Forbidden si ActionNonAutoriseeException")
+    void refuserOffreApprouvee_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
+        doThrow(expectedException)
+                .when(etudiantService).refuserOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/refuser", 6L))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/refuser -> 404 Not Found si CandidatureNonDisponibleException")
+    void refuserOffreApprouvee_candidatureNotFound_returnsNotFound() throws Exception {
+        // Arrange
+        CandidatureNonDisponibleException expectedException = new CandidatureNonDisponibleException();
+        doThrow(expectedException)
+                .when(etudiantService).refuserOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/refuser", 6L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.CANDIDATURE_NON_DISPONIBLE.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /candidatures/{id}/refuser -> 400 Bad Request si StatutCandidatureInvalideException")
+    void refuserOffreApprouvee_invalidStatus_returnsBadRequest() throws Exception {
+        // Arrange
+        StatutCandidatureInvalideException expectedException = new StatutCandidatureInvalideException();
+        doThrow(expectedException)
+                .when(etudiantService).refuserOffreApprouvee(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/candidatures/{id}/refuser", 6L))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.STATUT_CANDIDATURE_INVALID.getCode()));
     }
 
 

@@ -41,6 +41,28 @@ export interface OffreDTO {
     employeurDTO: EmployeurDTO;
 }
 
+export interface ConvocationDTO {
+    id: number;
+    candidatureId: number;
+    dateHeure: string;
+    lieuOuLien: string;
+    message: string;
+    offreTitre?: string;
+    employeurNom?: string;
+    statut?: string;
+}
+
+// Interface pour les candidatures de l'étudiant
+export interface CandidatureEtudiantDTO {
+    id: number;
+    offreId: number;
+    offreTitre: string;
+    employeurNom: string;
+    dateCandidature: string;
+    statut: string;
+    messageReponse?: string;
+}
+
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const ETUDIANT_ENDPOINT = '/OSEetudiant';
@@ -390,6 +412,42 @@ class EtudiantService {
     }
 
     /**
+     * Récupère toutes les candidatures de l'étudiant connecté
+     * @returns Promise avec la liste des candidatures
+     */
+    async getMesCandidatures(): Promise<CandidatureEtudiantDTO[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur getMesCandidatures:', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+            throw error;
+        }
+    }
+
+    /**
      * Vérifie si l'étudiant a déjà postulé une offre
      * @param offreId - L'ID de l'offre
      * @returns Promise<boolean> - true si déjà postule, false sinon
@@ -418,6 +476,198 @@ class EtudiantService {
         } catch (error) {
             console.error('Erreur lors de la vérification de la candidature:', error);
             return false;
+        }
+    }
+
+    /**
+     * Récupère toutes les convocations de l'étudiant connecté
+     * @returns Promise avec la liste des convocations
+     */
+    async getConvocations(): Promise<ConvocationDTO[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) return [];
+
+            // First fetch the student's candidatures
+            const candidaturesResp = await fetch(`${this.baseUrl}/candidatures`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!candidaturesResp.ok) {
+                // if unauthorized return empty so UI can show notice
+                if (candidaturesResp.status === 401) return [];
+                throw new Error(`Erreur HTTP candidatures: ${candidaturesResp.status}`);
+            }
+
+            const candidatures = await candidaturesResp.json();
+            if (!Array.isArray(candidatures) || candidatures.length === 0) return [];
+
+            // For each candidature, attempt to fetch its convocation (may be 404 if none)
+            const convocationPromises = candidatures.map(async (cand: any) => {
+                try {
+                    const resp = await fetch(`${this.baseUrl}/candidatures/${cand.id}/convocation`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!resp.ok) {
+                        // if not found or unauthorized, return null to filter out later
+                        return null;
+                    }
+
+                    const conv: ConvocationDTO = await resp.json();
+                    // enrich convocation with related info from candidature if available
+                    if (!conv.offreTitre && cand.offreTitre) conv.offreTitre = cand.offreTitre;
+                    if (!conv.employeurNom && cand.entrepriseNom) conv.employeurNom = cand.entrepriseNom;
+                    return conv;
+                } catch (e) {
+                    console.error('Erreur lors de la récupération de la convocation pour candidature', cand.id, e);
+                    return null;
+                }
+            });
+
+            const convs = await Promise.all(convocationPromises);
+            // filter out nulls and past convocations
+            const now = new Date();
+            return convs.filter((c): c is ConvocationDTO => {
+                if (!c) return false;
+                const convDate = new Date(c.dateHeure);
+                return convDate > now;
+            });
+        } catch (error) {
+            console.error('Erreur getConvocations:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Accepte une offre de stage approuvée par l'employeur
+     * @param candidatureId - L'ID de la candidature à accepter
+     * @returns Promise avec la réponse du serveur
+     */
+    async accepterOffreApprouvee(candidatureId: number): Promise<{ message: string }> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour accepter une offre');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/accepter`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors de l\'acceptation:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de l\'acceptation de l\'offre');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * Refuse une offre de stage approuvée par l'employeur
+     * @param candidatureId - L'ID de la candidature à refuser
+     * @returns Promise avec la réponse du serveur
+     */
+    async refuserOffreApprouvee(candidatureId: number): Promise<{ message: string }> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour refuser une offre');
+            }
+
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/refuser`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors du refus:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus de l\'offre');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
         }
     }
 }

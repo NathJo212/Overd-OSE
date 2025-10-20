@@ -3,17 +3,12 @@ package com.backend.service;
 import com.backend.Exceptions.*;
 import com.backend.config.JwtTokenProvider;
 import com.backend.modele.*;
-import com.backend.persistence.CandidatureRepository;
-import com.backend.persistence.EmployeurRepository;
-import com.backend.persistence.OffreRepository;
-import com.backend.persistence.UtilisateurRepository;
-import com.backend.service.DTO.AuthResponseDTO;
-import com.backend.service.DTO.CandidatureDTO;
-import com.backend.service.DTO.ProgrammeDTO;
-import com.backend.service.DTO.OffreDTO;
+import com.backend.persistence.*;
+import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,9 +31,12 @@ public class EmployeurService {
     private final UtilisateurRepository utilisateurRepository;
     private final CandidatureRepository candidatureRepository;
     private final EncryptageCV encryptageCV;
+    private final ConvocationEntrevueRepository convocationEntrevueRepository;
+    private final NotificationRepository notificationRepository;
+    private final MessageSource messageSource;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, MessageSource messageSource) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -46,6 +44,9 @@ public class EmployeurService {
         this.utilisateurRepository = utilisateurRepository;
         this.candidatureRepository = candidatureRepository;
         this.encryptageCV = encryptageCV;
+        this.convocationEntrevueRepository = convocationEntrevueRepository;
+        this.notificationRepository = notificationRepository;
+        this.messageSource = messageSource;
     }
 
     @Transactional
@@ -204,5 +205,187 @@ public class EmployeurService {
         return jwtTokenProvider.getEmailFromJWT(cleanToken);
     }
 
+
+    @Transactional
+    public void creerConvocation(ConvocationEntrevueDTO dto) throws ConvocationDejaExistanteException, CandidatureNonTrouveeException, ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(dto.candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        // Vérifier que la candidature appartient à une offre de cet employeur
+        if (candidature.getOffre() == null ||
+                candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (candidature.getConvocationEntrevue() != null) {
+            throw new ConvocationDejaExistanteException();
+        }
+
+        ConvocationEntrevue convocation = new ConvocationEntrevue(candidature, dto.getDateHeure(), dto.lieuOuLien,  dto.message);
+
+        convocationEntrevueRepository.save(convocation);
+        candidature.setConvocationEntrevue(convocation);
+        candidatureRepository.save(candidature);
+
+        // créer et sauvegarder la notification pour l'étudiant lié
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("convocation.created");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
+    }
+
+    @Transactional
+    public void modifierConvocation(ConvocationEntrevueDTO dto) throws CandidatureNonTrouveeException, ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(dto.candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        // Vérifier que la candidature appartient à une offre de cet employeur
+        if (candidature.getOffre() == null ||
+                candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
+        if (convocation == null) {
+            throw new CandidatureNonTrouveeException();
+        }
+
+        if (dto.getDateHeure() != null) convocation.setDateHeure(dto.getDateHeure());
+        if (dto.lieuOuLien != null) convocation.setLieuOuLien(dto.lieuOuLien);
+        if (dto.message != null) convocation.setMessage(dto.message);
+        convocation.setStatut(ConvocationEntrevue.StatutConvocation.MODIFIE);
+
+        convocationEntrevueRepository.save(convocation);
+
+        // notification de modification pour l'étudiant
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("convocation.modified");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
+    }
+
+    @Transactional
+    public void annulerConvocation(Long candidatureId) throws CandidatureNonTrouveeException, ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        // Vérifier que la candidature appartient à une offre de cet employeur
+        if (candidature.getOffre() == null ||
+                candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
+        if (convocation == null) {
+            throw new CandidatureNonTrouveeException();
+        }
+
+        convocation.setStatut(ConvocationEntrevue.StatutConvocation.ANNULEE);
+        convocationEntrevueRepository.save(convocation);
+
+        // notification d'annulation pour l'étudiant
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("convocation.cancelled");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
+    }
+
+    @Transactional
+    public List<ConvocationEntrevueDTO> getConvocationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        List<Offre> offres = offreRepository.findAllByEmployeur(employeur);
+
+        List<Candidature> candidatures = candidatureRepository.findAllByOffreIn(offres);
+
+        List<ConvocationEntrevueDTO> convocations = new ArrayList<>();
+        for (Candidature candidature : candidatures) {
+            if (candidature.getConvocationEntrevue() != null) {
+                convocations.add(new ConvocationEntrevueDTO().toDTO(candidature.getConvocationEntrevue()));
+            }
+        }
+        return convocations;
+    }
+
+    @Transactional
+    public void approuverCandidature(Long candidatureId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, CandidatureDejaVerifieException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        if (candidature.getOffre() == null || candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+        if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE){
+            throw new CandidatureDejaVerifieException();
+        }
+        candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+        candidatureRepository.save(candidature);
+
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("offre.approved");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
+    }
+
+    @Transactional
+    public void refuserCandidature(Long candidatureId, String raison) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, CandidatureDejaVerifieException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureNonTrouveeException::new);
+
+        if (candidature.getOffre() == null || candidature.getOffre().getEmployeur() == null ||
+                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+        if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE){
+            throw new CandidatureDejaVerifieException();
+        }
+        candidature.setStatut(Candidature.StatutCandidature.REFUSEE);
+        candidature.setMessageReponse(raison);
+        candidatureRepository.save(candidature);
+
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant != null) {
+            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("offre.refused");
+            notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
+    }
 
 }

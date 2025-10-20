@@ -1,0 +1,69 @@
+{
+  "title": "My Applications",
+  "subtitle": "Track the status of all your applications",
+  "backToDashboard": "Back to dashboard",
+  "loading": "Loading applications...",
+  "search": "Search",
+  "searchPlaceholder": "Search by title or company...",
+  "filterByStatus": "Filter by status",
+  "stats": {
+    "total": "Total",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "refused": "Refused"
+  },
+  "filters": {
+    "all": "All",
+    "pending": "Pending",
+    "acceptedByEmployer": "Accepted by employer",
+    "acceptedByStudent": "Accepted by me",
+    "refusedByEmployer": "Refused by employer",
+    "refusedByStudent": "Refused by me",
+    "accepted": "Accepted",
+    "refused": "Refused"
+  },
+  "status": {
+    "pending": "Pending",
+    "acceptedByEmployer": "Accepted by employer",
+    "acceptedByStudent": "Accepted by me",
+    "refusedByEmployer": "Refused by employer",
+    "refusedByStudent": "Refused by me",
+    "accepted": "Accepted",
+    "refused": "Refused"
+  },
+  "appliedOn": "Applied on",
+  "employerMessage": "Employer's message:",
+  "noCandidatures": {
+    "title": "No applications found",
+    "noResults": "Try modifying your search filters.",
+    "neverApplied": "You haven't applied to any internship offers yet.",
+    "viewOffers": "View available offers"
+  },
+  "actions": {
+    "accept": "Accept Offer",
+    "refuse": "Refuse Offer",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "sending": "Sending..."
+  },
+  "acceptModal": {
+    "title": "Accept Internship Offer",
+    "message": "Are you sure you want to accept this internship offer? This action will confirm your participation in the internship.",
+    "offerInfo": "Internship Offer"
+  },
+  "refuseModal": {
+    "title": "Refuse Internship Offer",
+    "message": "Are you sure you want to refuse this internship offer? This action will make the offer available to other candidates.",
+    "offerInfo": "Internship Offer"
+  },
+  "messages": {
+    "acceptSuccess": "Offer accepted successfully! The employer will be notified of your decision.",
+    "refuseSuccess": "Offer refused successfully. The offer will be available to other candidates."
+  },
+  "errors": {
+    "loading": "Error loading applications",
+    "notAuthenticated": "You must be logged in",
+    "acceptError": "Error accepting the offer",
+    "refuseError": "Error refusing the offer"
+  }
+}

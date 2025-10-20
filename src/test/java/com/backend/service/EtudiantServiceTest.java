@@ -5,11 +5,15 @@ import com.backend.modele.*;
 import com.backend.persistence.CandidatureRepository;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.CandidatureDTO;
+import com.backend.service.DTO.ConvocationEntrevueDTO;
 import com.backend.util.EncryptageCV;
 import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.modele.Notification;
+import com.backend.persistence.NotificationRepository;
+import com.backend.service.DTO.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -53,11 +58,20 @@ public class EtudiantServiceTest {
     @Mock
     private EncryptageCV encryptageCV;
 
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private NotificationRepository notificationRepository;
+
     @InjectMocks
     private EtudiantService etudiantService;
 
     @Mock
     private CandidatureRepository candidatureRepository;
+
+    @Mock
+    private Authentication authentication;
 
     @BeforeEach
     void setupSecurityContext() {
@@ -72,6 +86,131 @@ public class EtudiantServiceTest {
         lenient().when(securityContext.getAuthentication()).thenReturn(auth);
 
         SecurityContextHolder.setContext(securityContext);
+    }
+
+    @Test
+    public void testGetNotificationsPourEtudiantConnecte_returnsList() throws Exception {
+        // Arrange
+        Etudiant etu = new Etudiant();
+        etu.setEmail("etudiant@test.com");
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etu);
+
+        Notification n = new Notification();
+        n.setId(7L);
+        n.setUtilisateur(etu);
+        n.setMessageKey("notif.key");
+        n.setMessageParam("param");
+        n.setLu(false);
+        n.setDateCreation(LocalDateTime.now());
+
+        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etu)).thenReturn(List.of(n));
+
+        // Act
+        var dtos = etudiantService.getNotificationsPourEtudiantConnecte();
+
+        // Assert
+        assertNotNull(dtos);
+        assertEquals(1, dtos.size());
+        NotificationDTO dto = dtos.get(0);
+        assertEquals(7L, dto.getId());
+        assertEquals("notif.key", dto.getMessageKey());
+        assertEquals("param", dto.getMessageParam());
+        assertFalse(dto.isLu());
+    }
+
+    @Test
+    public void testGetNotificationsPourEtudiantConnecte_notForConnectedEtudiant_returnsEmpty() throws Exception {
+        // Arrange
+        String email = "etudiant@test.com";
+        Etudiant etu = mock(Etudiant.class);
+        etu.setEmail(email);
+
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ETUDIANT")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        when(etudiantRepository.existsByEmail(email)).thenReturn(true);
+        when(etudiantRepository.findByEmail(email)).thenReturn(etu);
+
+        Etudiant autre = mock(Etudiant.class);
+
+        Notification n = new Notification();
+        n.setId(7L);
+        n.setUtilisateur(autre); // appartient à un autre étudiant
+        n.setMessageKey("notif.key");
+        n.setMessageParam("param");
+        n.setLu(false);
+        n.setDateCreation(LocalDateTime.now());
+
+        // Le dépôt ne doit pas retourner la notification de l'autre étudiant pour 'etu'
+        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etu)).thenReturn(Collections.emptyList());
+
+        // Act
+        var dtos = etudiantService.getNotificationsPourEtudiantConnecte();
+
+        // Assert
+        assertNotNull(dtos);
+        assertTrue(dtos.isEmpty());
+    }
+
+    @Test
+    public void testMarquerNotificationLu_success() throws Exception {
+        // Arrange
+        Etudiant etu = mock(Etudiant.class);
+        etu.setEmail("etudiant@test.com");
+        when(etu.getId()).thenReturn(60L);
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etu);
+
+        Notification notif = new Notification();
+        notif.setId(8L);
+        notif.setUtilisateur(etu);
+        notif.setLu(false);
+
+        when(notificationRepository.findById(8L)).thenReturn(Optional.of(notif));
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        var result = etudiantService.marquerNotificationLu(8L, true);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(8L, result.getId());
+        assertTrue(result.isLu());
+        verify(notificationRepository, times(1)).save(any(Notification.class));
+    }
+
+    @Test
+    public void testMarquerNotificationLu_unauthorized() throws Exception {
+        // Arrange
+        Etudiant etu = mock(Etudiant.class);
+        etu.setEmail("etudiant@test.com");
+        when(etu.getId()).thenReturn(70L);
+
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etu);
+
+        Etudiant autre = mock(Etudiant.class);
+        when(autre.getId()).thenReturn(99L);
+
+        Notification notif = new Notification();
+        notif.setId(9L);
+        notif.setUtilisateur(autre);
+        notif.setLu(false);
+
+        when(notificationRepository.findById(9L)).thenReturn(Optional.of(notif));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> etudiantService.marquerNotificationLu(9L, true));
+        verify(notificationRepository, never()).save(any());
     }
 
     @Test
@@ -560,6 +699,265 @@ public class EtudiantServiceTest {
 
         assertThrows(OffreNonExistantException.class,
                 () -> etudiantService.aPostuleOffre(99L));
+    }
+
+    @Test
+    void getConvocationPourCandidature_success() throws Exception {
+        // Création d'un vrai étudiant
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        Offre offre = new Offre();
+
+        // Candidature liée à l'étudiant
+        Candidature candidature = new Candidature();
+        candidature.setId(123L);
+        candidature.setEtudiant(etudiant);
+        candidature.setOffre(offre);
+
+        ConvocationEntrevue convocation = new ConvocationEntrevue();
+        convocation.setCandidature(candidature);
+        convocation.setDateHeure(LocalDateTime.of(2025, 10, 20, 14, 0));
+        convocation.setLieuOuLien("Zoom");
+        convocation.setMessage("Merci de vous connecter à l’heure");
+
+        candidature.setConvocationEntrevue(convocation);
+
+        // Mock pour getEtudiantConnecte()
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+        when(candidatureRepository.findById(anyLong())).thenReturn(Optional.of(candidature));
+
+        ConvocationEntrevueDTO result = etudiantService.getConvocationPourCandidature(1L);
+
+        assertNotNull(result);
+        assertEquals(convocation.getDateHeure(), result.getDateHeure());
+        assertEquals("Zoom", result.getLieuOuLien());
+        assertEquals("Merci de vous connecter à l’heure", result.getMessage());
+    }
+
+    @Test
+    void getConvocationPourCandidature_nonTrouvee() {
+        Long candidatureId = 2L;
+        Etudiant etudiant = mock(Etudiant.class);
+
+        // Simule qu'un étudiant existe avec cet email
+        when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        // Simule qu'aucune candidature n'est trouvée
+        when(candidatureRepository.findById(candidatureId)).thenReturn(Optional.empty());
+
+        assertThrows(ConvocationNonTrouveeException.class, () -> {
+            etudiantService.getConvocationPourCandidature(candidatureId);
+        });
+    }
+
+    @Test
+    void getConvocationPourCandidature_actionNonAutorisee() {
+        Long candidatureId = 3L;
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        Etudiant autreEtudiant = mock(Etudiant.class);
+        when(autreEtudiant.getId()).thenReturn(2L);
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(autreEtudiant);
+
+        // Mock pour que l'étudiant connecté soit trouvé
+        when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+        when(candidatureRepository.findById(candidatureId)).thenReturn(Optional.of(candidature));
+
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            etudiantService.getConvocationPourCandidature(candidatureId);
+        });
+    }
+
+    @Test
+    void accepterOffreApprouvee_succes() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        candidature.setEtudiant(etudiant);
+        candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+
+        when(candidatureRepository.findById(10L)).thenReturn(Optional.of(candidature));
+
+        // Act
+        etudiantService.accepterOffreApprouvee(10L);
+
+        // Assert
+        assertEquals(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT, candidature.getStatut());
+        verify(candidatureRepository, times(1)).save(candidature);
+    }
+
+
+    @Test
+    void accepterOffreApprouvee_candidatureNonTrouvee_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        // This is the essential stub that causes the failure we are testing:
+        when(candidatureRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CandidatureNonDisponibleException.class,
+                () -> etudiantService.accepterOffreApprouvee(99L));
+
+        // Assert that save was never called
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    void accepterOffreApprouvee_actionNonAutorisee_throw() {
+        // Arrange
+        Etudiant etudiantConnecte = mock(Etudiant.class);
+        when(etudiantConnecte.getId()).thenReturn(1L);
+        lenient().when(etudiantConnecte.getEmail()).thenReturn("etudiant@test.com");
+
+        Etudiant autreEtudiant = mock(Etudiant.class);
+        when(autreEtudiant.getId()).thenReturn(2L);
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(autreEtudiant);
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiantConnecte);
+
+        when(candidatureRepository.findById(10L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> etudiantService.accepterOffreApprouvee(10L));
+
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    void accepterOffreApprouvee_statutInvalide_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(etudiant);
+        candidature.setStatut(Candidature.StatutCandidature.EN_ATTENTE); // Statut invalide pour l'action
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        when(candidatureRepository.findById(10L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(StatutCandidatureInvalideException.class,
+                () -> etudiantService.accepterOffreApprouvee(10L));
+
+        verify(candidatureRepository, never()).save(any());
+    }
+
+
+
+    @Test
+    void refuserOffreApprouvee_succes() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Candidature candidature = new Candidature();
+        candidature.setId(20L);
+        candidature.setEtudiant(etudiant);
+        candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        when(candidatureRepository.findById(20L)).thenReturn(Optional.of(candidature));
+
+        // Act
+        etudiantService.refuserOffreApprouvee(20L);
+
+        // Assert
+        assertEquals(Candidature.StatutCandidature.REFUSEE_PAR_ETUDIANT, candidature.getStatut());
+        verify(candidatureRepository, times(1)).save(candidature);
+    }
+
+
+    @Test
+    void refuserOffreApprouvee_candidatureNonTrouvee_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        when(candidatureRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CandidatureNonDisponibleException.class,
+                () -> etudiantService.refuserOffreApprouvee(99L));
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    void refuserOffreApprouvee_actionNonAutorisee_throw() {
+        // Arrange
+        Etudiant etudiantConnecte = mock(Etudiant.class);
+        when(etudiantConnecte.getId()).thenReturn(1L);
+        lenient().when(etudiantConnecte.getEmail()).thenReturn("etudiant@test.com");
+
+        Etudiant autreEtudiant = mock(Etudiant.class);
+        when(autreEtudiant.getId()).thenReturn(2L);
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(autreEtudiant);
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiantConnecte);
+
+        when(candidatureRepository.findById(20L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> etudiantService.refuserOffreApprouvee(20L));
+        verify(candidatureRepository, never()).save(any());
+    }
+
+
+    @Test
+    void refuserOffreApprouvee_statutInvalide_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+        lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Candidature candidature = new Candidature();
+        candidature.setEtudiant(etudiant);
+        candidature.setStatut(Candidature.StatutCandidature.REFUSEE); // Statut invalide pour l'action
+
+        lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
+
+        when(candidatureRepository.findById(20L)).thenReturn(Optional.of(candidature));
+
+        // Act & Assert
+        assertThrows(StatutCandidatureInvalideException.class,
+                () -> etudiantService.refuserOffreApprouvee(20L));
+        verify(candidatureRepository, never()).save(any());
     }
 
 

@@ -1,14 +1,14 @@
 package com.backend.controller;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.CandidatureNonTrouveeException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
+import com.backend.Exceptions.*;
 import com.backend.modele.Employeur;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.CandidatureDTO;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.service.DTO.ConvocationEntrevueDTO;
+import com.backend.service.DTO.MessageRetourDTO;
+import com.backend.service.DTO.ErrorResponse;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
@@ -25,13 +25,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
@@ -445,6 +446,270 @@ class EmployeurControllerTest {
         mockMvc.perform(get("/OSEemployeur/candidatures/{id}/lettre-motivation", candidatureId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/creerConvocation retourne 201 sur succès")
+    void creerConvocation_success_returnsCreated() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.setCandidatureId(1L);
+        dto.setDateHeure(LocalDateTime.now().plusDays(5));
+        dto.setLieuOuLien("Salle 302");
+        dto.setMessage("Test message");
+
+        mockMvc.perform(post("/OSEemployeur/creerConvocation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Convocation créée avec succès"))
+                .andExpect(jsonPath("$.errorResponse").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/creerConvocation retourne 404 si candidature non trouvée")
+    void creerConvocation_candidatureNonTrouvee_returnsNotFound() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.setCandidatureId(999L);
+        dto.setDateHeure(LocalDateTime.now().plusDays(5));
+        dto.setLieuOuLien("Salle 302");
+        dto.setMessage("Test message");
+
+        doThrow(new CandidatureNonTrouveeException()).when(employeurService).creerConvocation(any(ConvocationEntrevueDTO.class));
+
+        mockMvc.perform(post("/OSEemployeur/creerConvocation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CANDIDATURE_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/creerConvocation retourne 409 si convocation déjà existante")
+    void creerConvocation_convocationDejaExistante_returnsConflict() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.setCandidatureId(1L);
+        dto.setDateHeure(LocalDateTime.now().plusDays(5));
+        dto.setLieuOuLien("Salle 302");
+        dto.setMessage("Test message");
+
+        doThrow(new ConvocationDejaExistanteException()).when(employeurService).creerConvocation(any(ConvocationEntrevueDTO.class));
+
+        mockMvc.perform(post("/OSEemployeur/creerConvocation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CONVOCATION_EXISTS"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/creerConvocation retourne 500 sur erreur interne")
+    void creerConvocation_internalError_returnsInternalServerError() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        dto.setCandidatureId(1L);
+        dto.setDateHeure(LocalDateTime.now().plusDays(5));
+        dto.setLieuOuLien("Salle 302");
+        dto.setMessage("Test message");
+
+        doThrow(new RuntimeException("Erreur interne")).when(employeurService).creerConvocation(any(ConvocationEntrevueDTO.class));
+
+        mockMvc.perform(post("/OSEemployeur/creerConvocation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("INTERNAL_ERROR"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEemployeur/candidatures/convocation retourne 200 sur succès")
+    void modifierConvocation_success_returnsOk() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        mockMvc.perform(put("/OSEemployeur/candidatures/convocation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Convocation modifiée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEemployeur/candidatures/convocation retourne 404 si candidature non trouvée")
+    void modifierConvocation_candidatureNonTrouvee_returnsNotFound() throws Exception {
+        ConvocationEntrevueDTO dto = new ConvocationEntrevueDTO();
+        doThrow(new CandidatureNonTrouveeException()).when(employeurService).modifierConvocation(any(ConvocationEntrevueDTO.class));
+        mockMvc.perform(put("/OSEemployeur/candidatures/convocation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CANDIDATURE_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEemployeur/candidatures/{id}/convocation/annuler retourne 200 sur succès")
+    void annulerConvocation_success_returnsOk() throws Exception {
+        Long candidatureId = 1L;
+        mockMvc.perform(put("/OSEemployeur/candidatures/{id}/convocation/annuler", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Convocation annulée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEemployeur/candidatures/{id}/convocation/annuler retourne 404 si candidature non trouvée")
+    void annulerConvocation_candidatureNonTrouvee_returnsNotFound() throws Exception {
+        Long candidatureId = 999L;
+        doThrow(new CandidatureNonTrouveeException()).when(employeurService).annulerConvocation(candidatureId);
+        mockMvc.perform(put("/OSEemployeur/candidatures/{id}/convocation/annuler", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value("CANDIDATURE_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/convocations retourne 200 et liste de convocations")
+    void getConvocationsPourEmployeur_success_returnsOkAndList() throws Exception {
+        ConvocationEntrevueDTO conv1 = new ConvocationEntrevueDTO();
+        ConvocationEntrevueDTO conv2 = new ConvocationEntrevueDTO();
+        when(employeurService.getConvocationsPourEmployeur()).thenReturn(java.util.List.of(conv1, conv2));
+        mockMvc.perform(get("/OSEemployeur/convocations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/convocations retourne 403 si action non autorisée")
+    void getConvocationsPourEmployeur_actionNonAutorisee_returnsForbidden() throws Exception {
+        when(employeurService.getConvocationsPourEmployeur()).thenThrow(new ActionNonAutoriseeException());
+        mockMvc.perform(get("/OSEemployeur/convocations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/convocations retourne 500 sur erreur interne")
+    void getConvocationsPourEmployeur_internalError_returnsInternalServerError() throws Exception {
+        when(employeurService.getConvocationsPourEmployeur()).thenThrow(new RuntimeException("Erreur interne"));
+        mockMvc.perform(get("/OSEemployeur/convocations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/{id}/approuver retourne 200 sur succès")
+    void approuverCandidature_success_returnsOk() throws Exception {
+        Long candidatureId = 20L;
+
+        mockMvc.perform(post("/OSEemployeur/candidatures/{id}/approuver", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Candidature approuvée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/{id}/approuver retourne 403 si non autorisé")
+    void approuverCandidature_nonAutorise_returnsForbidden() throws Exception {
+        Long candidatureId = 21L;
+        doThrow(new ActionNonAutoriseeException()).when(employeurService).approuverCandidature(candidatureId);
+
+        mockMvc.perform(post("/OSEemployeur/candidatures/{id}/approuver", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/{id}/approuver retourne 404 si candidature non trouvée")
+    void approuverCandidature_notFound_returnsNotFound() throws Exception {
+        Long candidatureId = 22L;
+        doThrow(new CandidatureNonTrouveeException()).when(employeurService).approuverCandidature(candidatureId);
+
+        mockMvc.perform(post("/OSEemployeur/candidatures/{id}/approuver", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.CANDIDATURE_NOT_FOUND.getCode()));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/{id}/approuver retourne 409 si déjà vérifiée")
+    void approuverCandidature_conflict_returnsConflict() throws Exception {
+        Long candidatureId = 23L;
+        doThrow(new CandidatureDejaVerifieException()).when(employeurService).approuverCandidature(candidatureId);
+
+        mockMvc.perform(post("/OSEemployeur/candidatures/{id}/approuver", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.CANDIDATURE_ALREADY_VERIFIED.getCode()));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/{id}/refuser retourne 200 sur succès")
+    void refuserCandidature_success_returnsOk() throws Exception {
+        Long candidatureId = 30L;
+        String json = "{ \"raison\": \"Pas bon profil\" }";
+
+        mockMvc.perform(post("/OSEemployeur/candidatures/{id}/refuser", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Candidature refusée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/{id}/refuser retourne 403 si non autorisé")
+    void refuserCandidature_nonAutorise_returnsForbidden() throws Exception {
+        Long candidatureId = 31L;
+        String json = "{ \"raison\": \"Motif\" }";
+        doThrow(new ActionNonAutoriseeException()).when(employeurService).refuserCandidature(eq(candidatureId), anyString());
+
+        mockMvc.perform(post("/OSEemployeur/candidatures/{id}/refuser", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/{id}/refuser retourne 404 si candidature non trouvée")
+    void refuserCandidature_notFound_returnsNotFound() throws Exception {
+        Long candidatureId = 32L;
+        String json = "{ \"raison\": \"Motif\" }";
+        doThrow(new CandidatureNonTrouveeException()).when(employeurService).refuserCandidature(eq(candidatureId), anyString());
+
+        mockMvc.perform(post("/OSEemployeur/candidatures/{id}/refuser", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.CANDIDATURE_NOT_FOUND.getCode()));
+    }
+
+    @Test
+    @DisplayName("POST /OSEemployeur/candidatures/{id}/refuser retourne 409 si déjà vérifiée")
+    void refuserCandidature_conflict_returnsConflict() throws Exception {
+        Long candidatureId = 33L;
+        String json = "{ \"raison\": \"Motif\" }";
+        doThrow(new CandidatureDejaVerifieException()).when(employeurService).refuserCandidature(eq(candidatureId), anyString());
+
+        mockMvc.perform(post("/OSEemployeur/candidatures/{id}/refuser", candidatureId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.CANDIDATURE_ALREADY_VERIFIED.getCode()));
     }
 
 

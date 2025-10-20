@@ -1,24 +1,27 @@
 {
   "title": "Candidatures reçues",
   "subtitle": "Gérez les candidatures des étudiants pour vos offres de stage",
+  "backToDashboard": "Retour au tableau de bord",
   "loading": "Chargement des candidatures...",
   "coverLetter": "Lettre de motivation",
   "searchPlaceholder": "Rechercher par nom, email ou offre...",
   "resultsFound": "résultat(s) trouvé(s)",
   "status": {
-    "pending": "En attente",
+    "pending": "Postulé",
     "accepted": "Acceptée",
-    "refused": "Refusée"
+    "refused": "Refusée",
+    "acceptedByStudent": "Acceptée par l'étudiant",
+    "refusedByStudent": "Refusée par l'étudiant"
   },
   "stats": {
     "total": "Total",
-    "pending": "En attente",
+    "pending": "Postulé",
     "accepted": "Acceptées",
     "refused": "Refusées"
   },
   "filters": {
     "all": "Tous les statuts",
-    "pending": "En attente",
+    "pending": "Postulé",
     "accepted": "Acceptées",
     "refused": "Refusées",
     "allOffers": "Toutes les offres"
@@ -34,7 +37,89 @@
   "errors": {
     "loadCandidatures": "Erreur lors du chargement des candidatures",
     "downloadCV": "Erreur lors du téléchargement du CV",
-    "downloadLetter": "Erreur lors du téléchargement de la lettre de motivation"
+    "downloadLetter": "Erreur lors du téléchargement de la lettre de motivation",
+    "viewCV": "Erreur lors de l'affichage du CV",
+    "viewLetter": "Erreur lors de l'affichage de la lettre de motivation",
+    "loadDocument": "Erreur lors du chargement du document",
+    "approveError": "Erreur lors de l'approbation de la candidature",
+    "refuseError": "Erreur lors du refus de la candidature",
+    "createConvocation": "Erreur lors de la création de la convocation",
+    "fillRequiredFields": "Veuillez remplir tous les champs obligatoires"
   },
-    "viewDetails": "Voir les détails"
+  "actions": {
+    "viewCV": "Regarder le CV",
+    "viewLetter": "Regarder la lettre de motivation",
+    "download": "Télécharger",
+    "approve": "Approuver",
+    "refuse": "Refuser",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "sending": "Envoi..."
+  },
+  "modal": {
+    "title": "Aperçu du document",
+    "close": "Fermer",
+    "error": "Erreur lors du chargement du document",
+    "noPreview": "Aperçu indisponible pour ce type de fichier"
+  },
+  "approveModal": {
+    "title": "Approuver la candidature",
+    "message": "Êtes-vous sûr de vouloir approuver cette candidature ?",
+    "studentInfo": "Étudiant",
+    "offerInfo": "Offre"
+  },
+  "refuseModal": {
+    "title": "Refuser la candidature",
+    "message": "Veuillez indiquer la raison du refus. Elle sera communiquée à l'étudiant.",
+    "reasonLabel": "Raison du refus",
+    "reasonPlaceholder": "Ex: Profil ne correspondant pas aux exigences, manque d'expérience...",
+    "reasonRequired": "La raison est obligatoire.",
+    "studentInfo": "Étudiant",
+    "offerInfo": "Offre"
+  },
+  "viewDetails": "Voir les détails",
+  "labels": {
+    "status": "Statut",
+    "internshipOffer": "Offre de stage",
+    "contact": "Contact",
+    "appliedOn": "Postulé le",
+    "documents": "Documents",
+    "curriculumVitae": "Curriculum Vitae",
+    "documentPdf": "Document PDF",
+    "noDocumentAvailable": "Aucun document disponible",
+    "message": "Message",
+    "close": "Fermer",
+    "refresh": "Actualiser",
+    "applicationNumber": "Candidature #",
+    "dateHeure": "Date et heure",
+    "lieu": "Lieu de l'entrevue",
+    "cancel": "Annuler"
+  },
+  "documentCards": {
+    "cvTitle": "Curriculum Vitae",
+    "cvSubtitle": "Document PDF",
+    "letterTitle": "Lettre de motivation",
+    "letterSubtitle": "Document PDF",
+    "noDocument": "Aucun document disponible"
+  },
+  "createConvocation": "Créer une convocation",
+  "for": "pour",
+  "creating": "Création en cours...",
+  "create": "Créer la convocation",
+  "convocationStatus": {
+    "convoked" : "Convoqué",
+    "modified" : "Modifié",
+    "cancelled" : "Annulée"
+  },
+  "placeholders": {
+    "lieu": "Ex: Salle 301, Bâtiment A ou https://meet.google.com/...",
+    "message": "Message facultatif pour l'étudiant...",
+    "messageTemplate": "ex: Bonjour {{prenom}},\n\nNous aimerions vous rencontrer pour discuter de votre candidature pour le poste de {{offre}}.\n\nCordialement"
+  },
+  "messages": {
+    "convocationCreated": "Convocation créée avec succès",
+    "approveSuccess": "Candidature approuvée avec succès",
+    "refuseSuccess": "Candidature refusée avec succès"
+  }
 }

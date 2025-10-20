@@ -18,7 +18,9 @@ public class Candidature {
         EN_ATTENTE,
         ACCEPTEE,
         REFUSEE,
-        RETIREE
+        RETIREE,
+        ACCEPTEE_PAR_ETUDIANT,
+        REFUSEE_PAR_ETUDIANT
     }
 
     @Id
@@ -46,6 +48,9 @@ public class Candidature {
 
     @Column(name = "message_reponse", length = 1000)
     private String messageReponse;
+
+    @OneToOne(mappedBy = "candidature", cascade = CascadeType.ALL)
+    private ConvocationEntrevue convocationEntrevue;
 
     public Candidature(Etudiant etudiant, Offre offre, byte[] lettreMotivation) {
         this.etudiant = etudiant;
