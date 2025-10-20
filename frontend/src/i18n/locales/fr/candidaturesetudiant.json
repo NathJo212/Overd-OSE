@@ -15,11 +15,19 @@
   "filters": {
     "all": "Tous",
     "pending": "En attente",
+    "acceptedByEmployer": "Acceptées par l'employeur",
+    "acceptedByStudent": "Acceptées par moi",
+    "refusedByEmployer": "Refusées par l'employeur",
+    "refusedByStudent": "Refusées par moi",
     "accepted": "Acceptées",
     "refused": "Refusées"
   },
   "status": {
     "pending": "En attente",
+    "acceptedByEmployer": "Acceptée par l'employeur",
+    "acceptedByStudent": "Acceptée par moi",
+    "refusedByEmployer": "Refusée par l'employeur",
+    "refusedByStudent": "Refusée par moi",
     "accepted": "Acceptée",
     "refused": "Refusée"
   },
@@ -31,9 +39,31 @@
     "neverApplied": "Vous n'avez pas encore postulé à des offres de stage.",
     "viewOffers": "Voir les offres disponibles"
   },
+  "actions": {
+    "accept": "Accepter l'offre",
+    "refuse": "Refuser l'offre",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "sending": "Envoi..."
+  },
+  "acceptModal": {
+    "title": "Accepter l'offre de stage",
+    "message": "Êtes-vous sûr de vouloir accepter cette offre de stage ? Cette action confirmera votre participation au stage.",
+    "offerInfo": "Offre de stage"
+  },
+  "refuseModal": {
+    "title": "Refuser l'offre de stage",
+    "message": "Êtes-vous sûr de vouloir refuser cette offre de stage ? Cette action libérera l'offre pour d'autres candidats.",
+    "offerInfo": "Offre de stage"
+  },
+  "messages": {
+    "acceptSuccess": "Offre acceptée avec succès ! L'employeur sera notifié de votre décision.",
+    "refuseSuccess": "Offre refusée avec succès. L'offre sera disponible pour d'autres candidats."
+  },
   "errors": {
     "loading": "Erreur lors du chargement des candidatures",
-    "notAuthenticated": "Vous devez être connecté"
+    "notAuthenticated": "Vous devez être connecté",
+    "acceptError": "Erreur lors de l'acceptation de l'offre",
+    "refuseError": "Erreur lors du refus de l'offre"
   }
 }
-
