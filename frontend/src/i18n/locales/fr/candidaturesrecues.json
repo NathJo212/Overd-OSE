@@ -40,7 +40,10 @@
     "viewLetter": "Erreur lors de l'affichage de la lettre de motivation",
     "loadDocument": "Erreur lors du chargement du document",
     "approveError": "Erreur lors de l'approbation de la candidature",
-    "refuseError": "Erreur lors du refus de la candidature"
+    "refuseError": "Erreur lors du refus de la candidature",
+    "loadDocument": "Erreur lors du chargement du document",
+    "createConvocation": "Erreur lors de la création de la convocation",
+    "fillRequiredFields": "Veuillez remplir tous les champs obligatoires"
   },
   "actions": {
     "viewCV": "Regarder le CV",
@@ -87,7 +90,10 @@
     "message": "Message",
     "close": "Fermer",
     "refresh": "Actualiser",
-    "applicationNumber": "Candidature #"
+    "applicationNumber": "Candidature #",
+    "dateHeure": "Date et heure",
+    "lieu": "Lieu de l'entrevue",
+    "cancel": "Annuler"
   },
   "documentCards": {
     "cvTitle": "Curriculum Vitae",
@@ -95,6 +101,23 @@
     "letterTitle": "Lettre de motivation",
     "letterSubtitle": "Document PDF",
     "noDocument": "Aucun document disponible"
+  },
+  "createConvocation": "Créer une convocation",
+  "for": "pour",
+  "creating": "Création en cours...",
+  "create": "Créer la convocation",
+  "messages": {
+    "convocationCreated": "Convocation créée avec succès"
+  },
+  "convocationStatus": {
+    "convoked" : "Convoqué",
+    "modified" : "Modifié",
+    "cancelled" : "Annulée"
+  },
+  "placeholders": {
+    "lieu": "Ex: Salle 301, Bâtiment A ou https://meet.google.com/...",
+    "message": "Message facultatif pour l'étudiant...",
+    "messageTemplate": "ex: Bonjour {{prenom}},\n\nNous aimerions vous rencontrer pour discuter de votre candidature pour le poste de {{offre}}.\n\nCordialement"
   },
   "messages": {
     "approveSuccess": "Candidature approuvée avec succès",

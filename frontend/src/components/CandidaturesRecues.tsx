@@ -35,6 +35,13 @@ interface CandidatureRecue {
     acv: boolean;
     alettreMotivation: boolean;
     messageReponse?: string;
+    convocation?: {
+        id: number;
+        dateHeure: string;
+        lieuOuLien: string;
+        message: string;
+        statut: 'CONVOQUEE' | 'MODIFIE' | 'ANNULEE';
+    };
 }
 
 interface DocumentPreview {
@@ -58,11 +65,16 @@ const CandidaturesRecues = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState<DocumentPreview | null>(null);
     const [showDocumentModal, setShowDocumentModal] = useState(false);
-    const [convocationError, setConvocationError] = useState<string | null>(null);
-    const [convocationSuccess, setConvocationSuccess] = useState<string | null>(null);
+
+    // Load notifications from localStorage on mount
+    const [convocationError, setConvocationError] = useState<string | null>(() => {
+        return localStorage.getItem('convocationError') || null;
+    });
+    const [convocationSuccess, setConvocationSuccess] = useState<string | null>(() => {
+        return localStorage.getItem('convocationSuccess') || null;
+    });
     const [creatingConvocationId, setCreatingConvocationId] = useState<number | null>(null);
 
-    // 🆕 États pour les actions d'approbation/refus
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [showRefuseModal, setShowRefuseModal] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
@@ -77,6 +89,23 @@ const CandidaturesRecues = () => {
         lieu: '',
         message: ''
     });
+
+    // Effect to persist notifications in localStorage
+    useEffect(() => {
+        if (convocationError) {
+            localStorage.setItem('convocationError', convocationError);
+        } else {
+            localStorage.removeItem('convocationError');
+        }
+    }, [convocationError]);
+
+    useEffect(() => {
+        if (convocationSuccess) {
+            localStorage.setItem('convocationSuccess', convocationSuccess);
+        } else {
+            localStorage.removeItem('convocationSuccess');
+        }
+    }, [convocationSuccess]);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -129,7 +158,6 @@ const CandidaturesRecues = () => {
         setFilteredCandidatures(filtered);
     };
 
-    // 🆕 Actions pour approuver/refuser
     const handleApprove = (candidature: CandidatureRecue) => {
         setCandidatureToAction(candidature);
         setShowApproveModal(true);
@@ -250,6 +278,36 @@ const CandidaturesRecues = () => {
         );
     };
 
+    // Badge pour le statut d'une convocation (employeur <-> étudiant)
+    const getConvocationStatusBadge = (statut?: 'CONVOQUEE' | 'MODIFIE' | 'ANNULEE') => {
+        if (!statut) return null;
+        switch (statut) {
+            case 'CONVOQUEE':
+                return (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        {t('candidaturesrecues:convocationStatus.convoked')}
+                    </span>
+                );
+            case 'MODIFIE':
+                return (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">
+                        <Clock className="w-3.5 h-3.5" />
+                        {t('candidaturesrecues:convocationStatus.modified')}
+                    </span>
+                );
+            case 'ANNULEE':
+                return (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                        <X className="w-3.5 h-3.5" />
+                        {t('candidaturesrecues:convocationStatus.cancelled')}
+                    </span>
+                );
+            default:
+                return null;
+        }
+    };
+
     const getStatistics = () => {
         const total = candidatures.length;
         const enAttente = candidatures.filter(c => c.statut === 'EN_ATTENTE').length;
@@ -368,41 +426,39 @@ const CandidaturesRecues = () => {
 
             // Validate form
             if (!convocationFormData.dateEntrevue || !convocationFormData.heureDebut || !convocationFormData.lieu.trim()) {
-                setConvocationError('Veuillez remplir tous les champs obligatoires');
+                setConvocationError(t("candidaturesrecues:errors.fillRequiredFields"));
                 setCreatingConvocationId(null);
                 return;
             }
 
-            // Build ISO datetime
-            const dateTime = new Date(`${convocationFormData.dateEntrevue}T${convocationFormData.heureDebut}:00`);
-            const dateHeure = dateTime.toISOString();
+             // Build ISO datetime
+             const dateTime = new Date(`${convocationFormData.dateEntrevue}T${convocationFormData.heureDebut}:00`);
+             const dateHeure = dateTime.toISOString();
 
-            console.log('Date construite:', dateHeure);
+             console.log('Date construite:', dateHeure);
 
-            const payload = {
-                dateHeure,
-                lieuOuLien: convocationFormData.lieu,
-                message: convocationFormData.message || `Convocation pour ${selectedCandidature.etudiantPrenom} ${selectedCandidature.etudiantNom}`
-            };
+             const payload = {
+                 dateHeure,
+                 lieuOuLien: convocationFormData.lieu,
+                message: convocationFormData.message || t('candidaturesrecues:placeholders.messageTemplate', { prenom: selectedCandidature.etudiantPrenom, offre: selectedCandidature.offreTitre })
+             };
 
-            console.log('Payload à envoyer:', payload);
-            console.log('Appel de creerConvocation avec candidatureId:', selectedCandidature.id);
+             console.log('Payload à envoyer:', payload);
+             console.log('Appel de creerConvocation avec candidatureId:', selectedCandidature.id);
 
-            await employeurService.creerConvocation(selectedCandidature.id, payload);
-            setConvocationSuccess('Convocation créée avec succès');
-            setShowConvocationModal(false);
-            // Refresh candidatures to reflect convocation if backend returns it
-            await loadCandidatures();
-        } catch (err: any) {
+             await employeurService.creerConvocation(selectedCandidature.id, payload);
+            setConvocationSuccess(t('candidaturesrecues:messages.convocationCreated'));
+             setShowConvocationModal(false);
+             // Refresh candidatures to reflect convocation if backend returns it
+             await loadCandidatures();
+         } catch (err: any) {
             console.error('Erreur créer convocation:', err);
-            const msg = err?.message || 'Erreur lors de la création de la convocation';
-            setConvocationError(msg);
-        } finally {
-            setCreatingConvocationId(null);
-            // clear success after a short delay
-            setTimeout(() => setConvocationSuccess(null), 4000);
-        }
-    };
+            const msg = err?.message || null;
+            setConvocationError(msg || t('candidaturesrecues:errors.createConvocation'));
+         } finally {
+             setCreatingConvocationId(null);
+         }
+     };
 
     const handleCloseConvocationModal = () => {
         setShowConvocationModal(false);
@@ -546,9 +602,18 @@ const CandidaturesRecues = () => {
                     {/* Convocation Success Message */}
                     {convocationSuccess && (
                         <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-                            <div className="flex items-center gap-3">
-                                <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                                <p className="text-sm text-emerald-800 font-medium">{convocationSuccess}</p>
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                                    <p className="text-sm text-emerald-800 font-medium">{convocationSuccess}</p>
+                                </div>
+                                <button
+                                    onClick={() => setConvocationSuccess(null)}
+                                    className="p-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100 rounded transition-colors"
+                                    aria-label="Fermer"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
                             </div>
                         </div>
                     )}
@@ -556,9 +621,18 @@ const CandidaturesRecues = () => {
                     {/* Convocation Error Message */}
                     {convocationError && (
                         <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                            <div className="flex items-center gap-3">
-                                <XCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
-                                <p className="text-sm text-rose-800 font-medium">{convocationError}</p>
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <XCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+                                    <p className="text-sm text-rose-800 font-medium">{convocationError}</p>
+                                </div>
+                                <button
+                                    onClick={() => setConvocationError(null)}
+                                    className="p-1 text-rose-600 hover:text-rose-800 hover:bg-rose-100 rounded transition-colors"
+                                    aria-label="Fermer"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
                             </div>
                         </div>
                     )}
@@ -653,7 +727,12 @@ const CandidaturesRecues = () => {
                                                             {candidature.offreTitre}
                                                         </p>
                                                     </div>
-                                                    {getStatutBadge(candidature.statut)}
+                                                    <div className="flex flex-col items-end gap-2">
+                                                        {getStatutBadge(candidature.statut)}
+                                                        {candidature.convocation?.statut && (
+                                                            <div className="mt-1">{getConvocationStatusBadge(candidature.convocation.statut)}</div>
+                                                        )}
+                                                    </div>
                                                 </div>
 
                                                 {/* Details */}
@@ -688,7 +767,7 @@ const CandidaturesRecues = () => {
                                                     </span>
                                                 </div>
 
-                                                {/* 🆕 Message de réponse si refusée */}
+                                                {/* Message de réponse si refusée */}
                                                 {candidature.statut === 'REFUSEE' && candidature.messageReponse && (
                                                     <div className="bg-rose-50 border border-rose-200 rounded-lg p-3">
                                                         <p className="text-sm text-rose-800">
@@ -711,7 +790,7 @@ const CandidaturesRecues = () => {
                                                     {t("candidaturesrecues:viewDetails")}
                                                 </button>
 
-                                                {/* 🆕 Boutons Approuver/Refuser - Visible seulement si EN_ATTENTE */}
+                                                {/* Boutons Approuver/Refuser - Visible seulement si EN_ATTENTE */}
                                                 {candidature.statut === 'EN_ATTENTE' && (
                                                     <>
                                                         <button
@@ -734,18 +813,22 @@ const CandidaturesRecues = () => {
                                                             <X className="w-4 h-4" />
                                                             {t("candidaturesrecues:actions.refuse")}
                                                         </button>
+
                                                     </>
                                                 )}
 
                                                 {/* Create convocation button */}
-                                                <button
-                                                    onClick={(e) => handleCreerConvocation(candidature, e)}
-                                                    disabled={creatingConvocationId === candidature.id}
-                                                    className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
-                                                >
-                                                    <Calendar className="w-4 h-4" />
-                                                    {creatingConvocationId === candidature.id ? 'Création...' : 'Créer convocation'}
-                                                </button>
+                                                {!candidature.convocation && candidature.statut === 'EN_ATTENTE' && (
+                                                    <button
+                                                        onClick={(e) => handleCreerConvocation(candidature, e)}
+                                                        disabled={creatingConvocationId === candidature.id}
+                                                        className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                                                    >
+                                                        <Calendar className="w-4 h-4" />
+                                                        {creatingConvocationId === candidature.id ? t('candidaturesrecues:creating') : t('candidaturesrecues:createConvocation')}
+                                                    </button>
+                                                )}
+
                                             </div>
                                         </div>
                                     </div>
@@ -754,7 +837,7 @@ const CandidaturesRecues = () => {
                         )}
                     </div>
 
-                    {/* 🆕 Modal d'approbation */}
+                    {/* Modal d'approbation */}
                     {showApproveModal && candidatureToAction && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
@@ -803,7 +886,7 @@ const CandidaturesRecues = () => {
                         </div>
                     )}
 
-                    {/* 🆕 Modal de refus */}
+                    {/* Modal de refus */}
                     {showRefuseModal && candidatureToAction && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
@@ -978,6 +1061,25 @@ const CandidaturesRecues = () => {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Convocation section in modal */}
+                                    {selectedCandidature.convocation && (
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700 block mb-2">{t('candidaturesrecues:labels.convocation')}</label>
+                                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                                <div className="flex items-start justify-between">
+                                                    <div>
+                                                        <p className="text-sm text-gray-700"><strong>{t('candidaturesrecues:convocation.date')}</strong> {formatDate(selectedCandidature.convocation.dateHeure)}</p>
+                                                        <p className="text-sm text-gray-700 mt-1"><strong>{t('candidaturesrecues:convocation.location')}</strong> {selectedCandidature.convocation.lieuOuLien}</p>
+                                                        <p className="text-sm text-gray-700 mt-2">{selectedCandidature.convocation.message}</p>
+                                                    </div>
+                                                    <div className="flex-shrink-0">
+                                                        {getConvocationStatusBadge(selectedCandidature.convocation.statut)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Footer Modal */}
@@ -1025,7 +1127,7 @@ const CandidaturesRecues = () => {
                     )}
 
                     {/* Modal de création de convocation (existant) */}
-                    {showConvocationModal && selectedCandidature && (
+                    {showConvocationModal && selectedCandidature && !selectedCandidature.convocation && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
                                 {/* Header Modal */}
@@ -1085,28 +1187,28 @@ const CandidaturesRecues = () => {
                                             name="message"
                                             value={convocationFormData.message}
                                             onChange={handleConvocationFormChange}
-                                            className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-                                            rows={3}
-                                            placeholder={t("candidaturesrecues:placeholders.message")}
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                                            rows={4}
+                                            placeholder={t('candidaturesrecues:placeholders.messageTemplate', { prenom: selectedCandidature.etudiantPrenom, offre: selectedCandidature.offreTitre })}
                                         />
                                     </div>
-                                </div>
 
-                                {/* Footer Modal */}
-                                <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
-                                    <button
-                                        onClick={handleCloseConvocationModal}
-                                        className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
-                                    >
-                                        {t("candidaturesrecues:labels.cancel")}
-                                    </button>
-                                    <button
-                                        onClick={handleSubmitConvocation}
-                                        disabled={creatingConvocationId !== null}
-                                        className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
-                                    >
-                                        {creatingConvocationId !== null ? t("candidaturesrecues:creating") : t("candidaturesrecues:create")}
-                                    </button>
+                                    {/* Footer Modal */}
+                                    <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
+                                        <button
+                                            onClick={handleCloseConvocationModal}
+                                            className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                                        >
+                                            {t("candidaturesrecues:labels.cancel")}
+                                        </button>
+                                        <button
+                                            onClick={handleSubmitConvocation}
+                                            disabled={creatingConvocationId !== null}
+                                            className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+                                        >
+                                            {creatingConvocationId !== null ? t("candidaturesrecues:creating") : t("candidaturesrecues:create")}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

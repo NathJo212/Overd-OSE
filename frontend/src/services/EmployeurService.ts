@@ -33,10 +33,9 @@ export interface CandidatureRecueDTO {
     etudiantEmail: string;
     dateCandidature: string;
     statut: string;
-    acv: boolean;  // ✅ tout en minuscule
-    alettreMotivation: boolean;  // ✅ tout en minuscule
+    acv: boolean;
+    alettreMotivation: boolean;
     messageReponse?: string;
-    // optional convocation info (backend may return it)
     convocationEntrevue?: {
         id: number;
         dateHeure: string;
@@ -44,6 +43,19 @@ export interface CandidatureRecueDTO {
         message: string;
         statut?: string;
     } | null;
+}
+
+export interface ConvocationEntrevueDTO {
+    id?: number;
+    candidatureId: number;
+    dateHeure: string;
+    lieuOuLien: string;
+    message: string;
+    offreTitre?: string;
+    employeurNom?: string;
+    etudiantNom?: string;
+    etudiantPrenom?: string;
+    statut: 'CONVOQUEE' | 'MODIFIE' | 'ANNULEE';
 }
 
 // Configuration de l'API
@@ -57,11 +69,6 @@ class EmployeurService {
         this.baseUrl = `${API_BASE_URL}${EMPLOYEUR_ENDPOINT}`;
     }
 
-    /**
-     * Crée un nouveau compte employeur
-     * @param employeurData - Les données de l'employeur à créer
-     * @returns Promise avec la réponse du serveur
-     */
     async creerCompte(employeurData: EmployeurData): Promise<MessageRetour> {
         try {
             const response = await fetch(`${this.baseUrl}/creerCompte`, {
@@ -74,7 +81,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // ✅ Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors de la création du compte:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur de création de compte');
@@ -115,11 +121,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Transforme les données du formulaire en format attendu par l'API
-     * @param formData - Les données du formulaire d'inscription
-     * @returns Les données formatées pour l'API
-     */
     formatFormDataForAPI(formData: {
         nomEntreprise: string;
         contact: string;
@@ -137,43 +138,52 @@ class EmployeurService {
         };
     }
 
-    async creerOffreStage(offreData: OffreStageDTO): Promise<MessageRetour> {
+    async creerOffreDeStage(offre: OffreStageDTO): Promise<MessageRetour> {
+        const offreDTO = {
+            authResponseDTO: { token: offre.utilisateur.token },
+            titre: offre.titre,
+            description: offre.description,
+            date_debut: offre.date_debut,
+            date_fin: offre.date_fin,
+            progEtude: offre.progEtude,
+            lieuStage: offre.lieuStage,
+            remuneration: offre.remuneration,
+            dateLimite: offre.dateLimite,
+        };
+
         try {
             const response = await fetch(`${this.baseUrl}/creerOffre`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${offre.utilisateur.token}`,
                 },
-                body: JSON.stringify(offreData),
+                body: JSON.stringify(offreDTO),
             });
 
             const data = await response.json();
 
-            if (!response.ok) {
-                const error: any = new Error('Erreur lors de la création de l\'offre');
+            if (data?.erreur) {
+                const error: any = new Error(data.erreur.message || 'Erreur de création d\'offre');
                 error.response = { data };
                 throw error;
             }
 
-            return data;
+            if (!response.ok) {
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
 
+            return data;
         } catch (error: any) {
+            if (error.response?.data?.erreur) throw error;
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
                 networkError.code = 'ERR_NETWORK';
                 throw networkError;
             }
-
-            const genericError: any = new Error(error.message || 'Erreur inconnue');
-            genericError.response = {
-                data: {
-                    erreur: {
-                        errorCode: 'ERROR_000',
-                        message: error.message
-                    }
-                }
-            };
-            throw genericError;
+            throw error;
         }
     }
 
@@ -211,10 +221,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Récupère les candidatures reçues pour les offres de l'employeur
-     * @returns Promise avec la liste des candidatures
-     */
     async getCandidaturesRecues(): Promise<CandidatureRecueDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -241,11 +247,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Récupère une candidature spécifique par son ID
-     * @param id - L'ID de la candidature
-     * @returns Promise avec les détails de la candidature
-     */
     async getCandidatureSpecifique(id: number): Promise<CandidatureRecueDTO> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -272,11 +273,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Télécharge le CV d'une candidature
-     * @param id - L'ID de la candidature
-     * @returns Promise avec le blob du PDF
-     */
     async telechargerCvCandidature(id: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -302,11 +298,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Télécharge la lettre de motivation d'une candidature
-     * @param id - L'ID de la candidature
-     * @returns Promise avec le blob du PDF
-     */
     async telechargerLettreMotivationCandidature(id: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -333,11 +324,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * 🆕 NOUVELLE MÉTHODE - Approuve une candidature
-     * @param candidatureId - L'ID de la candidature à approuver
-     * @returns Promise avec la réponse du serveur
-     */
     async approuverCandidature(candidatureId: number): Promise<MessageRetour> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -396,12 +382,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * 🆕 NOUVELLE MÉTHODE - Refuse une candidature avec une raison
-     * @param candidatureId - L'ID de la candidature à refuser
-     * @param raison - La raison du refus
-     * @returns Promise avec la réponse du serveur
-     */
     async refuserCandidature(candidatureId: number, raison: string): Promise<MessageRetour> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -469,19 +449,26 @@ class EmployeurService {
             const token = sessionStorage.getItem('authToken');
             if (!token) throw new Error('Vous devez être connecté');
 
-            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/convocation`, {
+            const payload = {
+                candidatureId: candidatureId,
+                dateHeure: convocation.dateHeure,
+                lieuOuLien: convocation.lieuOuLien,
+                message: convocation.message
+            };
+
+            const response = await fetch(`${this.baseUrl}/creerConvocation`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(convocation)
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
-                const message = data?.message || `Erreur HTTP: ${response.status}`;
+                const message = data?.erreur?.message || data?.message || `Erreur HTTP: ${response.status}`;
                 const error: any = new Error(message);
                 error.response = { data };
                 throw error;
@@ -494,27 +481,62 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Modifie une convocation existante
-     */
-    async modifierConvocation(convocationId: number, convocation: { dateHeure: string; lieuOuLien: string; message: string }): Promise<any> {
+    async getConvocations(): Promise<ConvocationEntrevueDTO[]> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) return [];
+
+            const response = await fetch(`${this.baseUrl}/convocations`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) return [];
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            const convocations: ConvocationEntrevueDTO[] = await response.json();
+
+            const now = new Date();
+            return convocations.filter(conv => {
+                const convDate = new Date(conv.dateHeure);
+                return convDate > now;
+            });
+        } catch (error) {
+            console.error('Erreur getConvocations:', error);
+            return [];
+        }
+    }
+
+    async modifierConvocation(candidatureId: number, convocation: { dateHeure: string; lieuOuLien: string; message: string }): Promise<any> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) throw new Error('Vous devez être connecté');
 
-            const response = await fetch(`${this.baseUrl}/convocations/${convocationId}`, {
+            const payload = {
+                candidatureId: candidatureId,
+                dateHeure: convocation.dateHeure,
+                lieuOuLien: convocation.lieuOuLien,
+                message: convocation.message
+            };
+
+            const response = await fetch(`${this.baseUrl}/candidatures/convocation`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(convocation)
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
-                const message = data?.message || `Erreur HTTP: ${response.status}`;
+                const message = data?.erreur?.message || data?.message || `Erreur HTTP: ${response.status}`;
                 const error: any = new Error(message);
                 error.response = { data };
                 throw error;
@@ -527,30 +549,29 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Annule (supprime) une convocation
-     */
-    async annulerConvocation(convocationId: number): Promise<any> {
+    async annulerConvocation(candidatureId: number): Promise<any> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) throw new Error('Vous devez être connecté');
 
-            const response = await fetch(`${this.baseUrl}/convocations/${convocationId}`, {
-                method: 'DELETE',
+            const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/convocation/annuler`, {
+                method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
 
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                const data = await response.json().catch(() => ({}));
-                const message = data?.message || `Erreur HTTP: ${response.status}`;
+                const message = data?.erreur?.message || data?.message || `Erreur HTTP: ${response.status}`;
                 const error: any = new Error(message);
                 error.response = { data };
                 throw error;
             }
 
-            return { message: 'Convocation annulée' };
+            return data;
         } catch (error: any) {
             console.error('Erreur annulerConvocation:', error);
             throw error;
@@ -558,6 +579,5 @@ class EmployeurService {
     }
 }
 
-// Export d'une instance unique (Singleton)
 export const employeurService = new EmployeurService();
 export default employeurService;

@@ -26,6 +26,9 @@
     "view": "Voir",
     "close": "Fermer",
     "location": "Lieu",
-    "employer": "Employeur"
+    "employer": "Employeur",
+    "convoked" : "Convoqué",
+    "modified" : "Modifié",
+    "cancelled" : "Annulée"
   }
 }

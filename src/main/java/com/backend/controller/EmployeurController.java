@@ -132,7 +132,7 @@ public class EmployeurController {
         }
     }
 
-    @PostMapping("/candidatures/convocation")
+    @PostMapping("/creerConvocation")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> creerConvocation(@RequestBody ConvocationEntrevueDTO dto){
         try {
@@ -141,15 +141,22 @@ public class EmployeurController {
                     .body(new MessageRetourDTO("Convocation créée avec succès", null));
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", "Candidature non trouvée avec l'ID: " + dto.candidatureId)));
         } catch (ConvocationDejaExistanteException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CONVOCATION_EXISTS", e.getMessage())));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à créer une convocation pour cette candidature")));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("INTERNAL_ERROR", e.getMessage())));
         }
     }
+
     @PutMapping("/candidatures/convocation")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> modifierConvocation(@RequestBody ConvocationEntrevueDTO dto){
@@ -159,7 +166,13 @@ public class EmployeurController {
                     .body(new MessageRetourDTO("Convocation modifiée avec succès", null));
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à modifier cette convocation")));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
         }
     }
 
@@ -172,7 +185,13 @@ public class EmployeurController {
                     .body(new MessageRetourDTO("Convocation annulée avec succès", null));
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à annuler cette convocation")));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
         }
     }
 

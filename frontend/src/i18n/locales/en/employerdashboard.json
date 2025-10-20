@@ -26,5 +26,33 @@
     "welcomeCreated": "Welcome! Your account has been created and you are now logged in.",
     "welcomeLogin": "Login successful! Welcome to your dashboard."
   },
-  "myApplications": "View applications for my offers"
+  "myApplications": "View applications for my offers",
+  "convocations": {
+    "title": "My Interviews",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noneTitle": "No upcoming interviews",
+    "defaultTitle": "Interview",
+    "student": "Student",
+    "edit": "Edit",
+    "delete": "Cancel",
+    "confirmDelete": "Are you sure you want to cancel this interview?",
+    "messages": {
+      "edited": "Interview updated successfully",
+      "deleted": "Interview cancelled successfully",
+      "editError": "Error updating the interview",
+      "deleteError": "Error cancelling the interview"
+    },
+    "editModal": {
+      "title": "Edit interview",
+      "dateTime": "Date and time",
+      "location": "Location or link",
+      "message": "Message",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "convoked": "Convoked",
+    "modified": "Modified",
+    "cancelled": "Cancelled"
+  }
 }
