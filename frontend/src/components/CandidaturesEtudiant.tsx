@@ -12,29 +12,31 @@ import {
     ArrowLeft,
     Building2,
     Calendar,
+    Check,
+    X,
+    AlertTriangle
 } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
-
-interface CandidatureEtudiant {
-    id: number;
-    offreId: number;
-    offreTitre: string;
-    entrepriseNom: string;
-    dateCandidature: string;
-    statut: string;
-    messageReponse?: string;
-}
+import { etudiantService, type CandidatureEtudiantDTO } from "../services/EtudiantService";
 
 const CandidaturesEtudiant = () => {
     const { t } = useTranslation(["candidaturesetudiant"]);
     const navigate = useNavigate();
-    const [candidatures, setCandidatures] = useState<CandidatureEtudiant[]>([]);
-    const [filteredCandidatures, setFilteredCandidatures] = useState<CandidatureEtudiant[]>([]);
+    const [candidatures, setCandidatures] = useState<CandidatureEtudiantDTO[]>([]);
+    const [filteredCandidatures, setFilteredCandidatures] = useState<CandidatureEtudiantDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("ALL");
+
+    // États pour les actions d'acceptation/refus
+    const [showAcceptModal, setShowAcceptModal] = useState(false);
+    const [showRefuseModal, setShowRefuseModal] = useState(false);
+    const [candidatureToAction, setCandidatureToAction] = useState<CandidatureEtudiantDTO | null>(null);
+    const [actionLoading, setActionLoading] = useState(false);
+    const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+    const [actionError, setActionError] = useState<string | null>(null);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -55,25 +57,8 @@ const CandidaturesEtudiant = () => {
             setLoading(true);
             setError("");
 
-            const token = sessionStorage.getItem('authToken');
-            if (!token) {
-                throw new Error(t('errors.notAuthenticated'));
-            }
-
-            const response = await fetch('http://localhost:8080/OSEetudiant/mes-candidatures', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP: ${response.status}`);
-            }
-
-            const data = await response.json();
-            setCandidatures(data);
+            const candidaturesData = await etudiantService.getMesCandidatures();
+            setCandidatures(candidaturesData);
         } catch (err: any) {
             setError(err.message || t('errors.loading'));
             console.error(err);
@@ -95,17 +80,97 @@ const CandidaturesEtudiant = () => {
             const term = searchTerm.toLowerCase();
             filtered = filtered.filter(c =>
                 c.offreTitre.toLowerCase().includes(term) ||
-                c.entrepriseNom.toLowerCase().includes(term)
+                c.employeurNom.toLowerCase().includes(term)
             );
         }
 
         setFilteredCandidatures(filtered);
     };
 
+    // Actions pour accepter/refuser les offres
+    const handleAccept = (candidature: CandidatureEtudiantDTO) => {
+        setCandidatureToAction(candidature);
+        setShowAcceptModal(true);
+    };
+
+    const handleRefuse = (candidature: CandidatureEtudiantDTO) => {
+        setCandidatureToAction(candidature);
+        setShowRefuseModal(true);
+    };
+
+    const confirmAccept = async () => {
+        if (!candidatureToAction) return;
+
+        try {
+            setActionLoading(true);
+            setActionError(null);
+
+            await etudiantService.accepterOffreApprouvee(candidatureToAction.id);
+
+            // Mettre à jour le statut localement
+            setCandidatures(prev =>
+                prev.map(c =>
+                    c.id === candidatureToAction.id
+                        ? { ...c, statut: 'ACCEPTEE_PAR_ETUDIANT' }
+                        : c
+                )
+            );
+
+            setActionSuccess(t('messages.acceptSuccess'));
+            setShowAcceptModal(false);
+            setCandidatureToAction(null);
+
+        } catch (error: any) {
+            console.error('Erreur acceptation:', error);
+            const message = error?.response?.data?.erreur?.message || error?.message || t('errors.acceptError');
+            setActionError(message);
+        } finally {
+            setActionLoading(false);
+            setTimeout(() => {
+                setActionSuccess(null);
+                setActionError(null);
+            }, 4000);
+        }
+    };
+
+    const confirmRefuse = async () => {
+        if (!candidatureToAction) return;
+
+        try {
+            setActionLoading(true);
+            setActionError(null);
+
+            await etudiantService.refuserOffreApprouvee(candidatureToAction.id);
+
+            // Mettre à jour le statut localement
+            setCandidatures(prev =>
+                prev.map(c =>
+                    c.id === candidatureToAction.id
+                        ? { ...c, statut: 'REFUSEE_PAR_ETUDIANT' }
+                        : c
+                )
+            );
+
+            setActionSuccess(t('messages.refuseSuccess'));
+            setShowRefuseModal(false);
+            setCandidatureToAction(null);
+
+        } catch (error: any) {
+            console.error('Erreur refus:', error);
+            const message = error?.response?.data?.erreur?.message || error?.message || t('errors.refuseError');
+            setActionError(message);
+        } finally {
+            setActionLoading(false);
+            setTimeout(() => {
+                setActionSuccess(null);
+                setActionError(null);
+            }, 4000);
+        }
+    };
+
     const getStatusBadge = (statut: string) => {
         switch (statut) {
             case "EN_ATTENTE":
-            case "PENDING":
                 return (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                         <Clock className="w-4 h-4 mr-1" />
@@ -113,19 +178,31 @@ const CandidaturesEtudiant = () => {
                     </span>
                 );
             case "ACCEPTEE":
-            case "ACCEPTED":
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        {t('status.acceptedByEmployer')}
+                    </span>
+                );
+            case "ACCEPTEE_PAR_ETUDIANT":
                 return (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                         <CheckCircle className="w-4 h-4 mr-1" />
-                        {t('status.accepted')}
+                        {t('status.acceptedByStudent')}
                     </span>
                 );
             case "REFUSEE":
-            case "REFUSED":
                 return (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
                         <XCircle className="w-4 h-4 mr-1" />
-                        {t('status.refused')}
+                        {t('status.refusedByEmployer')}
+                    </span>
+                );
+            case "REFUSEE_PAR_ETUDIANT":
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                        <XCircle className="w-4 h-4 mr-1" />
+                        {t('status.refusedByStudent')}
                     </span>
                 );
             default:
@@ -191,6 +268,25 @@ const CandidaturesEtudiant = () => {
                     </p>
                 </div>
 
+                {/* Messages de succès/erreur */}
+                {actionSuccess && (
+                    <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                        <div className="flex items-center">
+                            <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
+                            <p className="text-sm text-green-800">{actionSuccess}</p>
+                        </div>
+                    </div>
+                )}
+
+                {actionError && (
+                    <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div className="flex items-center">
+                            <AlertTriangle className="h-5 w-5 text-red-400 mr-3" />
+                            <p className="text-sm text-red-800">{actionError}</p>
+                        </div>
+                    </div>
+                )}
+
                 {/* Error Message */}
                 {error && (
                     <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
@@ -234,8 +330,10 @@ const CandidaturesEtudiant = () => {
                             >
                                 <option value="ALL">{t('filters.all')} ({getStatusCount("ALL")})</option>
                                 <option value="EN_ATTENTE">{t('filters.pending')} ({getStatusCount("EN_ATTENTE")})</option>
-                                <option value="ACCEPTEE">{t('filters.accepted')} ({getStatusCount("ACCEPTEE")})</option>
-                                <option value="REFUSEE">{t('filters.refused')} ({getStatusCount("REFUSEE")})</option>
+                                <option value="ACCEPTEE">{t('filters.acceptedByEmployer')} ({getStatusCount("ACCEPTEE")})</option>
+                                <option value="ACCEPTEE_PAR_ETUDIANT">{t('filters.acceptedByStudent')} ({getStatusCount("ACCEPTEE_PAR_ETUDIANT")})</option>
+                                <option value="REFUSEE">{t('filters.refusedByEmployer')} ({getStatusCount("REFUSEE")})</option>
+                                <option value="REFUSEE_PAR_ETUDIANT">{t('filters.refusedByStudent')} ({getStatusCount("REFUSEE_PAR_ETUDIANT")})</option>
                             </select>
                         </div>
                     </div>
@@ -267,7 +365,7 @@ const CandidaturesEtudiant = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-600">{t('stats.accepted')}</p>
-                                <p className="text-2xl font-bold text-green-600">{getStatusCount("ACCEPTEE")}</p>
+                                <p className="text-2xl font-bold text-green-600">{getStatusCount("ACCEPTEE") + getStatusCount("ACCEPTEE_PAR_ETUDIANT")}</p>
                             </div>
                             <CheckCircle className="w-8 h-8 text-green-600" />
                         </div>
@@ -277,7 +375,7 @@ const CandidaturesEtudiant = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-600">{t('stats.refused')}</p>
-                                <p className="text-2xl font-bold text-red-600">{getStatusCount("REFUSEE")}</p>
+                                <p className="text-2xl font-bold text-red-600">{getStatusCount("REFUSEE") + getStatusCount("REFUSEE_PAR_ETUDIANT")}</p>
                             </div>
                             <XCircle className="w-8 h-8 text-red-600" />
                         </div>
@@ -320,15 +418,35 @@ const CandidaturesEtudiant = () => {
                                         </h3>
                                         <div className="flex items-center text-gray-600 mb-2">
                                             <Building2 className="w-4 h-4 mr-2" />
-                                            {candidature.entrepriseNom}
+                                            {candidature.employeurNom}
                                         </div>
                                         <div className="flex items-center text-gray-500 text-sm">
                                             <Calendar className="w-4 h-4 mr-2" />
                                             {t('appliedOn')} {formatDate(candidature.dateCandidature)}
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className="flex flex-col items-end gap-3">
                                         {getStatusBadge(candidature.statut)}
+
+                                        {/* Boutons d'action pour les offres acceptées par l'employeur */}
+                                        {candidature.statut === 'ACCEPTEE' && (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => handleAccept(candidature)}
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                >
+                                                    <Check className="w-4 h-4" />
+                                                    {t("actions.accept")}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRefuse(candidature)}
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                    {t("actions.refuse")}
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -343,6 +461,114 @@ const CandidaturesEtudiant = () => {
                     </div>
                 )}
             </div>
+
+            {/* Modal de confirmation d'acceptation */}
+            {showAcceptModal && candidatureToAction && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                        <div className="p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                    <Check className="w-5 h-5 text-green-600" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    {t("acceptModal.title")}
+                                </h3>
+                            </div>
+
+                            <p className="text-gray-600 mb-4">
+                                {t("acceptModal.message")}
+                            </p>
+
+                            <div className="bg-gray-50 rounded-lg p-3 mb-6">
+                                <p className="text-sm font-medium text-gray-700 mb-1">
+                                    {t("acceptModal.offerInfo")}
+                                </p>
+                                <p className="text-sm text-gray-900 font-medium">
+                                    {candidatureToAction.offreTitre}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    {candidatureToAction.employeurNom}
+                                </p>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowAcceptModal(false);
+                                        setCandidatureToAction(null);
+                                    }}
+                                    disabled={actionLoading}
+                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                >
+                                    {t("actions.cancel")}
+                                </button>
+                                <button
+                                    onClick={confirmAccept}
+                                    disabled={actionLoading}
+                                    className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    {actionLoading ? t("actions.sending") : t("actions.confirm")}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de confirmation de refus */}
+            {showRefuseModal && candidatureToAction && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                        <div className="p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                    <X className="w-5 h-5 text-red-600" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    {t("refuseModal.title")}
+                                </h3>
+                            </div>
+
+                            <p className="text-gray-600 mb-4">
+                                {t("refuseModal.message")}
+                            </p>
+
+                            <div className="bg-gray-50 rounded-lg p-3 mb-6">
+                                <p className="text-sm font-medium text-gray-700 mb-1">
+                                    {t("refuseModal.offerInfo")}
+                                </p>
+                                <p className="text-sm text-gray-900 font-medium">
+                                    {candidatureToAction.offreTitre}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    {candidatureToAction.employeurNom}
+                                </p>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowRefuseModal(false);
+                                        setCandidatureToAction(null);
+                                    }}
+                                    disabled={actionLoading}
+                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                >
+                                    {t("actions.cancel")}
+                                </button>
+                                <button
+                                    onClick={confirmRefuse}
+                                    disabled={actionLoading}
+                                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    {actionLoading ? t("actions.sending") : t("actions.confirm")}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
