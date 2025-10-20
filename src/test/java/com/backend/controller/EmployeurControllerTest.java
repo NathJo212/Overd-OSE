@@ -481,7 +481,7 @@ class EmployeurControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_001"));
+                .andExpect(jsonPath("$.erreur.errorCode").value("CANDIDATURE_NOT_FOUND"));
     }
 
     @Test
@@ -500,7 +500,7 @@ class EmployeurControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value("CONVO_001"));
+                .andExpect(jsonPath("$.erreur.errorCode").value("CONVOCATION_EXISTS"));
     }
 
     @Test
@@ -519,7 +519,7 @@ class EmployeurControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value("ERROR_000"));
+                .andExpect(jsonPath("$.erreur.errorCode").value("INTERNAL_ERROR"));
     }
 
     @Test
@@ -544,7 +544,7 @@ class EmployeurControllerTest {
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_001"));
+                .andExpect(jsonPath("$.erreur.errorCode").value("CANDIDATURE_NOT_FOUND"));
     }
 
     @Test
@@ -567,7 +567,7 @@ class EmployeurControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value("CAND_001"));
+                .andExpect(jsonPath("$.erreur.errorCode").value("CANDIDATURE_NOT_FOUND"));
     }
 
     @Test
