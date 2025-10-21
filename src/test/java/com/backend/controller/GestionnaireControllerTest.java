@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.Mockito.*;
@@ -416,4 +417,169 @@ class GestionnaireControllerTest {
         mockMvc.perform(get("/OSEGestionnaire/visualiserOffres"))
                 .andExpect(status().isInternalServerError());
     }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/candidaturesEligiblesEntente retourne 200 et liste")
+    void getCandidaturesEligiblesEntente_success() throws Exception {
+        com.backend.service.DTO.CandidatureDTO dto1 = new com.backend.service.DTO.CandidatureDTO();
+        dto1.setId(1L);
+        com.backend.service.DTO.CandidatureDTO dto2 = new com.backend.service.DTO.CandidatureDTO();
+        dto2.setId(2L);
+
+        when(gestionnaireService.getCandidaturesEligiblesEntente()).thenReturn(Arrays.asList(dto1, dto2));
+
+        mockMvc.perform(get("/OSEGestionnaire/candidaturesEligiblesEntente"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/candidaturesEligiblesEntente retourne 401 si non autorisé")
+    void getCandidaturesEligiblesEntente_nonAutorise() throws Exception {
+        when(gestionnaireService.getCandidaturesEligiblesEntente()).thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEGestionnaire/candidaturesEligiblesEntente"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/ententes retourne 200 si creation réussie")
+    void creerEntente_success() throws Exception {
+        com.backend.service.DTO.EntenteStageDTO dto = new com.backend.service.DTO.EntenteStageDTO();
+        dto.setOffreId(10L);
+        dto.setEtudiantId(5L);
+
+        doNothing().when(gestionnaireService).creerEntente(any(com.backend.service.DTO.EntenteStageDTO.class));
+
+        mockMvc.perform(post("/OSEGestionnaire/ententes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Entente créée avec succès"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/ententes retourne 404 si offre inexistante")
+    void creerEntente_offreNonExistante() throws Exception {
+        com.backend.service.DTO.EntenteStageDTO dto = new com.backend.service.DTO.EntenteStageDTO();
+        dto.setOffreId(99L);
+        dto.setEtudiantId(1L);
+
+        doThrow(new OffreNonExistantException()).when(gestionnaireService).creerEntente(any());
+
+        mockMvc.perform(post("/OSEGestionnaire/ententes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/ententes retourne 409 si entente déjà existante")
+    void creerEntente_ententeExistante() throws Exception {
+        com.backend.service.DTO.EntenteStageDTO dto = new com.backend.service.DTO.EntenteStageDTO();
+        dto.setOffreId(11L);
+        dto.setEtudiantId(6L);
+
+        doThrow(new com.backend.Exceptions.EntenteDejaExistanteException()).when(gestionnaireService).creerEntente(any());
+
+        mockMvc.perform(post("/OSEGestionnaire/ententes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id} modifie une entente")
+    void modifierEntente_success() throws Exception {
+        com.backend.service.DTO.EntenteStageDTO dto = new com.backend.service.DTO.EntenteStageDTO();
+        dto.setTitre("NouveauTitre");
+
+        doNothing().when(gestionnaireService).modifierEntente(eq(20L), any());
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/20")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Entente modifiée avec succès"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id} retourne 409 si entente non trouvée")
+    void modifierEntente_ententeNonTrouvee() throws Exception {
+        com.backend.service.DTO.EntenteStageDTO dto = new com.backend.service.DTO.EntenteStageDTO();
+        doThrow(new EntenteNonTrouveException()).when(gestionnaireService).modifierEntente(eq(999L), any());
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/ententes/{id}/annuler annule une entente")
+    void annulerEntente_success() throws Exception {
+        doNothing().when(gestionnaireService).annulerEntente(30L);
+
+        mockMvc.perform(post("/OSEGestionnaire/ententes/30/annuler"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Entente annulée avec succès"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/ententes/{id}/annuler retourne 404 si non trouvée")
+    void annulerEntente_notFound() throws Exception {
+        doThrow(new EntenteNonTrouveException()).when(gestionnaireService).annulerEntente(404L);
+
+        mockMvc.perform(post("/OSEGestionnaire/ententes/404/annuler"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes retourne 200 et liste")
+    void getEntentesActives_success() throws Exception {
+        when(gestionnaireService.getEntentesActives()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/{id} retourne DTO")
+    void getEntenteById_success() throws Exception {
+        com.backend.service.DTO.EntenteStageDTO dto = new com.backend.service.DTO.EntenteStageDTO();
+        dto.setId(55L);
+        when(gestionnaireService.getEntenteById(55L)).thenReturn(dto);
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/55"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(55));
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/{id}/document retourne PDF")
+    void getEntenteDocument_success() throws Exception {
+        byte[] pdf = new byte[]{1,2,3};
+        when(gestionnaireService.getEntenteDocument(66L)).thenReturn(pdf);
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/66/document"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("entente_66.pdf")));
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/{id}/document retourne 500 si erreur")
+    void getEntenteDocument_error() throws Exception {
+        when(gestionnaireService.getEntenteDocument(67L)).thenThrow(new RuntimeException("oops"));
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/67/document"))
+                .andExpect(status().isInternalServerError());
+    }
+
 }
