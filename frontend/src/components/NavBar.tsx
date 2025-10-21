@@ -1,6 +1,6 @@
-// src/components/NavBar.tsx - Version avec liens pour Gestionnaire
+// src/components/NavBar.tsx - Version avec liens pour Gestionnaire incluant Ententes de stage
 import { useNavigate, NavLink } from "react-router-dom";
-import { LogOut, Menu, X, FileText, Briefcase, User } from "lucide-react";
+import { LogOut, Menu, X, FileText, Briefcase, User, FileSignature } from "lucide-react";
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
@@ -71,7 +71,7 @@ const NavBar = () => {
                             {isConnected && role === "GESTIONNAIRE" && (
                                 <>
                                     <NavLink
-                                        to="/offres-stages-gestionnaire"
+                                        to="/dashboard-gestionnaire"
                                         className={({ isActive }) =>
                                             `px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${
                                                 isActive
@@ -95,6 +95,19 @@ const NavBar = () => {
                                     >
                                         <FileText className="w-4 h-4" />
                                         {t('navbar:studentResumes')}
+                                    </NavLink>
+                                    <NavLink
+                                        to="/ententes-stage-gestionnaire"
+                                        className={({ isActive }) =>
+                                            `px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${
+                                                isActive
+                                                    ? "bg-white text-blue-600 shadow-md"
+                                                    : "text-white hover:bg-white/10 border border-white/20"
+                                            }`
+                                        }
+                                    >
+                                        <FileSignature className="w-4 h-4" />
+                                        {t('navbar:internshipAgreements')}
                                     </NavLink>
                                 </>
                             )}
@@ -172,6 +185,20 @@ const NavBar = () => {
                                     >
                                         <FileText className="w-4 h-4" />
                                         {t('navbar:studentResumes')}
+                                    </NavLink>
+                                    <NavLink
+                                        to="/ententes-stage-gestionnaire"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className={({ isActive }) =>
+                                            `w-full px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${
+                                                isActive
+                                                    ? "bg-white text-blue-600"
+                                                    : "text-white bg-white/10 hover:bg-white/20"
+                                            }`
+                                        }
+                                    >
+                                        <FileSignature className="w-4 h-4" />
+                                        {t('navbar:internshipAgreements')}
                                     </NavLink>
                                 </>
                             )}
