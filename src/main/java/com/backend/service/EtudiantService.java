@@ -1,17 +1,9 @@
 package com.backend.service;
 
 import com.backend.Exceptions.*;
-import com.backend.modele.Candidature;
-import com.backend.modele.Etudiant;
-import com.backend.modele.Offre;
-import com.backend.modele.Programme;
-import com.backend.modele.Notification;
-import com.backend.persistence.CandidatureRepository;
-import com.backend.persistence.EtudiantRepository;
-import com.backend.persistence.UtilisateurRepository;
-import com.backend.persistence.NotificationRepository;
+import com.backend.modele.*;
+import com.backend.persistence.*;
 import com.backend.service.DTO.*;
-import com.backend.persistence.OffreRepository;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
@@ -23,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -40,8 +33,9 @@ public class EtudiantService {
     private final CandidatureRepository candidatureRepository;
     private final NotificationRepository notificationRepository;
     private final MessageSource messageSource;
+    private final EntenteStageRepository ententeStageRepository;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, MessageSource messageSource) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, MessageSource messageSource, EntenteStageRepository ententeStageRepository) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
@@ -50,6 +44,7 @@ public class EtudiantService {
         this.candidatureRepository = candidatureRepository;
         this.notificationRepository = notificationRepository;
         this.messageSource = messageSource;
+        this.ententeStageRepository = ententeStageRepository;
     }
 
     @Transactional
@@ -337,5 +332,83 @@ public class EtudiantService {
         candidature.setStatut(Candidature.StatutCandidature.REFUSEE_PAR_ETUDIANT);
         candidatureRepository.save(candidature);
     }
+
+    @Transactional
+    public void signerEntente(Long ententeId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveeException, StatutEntenteInvalideException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(EntenteNonTrouveeException::new);
+
+        if (entente.getEtudiant() == null || !entente.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
+            throw new StatutEntenteInvalideException();
+        }
+
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
+        entente.setDateModification(LocalDateTime.now());
+
+        // Si l'employeur a aussi signé, marquer l'entente comme signée
+        if (entente.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE) {
+            entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        }
+
+        ententeStageRepository.save(entente);
+    }
+
+    @Transactional
+    public void refuserEntente(Long ententeId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveeException, StatutEntenteInvalideException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(EntenteNonTrouveeException::new);
+
+        if (entente.getEtudiant() == null || !entente.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
+            throw new StatutEntenteInvalideException();
+        }
+
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.REFUSEE);
+        entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
+        entente.setDateModification(LocalDateTime.now());
+
+        ententeStageRepository.save(entente);
+    }
+
+    @Transactional
+    public List<EntenteStageDTO> getEntentesEnAttente()
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        List<EntenteStage> ententes = ententeStageRepository.findByEtudiantAndEtudiantSignatureAndArchivedFalse(
+                etudiant,
+                EntenteStage.SignatureStatus.EN_ATTENTE
+        );
+
+        return ententes.stream()
+                .map(e -> new EntenteStageDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<EntenteStageDTO> getMesEntentes()
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        List<EntenteStage> ententes = ententeStageRepository.findByEtudiantAndArchivedFalse(etudiant);
+
+        return ententes.stream()
+                .map(e -> new EntenteStageDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
+
 
 }

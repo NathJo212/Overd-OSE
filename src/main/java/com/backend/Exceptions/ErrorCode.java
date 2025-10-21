@@ -39,12 +39,16 @@ public enum ErrorCode {
 
     // Entente
     ENTENTE_ALREADY_EXISTS("ENT_001"),
+    ENTENTE_NOT_FOUND("ENT_002"),
+    ENTENTE_STATUT_INVALID("ENT_003"),
 
     // Général
     UNKNOWN_ERROR("ERROR_000"),
     CANDIDATURE_NON_DISPONIBLE("CAND_001"),
     LETTRE_MOTIVATION_NON_DISPONIBLE("CAND_002"),
     STATUT_CANDIDATURE_INVALID("CAND_003");
+
+
 
 
     private final String code;
