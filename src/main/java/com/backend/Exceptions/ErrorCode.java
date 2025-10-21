@@ -37,6 +37,9 @@ public enum ErrorCode {
     CV_ALREADY_VERIFIED("CV_002"),
     CV_NOT_APPROVED("CV_003"),
 
+    // Entente
+    ENTENTE_ALREADY_EXISTS("ENT_001"),
+
     // Général
     UNKNOWN_ERROR("ERROR_000"),
     CANDIDATURE_NON_DISPONIBLE("CAND_001"),
