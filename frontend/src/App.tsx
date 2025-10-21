@@ -18,6 +18,7 @@ import TeleversementCv from './components/TeleversementCv.tsx';
 import CandidaturesRecues from "./components/CandidaturesRecues.tsx";
 import CandidaturesEtudiant from "./components/CandidaturesEtudiant.tsx";
 import DashboardGestionnaire from "./components/DashboardGestionnaire.tsx";
+import EntentesStageGestionnaire from "./components/EntentesStageGestionnaire.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -35,6 +36,7 @@ const router = createBrowserRouter(
             <Route path="televersement-cv" element={<TeleversementCv/>}/>
             <Route path="candidatures-recues" element={<CandidaturesRecues/>}/>
             <Route path="mes-candidatures" element={<CandidaturesEtudiant/>}/>
+            <Route path="ententes-stage-gestionnaire" element={<EntentesStageGestionnaire/>}/>
         </Route>
     )
 );
