@@ -288,14 +288,12 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void modifierEntente(Long ententeId, EntenteStageDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, Exception {
+    public void modifierEntente(Long ententeId, EntenteStageDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteModificationNonAutoriseeException, EntenteNonTrouveException {
         verifierGestionnaireConnecte();
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(() -> new Exception("Entente non trouvée"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
 
-        // ne pas permettre la modification si déjà signée par toutes les parties ou si l'entente est annulee
         if (entente.getStatut() == EntenteStage.StatutEntente.SIGNEE || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
-            //TODO modifier exception pour un autre type
-            throw new Exception("Entente mauvaise");
+            throw new EntenteModificationNonAutoriseeException();
         }
 
 
@@ -346,10 +344,10 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void annulerEntente(Long ententeId) throws ActionNonAutoriseeException, Exception {
+    public void annulerEntente(Long ententeId) throws ActionNonAutoriseeException, EntenteNonTrouveException {
         verifierGestionnaireConnecte();
 
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(() -> new Exception("Entente non trouvée"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setArchived(true);
         entente.setDateModification(LocalDateTime.now());
@@ -381,21 +379,21 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public EntenteStageDTO getEntenteById(Long ententeId) throws ActionNonAutoriseeException, Exception {
+    public EntenteStageDTO getEntenteById(Long ententeId) throws ActionNonAutoriseeException, EntenteNonTrouveException {
         verifierGestionnaireConnecte();
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(() -> new Exception("Entente non trouvée"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
         return new EntenteStageDTO().toDTO(entente);
     }
 
     @Transactional
-    public byte[] getEntenteDocument(Long ententeId) throws ActionNonAutoriseeException, Exception {
+    public byte[] getEntenteDocument(Long ententeId) throws ActionNonAutoriseeException, EntenteNonTrouveException, EntenteDocumentNonTrouveeException {
         verifierGestionnaireConnecte();
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(() -> new Exception("Entente non trouvée"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
 
         if (entente.getDocumentPdf() != null && entente.getDocumentPdf().length > 0) {
             return entente.getDocumentPdf();
         }
 
-        throw new Exception("Document introuvable pour cette entente");
+        throw new EntenteDocumentNonTrouveeException();
     }
 }
