@@ -2,25 +2,12 @@ package com.backend.service;
 
 
 import com.backend.Exceptions.*;
-import com.backend.modele.Etudiant;
-import com.backend.modele.GestionnaireStage;
-import com.backend.modele.Offre;
-import com.backend.modele.EntenteStage;
-import com.backend.modele.Notification;
-import com.backend.modele.Employeur;
-import com.backend.modele.Candidature;
-import com.backend.persistence.EtudiantRepository;
-import com.backend.persistence.GestionnaireRepository;
-import com.backend.persistence.OffreRepository;
-import com.backend.persistence.UtilisateurRepository;
-import com.backend.persistence.EntenteStageRepository;
-import com.backend.persistence.NotificationRepository;
-import com.backend.persistence.EmployeurRepository;
-import com.backend.persistence.CandidatureRepository;
+import com.backend.modele.*;
+import com.backend.persistence.*;
 import com.backend.service.DTO.CandidatureDTO;
+import com.backend.service.DTO.EntenteStageDTO;
 import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.OffreDTO;
-import com.backend.service.DTO.EntenteStageDTO;
 import com.backend.util.EncryptageCV;
 import com.backend.util.EntentePdfGenerator;
 import jakarta.transaction.Transactional;
@@ -31,8 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,11 +35,10 @@ public class GestionnaireService {
     private final UtilisateurRepository utilisateurRepository;
     private final EntenteStageRepository ententeStageRepository;
     private final NotificationRepository notificationRepository;
-    private final EmployeurRepository employeurRepository;
     private final CandidatureRepository candidatureRepository;
 
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository,UtilisateurRepository utilisateurRepository,  EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, EmployeurRepository employeurRepository, CandidatureRepository candidatureRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
@@ -63,7 +47,6 @@ public class GestionnaireService {
         this.encryptageCV = encryptageCV;
         this.ententeStageRepository = ententeStageRepository;
         this.notificationRepository = notificationRepository;
-        this.employeurRepository = employeurRepository;
         this.candidatureRepository = candidatureRepository;
     }
 
@@ -148,7 +131,7 @@ public class GestionnaireService {
         verifierGestionnaireConnecte();
 
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
-                .orElseThrow(() -> new CVNonExistantException());
+                .orElseThrow(CVNonExistantException::new);
 
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
             throw new CVNonExistantException();
@@ -168,7 +151,7 @@ public class GestionnaireService {
         verifierGestionnaireConnecte();
 
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
-                .orElseThrow(() -> new CVNonExistantException());
+                .orElseThrow(CVNonExistantException::new);
 
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
             throw new CVNonExistantException();
@@ -232,7 +215,7 @@ public class GestionnaireService {
 
         Employeur employeur = offre.getEmployeur();
 
-        Etudiant etudiant = null;
+        Etudiant etudiant;
         if (dto.getEtudiantId() != null) {
             etudiant = etudiantRepository.findById(dto.getEtudiantId()).orElseThrow(UtilisateurPasTrouveException::new);
         } else {

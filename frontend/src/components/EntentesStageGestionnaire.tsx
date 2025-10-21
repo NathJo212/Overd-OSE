@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
     FileSignature,
     User,
@@ -7,97 +6,128 @@ import {
     Calendar,
     DollarSign,
     AlertCircle,
-    GraduationCap,
     Briefcase,
     X,
-    FileText
+    FileText,
+    CheckCircle
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
+import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO } from "../services/GestionnaireService";
+import * as React from "react";
 
 const EntentesStageGestionnaire = () => {
-    useNavigate();
-    const [loading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [candidatures, setCandidatures] = useState<CandidatureEligibleDTO[]>([]);
     const [showModal, setShowModal] = useState(false);
-    const [selectedCandidature, setSelectedCandidature] = useState<any>(null);
+    const [selectedCandidature, setSelectedCandidature] = useState<CandidatureEligibleDTO | null>(null);
+    const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin, setDateFin] = useState("");
+    const token = sessionStorage.getItem("authToken") || "";
 
-    // TODO: Remplacer par un vrai appel API
-    // useEffect(() => {
-    //     const fetchCandidaturesEligibles = async () => {
-    //         const data = await gestionnaireService.getCandidaturesEligibles(token);
-    //         setCandidaturesEligibles(data);
-    //     };
-    //     fetchCandidaturesEligibles();
-    // }, []);
+    useEffect(() => {
+        const fetchCandidaturesEligibles = async () => {
+            try {
+                setLoading(true);
+                setError("");
+                const data = await gestionnaireService.getCandidaturesEligiblesEntente(token);
+                setCandidatures(data);
+            } catch (err: any) {
+                setError(err.message || "Erreur lors du chargement des candidatures");
+                setCandidatures([]);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    // Pour la démo UI: mettre à true pour voir le message "aucune candidature", false pour voir la liste
-    const hasCandidaturesEligibles = false;
+        fetchCandidaturesEligibles().then();
+    }, [token]);
 
-    // Données mockées pour la visualisation UI uniquement
-    const mockCandidaturesEligibles = [
-        {
-            id: 1,
-            etudiant: {
-                nom: "Dubois",
-                prenom: "Jean",
-                email: "jean.dubois@example.com",
-                programme: "Techniques de l'informatique"
-            },
-            offre: {
-                titre: "Développeur Full-Stack",
-                employeur: "TechCorp Inc.",
-                dateDebut: "2025-05-15",
-                dateFin: "2025-08-15",
-                remuneration: "20$/heure",
-                lieu: "Montréal, QC"
-            },
-            dateAcceptation: "2025-01-15"
-        },
-        {
-            id: 2,
-            etudiant: {
-                nom: "Martin",
-                prenom: "Sophie",
-                email: "sophie.martin@example.com",
-                programme: "Design graphique"
-            },
-            offre: {
-                titre: "Designer UX/UI",
-                employeur: "Creative Studios",
-                dateDebut: "2025-06-01",
-                dateFin: "2025-09-01",
-                remuneration: "18$/heure",
-                lieu: "Laval, QC"
-            },
-            dateAcceptation: "2025-01-20"
-        },
-        {
-            id: 3,
-            etudiant: {
-                nom: "Tremblay",
-                prenom: "Marc",
-                email: "marc.tremblay@example.com",
-                programme: "Techniques de l'informatique"
-            },
-            offre: {
-                titre: "Analyste de données",
-                employeur: "DataTech Solutions",
-                dateDebut: "2025-05-20",
-                dateFin: "2025-08-20",
-                remuneration: "22$/heure",
-                lieu: "Québec, QC"
-            },
-            dateAcceptation: "2025-01-18"
-        }
-    ];
-
-    const handleCandidatureClick = (candidature: any) => {
+    const handleCandidatureClick = (candidature: CandidatureEligibleDTO) => {
         setSelectedCandidature(candidature);
         setShowModal(true);
+        setError("");
+        setSuccessMessage("");
     };
 
     const closeModal = () => {
         setShowModal(false);
         setSelectedCandidature(null);
+        setError("");
+        setSuccessMessage("");
+        setDateDebut("");
+        setDateFin("");
+    };
+
+    const handleSubmitEntente = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!selectedCandidature) return;
+
+        // Validation supplémentaire pour les dates
+        if (dateFin && dateDebut && dateFin < dateDebut) {
+            setError("La date de fin doit être après la date de début");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError("");
+        setSuccessMessage("");
+
+        try {
+            const formData = new FormData(e.target as HTMLFormElement);
+
+            // Vérifier que nous avons l'etudiantId
+            if (!selectedCandidature.etudiantId) {
+                setError("Impossible de créer l'entente : ID étudiant manquant. Le backend doit être mis à jour pour inclure 'etudiantId' dans CandidatureDTO.");
+                return;
+            }
+
+            const ententeData: EntenteStageDTO = {
+                etudiantId: selectedCandidature.etudiantId,
+                offreId: selectedCandidature.offreId,
+                titre: selectedCandidature.offreTitre,
+                description: formData.get('description') as string,
+                dateDebut: formData.get('dateDebut') as string,
+                dateFin: formData.get('dateFin') as string,
+                horaire: formData.get('horaire') as string,
+                dureeHebdomadaire: parseInt(formData.get('dureeHebdomadaire') as string),
+                remuneration: formData.get('remuneration') as string,
+                responsabilites: formData.get('responsabilites') as string,
+                objectifs: formData.get('objectifs') as string
+            };
+
+            console.log("Données envoyées au backend:", ententeData);
+            console.log("Candidature sélectionnée:", selectedCandidature);
+
+            await gestionnaireService.creerEntente(ententeData, token);
+
+            setSuccessMessage("Entente créée avec succès !");
+
+            setTimeout(() => {
+                closeModal();
+                // Recharger les candidatures ← Déjà implémenté !
+                gestionnaireService.getCandidaturesEligiblesEntente(token)
+                    .then(data => setCandidatures(data))
+                    .catch(err => setError(err.message));
+            }, 2000);
+
+        } catch (err: any) {
+            console.error("Erreur lors de la création de l'entente:", err);
+            const responseData = err.response?.data;
+
+            if (responseData?.erreur?.errorCode) {
+                setError(`Erreur (${responseData.erreur.errorCode}): ${responseData.erreur.message}`);
+            } else if (err.message) {
+                setError(err.message);
+            } else {
+                setError("Erreur lors de la création de l'entente. Vérifiez que le backend est correctement configuré.");
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -122,6 +152,19 @@ const EntentesStageGestionnaire = () => {
                     </div>
                 </div>
 
+                {/* Erreur */}
+                {error && (
+                    <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                            <p className="text-sm font-medium text-red-900">{error}</p>
+                            <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* État de chargement */}
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
@@ -129,7 +172,7 @@ const EntentesStageGestionnaire = () => {
                             <div className="h-16 w-16 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
                         </div>
                     </div>
-                ) : !hasCandidaturesEligibles ? (
+                ) : candidatures.length === 0 ? (
                     /* Message: Aucune candidature éligible */
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
                         <div className="flex justify-center mb-4">
@@ -149,12 +192,12 @@ const EntentesStageGestionnaire = () => {
                     <div>
                         <div className="mb-4">
                             <p className="text-sm text-gray-600">
-                                <span className="font-semibold text-gray-900">{mockCandidaturesEligibles.length}</span> candidature(s) éligible(s) pour la création d'entente
+                                <span className="font-semibold text-gray-900">{candidatures.length}</span> candidature(s) éligible(s) pour la création d'entente
                             </p>
                         </div>
 
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {mockCandidaturesEligibles.map((candidature) => (
+                            {candidatures.map((candidature) => (
                                 <div
                                     key={candidature.id}
                                     onClick={() => handleCandidatureClick(candidature)}
@@ -166,7 +209,7 @@ const EntentesStageGestionnaire = () => {
                                             Acceptée
                                         </span>
                                         <span className="text-xs text-gray-500">
-                                            {candidature.dateAcceptation}
+                                            {new Date(candidature.dateCandidature).toLocaleDateString('fr-CA')}
                                         </span>
                                     </div>
 
@@ -178,15 +221,11 @@ const EntentesStageGestionnaire = () => {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-gray-900 mb-1">
-                                                    {candidature.etudiant.prenom} {candidature.etudiant.nom}
+                                                    {candidature.etudiantPrenom} {candidature.etudiantNom}
                                                 </h3>
-                                                <p className="text-xs text-gray-600 truncate mb-1">
-                                                    {candidature.etudiant.email}
+                                                <p className="text-xs text-gray-600 truncate">
+                                                    {candidature.etudiantEmail}
                                                 </p>
-                                                <div className="flex items-center gap-1 text-xs text-gray-600">
-                                                    <GraduationCap className="w-3 h-3" />
-                                                    <span className="truncate">{candidature.etudiant.programme}</span>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -196,20 +235,12 @@ const EntentesStageGestionnaire = () => {
                                         <div className="flex items-center gap-2">
                                             <Briefcase className="w-4 h-4 text-blue-600 flex-shrink-0" />
                                             <span className="font-semibold text-gray-900 text-sm truncate">
-                                                {candidature.offre.titre}
+                                                {candidature.offreTitre}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
                                             <Building2 className="w-4 h-4 flex-shrink-0" />
-                                            <span className="truncate">{candidature.offre.employeur}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                                            <Calendar className="w-4 h-4 flex-shrink-0" />
-                                            <span className="text-xs">{candidature.offre.dateDebut} → {candidature.offre.dateFin}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                                            <DollarSign className="w-4 h-4 flex-shrink-0" />
-                                            <span>{candidature.offre.remuneration}</span>
+                                            <span className="truncate">{candidature.employeurNom}</span>
                                         </div>
                                     </div>
 
@@ -229,7 +260,10 @@ const EntentesStageGestionnaire = () => {
 
             {/* Modal de création d'entente */}
             {showModal && selectedCandidature && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm overflow-y-auto">
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm overflow-y-auto"
+                    onClick={(e) => e.target === e.currentTarget && closeModal()}
+                >
                     <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
                         {/* En-tête du modal */}
                         <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between z-10">
@@ -242,20 +276,41 @@ const EntentesStageGestionnaire = () => {
                                         Créer une entente de stage
                                     </h2>
                                     <p className="text-sm text-gray-600">
-                                        Pour {selectedCandidature.etudiant.prenom} {selectedCandidature.etudiant.nom}
+                                        Pour {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
                                     </p>
                                 </div>
                             </div>
                             <button
                                 onClick={closeModal}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
+                                disabled={isSubmitting}
                             >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
 
+                        {/* Message de succès dans le modal */}
+                        {successMessage && (
+                            <div className="mx-6 mt-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                                <div className="flex items-center gap-3">
+                                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                                    <p className="text-sm font-medium text-green-900">{successMessage}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Erreur dans le modal */}
+                        {error && (
+                            <div className="mx-6 mt-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                                <div className="flex items-center gap-3">
+                                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                                    <p className="text-sm font-medium text-red-900">{error}</p>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Formulaire dans le modal */}
-                        <form className="p-6">
+                        <form onSubmit={handleSubmitEntente} className="p-6">
                             {/* Info candidature (lecture seule) */}
                             <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200">
                                 <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -266,21 +321,17 @@ const EntentesStageGestionnaire = () => {
                                     <div>
                                         <span className="text-gray-600">Étudiant:</span>
                                         <p className="font-semibold text-gray-900">
-                                            {selectedCandidature.etudiant.prenom} {selectedCandidature.etudiant.nom}
+                                            {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
                                         </p>
-                                        <p className="text-xs text-gray-600">{selectedCandidature.etudiant.email}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-600">Programme:</span>
-                                        <p className="font-semibold text-gray-900">{selectedCandidature.etudiant.programme}</p>
+                                        <p className="text-xs text-gray-600">{selectedCandidature.etudiantEmail}</p>
                                     </div>
                                     <div>
                                         <span className="text-gray-600">Employeur:</span>
-                                        <p className="font-semibold text-gray-900">{selectedCandidature.offre.employeur}</p>
+                                        <p className="font-semibold text-gray-900">{selectedCandidature.employeurNom}</p>
                                     </div>
-                                    <div>
+                                    <div className="md:col-span-2">
                                         <span className="text-gray-600">Poste:</span>
-                                        <p className="font-semibold text-gray-900">{selectedCandidature.offre.titre}</p>
+                                        <p className="font-semibold text-gray-900">{selectedCandidature.offreTitre}</p>
                                     </div>
                                 </div>
                             </div>
@@ -298,8 +349,12 @@ const EntentesStageGestionnaire = () => {
                                         </label>
                                         <input
                                             type="date"
-                                            defaultValue={selectedCandidature.offre.dateDebut}
-                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm"
+                                            name="dateDebut"
+                                            required
+                                            disabled={isSubmitting}
+                                            value={dateDebut}
+                                            onChange={(e) => setDateDebut(e.target.value)}
+                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
                                     <div>
@@ -308,9 +363,19 @@ const EntentesStageGestionnaire = () => {
                                         </label>
                                         <input
                                             type="date"
-                                            defaultValue={selectedCandidature.offre.dateFin}
-                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm"
+                                            name="dateFin"
+                                            required
+                                            disabled={isSubmitting}
+                                            value={dateFin}
+                                            onChange={(e) => setDateFin(e.target.value)}
+                                            min={dateDebut || undefined}
+                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
+                                        {dateFin && dateDebut && dateFin < dateDebut && (
+                                            <p className="mt-1 text-sm text-red-600">
+                                                La date de fin doit être après la date de début
+                                            </p>
+                                        )}
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -318,8 +383,11 @@ const EntentesStageGestionnaire = () => {
                                         </label>
                                         <input
                                             type="text"
+                                            name="horaire"
+                                            required
+                                            disabled={isSubmitting}
                                             placeholder="Ex: Lundi au vendredi, 9h-17h"
-                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm"
+                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
                                     <div>
@@ -328,10 +396,13 @@ const EntentesStageGestionnaire = () => {
                                         </label>
                                         <input
                                             type="number"
+                                            name="dureeHebdomadaire"
+                                            required
+                                            disabled={isSubmitting}
                                             placeholder="Ex: 35"
                                             min="1"
                                             max="40"
-                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm"
+                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
                                 </div>
@@ -349,9 +420,11 @@ const EntentesStageGestionnaire = () => {
                                     </label>
                                     <input
                                         type="text"
-                                        defaultValue={selectedCandidature.offre.remuneration}
-                                        placeholder="Ex: 18$/heure"
-                                        className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm"
+                                        name="remuneration"
+                                        required
+                                        disabled={isSubmitting}
+                                        placeholder="Ex: 18$/heure ou Non rémunéré"
+                                        className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                     />
                                 </div>
                             </div>
@@ -368,9 +441,12 @@ const EntentesStageGestionnaire = () => {
                                             Description du stage <span className="text-red-500">*</span>
                                         </label>
                                         <textarea
+                                            name="description"
+                                            required
+                                            disabled={isSubmitting}
                                             rows={4}
                                             placeholder="Décrivez les principales tâches et responsabilités..."
-                                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm"
+                                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
                                     <div>
@@ -378,9 +454,12 @@ const EntentesStageGestionnaire = () => {
                                             Responsabilités du stagiaire <span className="text-red-500">*</span>
                                         </label>
                                         <textarea
+                                            name="responsabilites"
+                                            required
+                                            disabled={isSubmitting}
                                             rows={4}
                                             placeholder="Listez les principales responsabilités..."
-                                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm"
+                                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
                                     <div>
@@ -388,9 +467,12 @@ const EntentesStageGestionnaire = () => {
                                             Objectifs d'apprentissage <span className="text-red-500">*</span>
                                         </label>
                                         <textarea
+                                            name="objectifs"
+                                            required
+                                            disabled={isSubmitting}
                                             rows={4}
                                             placeholder="Décrivez les compétences à acquérir..."
-                                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm"
+                                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
                                 </div>
@@ -401,16 +483,27 @@ const EntentesStageGestionnaire = () => {
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+                                    disabled={isSubmitting}
+                                    className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Annuler
                                 </button>
                                 <button
-                                    type="button"
-                                    className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-blue-400 flex items-center gap-2"
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center gap-2"
                                 >
-                                    <FileSignature className="w-4 h-4" />
-                                    Créer l'entente
+                                    {isSubmitting ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                            Création en cours...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FileSignature className="w-4 h-4" />
+                                            Créer l'entente
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
