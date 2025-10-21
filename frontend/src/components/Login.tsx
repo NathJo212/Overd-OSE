@@ -35,7 +35,7 @@ const Login = () => {
                     navigate('/dashboard-etudiant')
                     break
                 case 'GESTIONNAIRE':
-                    navigate('/offres-stages-gestionnaire')
+                    navigate('/dashboard-gestionnaire')
                     break
             }
         }
@@ -154,7 +154,7 @@ const Login = () => {
                 setTimeout(() => {
                     navigate(userType === 'EMPLOYEUR' ? '/dashboard-employeur' :
                             userType === 'ETUDIANT' ? '/dashboard-etudiant' :
-                            '/offres-stages-gestionnaire')
+                            '/dashboard-gestionnaire')
                 }, 1500)
             }
 

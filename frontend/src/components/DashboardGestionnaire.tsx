@@ -6,7 +6,7 @@ import { gestionnaireService, type OffreDTO } from "../services/GestionnaireServ
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 
-const OffresDeStagesGestionnaire = () => {
+const DashboardGestionnaire = () => {
     const { t } = useTranslation(["internshipmanager"]);
     const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
@@ -371,4 +371,4 @@ const OffresDeStagesGestionnaire = () => {
     );
 };
 
-export default OffresDeStagesGestionnaire;
+export default DashboardGestionnaire;
