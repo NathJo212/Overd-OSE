@@ -18,6 +18,7 @@ public class CandidatureDTO {
     private Long offreId;
     private String offreTitre;
     private String employeurNom;
+    private Long etudiantId;
     private String etudiantNom;
     private String etudiantPrenom;
     private String etudiantEmail;
@@ -35,6 +36,7 @@ public class CandidatureDTO {
         this.offreTitre = candidature.getOffre().getTitre();
         this.employeurNom = candidature.getOffre().getEmployeur().getContact();
 
+        this.etudiantId = candidature.getEtudiant().getId();
         this.etudiantNom = candidature.getEtudiant().getNom();
         this.etudiantPrenom = candidature.getEtudiant().getPrenom();
         this.etudiantEmail = candidature.getEtudiant().getEmail();

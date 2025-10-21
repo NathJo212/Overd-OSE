@@ -21,4 +21,6 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
     Optional<Candidature> findByEtudiantAndOffre(Etudiant etudiant, Offre offre);
 
     List<Candidature> findAllByOffreIn(List<Offre> offres);
+
+    List<Candidature> findByStatut(Candidature.StatutCandidature statutCandidature);
 }

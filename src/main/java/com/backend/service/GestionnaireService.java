@@ -17,6 +17,7 @@ import com.backend.persistence.EntenteStageRepository;
 import com.backend.persistence.NotificationRepository;
 import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.CandidatureRepository;
+import com.backend.service.DTO.CandidatureDTO;
 import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.DTO.EntenteStageDTO;
@@ -211,6 +212,13 @@ public class GestionnaireService {
         if (!isGestionnaire) {
             throw new ActionNonAutoriseeException();
         }
+    }
+
+    public List<CandidatureDTO> getCandidaturesEligiblesEntente() throws ActionNonAutoriseeException {
+        verifierGestionnaireConnecte();
+
+        List<Candidature> candidatures = candidatureRepository.findByStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT);
+        return candidatures.stream().map(c -> new CandidatureDTO().toDTO(c)).collect(Collectors.toList());
     }
 
     public void creerEntente(EntenteStageDTO dto) throws ActionNonAutoriseeException, OffreNonExistantException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, com.backend.Exceptions.EntenteDejaExistanteException {
