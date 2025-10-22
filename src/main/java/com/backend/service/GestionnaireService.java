@@ -232,7 +232,7 @@ public class GestionnaireService {
 
         Employeur employeur = offre.getEmployeur();
 
-        Etudiant etudiant = null;
+        Etudiant etudiant;
         if (dto.getEtudiantId() != null) {
             etudiant = etudiantRepository.findById(dto.getEtudiantId()).orElseThrow(UtilisateurPasTrouveException::new);
         } else {

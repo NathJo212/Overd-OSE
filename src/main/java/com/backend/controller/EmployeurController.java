@@ -255,4 +255,135 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
+
+    @GetMapping("/notifications")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<NotificationDTO>> getNotifications() {
+        try {
+            List<NotificationDTO> dtos = employeurService.getNotificationsPourEmployeurConnecte();
+            return ResponseEntity.ok(dtos);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/notifications/{id}/lu")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> marquerNotificationLu(
+            @PathVariable("id") Long id,
+            @RequestBody boolean lu) {
+        try {
+            employeurService.marquerNotificationLu(id, lu);
+            return ResponseEntity.ok()
+                    .body(new MessageRetourDTO("Notification marquée comme lue", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+        }
+    }
+
+    @GetMapping("/offres-approuvees")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<OffreDTO>> getOffresApprouvees() {
+        try {
+            List<OffreDTO> offres = employeurService.getOffresApprouvees();
+            return ResponseEntity.ok(offres);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/ententes")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EntenteStageDTO>> getEntentes() {
+        try {
+            List<EntenteStageDTO> ententes = employeurService.getEntentesPourEmployeur();
+            return ResponseEntity.ok(ententes);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/ententes/en-attente")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<?> getEntentesEnAttente() {
+        try {
+            List<EntenteStageDTO> ententes = employeurService.getEntentesEnAttente();
+            return ResponseEntity.ok(ententes);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+        }
+    }
+
+    @GetMapping("/ententes/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<EntenteStageDTO> getEntenteSpecifique(@PathVariable Long id) {
+        try {
+            EntenteStageDTO entente = employeurService.getEntenteSpecifique(id);
+            return ResponseEntity.ok(entente);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PutMapping("/ententes/{id}/signer")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> signerEntente(@PathVariable Long id) {
+        try {
+            employeurService.signerEntente(id);
+            return ResponseEntity.ok()
+                    .body(new MessageRetourDTO("Entente signée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+        }
+    }
+
+    @PutMapping("/ententes/{id}/refuser")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> refuserEntente(@PathVariable Long id) {
+        try {
+            employeurService.refuserEntente(id);
+            return ResponseEntity.ok()
+                    .body(new MessageRetourDTO("Entente refusée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+        }
+    }
 }

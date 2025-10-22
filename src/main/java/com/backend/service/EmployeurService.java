@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -34,9 +35,10 @@ public class EmployeurService {
     private final ConvocationEntrevueRepository convocationEntrevueRepository;
     private final NotificationRepository notificationRepository;
     private final MessageSource messageSource;
+    private final EntenteStageRepository ententeStageRepository;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, MessageSource messageSource) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, MessageSource messageSource, EntenteStageRepository ententeStageRepository) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -47,6 +49,7 @@ public class EmployeurService {
         this.convocationEntrevueRepository = convocationEntrevueRepository;
         this.notificationRepository = notificationRepository;
         this.messageSource = messageSource;
+        this.ententeStageRepository = ententeStageRepository;
     }
 
     @Transactional
@@ -136,8 +139,6 @@ public class EmployeurService {
     @Transactional
     public CandidatureDTO getCandidatureSpecifique(Long candidatureId)
             throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonTrouveeException {
-        Employeur employeur = getEmployeurConnecte();
-
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
 
@@ -366,8 +367,8 @@ public class EmployeurService {
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
 
-        if (candidature.getOffre() == null || candidature.getOffre().getEmployeur() == null ||
-                !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
+        if (candidature.getOffre() == null || candidature.getOffre().getEmployeur() == null
+                || !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
         if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE){
@@ -384,6 +385,153 @@ public class EmployeurService {
             notif.setUtilisateur(etudiant);
             notif.setMessageKey("offre.refused");
             notif.setMessageParam(titreOffre);
+            notificationRepository.save(notif);
+        }
+    }
+
+    @Transactional
+    public List<NotificationDTO> getNotificationsPourEmployeurConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        List<Notification> notifications = notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(employeur);
+
+        List<NotificationDTO> notificationDTOs = new ArrayList<>();
+        for (Notification notification : notifications) {
+            notificationDTOs.add(new NotificationDTO(
+                notification.getId(),
+                notification.getMessageKey(),
+                notification.getMessageParam(),
+                notification.isLu(),
+                notification.getDateCreation()
+            ));
+        }
+        return notificationDTOs;
+    }
+
+    @Transactional
+    public void marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+
+        if (!notification.getUtilisateur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        notification.setLu(lu);
+        notificationRepository.save(notification);
+    }
+
+    @Transactional
+    public List<OffreDTO> getOffresApprouvees() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
+
+        List<Offre> offresApprouvees = offres.stream()
+                .filter(offre -> offre.getStatutApprouve() == Offre.StatutApprouve.APPROUVE)
+                .toList();
+
+        OffreDTO offreDTO = new OffreDTO();
+        return offresApprouvees.stream().map(offreDTO::toDTO).toList();
+    }
+
+    @Transactional
+    public List<EntenteStageDTO> getEntentesPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        List<EntenteStage> ententes = ententeStageRepository.findByEmployeurAndArchivedFalse(employeur);
+
+        return ententes.stream()
+                .map(entente -> new EntenteStageDTO().toDTO(entente))
+                .toList();
+    }
+
+    @Transactional
+    public List<EntenteStageDTO> getEntentesEnAttente() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        List<EntenteStage> ententes = ententeStageRepository.findByEmployeurAndEmployeurSignatureAndArchivedFalse(
+                employeur,
+                EntenteStage.SignatureStatus.EN_ATTENTE
+        );
+
+        return ententes.stream()
+                .map(e -> new EntenteStageDTO().toDTO(e))
+                .toList();
+    }
+
+    @Transactional
+    public EntenteStageDTO getEntenteSpecifique(Long ententeId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(() -> new RuntimeException("Entente not found"));
+
+        if (entente.getEmployeur() == null || !entente.getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        return new EntenteStageDTO().toDTO(entente);
+    }
+
+    @Transactional
+    public void signerEntente(Long ententeId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(() -> new RuntimeException("Entente not found"));
+
+        if (!entente.getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
+        entente.setDateModification(LocalDateTime.now());
+
+        // Si les deux ont signé, marquer l'entente comme signée
+        if (entente.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE) {
+            entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        }
+
+        ententeStageRepository.save(entente);
+
+        // Notification pour l'étudiant
+        Etudiant etudiant = entente.getEtudiant();
+        if (etudiant != null) {
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("entente.employer.signed");
+            notif.setMessageParam(entente.getTitre());
+            notificationRepository.save(notif);
+        }
+    }
+
+    @Transactional
+    public void refuserEntente(Long ententeId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(() -> new RuntimeException("Entente not found"));
+
+        if (!entente.getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.REFUSEE);
+        entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
+        entente.setDateModification(LocalDateTime.now());
+
+        ententeStageRepository.save(entente);
+
+        // Notification pour l'étudiant
+        Etudiant etudiant = entente.getEtudiant();
+        if (etudiant != null) {
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("entente.employer.refused");
+            notif.setMessageParam(entente.getTitre());
             notificationRepository.save(notif);
         }
     }
