@@ -339,11 +339,11 @@ public class EmployeurServiceTest {
                 new SimpleGrantedAuthority("EMPLOYEUR")
         );
 
-        when(authentication.getName()).thenReturn(email);
-        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
+        lenient().when(authentication.getName()).thenReturn(email);
+        lenient().when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
-        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+        lenient().when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
                 "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
@@ -355,7 +355,7 @@ public class EmployeurServiceTest {
         Candidature candidature = new Candidature(etudiant, offre, null);
         Long candidatureId = 1L;
 
-        when(candidatureRepository.findById(candidatureId))
+        lenient().when(candidatureRepository.findById(candidatureId))
                 .thenReturn(Optional.of(candidature));
 
         // Act
@@ -376,14 +376,14 @@ public class EmployeurServiceTest {
                 new SimpleGrantedAuthority("EMPLOYEUR")
         );
 
-        when(authentication.getName()).thenReturn(email);
-        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
+        lenient().when(authentication.getName()).thenReturn(email);
+        lenient().when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
-        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+        lenient().when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Long candidatureId = 999L;
-        when(candidatureRepository.findById(candidatureId))
+        lenient().when(candidatureRepository.findById(candidatureId))
                 .thenReturn(Optional.empty());
 
         // Act & Assert

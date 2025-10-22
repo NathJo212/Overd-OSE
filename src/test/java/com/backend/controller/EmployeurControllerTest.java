@@ -192,7 +192,7 @@ class EmployeurControllerTest {
                         .content(objectMapper.writeValueAsString(offreDTO)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.message").value("Invalid date"));
+                .andExpect(jsonPath("$.erreur.message").value("Invalid date provided"));
     }
 
     @Test
