@@ -900,8 +900,7 @@ class EtudiantControllerTest {
 
         // Act & Assert
         mockMvc.perform(get("/OSEetudiant/ententes/en-attente"))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -961,8 +960,7 @@ class EtudiantControllerTest {
 
         // Act & Assert
         mockMvc.perform(get("/OSEetudiant/ententes"))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+                .andExpect(status().isForbidden());
     }
 
     @Test

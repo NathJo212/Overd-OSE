@@ -348,37 +348,37 @@ public class EtudiantController {
 
     @GetMapping("/ententes/en-attente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<?> getEntentesEnAttente() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentesEnAttente() {
         try {
             List<EntenteStageDTO> ententes = etudiantService.getEntentesEnAttente();
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(null);
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(null);
         }
     }
 
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<?> getMesEntentes() {
+    public ResponseEntity<List<EntenteStageDTO>> getMesEntentes() {
         try {
             List<EntenteStageDTO> ententes = etudiantService.getMesEntentes();
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(null);
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(null);
         }
     }
 
