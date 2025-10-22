@@ -19,6 +19,7 @@ import CandidaturesRecues from "./components/CandidaturesRecues.tsx";
 import CandidaturesEtudiant from "./components/CandidaturesEtudiant.tsx";
 import DashboardGestionnaire from "./components/DashboardGestionnaire.tsx";
 import EntentesStageGestionnaire from "./components/EntentesStageGestionnaire.tsx";
+import EntentesEmployeurs from "./components/EntentesEmployeurs.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -37,6 +38,7 @@ const router = createBrowserRouter(
             <Route path="candidatures-recues" element={<CandidaturesRecues/>}/>
             <Route path="mes-candidatures" element={<CandidaturesEtudiant/>}/>
             <Route path="ententes-stage-gestionnaire" element={<EntentesStageGestionnaire/>}/>
+            <Route path="mes-ententes" element={<EntentesEmployeurs/>}/>
         </Route>
     )
 );

@@ -1,0 +1,34 @@
+{
+  "title": "Mes ententes de stage",
+  "subtitle": "Consultez toutes vos ententes de stage actives",
+  "backToDashboard": "Retour au tableau de bord",
+  "refresh": "Actualiser",
+  "active": "Active",
+  "week": "semaine",
+  "ententeCount": "entente(s)",
+  "viewDetails": "Voir les détails",
+  "noEntentes": {
+    "title": "Aucune entente de stage",
+    "subtitle": "Vous n'avez actuellement aucune entente de stage signée. Les ententes apparaîtront ici une fois créées par le gestionnaire."
+  },
+  "errors": {
+    "loadError": "Erreur lors du chargement des ententes"
+  },
+  "modal": {
+    "title": "Détails de l'entente",
+    "student": "Informations de l'étudiant",
+    "name": "Nom",
+    "email": "Courriel",
+    "internshipInfo": "Informations du stage",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "schedule": "Horaire",
+    "weeklyHours": "Durée hebdomadaire",
+    "remuneration": "Rémunération",
+    "description": "Description",
+    "responsibilities": "Responsabilités",
+    "objectives": "Objectifs d'apprentissage",
+    "close": "Fermer"
+  }
+}
+

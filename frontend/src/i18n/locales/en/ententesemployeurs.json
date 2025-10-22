@@ -1,0 +1,33 @@
+{
+  "title": "My Internship Agreements",
+  "subtitle": "View all your active internship agreements",
+  "backToDashboard": "Back to dashboard",
+  "refresh": "Refresh",
+  "active": "Active",
+  "week": "week",
+  "ententeCount": "agreement(s)",
+  "viewDetails": "View details",
+  "noEntentes": {
+    "title": "No internship agreements",
+    "subtitle": "You currently have no signed internship agreements. Agreements will appear here once created by the manager."
+  },
+  "errors": {
+    "loadError": "Error loading agreements"
+  },
+  "modal": {
+    "title": "Agreement Details",
+    "student": "Student Information",
+    "name": "Name",
+    "email": "Email",
+    "internshipInfo": "Internship Information",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "schedule": "Schedule",
+    "weeklyHours": "Weekly Hours",
+    "remuneration": "Remuneration",
+    "description": "Description",
+    "responsibilities": "Responsibilities",
+    "objectives": "Learning Objectives",
+    "close": "Close"
+  }
+}

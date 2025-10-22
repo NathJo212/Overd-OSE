@@ -2,6 +2,8 @@
   "title": "Tableau de bord Employeur",
   "createOffer": "Créer une nouvelle offre de stage",
   "myOffers": "Mes offres de stage",
+  "myApplications": "Voir les candidatures de mes offres",
+  "myAgreements": "Mes ententes de stage",
   "noOffers": {
     "title": "Aucune offre de stage trouvée",
     "subtitle": "Commencez par créer votre première offre"
@@ -26,7 +28,6 @@
     "welcomeCreated": "Bienvenue ! Votre compte a été créé et vous êtes maintenant connecté.",
     "welcomeLogin": "Connexion réussie ! Bienvenue sur votre tableau de bord."
   },
-  "myApplications": "Voir les candidatures de mes offres",
   "convocations": {
     "title": "Mes convocations",
     "refresh": "Actualiser",
