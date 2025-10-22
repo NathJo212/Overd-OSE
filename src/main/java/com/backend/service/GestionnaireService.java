@@ -197,11 +197,23 @@ public class GestionnaireService {
         }
     }
 
+    @Transactional
     public List<CandidatureDTO> getCandidaturesEligiblesEntente() throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
 
-        List<Candidature> candidatures = candidatureRepository.findByStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT);
-        return candidatures.stream().map(c -> new CandidatureDTO().toDTO(c)).collect(Collectors.toList());
+        // Récupérer les candidatures acceptées par l'étudiant
+        List<Candidature> candidatures = candidatureRepository.findByStatut(
+                Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT
+        );
+
+        // Filtrer celles qui n'ont pas encore d'entente non archivée
+        return candidatures.stream()
+                .filter(c -> !ententeStageRepository.existsByEtudiantAndOffreAndArchivedFalse(
+                        c.getEtudiant(),
+                        c.getOffre()
+                ))
+                .map(c -> new CandidatureDTO().toDTO(c))
+                .collect(Collectors.toList());
     }
 
     public void creerEntente(EntenteStageDTO dto) throws ActionNonAutoriseeException, OffreNonExistantException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, com.backend.Exceptions.EntenteDejaExistanteException {
