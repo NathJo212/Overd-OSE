@@ -463,11 +463,10 @@ public class EmployeurService {
     }
 
     @Transactional
-    public EntenteStageDTO getEntenteSpecifique(Long ententeId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public EntenteStageDTO getEntenteSpecifique(Long ententeId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
-        EntenteStage entente = ententeStageRepository.findById(ententeId)
-                .orElseThrow(() -> new RuntimeException("Entente not found"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
 
         if (entente.getEmployeur() == null || !entente.getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
@@ -477,11 +476,10 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void signerEntente(Long ententeId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public void signerEntente(Long ententeId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
-        EntenteStage entente = ententeStageRepository.findById(ententeId)
-                .orElseThrow(() -> new RuntimeException("Entente not found"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
 
         if (!entente.getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
@@ -509,11 +507,10 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void refuserEntente(Long ententeId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public void refuserEntente(Long ententeId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
-        EntenteStage entente = ententeStageRepository.findById(ententeId)
-                .orElseThrow(() -> new RuntimeException("Entente not found"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
 
         if (!entente.getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
@@ -536,4 +533,16 @@ public class EmployeurService {
         }
     }
 
+    public void modifierEntente(Long ententeId, ModificationEntenteDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
+
+        if (!entente.getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        entente.setMessageModificationEmployeur(dto.getModificationEntente());
+        ententeStageRepository.save(entente);
+    }
 }

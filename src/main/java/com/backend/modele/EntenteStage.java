@@ -73,6 +73,8 @@ public class EntenteStage {
     @Enumerated(EnumType.STRING)
     private StatutEntente statut = StatutEntente.EN_ATTENTE;
 
+    private String messageModificationEmployeur;
+
     private boolean archived = false;
 
     private LocalDateTime dateCreation = LocalDateTime.now();

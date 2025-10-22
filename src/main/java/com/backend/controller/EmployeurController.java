@@ -318,19 +318,16 @@ public class EmployeurController {
 
     @GetMapping("/ententes/en-attente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<?> getEntentesEnAttente() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentesEnAttente() {
         try {
             List<EntenteStageDTO> ententes = employeurService.getEntentesEnAttente();
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (UtilisateurPasTrouveException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -362,6 +359,9 @@ public class EmployeurController {
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (EntenteNonTrouveException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
@@ -380,6 +380,31 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (EntenteNonTrouveException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+        }
+    }
+
+    @PutMapping("/ententes/{id}/modification")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> modifierEntente(@PathVariable Long id, @RequestBody ModificationEntenteDTO dto) {
+        try {
+            employeurService.modifierEntente(id, dto);
+            return ResponseEntity.ok()
+                    .body(new MessageRetourDTO("Demande de modification de l'entente envoyée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (EntenteNonTrouveException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
