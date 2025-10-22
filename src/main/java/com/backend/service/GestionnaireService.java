@@ -2,24 +2,12 @@ package com.backend.service;
 
 
 import com.backend.Exceptions.*;
-import com.backend.modele.Etudiant;
-import com.backend.modele.GestionnaireStage;
-import com.backend.modele.Offre;
-import com.backend.modele.EntenteStage;
-import com.backend.modele.Notification;
-import com.backend.modele.Employeur;
-import com.backend.modele.Candidature;
-import com.backend.persistence.EtudiantRepository;
-import com.backend.persistence.GestionnaireRepository;
-import com.backend.persistence.OffreRepository;
-import com.backend.persistence.UtilisateurRepository;
-import com.backend.persistence.EntenteStageRepository;
-import com.backend.persistence.NotificationRepository;
-import com.backend.persistence.EmployeurRepository;
-import com.backend.persistence.CandidatureRepository;
+import com.backend.modele.*;
+import com.backend.persistence.*;
+import com.backend.service.DTO.CandidatureDTO;
+import com.backend.service.DTO.EntenteStageDTO;
 import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.OffreDTO;
-import com.backend.service.DTO.EntenteStageDTO;
 import com.backend.util.EncryptageCV;
 import com.backend.util.EntentePdfGenerator;
 import jakarta.transaction.Transactional;
@@ -30,8 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,11 +35,10 @@ public class GestionnaireService {
     private final UtilisateurRepository utilisateurRepository;
     private final EntenteStageRepository ententeStageRepository;
     private final NotificationRepository notificationRepository;
-    private final EmployeurRepository employeurRepository;
     private final CandidatureRepository candidatureRepository;
 
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository,UtilisateurRepository utilisateurRepository,  EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, EmployeurRepository employeurRepository, CandidatureRepository candidatureRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
@@ -62,7 +47,6 @@ public class GestionnaireService {
         this.encryptageCV = encryptageCV;
         this.ententeStageRepository = ententeStageRepository;
         this.notificationRepository = notificationRepository;
-        this.employeurRepository = employeurRepository;
         this.candidatureRepository = candidatureRepository;
     }
 
@@ -147,7 +131,7 @@ public class GestionnaireService {
         verifierGestionnaireConnecte();
 
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
-                .orElseThrow(() -> new CVNonExistantException());
+                .orElseThrow(CVNonExistantException::new);
 
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
             throw new CVNonExistantException();
@@ -167,7 +151,7 @@ public class GestionnaireService {
         verifierGestionnaireConnecte();
 
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
-                .orElseThrow(() -> new CVNonExistantException());
+                .orElseThrow(CVNonExistantException::new);
 
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
             throw new CVNonExistantException();
@@ -213,6 +197,25 @@ public class GestionnaireService {
         }
     }
 
+    @Transactional
+    public List<CandidatureDTO> getCandidaturesEligiblesEntente() throws ActionNonAutoriseeException {
+        verifierGestionnaireConnecte();
+
+        // Récupérer les candidatures acceptées par l'étudiant
+        List<Candidature> candidatures = candidatureRepository.findByStatut(
+                Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT
+        );
+
+        // Filtrer celles qui n'ont pas encore d'entente non archivée
+        return candidatures.stream()
+                .filter(c -> !ententeStageRepository.existsByEtudiantAndOffreAndArchivedFalse(
+                        c.getEtudiant(),
+                        c.getOffre()
+                ))
+                .map(c -> new CandidatureDTO().toDTO(c))
+                .collect(Collectors.toList());
+    }
+
     public void creerEntente(EntenteStageDTO dto) throws ActionNonAutoriseeException, OffreNonExistantException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, com.backend.Exceptions.EntenteDejaExistanteException {
         verifierGestionnaireConnecte();
 
@@ -224,7 +227,7 @@ public class GestionnaireService {
 
         Employeur employeur = offre.getEmployeur();
 
-        Etudiant etudiant = null;
+        Etudiant etudiant;
         if (dto.getEtudiantId() != null) {
             etudiant = etudiantRepository.findById(dto.getEtudiantId()).orElseThrow(UtilisateurPasTrouveException::new);
         } else {
@@ -280,14 +283,12 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void modifierEntente(Long ententeId, EntenteStageDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, Exception {
+    public void modifierEntente(Long ententeId, EntenteStageDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteModificationNonAutoriseeException, EntenteNonTrouveException {
         verifierGestionnaireConnecte();
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(() -> new Exception("Entente non trouvée"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
 
-        // ne pas permettre la modification si déjà signée par toutes les parties ou si l'entente est annulee
         if (entente.getStatut() == EntenteStage.StatutEntente.SIGNEE || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
-            //TODO modifier exception pour un autre type
-            throw new Exception("Entente mauvaise");
+            throw new EntenteModificationNonAutoriseeException();
         }
 
 
@@ -338,10 +339,10 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void annulerEntente(Long ententeId) throws ActionNonAutoriseeException, Exception {
+    public void annulerEntente(Long ententeId) throws ActionNonAutoriseeException, EntenteNonTrouveException {
         verifierGestionnaireConnecte();
 
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(() -> new Exception("Entente non trouvée"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setArchived(true);
         entente.setDateModification(LocalDateTime.now());
@@ -373,21 +374,21 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public EntenteStageDTO getEntenteById(Long ententeId) throws ActionNonAutoriseeException, Exception {
+    public EntenteStageDTO getEntenteById(Long ententeId) throws ActionNonAutoriseeException, EntenteNonTrouveException {
         verifierGestionnaireConnecte();
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(() -> new Exception("Entente non trouvée"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
         return new EntenteStageDTO().toDTO(entente);
     }
 
     @Transactional
-    public byte[] getEntenteDocument(Long ententeId) throws ActionNonAutoriseeException, Exception {
+    public byte[] getEntenteDocument(Long ententeId) throws ActionNonAutoriseeException, EntenteNonTrouveException, EntenteDocumentNonTrouveeException {
         verifierGestionnaireConnecte();
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(() -> new Exception("Entente non trouvée"));
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
 
         if (entente.getDocumentPdf() != null && entente.getDocumentPdf().length > 0) {
             return entente.getDocumentPdf();
         }
 
-        throw new Exception("Document introuvable pour cette entente");
+        throw new EntenteDocumentNonTrouveeException();
     }
 }

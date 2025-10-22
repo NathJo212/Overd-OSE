@@ -55,6 +55,37 @@ export interface OffreDTO {
     employeurDTO?: EmployeurDTO;
 }
 
+// Mettre à jour l'interface CandidatureEligibleDTO pour inclure etudiantId
+export interface CandidatureEligibleDTO {
+    id: number;
+    etudiantId: number;  // Maintenant requis (backend mis à jour)
+    offreId: number;
+    offreTitre: string;
+    employeurNom: string;
+    etudiantNom: string;
+    etudiantPrenom: string;
+    etudiantEmail: string;
+    dateCandidature: string;
+    statut: string;
+    aCv: boolean;
+    aLettreMotivation: boolean;
+}
+
+// Mettre à jour l'interface EntenteStageDTO pour correspondre au backend
+export interface EntenteStageDTO {
+    etudiantId: number;
+    offreId: number;
+    titre: string;
+    description: string;
+    dateDebut: string;
+    dateFin: string;
+    horaire: string;
+    dureeHebdomadaire: number;
+    remuneration: string;
+    responsabilites: string;
+    objectifs: string;
+}
+
 class GestionnaireService {
     private readonly baseUrl: string;
 
@@ -245,7 +276,60 @@ class GestionnaireService {
             throw new Error('Erreur lors du refus du CV');
         }
     }
+
+    async getCandidaturesEligiblesEntente(token: string): Promise<CandidatureEligibleDTO[]> {
+        try {
+            const response = await fetch(`${this.baseUrl}/candidaturesEligiblesEntente`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des candidatures éligibles');
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération des candidatures éligibles:', error);
+            throw new Error('Erreur lors de la récupération des candidatures éligibles');
+        }
+    }
+
+    async creerEntente(ententeData: EntenteStageDTO, token: string): Promise<void> {
+        try {
+            const response = await fetch(`${this.baseUrl}/ententes`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(ententeData)
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors de la création de l\'entente:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la création de l\'entente');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la création de l\'entente');
+            }
+
+        } catch (error: any) {
+            if (error.response?.data) {
+                throw error;
+            }
+            throw new Error('Erreur lors de la création de l\'entente');
+        }
+    }
 }
 
 export const gestionnaireService = new GestionnaireService();
-export default gestionnaireService;

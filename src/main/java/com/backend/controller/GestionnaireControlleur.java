@@ -1,11 +1,7 @@
 package com.backend.controller;
 
 import com.backend.Exceptions.*;
-import com.backend.service.DTO.ErrorResponse;
-import com.backend.service.DTO.EtudiantDTO;
-import com.backend.service.DTO.MessageRetourDTO;
-import com.backend.service.DTO.OffreDTO;
-import com.backend.service.DTO.EntenteStageDTO;
+import com.backend.service.DTO.*;
 import com.backend.service.GestionnaireService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -154,6 +150,19 @@ public class GestionnaireControlleur {
         try {
             List<EtudiantDTO> cvsEnAttente = gestionnaireService.getCVsEnAttente();
             return ResponseEntity.ok(cvsEnAttente);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/candidaturesEligiblesEntente")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEligiblesEntente() {
+        try{
+            List<CandidatureDTO> candidaturesEligiblesEntente = gestionnaireService.getCandidaturesEligiblesEntente();
+            return ResponseEntity.ok(candidaturesEligiblesEntente);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {

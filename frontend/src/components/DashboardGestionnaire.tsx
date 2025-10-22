@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router";
-import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, FileStack } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, Eye } from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 
-const OffresDeStagesGestionnaire = () => {
+const DashboardGestionnaire = () => {
     const { t } = useTranslation(["internshipmanager"]);
     const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
@@ -109,7 +109,6 @@ const OffresDeStagesGestionnaire = () => {
         setShowRefuseModal(true);
     };
 
-
     const cancelRefuse = () => {
         setShowRefuseModal(false);
         setRefuseReason("");
@@ -131,32 +130,24 @@ const OffresDeStagesGestionnaire = () => {
         <div className="bg-gray-50 min-h-screen">
             <NavBar />
 
-            <div className="max-w-4xl bg-white rounded-2xl shadow-2xl p-8 mb-8 flex flex-col justify-center items-center text-center mx-auto">
-                <div className="flex justify-center mb-4">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                        <FileStack className="w-8 h-8 text-blue-600" strokeWidth={2} />
-                    </div>
-                </div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-6">
-                    {t("internshipmanager:page.titleVisualize")}
-                </h1>
-                <NavLink
-                    to="/visualiser-offres"
-                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105 mt-2"
-                >
-                    {t("internshipmanager:page.buttonVisualize")}
-                </NavLink>
-            </div>
-
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                {/* En-tête */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {t('internshipmanager:page.title')}
-                    </h1>
-                    <p className="text-gray-600">
-                        {t('internshipmanager:page.manageOffers')}
-                    </p>
+                {/* En-tête avec bouton "Voir toutes les offres" */}
+                <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            {t('internshipmanager:page.title')}
+                        </h1>
+                        <p className="text-gray-600">
+                            {t('internshipmanager:page.manageOffers')}
+                        </p>
+                    </div>
+                    <NavLink
+                        to="/visualiser-offres"
+                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl hover:shadow-blue-400"
+                    >
+                        <Eye className="w-5 h-5" />
+                        {t("internshipmanager:page.buttonVisualize")}
+                    </NavLink>
                 </div>
 
                 {/* Messages */}
@@ -371,4 +362,4 @@ const OffresDeStagesGestionnaire = () => {
     );
 };
 
-export default OffresDeStagesGestionnaire;
+export default DashboardGestionnaire;
