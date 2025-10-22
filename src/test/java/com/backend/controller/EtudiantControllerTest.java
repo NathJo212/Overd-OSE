@@ -711,5 +711,355 @@ class EtudiantControllerTest {
                 .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.STATUT_CANDIDATURE_INVALID.getCode()));
     }
 
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/signer -> succès et 200 OK")
+    void signerEntente_success_returnsOkAndMessage() throws Exception {
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/signer", 10L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Entente signée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        Mockito.verify(etudiantService).signerEntente(10L);
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/signer -> 403 Forbidden si ActionNonAutoriseeException")
+    void signerEntente_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
+        doThrow(expectedException)
+                .when(etudiantService).signerEntente(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/signer", 10L))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/signer -> 404 Not Found si EntenteNonTrouveeException")
+    void signerEntente_ententeNotFound_returnsNotFound() throws Exception {
+        // Arrange
+        EntenteNonTrouveeException expectedException = new EntenteNonTrouveeException();
+        doThrow(expectedException)
+                .when(etudiantService).signerEntente(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/signer", 10L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NOT_FOUND.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/signer -> 400 Bad Request si StatutEntenteInvalideException")
+    void signerEntente_invalidStatus_returnsBadRequest() throws Exception {
+        // Arrange
+        StatutEntenteInvalideException expectedException = new StatutEntenteInvalideException();
+        doThrow(expectedException)
+                .when(etudiantService).signerEntente(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/signer", 10L))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_STATUT_INVALID.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/signer -> 401 Unauthorized si UtilisateurPasTrouveException")
+    void signerEntente_userNotFound_returnsUnauthorized() throws Exception {
+        // Arrange
+        UtilisateurPasTrouveException expectedException = new UtilisateurPasTrouveException();
+        doThrow(expectedException)
+                .when(etudiantService).signerEntente(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/signer", 10L))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.USER_NOT_FOUND.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/signer -> 500 Internal Server Error si Exception")
+    void signerEntente_internalError_returnsInternalServerError() throws Exception {
+        // Arrange
+        doThrow(new RuntimeException("Erreur inattendue"))
+                .when(etudiantService).signerEntente(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/signer", 10L))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNKNOWN_ERROR.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/refuser -> succès et 200 OK")
+    void refuserEntente_success_returnsOkAndMessage() throws Exception {
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/refuser", 10L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Entente refusée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        Mockito.verify(etudiantService).refuserEntente(10L);
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/refuser -> 403 Forbidden si ActionNonAutoriseeException")
+    void refuserEntente_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
+        doThrow(expectedException)
+                .when(etudiantService).refuserEntente(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/refuser", 10L))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/refuser -> 404 Not Found si EntenteNonTrouveeException")
+    void refuserEntente_ententeNotFound_returnsNotFound() throws Exception {
+        // Arrange
+        EntenteNonTrouveeException expectedException = new EntenteNonTrouveeException();
+        doThrow(expectedException)
+                .when(etudiantService).refuserEntente(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/refuser", 10L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NOT_FOUND.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/refuser -> 400 Bad Request si StatutEntenteInvalideException")
+    void refuserEntente_invalidStatus_returnsBadRequest() throws Exception {
+        // Arrange
+        StatutEntenteInvalideException expectedException = new StatutEntenteInvalideException();
+        doThrow(expectedException)
+                .when(etudiantService).refuserEntente(anyLong());
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/refuser", 10L))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_STATUT_INVALID.getCode()));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/ententes/en-attente -> succès et retourne liste")
+    void getEntentesEnAttente_success_returnsList() throws Exception {
+        // Arrange
+        EntenteStageDTO entente1 = new EntenteStageDTO();
+        entente1.setId(1L);
+        entente1.setTitre("Stage Java");
+        entente1.setEtudiantSignature("EN_ATTENTE");
+
+        EntenteStageDTO entente2 = new EntenteStageDTO();
+        entente2.setId(2L);
+        entente2.setTitre("Stage Python");
+        entente2.setEtudiantSignature("EN_ATTENTE");
+
+        when(etudiantService.getEntentesEnAttente()).thenReturn(List.of(entente1, entente2));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/ententes/en-attente"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].titre").value("Stage Java"))
+                .andExpect(jsonPath("$[1].titre").value("Stage Python"));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/ententes/en-attente -> retourne liste vide si aucune entente")
+    void getEntentesEnAttente_emptyList_returnsEmptyList() throws Exception {
+        // Arrange
+        when(etudiantService.getEntentesEnAttente()).thenReturn(List.of());
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/ententes/en-attente"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/ententes/en-attente -> 403 Forbidden si ActionNonAutoriseeException")
+    void getEntentesEnAttente_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
+        doThrow(expectedException)
+                .when(etudiantService).getEntentesEnAttente();
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/ententes/en-attente"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/ententes -> succès et retourne liste")
+    void getMesEntentes_success_returnsList() throws Exception {
+        // Arrange
+        EntenteStageDTO entente1 = new EntenteStageDTO();
+        entente1.setId(1L);
+        entente1.setTitre("Stage Java");
+        entente1.setEtudiantSignature("SIGNEE");
+
+        EntenteStageDTO entente2 = new EntenteStageDTO();
+        entente2.setId(2L);
+        entente2.setTitre("Stage Python");
+        entente2.setEtudiantSignature("EN_ATTENTE");
+
+        EntenteStageDTO entente3 = new EntenteStageDTO();
+        entente3.setId(3L);
+        entente3.setTitre("Stage C++");
+        entente3.setEtudiantSignature("REFUSEE");
+
+        when(etudiantService.getMesEntentes()).thenReturn(List.of(entente1, entente2, entente3));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/ententes"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].titre").value("Stage Java"))
+                .andExpect(jsonPath("$[0].etudiantSignature").value("SIGNEE"))
+                .andExpect(jsonPath("$[1].etudiantSignature").value("EN_ATTENTE"))
+                .andExpect(jsonPath("$[2].etudiantSignature").value("REFUSEE"));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/ententes -> retourne liste vide si aucune entente")
+    void getMesEntentes_emptyList_returnsEmptyList() throws Exception {
+        // Arrange
+        when(etudiantService.getMesEntentes()).thenReturn(List.of());
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/ententes"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @DisplayName("GET /OSEetudiant/ententes -> 403 Forbidden si ActionNonAutoriseeException")
+    void getMesEntentes_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
+        doThrow(expectedException)
+                .when(etudiantService).getMesEntentes();
+
+        // Act & Assert
+        mockMvc.perform(get("/OSEetudiant/ententes"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> succès et 200 OK")
+    void modifierEntente_success_returnsOkAndMessage() throws Exception {
+        // Arrange
+        ModificationEntenteDTO dto = new ModificationEntenteDTO();
+        dto.setModificationEntente("Demande de modification des horaires");
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Demande de modification envoyée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        Mockito.verify(etudiantService).modifierEntente(eq(10L), any(ModificationEntenteDTO.class));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> 403 Forbidden si ActionNonAutoriseeException")
+    void modifierEntente_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        ModificationEntenteDTO dto = new ModificationEntenteDTO();
+        dto.setModificationEntente("Demande de modification");
+
+        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
+        doThrow(expectedException)
+                .when(etudiantService).modifierEntente(anyLong(), any(ModificationEntenteDTO.class));
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").doesNotExist())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> 404 Not Found si EntenteNonTrouveeException")
+    void modifierEntente_ententeNotFound_returnsNotFound() throws Exception {
+        // Arrange
+        ModificationEntenteDTO dto = new ModificationEntenteDTO();
+        dto.setModificationEntente("Demande de modification");
+
+        EntenteNonTrouveeException expectedException = new EntenteNonTrouveeException();
+        doThrow(expectedException)
+                .when(etudiantService).modifierEntente(anyLong(), any(ModificationEntenteDTO.class));
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NOT_FOUND.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> 401 Unauthorized si UtilisateurPasTrouveException")
+    void modifierEntente_userNotFound_returnsUnauthorized() throws Exception {
+        // Arrange
+        ModificationEntenteDTO dto = new ModificationEntenteDTO();
+        dto.setModificationEntente("Demande de modification");
+
+        UtilisateurPasTrouveException expectedException = new UtilisateurPasTrouveException();
+        doThrow(expectedException)
+                .when(etudiantService).modifierEntente(anyLong(), any(ModificationEntenteDTO.class));
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.USER_NOT_FOUND.getCode()));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> 500 Internal Server Error si Exception")
+    void modifierEntente_internalError_returnsInternalServerError() throws Exception {
+        // Arrange
+        ModificationEntenteDTO dto = new ModificationEntenteDTO();
+        dto.setModificationEntente("Demande de modification");
+
+        doThrow(new RuntimeException("Erreur inattendue"))
+                .when(etudiantService).modifierEntente(anyLong(), any(ModificationEntenteDTO.class));
+
+        // Act & Assert
+        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNKNOWN_ERROR.getCode()));
+    }
+
+
 
 }

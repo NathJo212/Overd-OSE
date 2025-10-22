@@ -410,5 +410,19 @@ public class EtudiantService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void modifierEntente(Long ententeId, ModificationEntenteDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveeException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveeException::new);
+
+        if (!entente.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        entente.setMessageModificationEtudiant(dto.getModificationEntente());
+        ententeStageRepository.save(entente);
+    }
+
 
 }

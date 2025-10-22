@@ -2,18 +2,10 @@ package com.backend.service;
 
 import com.backend.Exceptions.*;
 import com.backend.modele.*;
-import com.backend.persistence.CandidatureRepository;
-import com.backend.persistence.UtilisateurRepository;
-import com.backend.service.DTO.CandidatureDTO;
-import com.backend.service.DTO.ConvocationEntrevueDTO;
+import com.backend.persistence.*;
+import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
-import com.backend.persistence.EtudiantRepository;
-import com.backend.persistence.OffreRepository;
-import com.backend.service.DTO.OffreDTO;
-import com.backend.service.DTO.ProgrammeDTO;
 import com.backend.modele.Notification;
-import com.backend.persistence.NotificationRepository;
-import com.backend.service.DTO.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,6 +58,9 @@ public class EtudiantServiceTest {
 
     @InjectMocks
     private EtudiantService etudiantService;
+
+    @Mock
+    private EntenteStageRepository ententeStageRepository;
 
     @Mock
     private CandidatureRepository candidatureRepository;
@@ -958,6 +953,405 @@ public class EtudiantServiceTest {
         assertThrows(StatutCandidatureInvalideException.class,
                 () -> etudiantService.refuserOffreApprouvee(20L));
         verify(candidatureRepository, never()).save(any());
+    }
+
+
+    @Test
+    void signerEntente_succes() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEtudiant(etudiant);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+
+        // Act
+        etudiantService.signerEntente(10L);
+
+        // Assert
+        assertEquals(EntenteStage.SignatureStatus.SIGNEE, entente.getEtudiantSignature());
+        assertEquals(EntenteStage.StatutEntente.EN_ATTENTE, entente.getStatut()); // Statut reste EN_ATTENTE car employeur n'a pas signé
+        assertNotNull(entente.getDateModification());
+        verify(ententeStageRepository, times(1)).save(entente);
+    }
+
+    @Test
+    void signerEntente_deuxSignatures_statutSignee() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEtudiant(etudiant);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE); // Employeur a déjà signé
+        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+
+        // Act
+        etudiantService.signerEntente(10L);
+
+        // Assert
+        assertEquals(EntenteStage.SignatureStatus.SIGNEE, entente.getEtudiantSignature());
+        assertEquals(EntenteStage.StatutEntente.SIGNEE, entente.getStatut()); // Statut devient SIGNEE
+        verify(ententeStageRepository, times(1)).save(entente);
+    }
+
+    @Test
+    void signerEntente_ententeNonTrouvee_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        when(ententeStageRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(EntenteNonTrouveeException.class,
+                () -> etudiantService.signerEntente(99L));
+        verify(ententeStageRepository, never()).save(any());
+    }
+
+    @Test
+    void signerEntente_actionNonAutorisee_throw() {
+        // Arrange
+        Etudiant etudiantConnecte = mock(Etudiant.class);
+        when(etudiantConnecte.getId()).thenReturn(1L);
+
+        Etudiant autreEtudiant = mock(Etudiant.class);
+        when(autreEtudiant.getId()).thenReturn(2L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiantConnecte);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEtudiant(autreEtudiant);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> etudiantService.signerEntente(10L));
+        verify(ententeStageRepository, never()).save(any());
+    }
+
+    @Test
+    void signerEntente_statutInvalide_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEtudiant(etudiant);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE); // Déjà signée
+
+        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+
+        // Act & Assert
+        assertThrows(StatutEntenteInvalideException.class,
+                () -> etudiantService.signerEntente(10L));
+        verify(ententeStageRepository, never()).save(any());
+    }
+
+// Tests for refuserEntente
+
+    @Test
+    void refuserEntente_succes() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEtudiant(etudiant);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+
+        // Act
+        etudiantService.refuserEntente(10L);
+
+        // Assert
+        assertEquals(EntenteStage.SignatureStatus.REFUSEE, entente.getEtudiantSignature());
+        assertEquals(EntenteStage.StatutEntente.ANNULEE, entente.getStatut());
+        assertNotNull(entente.getDateModification());
+        verify(ententeStageRepository, times(1)).save(entente);
+    }
+
+    @Test
+    void refuserEntente_ententeNonTrouvee_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        when(ententeStageRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(EntenteNonTrouveeException.class,
+                () -> etudiantService.refuserEntente(99L));
+        verify(ententeStageRepository, never()).save(any());
+    }
+
+    @Test
+    void refuserEntente_actionNonAutorisee_throw() {
+        // Arrange
+        Etudiant etudiantConnecte = mock(Etudiant.class);
+        when(etudiantConnecte.getId()).thenReturn(1L);
+
+        Etudiant autreEtudiant = mock(Etudiant.class);
+        when(autreEtudiant.getId()).thenReturn(2L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiantConnecte);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEtudiant(autreEtudiant);
+
+        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> etudiantService.refuserEntente(10L));
+        verify(ententeStageRepository, never()).save(any());
+    }
+
+    @Test
+    void refuserEntente_statutInvalide_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEtudiant(etudiant);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.REFUSEE); // Déjà refusée
+
+        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+
+        // Act & Assert
+        assertThrows(StatutEntenteInvalideException.class,
+                () -> etudiantService.refuserEntente(10L));
+        verify(ententeStageRepository, never()).save(any());
+    }
+
+// Tests for getEntentesEnAttente
+
+    @Test
+    void getEntentesEnAttente_succes() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        Employeur employeur = new Employeur();
+        Offre offre = new Offre();
+
+        EntenteStage entente1 = new EntenteStage();
+        entente1.setEtudiant(etudiant);
+        entente1.setEmployeur(employeur);
+        entente1.setOffre(offre);
+        entente1.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente1.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+        entente1.setArchived(false);
+
+        EntenteStage entente2 = new EntenteStage();
+        entente2.setEtudiant(etudiant);
+        entente2.setEmployeur(employeur);
+        entente2.setOffre(offre);
+        entente2.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente2.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+        entente2.setArchived(false);
+
+        when(ententeStageRepository.findByEtudiantAndEtudiantSignatureAndArchivedFalse(
+                etudiant, EntenteStage.SignatureStatus.EN_ATTENTE))
+                .thenReturn(List.of(entente1, entente2));
+
+        // Act
+        List<EntenteStageDTO> result = etudiantService.getEntentesEnAttente();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void getEntentesEnAttente_aucuneEntente() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        when(ententeStageRepository.findByEtudiantAndEtudiantSignatureAndArchivedFalse(
+                etudiant, EntenteStage.SignatureStatus.EN_ATTENTE))
+                .thenReturn(List.of());
+
+        // Act
+        List<EntenteStageDTO> result = etudiantService.getEntentesEnAttente();
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+// Tests for getMesEntentes
+
+    @Test
+    void getMesEntentes_succes() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        Employeur employeur = new Employeur();
+        Offre offre = new Offre();
+
+        EntenteStage entente1 = new EntenteStage();
+        entente1.setEtudiant(etudiant);
+        entente1.setEmployeur(employeur);
+        entente1.setOffre(offre);
+        entente1.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente1.setArchived(false);
+
+        EntenteStage entente2 = new EntenteStage();
+        entente2.setEtudiant(etudiant);
+        entente2.setEmployeur(employeur);
+        entente2.setOffre(offre);
+        entente2.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
+        entente2.setArchived(false);
+
+        EntenteStage entente3 = new EntenteStage();
+        entente3.setEtudiant(etudiant);
+        entente3.setEmployeur(employeur);
+        entente3.setOffre(offre);
+        entente3.setEtudiantSignature(EntenteStage.SignatureStatus.REFUSEE);
+        entente3.setArchived(false);
+
+        when(ententeStageRepository.findByEtudiantAndArchivedFalse(etudiant))
+                .thenReturn(List.of(entente1, entente2, entente3));
+
+        // Act
+        List<EntenteStageDTO> result = etudiantService.getMesEntentes();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(3, result.size());
+    }
+
+    @Test
+    void getMesEntentes_aucuneEntente() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        when(ententeStageRepository.findByEtudiantAndArchivedFalse(etudiant))
+                .thenReturn(List.of());
+
+        // Act
+        List<EntenteStageDTO> result = etudiantService.getMesEntentes();
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+// Tests for modifierEntente
+
+    @Test
+    void modifierEntente_succes() throws Exception {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getId()).thenReturn(1L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEtudiant(etudiant);
+
+        ModificationEntenteDTO dto = new ModificationEntenteDTO();
+        dto.setModificationEntente("Demande de modification des horaires");
+
+        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+
+        // Act
+        etudiantService.modifierEntente(10L, dto);
+
+        // Assert
+        assertEquals("Demande de modification des horaires", entente.getMessageModificationEtudiant());
+        verify(ententeStageRepository, times(1)).save(entente);
+    }
+
+    @Test
+    void modifierEntente_ententeNonTrouvee_throw() {
+        // Arrange
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
+
+        ModificationEntenteDTO dto = new ModificationEntenteDTO();
+        dto.setModificationEntente("Message");
+
+        when(ententeStageRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(EntenteNonTrouveeException.class,
+                () -> etudiantService.modifierEntente(99L, dto));
+        verify(ententeStageRepository, never()).save(any());
+    }
+
+    @Test
+    void modifierEntente_actionNonAutorisee_throw() {
+        // Arrange
+        Etudiant etudiantConnecte = mock(Etudiant.class);
+        when(etudiantConnecte.getId()).thenReturn(1L);
+
+        Etudiant autreEtudiant = mock(Etudiant.class);
+        when(autreEtudiant.getId()).thenReturn(2L);
+
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiantConnecte);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEtudiant(autreEtudiant);
+
+        ModificationEntenteDTO dto = new ModificationEntenteDTO();
+        dto.setModificationEntente("Message");
+
+        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> etudiantService.modifierEntente(10L, dto));
+        verify(ententeStageRepository, never()).save(any());
     }
 
 

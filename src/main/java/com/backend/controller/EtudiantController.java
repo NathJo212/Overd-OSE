@@ -382,5 +382,29 @@ public class EtudiantController {
         }
     }
 
+    @PutMapping("/ententes/{id}/modifier")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> modifierEntente(
+            @PathVariable Long id,
+            @RequestBody ModificationEntenteDTO modificationDTO) {
+        try {
+            etudiantService.modifierEntente(id, modificationDTO);
+            return ResponseEntity.ok()
+                    .body(new MessageRetourDTO("Demande de modification envoyée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (EntenteNonTrouveeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.ENTENTE_NOT_FOUND.getCode(), e.getMessage())));
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+        }
+    }
+
 
 }
