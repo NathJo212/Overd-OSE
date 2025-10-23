@@ -3,7 +3,7 @@ package com.backend.Exceptions;
 import lombok.Getter;
 
 @Getter
-public class StatutEntenteInvalideException extends RuntimeException {
+public class StatutEntenteInvalideException extends Exception {
 
     private final ErrorCode errorCode;
 

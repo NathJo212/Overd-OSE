@@ -407,7 +407,7 @@ public class EtudiantService {
     }
 
     @Transactional
-    public void modifierEntente(Long ententeId, ModificationEntenteDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveeException {
+    public void modifierEntente(Long ententeId, ModificationEntenteDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveeException, StatutEntenteInvalideException {
         Etudiant etudiant = getEtudiantConnecte();
 
         EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveeException::new);
