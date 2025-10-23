@@ -416,6 +416,10 @@ public class EtudiantService {
             throw new ActionNonAutoriseeException();
         }
 
+        if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
+            throw new StatutEntenteInvalideException();
+        }
+
         entente.setMessageModificationEtudiant(dto.getModificationEntente());
         ententeStageRepository.save(entente);
     }
