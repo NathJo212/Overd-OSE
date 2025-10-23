@@ -254,11 +254,11 @@ const CandidaturesEtudiant = () => {
                 {/* Header */}
                 <div className="mb-8">
                     <button
-                        onClick={() => navigate("/dashboard-etudiant")}
-                        className="mb-4 inline-flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                        onClick={() => navigate('/dashboard-etudiant')}
+                        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
-                        <ArrowLeft className="w-5 h-5 mr-2" />
-                        {t('backToDashboard')}
+                        <ArrowLeft className="w-5 h-5" />
+                        <span className="font-medium">{t('backToDashboard')}</span>
                     </button>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         {t('title')}

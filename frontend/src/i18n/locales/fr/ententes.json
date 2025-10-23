@@ -43,7 +43,8 @@
     "sending": "Envoi...",
     "refusing": "Refus...",
     "sendRequest": "Envoyer la demande",
-    "confirmRefuse": "Confirmer le refus"
+    "confirmRefuse": "Confirmer le refus",
+    "backToDashboard": "Retour au tableau de bord"
   },
 
   "modals": {

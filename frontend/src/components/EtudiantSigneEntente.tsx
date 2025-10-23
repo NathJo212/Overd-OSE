@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, XCircle, Clock, FileText, Calendar, DollarSign, AlertCircle, FileSignature, Edit } from "lucide-react";
+import {
+    CheckCircle,
+    XCircle,
+    Clock,
+    FileText,
+    Calendar,
+    DollarSign,
+    AlertCircle,
+    FileSignature,
+    Edit,
+    ArrowLeft
+} from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
 import etudiantService from '../services/EtudiantService.ts';
@@ -175,6 +186,16 @@ const EtudiantSigneEntente = () => {
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
+                {/* Bouton retour */}
+                <button
+                    onClick={() => navigate('/dashboard-etudiant')}
+                    className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                    <span className="font-medium">{t('buttons.backToDashboard')}</span>
+                </button>
+
+
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         {t('title')}

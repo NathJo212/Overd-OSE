@@ -43,7 +43,8 @@
     "sending": "Sending...",
     "refusing": "Refusing...",
     "sendRequest": "Send request",
-    "confirmRefuse": "Confirm refusal"
+    "confirmRefuse": "Confirm refusal",
+    "backToDashboard": "Back to Dashboard"
   },
 
   "modals": {
