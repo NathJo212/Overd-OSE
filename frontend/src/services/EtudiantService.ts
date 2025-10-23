@@ -315,6 +315,32 @@ class EtudiantService {
     }
 
     /**
+     * Vérifie si l'étudiant connecté a un CV
+     * @returns Promise<boolean> - true si un CV existe, false sinon
+     */
+    async verifierCvExiste(): Promise<boolean> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                return false;
+            }
+
+            const response = await fetch(`${this.baseUrl}/cv`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+
+            return response.ok;
+
+        } catch (error) {
+            console.error('Erreur lors de la vérification du CV:', error);
+            return false;
+        }
+    }
+
+    /**
      * Récupère les informations du CV de l'étudiant connecté
      * @returns Promise avec les informations du CV
      */
@@ -676,42 +702,6 @@ class EtudiantService {
                 }
             };
             throw genericError;
-        }
-    }
-
-    /**
-     * Récupère toutes les ententes de stage de l'étudiant connecté
-     * @returns Promise avec la liste des ententes
-     */
-    async getMesEntentes(): Promise<EntenteStageDTO[]> {
-        try {
-            const token = this.getAuthToken();
-            if (!token) {
-                throw new Error('Vous devez être connecté');
-            }
-
-            const response = await fetch(`${this.baseUrl}/ententes`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP: ${response.status}`);
-            }
-
-            return await response.json();
-
-        } catch (error: any) {
-            console.error('Erreur getMesEntentes:', error);
-            if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                const networkError: any = new Error('Erreur de connexion au serveur');
-                networkError.code = 'ERR_NETWORK';
-                throw networkError;
-            }
-            throw error;
         }
     }
 
