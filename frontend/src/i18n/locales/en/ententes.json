@@ -1,0 +1,83 @@
+{
+  "title": "My Internship Agreements",
+  "subtitle": "View and sign your internship agreements",
+  "loading": "Loading agreements...",
+  "noEntentes": "No pending internship agreements",
+
+  "status": {
+    "waitingYourSignature": "Awaiting your signature",
+    "youSigned": "You have signed",
+    "refused": "Refused"
+  },
+
+  "fields": {
+    "defaultTitle": "Internship Agreement",
+    "noDescription": "No description available",
+    "description": "Description",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "schedule": "Schedule",
+    "hoursPerWeek": "Hours per week",
+    "hours": "hours",
+    "remuneration": "Remuneration",
+    "perHour": "hour",
+    "responsibilities": "Responsibilities",
+    "objectives": "Objectives"
+  },
+
+  "signatureStatus": {
+    "title": "Your Signature Status",
+    "yourSignature": "Your signature",
+    "signed": "Signed",
+    "waiting": "Pending"
+  },
+
+  "buttons": {
+    "viewDetails": "View details",
+    "sign": "Sign",
+    "modify": "Modify",
+    "refuse": "Refuse",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "signing": "Signing...",
+    "sending": "Sending...",
+    "refusing": "Refusing...",
+    "sendRequest": "Send request",
+    "confirmRefuse": "Confirm refusal"
+  },
+
+  "modals": {
+    "sign": {
+      "title": "Confirm signature",
+      "message": "Are you sure you want to sign this internship agreement? This action is irreversible."
+    },
+    "modify": {
+      "title": "Request a modification",
+      "subtitle": "Explain the modifications you would like to make to the agreement. The manager will review your request.",
+      "label": "Modification request",
+      "placeholder": "Describe the desired modifications (e.g., change of dates, schedule, salary, etc.)..."
+    },
+    "refuse": {
+      "title": "Confirm refusal",
+      "message": "Are you sure you want to refuse this internship agreement? This action is irreversible."
+    }
+  },
+
+  "success": {
+    "signed": "Agreement signed successfully!",
+    "refused": "Agreement refused successfully",
+    "modificationSent": "Modification request sent successfully"
+  },
+
+  "errors": {
+    "loadError": "Error loading internship agreements",
+    "signError": "Error signing the agreement",
+    "refuseError": "Error refusing the agreement",
+    "modifyError": "Error sending modification request",
+    "modificationRequired": "Please describe the desired modifications"
+  },
+
+  "common": {
+    "notDefined": "Not defined"
+  }
+}

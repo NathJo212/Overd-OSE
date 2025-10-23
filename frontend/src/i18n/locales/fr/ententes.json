@@ -1,0 +1,83 @@
+{
+  "title": "Mes ententes de stage",
+  "subtitle": "Consultez et signez vos ententes de stage",
+  "loading": "Chargement des ententes...",
+  "noEntentes": "Aucune entente de stage en attente",
+
+  "status": {
+    "waitingYourSignature": "En attente de votre signature",
+    "youSigned": "Vous avez signé",
+    "refused": "Refusée"
+  },
+
+  "fields": {
+    "defaultTitle": "Entente de stage",
+    "noDescription": "Description non disponible",
+    "description": "Description",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "schedule": "Horaire",
+    "hoursPerWeek": "Heures par semaine",
+    "hours": "heures",
+    "remuneration": "Rémunération",
+    "perHour": "heure",
+    "responsibilities": "Responsabilités",
+    "objectives": "Objectifs"
+  },
+
+  "signatureStatus": {
+    "title": "Statut de votre signature",
+    "yourSignature": "Votre signature",
+    "signed": "Signée",
+    "waiting": "En attente"
+  },
+
+  "buttons": {
+    "viewDetails": "Voir les détails",
+    "sign": "Signer",
+    "modify": "Modifier",
+    "refuse": "Refuser",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "signing": "Signature...",
+    "sending": "Envoi...",
+    "refusing": "Refus...",
+    "sendRequest": "Envoyer la demande",
+    "confirmRefuse": "Confirmer le refus"
+  },
+
+  "modals": {
+    "sign": {
+      "title": "Confirmer la signature",
+      "message": "Êtes-vous sûr de vouloir signer cette entente de stage ? Cette action est irréversible."
+    },
+    "modify": {
+      "title": "Demander une modification",
+      "subtitle": "Expliquez les modifications que vous souhaitez apporter à l'entente. Le gestionnaire examinera votre demande.",
+      "label": "Demande de modification",
+      "placeholder": "Décrivez les modifications souhaitées (ex: changement des dates, de l'horaire, du salaire, etc.)..."
+    },
+    "refuse": {
+      "title": "Confirmer le refus",
+      "message": "Êtes-vous sûr de vouloir refuser cette entente de stage ? Cette action est irréversible."
+    }
+  },
+
+  "success": {
+    "signed": "Entente signée avec succès !",
+    "refused": "Entente refusée avec succès",
+    "modificationSent": "Demande de modification envoyée avec succès"
+  },
+
+  "errors": {
+    "loadError": "Erreur lors du chargement des ententes de stage",
+    "signError": "Erreur lors de la signature de l'entente",
+    "refuseError": "Erreur lors du refus de l'entente",
+    "modifyError": "Erreur lors de la demande de modification",
+    "modificationRequired": "Veuillez décrire les modifications souhaitées"
+  },
+
+  "common": {
+    "notDefined": "Non définie"
+  }
+}

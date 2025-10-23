@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, X, Upload, FileText, Calendar, MapPin, Bell } from "lucide-react";
+import { CheckCircle, X, Upload, FileText, Calendar, MapPin, Bell, FileSignature } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
 import OffresApprouvees from "./OffresApprouvees.tsx";
@@ -145,11 +145,11 @@ const DashBoardEtudiant = () => {
         sessionStorage.removeItem('fromLogin');
 
         // Charger les convocations initialement
-        loadConvocations(false);
+        loadConvocations(false).then();
 
         // Polling pour vérifier les nouvelles convocations toutes les 30 secondes
         const pollingInterval = setInterval(() => {
-            loadConvocations(true);
+            loadConvocations(true).then();
         }, 30000);
 
         return () => clearInterval(pollingInterval);
@@ -169,45 +169,29 @@ const DashBoardEtudiant = () => {
     const getNotificationIcon = () => {
         switch (notificationType) {
             case 'info':
-                return <Bell className="h-5 w-5 text-blue-400" />;
+                return <Bell className="h-5 w-5 text-blue-600" />;
             case 'warning':
-                return <Bell className="h-5 w-5 text-yellow-400" />;
+                return <Bell className="h-5 w-5 text-yellow-600" />;
             default:
-                return <CheckCircle className="h-5 w-5 text-green-400" />;
-        }
-    };
-
-    // Badge pour le statut d'une convocation
-    const getConvocationStatusBadge = (statut?: string) => {
-        switch (statut) {
-            case 'CONVOQUEE':
-                return (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        {t('dashboardEtudiant:convocations.convoked')}
-                    </span>
-                );
-            case 'MODIFIE':
-                return (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                        <Bell className="w-4 h-4 mr-1" />
-                        {t('dashboardEtudiant:convocations.modified')}
-                    </span>
-                );
-            case 'ANNULEE':
-                return (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                        <X className="w-4 h-4 mr-1" />
-                        {t('dashboardEtudiant:convocations.cancelled')}
-                    </span>
-                );
-            default:
-                return null;
+                return <CheckCircle className="h-5 w-5 text-green-600" />;
         }
     };
 
     const handleNavigateToCv = () => {
         navigate("/televersement-cv");
+    };
+
+    const getConvocationStatusBadge = (statut: string) => {
+        switch (statut) {
+            case 'ACCEPTE':
+                return <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Accepté</span>;
+            case 'REFUSE':
+                return <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Refusé</span>;
+            case 'EN_ATTENTE':
+                return <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">En attente</span>;
+            default:
+                return null;
+        }
     };
 
     return (
@@ -250,7 +234,7 @@ const DashBoardEtudiant = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                     <button
                         onClick={handleNavigateToCv}
                         className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
@@ -282,6 +266,23 @@ const DashBoardEtudiant = () => {
                         </h2>
                         <p className="text-gray-600">
                             {t('cards.applications.description')}
+                        </p>
+                    </button>
+
+                    <button
+                        onClick={() => navigate("/mes-ententes-stage")}
+                        className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
+                    >
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="bg-green-50 p-4 rounded-xl group-hover:bg-green-100 transition-colors">
+                                <FileSignature className="h-7 w-7 text-green-600" />
+                            </div>
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                            Ententes de stage
+                        </h2>
+                        <p className="text-gray-600">
+                            Consultez et signez vos ententes de stage
                         </p>
                     </button>
                 </div>
@@ -369,4 +370,3 @@ const DashBoardEtudiant = () => {
 };
 
 export default DashBoardEtudiant;
-

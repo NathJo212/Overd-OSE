@@ -6,7 +6,6 @@ import com.backend.persistence.*;
 import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -32,10 +30,9 @@ public class EtudiantService {
     private final EncryptageCV encryptageCV;
     private final CandidatureRepository candidatureRepository;
     private final NotificationRepository notificationRepository;
-    private final MessageSource messageSource;
     private final EntenteStageRepository ententeStageRepository;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, MessageSource messageSource, EntenteStageRepository ententeStageRepository) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
@@ -43,7 +40,6 @@ public class EtudiantService {
         this.encryptageCV = encryptageCV;
         this.candidatureRepository = candidatureRepository;
         this.notificationRepository = notificationRepository;
-        this.messageSource = messageSource;
         this.ententeStageRepository = ententeStageRepository;
     }
 

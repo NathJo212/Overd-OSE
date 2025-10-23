@@ -63,6 +63,35 @@ export interface CandidatureEtudiantDTO {
     messageReponse?: string;
 }
 
+// Interface pour les ententes de stage
+export interface EntenteStageDTO {
+    id: number;
+    candidatureId: number;
+    dateCreation: string;
+    dateSignatureEtudiant?: string;
+    dateSignatureEmployeur?: string;
+    dateSignatureGestionnaire?: string;
+    statut: string;
+    offreTitre?: string;
+    employeurNom?: string;
+    dateDebut?: string;
+    dateFin?: string;
+    lieuStage?: string;
+    nombreHeuresParSemaine?: number;
+    salaire?: number;
+    commentaires?: string;
+}
+
+// Interface pour la modification d'entente
+export interface ModificationEntenteDTO {
+    dateDebut?: string;
+    dateFin?: string;
+    lieuStage?: string;
+    nombreHeuresParSemaine?: number;
+    salaire?: number;
+    commentaires?: string;
+}
+
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const ETUDIANT_ENDPOINT = '/OSEetudiant';
@@ -243,98 +272,88 @@ class EtudiantService {
                 body: formData,
             });
 
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors du téléversement du CV:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du téléversement du CV');
+                error.response = { data };
+                throw error;
+            }
+
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(
-                    errorData.data ||
-                    `Erreur HTTP: ${response.status} - ${response.statusText}`
-                );
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
             }
 
-            return await response.json();
+            return data;
 
-        } catch (error) {
-            if (error instanceof Error) {
-                throw new Error(`Erreur lors du téléversement du CV: ${error.message}`);
-            } else {
-                throw new Error('Erreur inconnue lors du téléversement du CV');
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
             }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
         }
     }
 
     /**
-     * Vérifie si l'étudiant connecté a un CV
-     * @returns Promise<boolean> - true si un CV existe, false sinon
+     * Récupère les informations du CV de l'étudiant connecté
+     * @returns Promise avec les informations du CV
      */
-    async verifierCvExiste(): Promise<boolean> {
+    async getInfosCv(): Promise<any> {
         try {
             const token = this.getAuthToken();
             if (!token) {
-                return false;
+                throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/cv`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-            });
-
-            return response.ok;
-
-        } catch (error) {
-            console.error('Erreur lors de la vérification du CV:', error);
-            return false;
-        }
-    }
-
-    async getInfosCv(): Promise<{ statutCV?: string; messageRefusCV?: string } | null> {
-        try {
-            const token = this.getAuthToken();
-            if (!token) return null;
             const response = await fetch(`${this.baseUrl}/cv/info`, {
                 method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
-            if (!response.ok) return null;
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
             return await response.json();
-        } catch {
-            return null;
+
+        } catch (error: any) {
+            console.error('Erreur getInfosCv:', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+            throw error;
         }
     }
 
     /**
-     * Transforme les données du formulaire en format attendu par l'API
-     * @param formData - Les données du formulaire d'inscription
-     * @returns Les données formatées pour l'API
-     */
-    formatFormDataForAPI(formData: {
-        prenom: string;
-        nom: string;
-        email: string;
-        telephone: string;
-        motDePasse: string;
-        confirmerMotDePasse: string;
-        programmeEtudes: string;
-        anneeEtude: string;
-        session: string;
-    }): EtudiantData {
-        return {
-            email: formData.email,
-            password: formData.motDePasse,
-            telephone: formData.telephone,
-            prenom: formData.prenom,
-            nom: formData.nom,
-            progEtude: formData.programmeEtudes,
-            session: formData.session,
-            annee: formData.anneeEtude
-        };
-    }
-
-    /**
-     * Postuler une offre de stage
+     * Postule à une offre avec CV et optionnellement une lettre de motivation
      * @param offreId - L'ID de l'offre
-     * @param lettreMotivation - Fichier PDF de la lettre de motivation (optionnel)
+     * @param lettreMotivation - Fichier de la lettre de motivation (optionnel)
      * @returns Promise avec la réponse du serveur
      */
     async postulerOffre(offreId: number, lettreMotivation?: File): Promise<MessageRetour> {
@@ -346,7 +365,6 @@ class EtudiantService {
 
             const formData = new FormData();
             formData.append('offreId', offreId.toString());
-
             if (lettreMotivation) {
                 formData.append('lettreMotivation', lettreMotivation);
             }
@@ -364,24 +382,14 @@ class EtudiantService {
             if (data.erreur) {
                 console.error('Erreur lors de la candidature:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors de la candidature');
-                error.response = {
-                    data: {
-                        erreur: data.erreur
-                    }
-                };
+                error.response = { data };
                 throw error;
             }
 
             if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
                 const error: any = new Error(`Erreur HTTP: ${response.status}`);
-                error.response = {
-                    data: {
-                        erreur: {
-                            errorCode: 'ERROR_000',
-                            message: error.message
-                        }
-                    }
-                };
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
                 throw error;
             }
 
@@ -634,6 +642,266 @@ class EtudiantService {
             if (data.erreur) {
                 console.error('Erreur lors du refus:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors du refus de l\'offre');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * Récupère toutes les ententes de stage de l'étudiant connecté
+     * @returns Promise avec la liste des ententes
+     */
+    async getMesEntentes(): Promise<EntenteStageDTO[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur getMesEntentes:', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Récupère les ententes de stage en attente de signature de l'étudiant
+     * @returns Promise avec la liste des ententes en attente
+     */
+    async getEntentesEnAttente(): Promise<EntenteStageDTO[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes/en-attente`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur getEntentesEnAttente:', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Signe une entente de stage
+     * @param ententeId - L'ID de l'entente à signer
+     * @returns Promise avec la réponse du serveur
+     */
+    async signerEntente(ententeId: number): Promise<{ message: string }> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour signer une entente');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/signer`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors de la signature:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la signature de l\'entente');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * Refuse une entente de stage
+     * @param ententeId - L'ID de l'entente à refuser
+     * @returns Promise avec la réponse du serveur
+     */
+    async refuserEntente(ententeId: number): Promise<{ message: string }> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour refuser une entente');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/refuser`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors du refus:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus de l\'entente');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * Modifie une entente de stage (demande de modification)
+     * @param ententeId - L'ID de l'entente à modifier
+     * @param modifications - Les modifications à apporter
+     * @returns Promise avec la réponse du serveur
+     */
+    async modifierEntente(ententeId: number, modifications: ModificationEntenteDTO): Promise<{ message: string }> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté pour modifier une entente');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/modifier`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(modifications)
+            });
+
+            const data = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors de la modification:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la modification de l\'entente');
                 error.response = { data };
                 throw error;
             }
