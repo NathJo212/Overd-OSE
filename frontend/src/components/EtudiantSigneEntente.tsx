@@ -105,7 +105,7 @@ const EtudiantSigneEntente = () => {
         try {
             setActionLoading(true);
             await etudiantService.modifierEntente(selectedEntente.id, {
-                commentaires: modificationText
+                modificationEntente: modificationText
             });
             setSuccessMessage(t('success.modificationSent'));
             setShowModifyModal(false);

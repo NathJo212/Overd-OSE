@@ -84,12 +84,7 @@ export interface EntenteStageDTO {
 
 // Interface pour la modification d'entente
 export interface ModificationEntenteDTO {
-    dateDebut?: string;
-    dateFin?: string;
-    lieuStage?: string;
-    nombreHeuresParSemaine?: number;
-    salaire?: number;
-    commentaires?: string;
+    modificationEntente: string;  // ✅ Matche le backend
 }
 
 // Configuration de l'API
