@@ -485,6 +485,10 @@ public class EmployeurService {
             throw new ActionNonAutoriseeException();
         }
 
+        if (entente.getEmployeurSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
+            throw new StatutEntenteInvalideException();
+        }
+
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
         entente.setDateModification(LocalDateTime.now());
 
@@ -516,6 +520,10 @@ public class EmployeurService {
             throw new ActionNonAutoriseeException();
         }
 
+        if (entente.getEmployeurSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
+            throw new StatutEntenteInvalideException();
+        }
+
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.REFUSEE);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setDateModification(LocalDateTime.now());
@@ -540,6 +548,10 @@ public class EmployeurService {
 
         if (!entente.getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
+        }
+
+        if (entente.getEmployeurSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
+            throw new StatutEntenteInvalideException();
         }
 
         entente.setMessageModificationEmployeur(dto.getModificationEntente());

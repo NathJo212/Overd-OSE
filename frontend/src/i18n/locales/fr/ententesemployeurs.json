@@ -12,10 +12,32 @@
     "subtitle": "Vous n'avez actuellement aucune entente de stage signée. Les ententes apparaîtront ici une fois créées par le gestionnaire."
   },
   "errors": {
-    "loadError": "Erreur lors du chargement des ententes"
+    "loadError": "Erreur lors du chargement des ententes",
+    "signError": "Erreur lors de la signature de l'entente",
+    "refuseError": "Erreur lors du refus de l'entente",
+    "modifyError": "Erreur lors de la modification de l'entente"
+  },
+  "messages": {
+    "signed": "Entente signée avec succès",
+    "refused": "Entente refusée avec succès",
+    "modified": "Demande de modification envoyée avec succès"
+  },
+  "signature": {
+    "signed": "Signée",
+    "pending": "En attente",
+    "refused": "Refusée"
+  },
+  "actions": {
+    "sign": "Signer",
+    "refuse": "Refuser",
+    "modify": "Modifier"
   },
   "modal": {
     "title": "Détails de l'entente",
+    "signatures": "Statut des signatures",
+    "studentSignature": "Signature étudiant",
+    "employerSignature": "Signature employeur",
+    "managerSignature": "Signature gestionnaire",
     "student": "Informations de l'étudiant",
     "name": "Nom",
     "email": "Courriel",
@@ -29,6 +51,21 @@
     "responsibilities": "Responsabilités",
     "objectives": "Objectifs d'apprentissage",
     "close": "Fermer"
+  },
+  "refuseModal": {
+    "title": "Refuser l'entente",
+    "message": "Veuillez indiquer la raison du refus de cette entente :",
+    "placeholder": "Raison du refus...",
+    "cancel": "Annuler",
+    "confirm": "Confirmer le refus",
+    "loading": "Envoi en cours..."
+  },
+  "modifyModal": {
+    "title": "Demander une modification",
+    "message": "Veuillez décrire les modifications que vous souhaitez apporter à cette entente :",
+    "placeholder": "Modifications demandées...",
+    "cancel": "Annuler",
+    "confirm": "Envoyer la demande",
+    "loading": "Envoi en cours..."
   }
 }
-

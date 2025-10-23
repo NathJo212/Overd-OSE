@@ -11,38 +11,31 @@ import {
     ArrowLeft,
     FileText,
     CheckCircle,
-    RefreshCw
+    RefreshCw,
+    X,
+    Check,
+    Edit
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
+import { employeurService, type EntenteStageDTO } from "../services/EmployeurService";
 
-interface EntenteEmployeur {
-    id: number;
-    titre: string;
-    description: string;
-    dateDebut: string;
-    dateFin: string;
-    horaire: string;
-    dureeHebdomadaire: number;
-    remuneration: string;
-    responsabilites: string;
-    objectifs: string;
-    etudiantNom: string;
-    etudiantPrenom: string;
-    etudiantEmail: string;
-    offreTitre: string;
-    dateCreation: string;
-}
 
 const EntentesEmployeurs = () => {
     const { t } = useTranslation(["ententesemployeurs"]);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
-    const [ententes, setEntentes] = useState<EntenteEmployeur[]>([]);
+    const [ententes, setEntentes] = useState<EntenteStageDTO[]>([]);
     const [error, setError] = useState("");
-    const [selectedEntente, setSelectedEntente] = useState<EntenteEmployeur | null>(null);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [selectedEntente, setSelectedEntente] = useState<EntenteStageDTO | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [showRefuseModal, setShowRefuseModal] = useState(false);
+    const [showModifyModal, setShowModifyModal] = useState(false);
+    const [refuseReason, setRefuseReason] = useState("");
+    const [modificationMessage, setModificationMessage] = useState("");
+    const [actionLoading, setActionLoading] = useState(false);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -57,48 +50,8 @@ const EntentesEmployeurs = () => {
         try {
             setLoading(true);
             setError("");
-            // TODO: Appeler le service une fois implémenté
-            // const token = sessionStorage.getItem("authToken") || "";
-            // const data = await employeurService.getMesEntentes(token);
-            // setEntentes(data);
-
-            // Pour le moment, données mockées pour le design
-            setEntentes([
-                {
-                    id: 1,
-                    titre: "Stage en développement web",
-                    description: "Stage de développement d'applications web modernes",
-                    dateDebut: "2025-01-15",
-                    dateFin: "2025-04-30",
-                    horaire: "Lundi à Vendredi, 9h-17h",
-                    dureeHebdomadaire: 35,
-                    remuneration: "20$/heure",
-                    responsabilites: "Développer des interfaces utilisateur, participer aux revues de code, collaborer avec l'équipe",
-                    objectifs: "Acquérir de l'expérience en React et TypeScript, apprendre les meilleures pratiques de développement",
-                    etudiantNom: "Tremblay",
-                    etudiantPrenom: "Marie",
-                    etudiantEmail: "marie.tremblay@example.com",
-                    offreTitre: "Stage développeur frontend",
-                    dateCreation: "2024-12-15"
-                },
-                {
-                    id: 2,
-                    titre: "Stage en gestion de projet",
-                    description: "Assistance à la gestion de projets informatiques",
-                    dateDebut: "2025-02-01",
-                    dateFin: "2025-05-15",
-                    horaire: "Lundi à Vendredi, 8h30-16h30",
-                    dureeHebdomadaire: 40,
-                    remuneration: "18$/heure",
-                    responsabilites: "Suivre l'avancement des projets, organiser des réunions, documenter les processus",
-                    objectifs: "Développer des compétences en gestion de projet agile, utiliser des outils de gestion",
-                    etudiantNom: "Gagnon",
-                    etudiantPrenom: "Jean",
-                    etudiantEmail: "jean.gagnon@example.com",
-                    offreTitre: "Stage assistant chef de projet",
-                    dateCreation: "2024-12-20"
-                }
-            ]);
+            const data = await employeurService.getEntentes();
+            setEntentes(data);
         } catch (err: any) {
             setError(err.message || t("ententesemployeurs:errors.loadError"));
         } finally {
@@ -106,7 +59,7 @@ const EntentesEmployeurs = () => {
         }
     };
 
-    const handleEntenteClick = (entente: EntenteEmployeur) => {
+    const handleEntenteClick = (entente: EntenteStageDTO) => {
         setSelectedEntente(entente);
         setShowModal(true);
     };
@@ -114,6 +67,96 @@ const EntentesEmployeurs = () => {
     const closeModal = () => {
         setShowModal(false);
         setSelectedEntente(null);
+    };
+
+    const handleSignerClick = async () => {
+        if (!selectedEntente) return;
+
+        setActionLoading(true);
+        try {
+            await employeurService.signerEntente(selectedEntente.id);
+            setSuccessMessage(t("ententesemployeurs:messages.signed"));
+            closeModal();
+            loadEntentes();
+        } catch (err: any) {
+            setError(err.message || t("ententesemployeurs:errors.signError"));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleRefuserClick = () => {
+        setShowModal(false);
+        setShowRefuseModal(true);
+    };
+
+    const handleConfirmRefuse = async () => {
+        if (!selectedEntente) return;
+
+        setActionLoading(true);
+        try {
+            await employeurService.refuserEntente(selectedEntente.id);
+            setSuccessMessage(t("ententesemployeurs:messages.refused"));
+            setShowRefuseModal(false);
+            setSelectedEntente(null);
+            setRefuseReason("");
+            loadEntentes();
+        } catch (err: any) {
+            setError(err.message || t("ententesemployeurs:errors.refuseError"));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleModifierClick = () => {
+        setShowModal(false);
+        setShowModifyModal(true);
+    };
+
+    const handleConfirmModify = async () => {
+        if (!selectedEntente || !modificationMessage.trim()) return;
+
+        setActionLoading(true);
+        try {
+            await employeurService.demanderModificationEntente(selectedEntente.id, modificationMessage);
+            setSuccessMessage(t("ententesemployeurs:messages.modified"));
+            setShowModifyModal(false);
+            setSelectedEntente(null);
+            setModificationMessage("");
+            loadEntentes();
+        } catch (err: any) {
+            setError(err.message || t("ententesemployeurs:errors.modifyError"));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const getSignatureStatusBadge = (statut: string) => {
+        switch (statut) {
+            case 'SIGNEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        {t("ententesemployeurs:signature.signed")}
+                    </span>
+                );
+            case 'EN_ATTENTE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {t("ententesemployeurs:signature.pending")}
+                    </span>
+                );
+            case 'REFUSEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                        <X className="w-3 h-3 mr-1" />
+                        {t("ententesemployeurs:signature.refused")}
+                    </span>
+                );
+            default:
+                return null;
+        }
     };
 
     return (
@@ -155,12 +198,28 @@ const EntentesEmployeurs = () => {
                     </button>
                 </div>
 
+                {/* Messages de succès */}
+                {successMessage && (
+                    <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                            <p className="text-sm font-medium text-green-900">{successMessage}</p>
+                            <button onClick={() => setSuccessMessage("")} className="ml-auto text-green-600 hover:text-green-800">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Erreur */}
                 {error && (
                     <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-red-900">{error}</p>
+                            <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                                <X className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
                 )}
@@ -205,10 +264,7 @@ const EntentesEmployeurs = () => {
                                 >
                                     {/* Badge et date */}
                                     <div className="flex items-center justify-between mb-4">
-                                        <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium flex items-center gap-1">
-                                            <CheckCircle className="w-3 h-3" />
-                                            {t("ententesemployeurs:active")}
-                                        </span>
+                                        {getSignatureStatusBadge(entente.employeurSignature)}
                                         <span className="text-xs text-gray-500">
                                             {new Date(entente.dateCreation).toLocaleDateString('fr-CA')}
                                         </span>
@@ -291,17 +347,32 @@ const EntentesEmployeurs = () => {
                                         </p>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={closeModal}
-                                    className="text-blue-400 hover:text-blue-600 transition-colors"
-                                >
-                                    <ArrowLeft className="w-6 h-6" />
-                                </button>
                             </div>
                         </div>
 
                         {/* Contenu du modal */}
                         <div className="p-6 space-y-6">
+                            {/* Statuts de signature */}
+                            <div className="bg-gray-50 rounded-xl p-4">
+                                <h4 className="font-semibold text-gray-900 mb-3">
+                                    {t("ententesemployeurs:modal.signatures")}
+                                </h4>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-700">{t("ententesemployeurs:modal.studentSignature")}:</span>
+                                        {getSignatureStatusBadge(selectedEntente.etudiantSignature)}
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-700">{t("ententesemployeurs:modal.employerSignature")}:</span>
+                                        {getSignatureStatusBadge(selectedEntente.employeurSignature)}
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-700">{t("ententesemployeurs:modal.managerSignature")}:</span>
+                                        {getSignatureStatusBadge(selectedEntente.gestionnaireSignature)}
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Informations de l'étudiant */}
                             <div className="bg-blue-50 rounded-xl p-4">
                                 <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -379,13 +450,136 @@ const EntentesEmployeurs = () => {
                             </div>
                         </div>
 
-                        {/* Pied du modal */}
+                        {/* Pied du modal avec boutons d'action */}
                         <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-2xl">
+                            {selectedEntente.employeurSignature === 'EN_ATTENTE' ? (
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <button
+                                        onClick={closeModal}
+                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                    >
+                                        {t("ententesemployeurs:modal.close")}
+                                    </button>
+                                    <button
+                                        onClick={handleModifierClick}
+                                        disabled={actionLoading}
+                                        className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                    >
+                                        <Edit className="w-5 h-5" />
+                                        {t("ententesemployeurs:actions.modify")}
+                                    </button>
+                                    <button
+                                        onClick={handleRefuserClick}
+                                        disabled={actionLoading}
+                                        className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                    >
+                                        <X className="w-5 h-5" />
+                                        {t("ententesemployeurs:actions.refuse")}
+                                    </button>
+                                    <button
+                                        onClick={handleSignerClick}
+                                        disabled={actionLoading}
+                                        className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                    >
+                                        <Check className="w-5 h-5" />
+                                        {t("ententesemployeurs:actions.sign")}
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={closeModal}
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                >
+                                    {t("ententesemployeurs:modal.close")}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de refus */}
+            {showRefuseModal && selectedEntente && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+                        <div className="bg-red-50 px-6 py-4 rounded-t-2xl border-b border-red-100">
+                            <h3 className="text-xl font-bold text-red-900">
+                                {t("ententesemployeurs:refuseModal.title")}
+                            </h3>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-gray-700 mb-4">
+                                {t("ententesemployeurs:refuseModal.message")}
+                            </p>
+                            <textarea
+                                value={refuseReason}
+                                onChange={(e) => setRefuseReason(e.target.value)}
+                                placeholder={t("ententesemployeurs:refuseModal.placeholder")}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                rows={4}
+                            />
+                        </div>
+                        <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
                             <button
-                                onClick={closeModal}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                onClick={() => {
+                                    setShowRefuseModal(false);
+                                    setRefuseReason("");
+                                    setShowModal(true);
+                                }}
+                                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
                             >
-                                {t("ententesemployeurs:modal.close")}
+                                {t("ententesemployeurs:refuseModal.cancel")}
+                            </button>
+                            <button
+                                onClick={handleConfirmRefuse}
+                                disabled={actionLoading || !refuseReason.trim()}
+                                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {actionLoading ? t("ententesemployeurs:refuseModal.loading") : t("ententesemployeurs:refuseModal.confirm")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de modification */}
+            {showModifyModal && selectedEntente && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+                        <div className="bg-purple-50 px-6 py-4 rounded-t-2xl border-b border-purple-100">
+                            <h3 className="text-xl font-bold text-purple-900">
+                                {t("ententesemployeurs:modifyModal.title")}
+                            </h3>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-gray-700 mb-4">
+                                {t("ententesemployeurs:modifyModal.message")}
+                            </p>
+                            <textarea
+                                value={modificationMessage}
+                                onChange={(e) => setModificationMessage(e.target.value)}
+                                placeholder={t("ententesemployeurs:modifyModal.placeholder")}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                rows={4}
+                            />
+                        </div>
+                        <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowModifyModal(false);
+                                    setModificationMessage("");
+                                    setShowModal(true);
+                                }}
+                                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                            >
+                                {t("ententesemployeurs:modifyModal.cancel")}
+                            </button>
+                            <button
+                                onClick={handleConfirmModify}
+                                disabled={actionLoading || !modificationMessage.trim()}
+                                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {actionLoading ? t("ententesemployeurs:modifyModal.loading") : t("ententesemployeurs:modifyModal.confirm")}
                             </button>
                         </div>
                     </div>
@@ -396,3 +590,4 @@ const EntentesEmployeurs = () => {
 };
 
 export default EntentesEmployeurs;
+

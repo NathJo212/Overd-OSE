@@ -58,6 +58,34 @@ export interface ConvocationEntrevueDTO {
     statut: 'CONVOQUEE' | 'MODIFIE' | 'ANNULEE';
 }
 
+export interface EntenteStageDTO {
+    id: number;
+    titre: string;
+    description: string;
+    dateDebut: string;
+    dateFin: string;
+    horaire: string;
+    dureeHebdomadaire: number;
+    remuneration: string;
+    responsabilites: string;
+    objectifs: string;
+    etudiantNom: string;
+    etudiantPrenom: string;
+    etudiantEmail: string;
+    employeurNom?: string;
+    offreTitre?: string;
+    dateCreation: string;
+    statut: string;
+    etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    gestionnaireSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    messageModificationEmployeur?: string;
+}
+
+export interface ModificationEntenteDTO {
+    modificationEntente: string;
+}
+
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const EMPLOYEUR_ENDPOINT = '/OSEemployeur';
@@ -575,6 +603,206 @@ class EmployeurService {
         } catch (error: any) {
             console.error('Erreur annulerConvocation:', error);
             throw error;
+        }
+    }
+
+    async signerEntente(ententeId: number): Promise<MessageRetour> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/signer`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+
+            // Vérifier si erreur dans MessageRetourDTO
+            if (data?.erreur) {
+                console.error('Erreur lors de la signature de l\'entente:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la signature');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    async refuserEntente(ententeId: number): Promise<MessageRetour> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/refuser`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+
+            // Vérifier si erreur dans MessageRetourDTO
+            if (data?.erreur) {
+                console.error('Erreur lors du refus de l\'entente:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    async getEntentes(): Promise<EntenteStageDTO[]> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des ententes');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getEntentes:', error);
+            throw error;
+        }
+    }
+
+    async demanderModificationEntente(ententeId: number, modificationMessage: string): Promise<MessageRetour> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/modification`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ modificationEntente: modificationMessage })
+            });
+
+            const data = await response.json();
+
+            if (data?.erreur) {
+                console.error('Erreur lors de la demande de modification:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la demande de modification');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
         }
     }
 }
