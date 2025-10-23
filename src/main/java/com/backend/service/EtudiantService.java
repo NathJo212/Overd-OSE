@@ -389,10 +389,16 @@ public class EtudiantService {
                 EntenteStage.SignatureStatus.EN_ATTENTE
         );
 
+        // Filtrer les ententes qui ont une demande de modification en attente
+        // Si messageModificationEtudiant contient du texte, la modification est en cours
         return ententes.stream()
+                .filter(e -> e.getMessageModificationEtudiant() == null ||
+                        e.getMessageModificationEtudiant().isEmpty() ||
+                        e.getMessageModificationEtudiant().isBlank())
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public List<EntenteStageDTO> getMesEntentes()
@@ -419,6 +425,7 @@ public class EtudiantService {
         if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
             throw new StatutEntenteInvalideException();
         }
+
 
         entente.setMessageModificationEtudiant(dto.getModificationEntente());
         ententeStageRepository.save(entente);

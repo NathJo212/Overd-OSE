@@ -346,6 +346,8 @@ public class EtudiantController {
         }
     }
 
+
+// get all ententes in waiting for the connected student
     @GetMapping("/ententes/en-attente")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<EntenteStageDTO>> getEntentesEnAttente() {
@@ -364,6 +366,7 @@ public class EtudiantController {
         }
     }
 
+    // get all ententes for the connected student
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<EntenteStageDTO>> getMesEntentes() {
