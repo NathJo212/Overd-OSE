@@ -1,0 +1,60 @@
+{
+  "title": "Internship Agreements",
+  "subtitle": "Create agreements for accepted applications",
+  "errors": {
+    "loading": "Error loading applications",
+    "endDateBeforeStart": "End date must be after start date",
+    "missingStudentId": "Unable to create agreement: Student ID missing. Backend needs to be updated to include 'etudiantId' in CandidatureDTO.",
+    "creationFailed": "Error creating agreement. Please verify that the backend is properly configured.",
+    "errorCode": "Error ({{code}}): {{message}}"
+  },
+  "success": {
+    "created": "Agreement created successfully!"
+  },
+  "emptyState": {
+    "title": "No Eligible Applications",
+    "description": "There are currently no applications accepted by both student and employer requiring an internship agreement."
+  },
+  "list": {
+    "count": "{{count}} eligible application(s) for agreement creation",
+    "statusAccepted": "Accepted",
+    "clickToCreate": "Click to create agreement"
+  },
+  "modal": {
+    "title": "Create Internship Agreement",
+    "forStudent": "For {{firstName}} {{lastName}}",
+    "applicationInfo": {
+      "title": "Application Information",
+      "student": "Student:",
+      "employer": "Employer:",
+      "position": "Position:"
+    },
+    "sections": {
+      "periodAndSchedule": "Period and Schedule",
+      "remuneration": "Remuneration",
+      "descriptionAndObjectives": "Description and Objectives"
+    },
+    "fields": {
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "schedule": "Schedule",
+      "schedulePlaceholder": "e.g.: Monday to Friday, 9am-5pm",
+      "weeklyDuration": "Weekly Duration (hours)",
+      "weeklyDurationPlaceholder": "e.g.: 35",
+      "remuneration": "Remuneration",
+      "remunerationPlaceholder": "e.g.: $18/hour or Unpaid",
+      "description": "Internship Description",
+      "descriptionPlaceholder": "Describe the main tasks and responsibilities...",
+      "responsibilities": "Intern Responsibilities",
+      "responsibilitiesPlaceholder": "List the main responsibilities...",
+      "objectives": "Learning Objectives",
+      "objectivesPlaceholder": "Describe the skills to be acquired...",
+      "required": "*"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Agreement",
+      "creating": "Creating..."
+    }
+  }
+}

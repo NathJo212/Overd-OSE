@@ -39,6 +39,8 @@ import candidaturesetudiantEn from './locales/en/candidaturesetudiant.json';
 import candidaturesetudiantFr from './locales/fr/candidaturesetudiant.json';
 import ententesFr from './locales/fr/ententes.json';
 import ententesEn from './locales/en/ententes.json';
+import ententesStageGestionnaireFr from './locales/fr/ententeStageGestionnaire.json';
+import ententesStageGestionnaireEn from './locales/en/ententeStageGestionnaire.json';
 
 const resources = {
     fr: {
@@ -60,6 +62,7 @@ const resources = {
         candidaturesrecues: candidaturesrecuesFr,
         candidaturesetudiant: candidaturesetudiantFr,
         ententes: ententesFr,
+        ententesStageGestionnaire: ententesStageGestionnaireFr,
     },
     en: {
         registration: registrationEn,
@@ -80,6 +83,7 @@ const resources = {
         candidaturesrecues: candidaturesrecuesEn,
         candidaturesetudiant: candidaturesetudiantEn,
         ententes: ententesEn,
+        ententesStageGestionnaire: ententesStageGestionnaireEn,
     }
 };
 

@@ -14,8 +14,10 @@ import {
 import NavBar from "./NavBar.tsx";
 import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO } from "../services/GestionnaireService";
 import * as React from "react";
+import { useTranslation } from 'react-i18next';
 
 const EntentesStageGestionnaire = () => {
+    const { t } = useTranslation('ententesStageGestionnaire');
     const [loading, setLoading] = useState(true);
     const [candidatures, setCandidatures] = useState<CandidatureEligibleDTO[]>([]);
     const [showModal, setShowModal] = useState(false);
@@ -35,7 +37,7 @@ const EntentesStageGestionnaire = () => {
                 const data = await gestionnaireService.getCandidaturesEligiblesEntente(token);
                 setCandidatures(data);
             } catch (err: any) {
-                setError(err.message || "Erreur lors du chargement des candidatures");
+                setError(err.message || t('errors.loading'));
                 setCandidatures([]);
             } finally {
                 setLoading(false);
@@ -43,7 +45,7 @@ const EntentesStageGestionnaire = () => {
         };
 
         fetchCandidaturesEligibles().then();
-    }, [token]);
+    }, [token, t]);
 
     const handleCandidatureClick = (candidature: CandidatureEligibleDTO) => {
         setSelectedCandidature(candidature);
@@ -68,7 +70,7 @@ const EntentesStageGestionnaire = () => {
 
         // Validation supplémentaire pour les dates
         if (dateFin && dateDebut && dateFin < dateDebut) {
-            setError("La date de fin doit être après la date de début");
+            setError(t('errors.endDateBeforeStart'));
             return;
         }
 
@@ -81,7 +83,7 @@ const EntentesStageGestionnaire = () => {
 
             // Vérifier que nous avons l'etudiantId
             if (!selectedCandidature.etudiantId) {
-                setError("Impossible de créer l'entente : ID étudiant manquant. Le backend doit être mis à jour pour inclure 'etudiantId' dans CandidatureDTO.");
+                setError(t('errors.missingStudentId'));
                 return;
             }
 
@@ -104,11 +106,11 @@ const EntentesStageGestionnaire = () => {
 
             await gestionnaireService.creerEntente(ententeData, token);
 
-            setSuccessMessage("Entente créée avec succès !");
+            setSuccessMessage(t('success.created'));
 
             setTimeout(() => {
                 closeModal();
-                // Recharger les candidatures ← Déjà implémenté !
+                // Recharger les candidatures
                 gestionnaireService.getCandidaturesEligiblesEntente(token)
                     .then(data => setCandidatures(data))
                     .catch(err => setError(err.message));
@@ -119,11 +121,14 @@ const EntentesStageGestionnaire = () => {
             const responseData = err.response?.data;
 
             if (responseData?.erreur?.errorCode) {
-                setError(`Erreur (${responseData.erreur.errorCode}): ${responseData.erreur.message}`);
+                setError(t('errors.errorCode', {
+                    code: responseData.erreur.errorCode,
+                    message: responseData.erreur.message
+                }));
             } else if (err.message) {
                 setError(err.message);
             } else {
-                setError("Erreur lors de la création de l'entente. Vérifiez que le backend est correctement configuré.");
+                setError(t('errors.creationFailed'));
             }
         } finally {
             setIsSubmitting(false);
@@ -143,10 +148,10 @@ const EntentesStageGestionnaire = () => {
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold text-gray-900">
-                                Ententes de stage
+                                {t('title')}
                             </h1>
                             <p className="text-gray-600">
-                                Créez des ententes pour les candidatures acceptées
+                                {t('subtitle')}
                             </p>
                         </div>
                     </div>
@@ -181,10 +186,10 @@ const EntentesStageGestionnaire = () => {
                             </div>
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">
-                            Aucune candidature éligible
+                            {t('emptyState.title')}
                         </h3>
                         <p className="text-gray-600 max-w-md mx-auto">
-                            Il n'y a actuellement aucune candidature acceptée par l'étudiant et l'employeur nécessitant une entente de stage.
+                            {t('emptyState.description')}
                         </p>
                     </div>
                 ) : (
@@ -192,7 +197,7 @@ const EntentesStageGestionnaire = () => {
                     <div>
                         <div className="mb-4">
                             <p className="text-sm text-gray-600">
-                                <span className="font-semibold text-gray-900">{candidatures.length}</span> candidature(s) éligible(s) pour la création d'entente
+                                <span className="font-semibold text-gray-900">{candidatures.length}</span> {t('list.count', { count: candidatures.length })}
                             </p>
                         </div>
 
@@ -206,7 +211,7 @@ const EntentesStageGestionnaire = () => {
                                     {/* Badge statut */}
                                     <div className="flex items-center justify-between mb-4">
                                         <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-                                            Acceptée
+                                            {t('list.statusAccepted')}
                                         </span>
                                         <span className="text-xs text-gray-500">
                                             {new Date(candidature.dateCandidature).toLocaleDateString('fr-CA')}
@@ -248,7 +253,7 @@ const EntentesStageGestionnaire = () => {
                                     <div className="mt-4 pt-4 border-t border-slate-200">
                                         <p className="text-sm text-blue-600 font-medium group-hover:text-blue-700 flex items-center gap-2">
                                             <FileSignature className="w-4 h-4" />
-                                            Cliquer pour créer l'entente
+                                            {t('list.clickToCreate')}
                                         </p>
                                     </div>
                                 </div>
@@ -273,10 +278,13 @@ const EntentesStageGestionnaire = () => {
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-bold text-gray-900">
-                                        Créer une entente de stage
+                                        {t('modal.title')}
                                     </h2>
                                     <p className="text-sm text-gray-600">
-                                        Pour {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
+                                        {t('modal.forStudent', {
+                                            firstName: selectedCandidature.etudiantPrenom,
+                                            lastName: selectedCandidature.etudiantNom
+                                        })}
                                     </p>
                                 </div>
                             </div>
@@ -315,22 +323,22 @@ const EntentesStageGestionnaire = () => {
                             <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200">
                                 <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                                     <User className="w-4 h-4 text-blue-600" />
-                                    Informations de la candidature
+                                    {t('modal.applicationInfo.title')}
                                 </h3>
                                 <div className="grid md:grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <span className="text-gray-600">Étudiant:</span>
+                                        <span className="text-gray-600">{t('modal.applicationInfo.student')}</span>
                                         <p className="font-semibold text-gray-900">
                                             {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
                                         </p>
                                         <p className="text-xs text-gray-600">{selectedCandidature.etudiantEmail}</p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-600">Employeur:</span>
+                                        <span className="text-gray-600">{t('modal.applicationInfo.employer')}</span>
                                         <p className="font-semibold text-gray-900">{selectedCandidature.employeurNom}</p>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <span className="text-gray-600">Poste:</span>
+                                        <span className="text-gray-600">{t('modal.applicationInfo.position')}</span>
                                         <p className="font-semibold text-gray-900">{selectedCandidature.offreTitre}</p>
                                     </div>
                                 </div>
@@ -340,12 +348,12 @@ const EntentesStageGestionnaire = () => {
                             <div className="mb-6">
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                                     <Calendar className="w-5 h-5 text-blue-600" />
-                                    Période et horaire
+                                    {t('modal.sections.periodAndSchedule')}
                                 </h3>
                                 <div className="grid md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Date de début <span className="text-red-500">*</span>
+                                            {t('modal.fields.startDate')} <span className="text-red-500">{t('modal.fields.required')}</span>
                                         </label>
                                         <input
                                             type="date"
@@ -359,7 +367,7 @@ const EntentesStageGestionnaire = () => {
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Date de fin <span className="text-red-500">*</span>
+                                            {t('modal.fields.endDate')} <span className="text-red-500">{t('modal.fields.required')}</span>
                                         </label>
                                         <input
                                             type="date"
@@ -373,33 +381,33 @@ const EntentesStageGestionnaire = () => {
                                         />
                                         {dateFin && dateDebut && dateFin < dateDebut && (
                                             <p className="mt-1 text-sm text-red-600">
-                                                La date de fin doit être après la date de début
+                                                {t('errors.endDateBeforeStart')}
                                             </p>
                                         )}
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Horaire <span className="text-red-500">*</span>
+                                            {t('modal.fields.schedule')} <span className="text-red-500">{t('modal.fields.required')}</span>
                                         </label>
                                         <input
                                             type="text"
                                             name="horaire"
                                             required
                                             disabled={isSubmitting}
-                                            placeholder="Ex: Lundi au vendredi, 9h-17h"
+                                            placeholder={t('modal.fields.schedulePlaceholder')}
                                             className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Durée hebdomadaire (heures) <span className="text-red-500">*</span>
+                                            {t('modal.fields.weeklyDuration')} <span className="text-red-500">{t('modal.fields.required')}</span>
                                         </label>
                                         <input
                                             type="number"
                                             name="dureeHebdomadaire"
                                             required
                                             disabled={isSubmitting}
-                                            placeholder="Ex: 35"
+                                            placeholder={t('modal.fields.weeklyDurationPlaceholder')}
                                             min="1"
                                             max="40"
                                             className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
@@ -412,18 +420,18 @@ const EntentesStageGestionnaire = () => {
                             <div className="mb-6">
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                                     <DollarSign className="w-5 h-5 text-blue-600" />
-                                    Rémunération
+                                    {t('modal.sections.remuneration')}
                                 </h3>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Rémunération <span className="text-red-500">*</span>
+                                        {t('modal.fields.remuneration')} <span className="text-red-500">{t('modal.fields.required')}</span>
                                     </label>
                                     <input
                                         type="text"
                                         name="remuneration"
                                         required
                                         disabled={isSubmitting}
-                                        placeholder="Ex: 18$/heure ou Non rémunéré"
+                                        placeholder={t('modal.fields.remunerationPlaceholder')}
                                         className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                     />
                                 </div>
@@ -433,45 +441,45 @@ const EntentesStageGestionnaire = () => {
                             <div className="mb-6">
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                                     <FileText className="w-5 h-5 text-blue-600" />
-                                    Description et objectifs
+                                    {t('modal.sections.descriptionAndObjectives')}
                                 </h3>
                                 <div className="space-y-4">
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Description du stage <span className="text-red-500">*</span>
+                                            {t('modal.fields.description')} <span className="text-red-500">{t('modal.fields.required')}</span>
                                         </label>
                                         <textarea
                                             name="description"
                                             required
                                             disabled={isSubmitting}
                                             rows={4}
-                                            placeholder="Décrivez les principales tâches et responsabilités..."
+                                            placeholder={t('modal.fields.descriptionPlaceholder')}
                                             className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Responsabilités du stagiaire <span className="text-red-500">*</span>
+                                            {t('modal.fields.responsibilities')} <span className="text-red-500">{t('modal.fields.required')}</span>
                                         </label>
                                         <textarea
                                             name="responsabilites"
                                             required
                                             disabled={isSubmitting}
                                             rows={4}
-                                            placeholder="Listez les principales responsabilités..."
+                                            placeholder={t('modal.fields.responsibilitiesPlaceholder')}
                                             className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Objectifs d'apprentissage <span className="text-red-500">*</span>
+                                            {t('modal.fields.objectives')} <span className="text-red-500">{t('modal.fields.required')}</span>
                                         </label>
                                         <textarea
                                             name="objectifs"
                                             required
                                             disabled={isSubmitting}
                                             rows={4}
-                                            placeholder="Décrivez les compétences à acquérir..."
+                                            placeholder={t('modal.fields.objectivesPlaceholder')}
                                             className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
                                         />
                                     </div>
@@ -486,7 +494,7 @@ const EntentesStageGestionnaire = () => {
                                     disabled={isSubmitting}
                                     className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Annuler
+                                    {t('modal.actions.cancel')}
                                 </button>
                                 <button
                                     type="submit"
@@ -496,12 +504,12 @@ const EntentesStageGestionnaire = () => {
                                     {isSubmitting ? (
                                         <>
                                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                            Création en cours...
+                                            {t('modal.actions.creating')}
                                         </>
                                     ) : (
                                         <>
                                             <FileSignature className="w-4 h-4" />
-                                            Créer l'entente
+                                            {t('modal.actions.create')}
                                         </>
                                     )}
                                 </button>

@@ -1,0 +1,60 @@
+{
+  "title": "Ententes de stage",
+  "subtitle": "Créez des ententes pour les candidatures acceptées",
+  "errors": {
+    "loading": "Erreur lors du chargement des candidatures",
+    "endDateBeforeStart": "La date de fin doit être après la date de début",
+    "missingStudentId": "Impossible de créer l'entente : ID étudiant manquant. Le backend doit être mis à jour pour inclure 'etudiantId' dans CandidatureDTO.",
+    "creationFailed": "Erreur lors de la création de l'entente. Vérifiez que le backend est correctement configuré.",
+    "errorCode": "Erreur ({{code}}): {{message}}"
+  },
+  "success": {
+    "created": "Entente créée avec succès !"
+  },
+  "emptyState": {
+    "title": "Aucune candidature éligible",
+    "description": "Il n'y a actuellement aucune candidature acceptée par l'étudiant et l'employeur nécessitant une entente de stage."
+  },
+  "list": {
+    "count": "{{count}} candidature(s) éligible(s) pour la création d'entente",
+    "statusAccepted": "Acceptée",
+    "clickToCreate": "Cliquer pour créer l'entente"
+  },
+  "modal": {
+    "title": "Créer une entente de stage",
+    "forStudent": "Pour {{firstName}} {{lastName}}",
+    "applicationInfo": {
+      "title": "Informations de la candidature",
+      "student": "Étudiant:",
+      "employer": "Employeur:",
+      "position": "Poste:"
+    },
+    "sections": {
+      "periodAndSchedule": "Période et horaire",
+      "remuneration": "Rémunération",
+      "descriptionAndObjectives": "Description et objectifs"
+    },
+    "fields": {
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "schedule": "Horaire",
+      "schedulePlaceholder": "Ex: Lundi au vendredi, 9h-17h",
+      "weeklyDuration": "Durée hebdomadaire (heures)",
+      "weeklyDurationPlaceholder": "Ex: 35",
+      "remuneration": "Rémunération",
+      "remunerationPlaceholder": "Ex: 18$/heure ou Non rémunéré",
+      "description": "Description du stage",
+      "descriptionPlaceholder": "Décrivez les principales tâches et responsabilités...",
+      "responsibilities": "Responsabilités du stagiaire",
+      "responsibilitiesPlaceholder": "Listez les principales responsabilités...",
+      "objectives": "Objectifs d'apprentissage",
+      "objectivesPlaceholder": "Décrivez les compétences à acquérir...",
+      "required": "*"
+    },
+    "actions": {
+      "cancel": "Annuler",
+      "create": "Créer l'entente",
+      "creating": "Création en cours..."
+    }
+  }
+}
