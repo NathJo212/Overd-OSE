@@ -308,7 +308,7 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (EntenteNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.ENTENTE_NOT_FOUND.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.ENTENTE_NON_TROUVE.getCode(), e.getMessage())));
         } catch (StatutEntenteInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
@@ -333,7 +333,7 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (EntenteNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.ENTENTE_NOT_FOUND.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.ENTENTE_NON_TROUVE.getCode(), e.getMessage())));
         } catch (StatutEntenteInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
@@ -399,7 +399,7 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (EntenteNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.ENTENTE_NOT_FOUND.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.ENTENTE_NON_TROUVE.getCode(), e.getMessage())));
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));

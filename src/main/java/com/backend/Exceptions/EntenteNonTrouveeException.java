@@ -8,6 +8,6 @@ public class EntenteNonTrouveeException extends RuntimeException {
     private final ErrorCode errorCode;
     public EntenteNonTrouveeException() {
         super("Entente non trouvee");
-        this.errorCode = ErrorCode.ENTENTE_NOT_FOUND;
+        this.errorCode = ErrorCode.ENTENTE_NON_TROUVE;
     }
 }

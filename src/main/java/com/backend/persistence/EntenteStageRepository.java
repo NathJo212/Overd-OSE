@@ -1,5 +1,6 @@
 package com.backend.persistence;
 
+import com.backend.modele.Employeur;
 import com.backend.modele.EntenteStage;
 import com.backend.modele.Etudiant;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,9 @@ public interface EntenteStageRepository extends JpaRepository<EntenteStage, Long
             Etudiant etudiant,
             EntenteStage.SignatureStatus etudiantSignature
     );
-
     List<EntenteStage> findByEtudiantAndArchivedFalse(Etudiant etudiant);
+
+    List<EntenteStage> findByEmployeurAndEmployeurSignatureAndArchivedFalse(Employeur employeur, EntenteStage.SignatureStatus signatureStatus);
+
+    List<EntenteStage> findByEmployeurAndArchivedFalse(Employeur employeur);
 }

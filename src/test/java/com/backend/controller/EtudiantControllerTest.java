@@ -750,7 +750,7 @@ class EtudiantControllerTest {
         // Act & Assert
         mockMvc.perform(put("/OSEetudiant/ententes/{id}/signer", 10L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NOT_FOUND.getCode()));
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NON_TROUVE.getCode()));
     }
 
     @Test
@@ -833,7 +833,7 @@ class EtudiantControllerTest {
         // Act & Assert
         mockMvc.perform(put("/OSEetudiant/ententes/{id}/refuser", 10L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NOT_FOUND.getCode()));
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NON_TROUVE.getCode()));
     }
 
     @Test
@@ -1018,7 +1018,7 @@ class EtudiantControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NOT_FOUND.getCode()));
+                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NON_TROUVE.getCode()));
     }
 
     @Test
