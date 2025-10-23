@@ -8,10 +8,7 @@ import com.backend.persistence.EmployeurRepository;
 import com.backend.persistence.OffreRepository;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.persistence.ConvocationEntrevueRepository;
-import com.backend.service.DTO.AuthResponseDTO;
-import com.backend.service.DTO.CandidatureDTO;
-import com.backend.service.DTO.ConvocationEntrevueDTO;
-import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,6 +65,15 @@ public class EmployeurServiceTest {
 
     @Mock
     private Authentication authentication;
+
+    @Mock
+    private com.backend.persistence.NotificationRepository notificationRepository;
+
+    @Mock
+    private com.backend.persistence.EntenteStageRepository ententeStageRepository;
+
+    @Mock
+    private org.springframework.context.MessageSource messageSource;
 
     @Test
     public void testCreationEmployeur() throws MotPasseInvalideException {
@@ -128,8 +134,8 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(anyString())).thenReturn(employeur);
 
         employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
-            LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-            ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1));
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
+                ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1));
 
         verify(offreRepository, times(1)).save(any(Offre.class));
     }
@@ -141,8 +147,8 @@ public class EmployeurServiceTest {
 
         assertThrows(ActionNonAutoriseeException.class, () -> {
             employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
-                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                ProgrammeDTO.P500_AF, "lieu", "rem", LocalDate.of(2024, 5, 1));
+                    LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
+                    ProgrammeDTO.P500_AF, "lieu", "rem", LocalDate.of(2024, 5, 1));
         });
     }
 
@@ -330,11 +336,11 @@ public class EmployeurServiceTest {
                 new SimpleGrantedAuthority("EMPLOYEUR")
         );
 
-        when(authentication.getName()).thenReturn(email);
-        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
+        lenient().when(authentication.getName()).thenReturn(email);
+        lenient().when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
-        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+        lenient().when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
                 "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
@@ -346,7 +352,7 @@ public class EmployeurServiceTest {
         Candidature candidature = new Candidature(etudiant, offre, null);
         Long candidatureId = 1L;
 
-        when(candidatureRepository.findById(candidatureId))
+        lenient().when(candidatureRepository.findById(candidatureId))
                 .thenReturn(Optional.of(candidature));
 
         // Act
@@ -367,14 +373,14 @@ public class EmployeurServiceTest {
                 new SimpleGrantedAuthority("EMPLOYEUR")
         );
 
-        when(authentication.getName()).thenReturn(email);
-        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
+        lenient().when(authentication.getName()).thenReturn(email);
+        lenient().when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
-        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+        lenient().when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Long candidatureId = 999L;
-        when(candidatureRepository.findById(candidatureId))
+        lenient().when(candidatureRepository.findById(candidatureId))
                 .thenReturn(Optional.empty());
 
         // Act & Assert
@@ -624,7 +630,7 @@ public class EmployeurServiceTest {
         Offre offre = mock(Offre.class);
         when(offre.getEmployeur()).thenReturn(autreEmployeur);
 
-        Candidature candidature = new Candidature(etudiant, offre, "lettre".getBytes());
+        Candidature candidature = new Candidature(etudiant, offre, null);
         Long candidatureId = 1L;
 
         when(candidatureRepository.findById(candidatureId))
@@ -1187,5 +1193,501 @@ public class EmployeurServiceTest {
 
         // Act & Assert
         assertThrows(CandidatureDejaVerifieException.class, () -> employeurService.refuserCandidature(15L, "Raison"));
+    }
+
+    @Test
+    public void testGetNotificationsPourEmployeurConnecte_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Notification notif1 = new Notification();
+        notif1.setUtilisateur(employeur);
+        notif1.setMessageKey("test.message1");
+        notif1.setLu(false);
+
+        Notification notif2 = new Notification();
+        notif2.setUtilisateur(employeur);
+        notif2.setMessageKey("test.message2");
+        notif2.setLu(true);
+
+        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(employeur))
+                .thenReturn(Arrays.asList(notif1, notif2));
+
+        // Act
+        var result = employeurService.getNotificationsPourEmployeurConnecte();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(notificationRepository, times(1)).findAllByUtilisateurOrderByDateCreationDesc(employeur);
+    }
+
+    @Test
+    public void testMarquerNotificationLu_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Notification notification = new Notification();
+        notification.setUtilisateur(employeur);
+        notification.setLu(false);
+
+        when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
+
+        // Act
+        employeurService.marquerNotificationLu(1L, true);
+
+        // Assert
+        assertTrue(notification.isLu());
+        verify(notificationRepository, times(1)).save(notification);
+    }
+
+    @Test
+    public void testMarquerNotificationLu_NonAutorise() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Employeur autreEmployeur = mock(Employeur.class);
+        when(autreEmployeur.getId()).thenReturn(2L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Notification notification = new Notification();
+        notification.setUtilisateur(autreEmployeur);
+
+        when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.marquerNotificationLu(1L, true);
+        });
+    }
+
+    @Test
+    public void testGetOffresApprouvees_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Offre offre1 = new Offre("Titre 1", "Desc 1", LocalDate.now(), LocalDate.now().plusMonths(3),
+                Programme.P420_B0, "lieu", "rem", LocalDate.now().plusDays(10), employeur);
+        offre1.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
+
+        Offre offre2 = new Offre("Titre 2", "Desc 2", LocalDate.now(), LocalDate.now().plusMonths(3),
+                Programme.P420_B0, "lieu", "rem", LocalDate.now().plusDays(10), employeur);
+        offre2.setStatutApprouve(Offre.StatutApprouve.ATTENTE);
+
+        when(offreRepository.findOffreByEmployeurId(employeur.getId()))
+                .thenReturn(Arrays.asList(offre1, offre2));
+
+        // Act
+        var result = employeurService.getOffresApprouvees();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testGetEntentesPourEmployeur_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        EntenteStage entente1 = new EntenteStage();
+        entente1.setEmployeur(employeur);
+        entente1.setTitre("Entente 1");
+
+        EntenteStage entente2 = new EntenteStage();
+        entente2.setEmployeur(employeur);
+        entente2.setTitre("Entente 2");
+
+        when(ententeStageRepository.findByEmployeurAndArchivedFalse(employeur))
+                .thenReturn(Arrays.asList(entente1, entente2));
+
+        // Act
+        var result = employeurService.getEntentesPourEmployeur();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(ententeStageRepository, times(1)).findByEmployeurAndArchivedFalse(employeur);
+    }
+
+    @Test
+    public void testGetEntentesEnAttente_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        EntenteStage entente1 = new EntenteStage();
+        entente1.setEmployeur(employeur);
+        entente1.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+
+        when(ententeStageRepository.findByEmployeurAndEmployeurSignatureAndArchivedFalse(
+                employeur, EntenteStage.SignatureStatus.EN_ATTENTE))
+                .thenReturn(Collections.singletonList(entente1));
+
+        // Act
+        var result = employeurService.getEntentesEnAttente();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testGetEntenteSpecifique_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEmployeur(employeur);
+        entente.setTitre("Test Entente");
+
+        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
+
+        // Act
+        var result = employeurService.getEntenteSpecifique(1L);
+
+        // Assert
+        assertNotNull(result);
+        verify(ententeStageRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    public void testGetEntenteSpecifique_NonAutorise() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Employeur autreEmployeur = mock(Employeur.class);
+        when(autreEmployeur.getId()).thenReturn(2L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEmployeur(autreEmployeur);
+
+        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.getEntenteSpecifique(1L);
+        });
+    }
+
+    @Test
+    public void testSignerEntente_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEmployeur(employeur);
+        entente.setEtudiant(etudiant);
+        entente.setTitre("Entente Test");
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
+        when(ententeStageRepository.save(any(EntenteStage.class))).thenReturn(entente);
+
+        // Act
+        employeurService.signerEntente(1L);
+
+        // Assert
+        assertEquals(EntenteStage.SignatureStatus.SIGNEE, entente.getEmployeurSignature());
+        verify(ententeStageRepository, times(1)).save(entente);
+    }
+
+    @Test
+    public void testSignerEntente_LesDeuxSignatures() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEmployeur(employeur);
+        entente.setEtudiant(etudiant);
+        entente.setTitre("Entente Test");
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
+
+        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
+        when(ententeStageRepository.save(any(EntenteStage.class))).thenReturn(entente);
+
+        // Act
+        employeurService.signerEntente(1L);
+
+        // Assert
+        assertEquals(EntenteStage.SignatureStatus.SIGNEE, entente.getEmployeurSignature());
+        assertEquals(EntenteStage.StatutEntente.SIGNEE, entente.getStatut());
+        verify(ententeStageRepository, times(1)).save(entente);
+    }
+
+    @Test
+    public void testSignerEntente_NonAutorise() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Employeur autreEmployeur = mock(Employeur.class);
+        when(autreEmployeur.getId()).thenReturn(2L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEmployeur(autreEmployeur);
+
+        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.signerEntente(1L);
+        });
+    }
+
+    @Test
+    public void testRefuserEntente_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEmployeur(employeur);
+        entente.setEtudiant(etudiant);
+        entente.setTitre("Entente Test");
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
+        when(ententeStageRepository.save(any(EntenteStage.class))).thenReturn(entente);
+
+        // Act
+        employeurService.refuserEntente(1L);
+
+        // Assert
+        assertEquals(EntenteStage.SignatureStatus.REFUSEE, entente.getEmployeurSignature());
+        assertEquals(EntenteStage.StatutEntente.ANNULEE, entente.getStatut());
+        verify(ententeStageRepository, times(1)).save(entente);
+    }
+
+    @Test
+    public void testRefuserEntente_NonAutorise() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Employeur autreEmployeur = mock(Employeur.class);
+        when(autreEmployeur.getId()).thenReturn(2L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEmployeur(autreEmployeur);
+
+        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.refuserEntente(1L);
+        });
+    }
+
+    @Test
+    public void testModifierEntente_Succes() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
+                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEmployeur(employeur);
+        entente.setEtudiant(etudiant);
+        entente.setTitre("Entente Test");
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
+        when(ententeStageRepository.save(any(EntenteStage.class))).thenReturn(entente);
+
+        // Act
+        employeurService.modifierEntente(1L, new ModificationEntenteDTO("Les dates sont erronées"));
+
+        // Assert
+        assertEquals("Les dates sont erronées", entente.getMessageModificationEmployeur());
+        verify(ententeStageRepository, times(1)).save(entente);
+    }
+
+    @Test
+    public void testModifierEntente_NonAutorise() throws Exception {
+        // Arrange
+        String email = "employeur@test.com";
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+
+        Employeur autreEmployeur = mock(Employeur.class);
+        when(autreEmployeur.getId()).thenReturn(2L);
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setEmployeur(autreEmployeur);
+
+        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> {
+            employeurService.modifierEntente(1L, new ModificationEntenteDTO("Les dates sont erronées"));
+        });
     }
 }

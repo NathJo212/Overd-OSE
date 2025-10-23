@@ -2,6 +2,8 @@
   "title": "Employer Dashboard",
   "createOffer": "Create a new internship offer",
   "myOffers": "My internship offers",
+  "myApplications": "View applications for my offers",
+  "myAgreements": "My internship agreements",
   "noOffers": {
     "title": "No internship offers found",
     "subtitle": "Start by creating your first offer"
@@ -26,7 +28,6 @@
     "welcomeCreated": "Welcome! Your account has been created and you are now logged in.",
     "welcomeLogin": "Login successful! Welcome to your dashboard."
   },
-  "myApplications": "View applications for my offers",
   "convocations": {
     "title": "My Interviews",
     "refresh": "Refresh",

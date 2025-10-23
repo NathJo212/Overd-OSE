@@ -211,6 +211,9 @@ const DashBoardEmployeur = () => {
                             <NavLink to="/candidatures-recues" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
                                 {t("employerdashboard:myApplications")}
                             </NavLink>
+                            <NavLink to="/mes-ententes" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                                {t("employerdashboard:myAgreements")}
+                            </NavLink>
                         </div>
                     </div>
 

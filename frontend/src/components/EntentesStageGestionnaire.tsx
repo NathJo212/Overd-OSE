@@ -12,9 +12,9 @@ import {
     CheckCircle
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
+import { useTranslation } from 'react-i18next';
 import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO } from "../services/GestionnaireService";
 import * as React from "react";
-import { useTranslation } from 'react-i18next';
 
 const EntentesStageGestionnaire = () => {
     const { t } = useTranslation('ententesStageGestionnaire');
@@ -45,7 +45,7 @@ const EntentesStageGestionnaire = () => {
         };
 
         fetchCandidaturesEligibles().then();
-    }, [token, t]);
+    }, [token]);
 
     const handleCandidatureClick = (candidature: CandidatureEligibleDTO) => {
         setSelectedCandidature(candidature);
@@ -101,9 +101,6 @@ const EntentesStageGestionnaire = () => {
                 objectifs: formData.get('objectifs') as string
             };
 
-            console.log("Données envoyées au backend:", ententeData);
-            console.log("Candidature sélectionnée:", selectedCandidature);
-
             await gestionnaireService.creerEntente(ententeData, token);
 
             setSuccessMessage(t('success.created'));
@@ -117,7 +114,6 @@ const EntentesStageGestionnaire = () => {
             }, 2000);
 
         } catch (err: any) {
-            console.error("Erreur lors de la création de l'entente:", err);
             const responseData = err.response?.data;
 
             if (responseData?.erreur?.errorCode) {

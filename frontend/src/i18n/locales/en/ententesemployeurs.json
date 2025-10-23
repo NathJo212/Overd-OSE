@@ -1,0 +1,71 @@
+{
+  "title": "My Internship Agreements",
+  "subtitle": "View all your active internship agreements",
+  "backToDashboard": "Back to dashboard",
+  "refresh": "Refresh",
+  "active": "Active",
+  "week": "week",
+  "ententeCount": "agreement(s)",
+  "viewDetails": "View details",
+  "noEntentes": {
+    "title": "No internship agreements",
+    "subtitle": "You currently have no signed internship agreements. Agreements will appear here once created by the manager."
+  },
+  "errors": {
+    "loadError": "Error loading agreements",
+    "signError": "Error signing the agreement",
+    "refuseError": "Error refusing the agreement",
+    "modifyError": "Error requesting modification"
+  },
+  "messages": {
+    "signed": "Agreement signed successfully",
+    "refused": "Agreement refused successfully",
+    "modified": "Modification request sent successfully"
+  },
+  "signature": {
+    "signed": "Signed",
+    "pending": "Pending",
+    "refused": "Refused"
+  },
+  "actions": {
+    "sign": "Sign",
+    "refuse": "Refuse",
+    "modify": "Modify"
+  },
+  "modal": {
+    "title": "Agreement Details",
+    "signatures": "Signature Status",
+    "studentSignature": "Student signature",
+    "employerSignature": "Employer signature",
+    "managerSignature": "Manager signature",
+    "student": "Student Information",
+    "name": "Name",
+    "email": "Email",
+    "internshipInfo": "Internship Information",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "schedule": "Schedule",
+    "weeklyHours": "Weekly Hours",
+    "remuneration": "Remuneration",
+    "description": "Description",
+    "responsibilities": "Responsibilities",
+    "objectives": "Learning Objectives",
+    "close": "Close"
+  },
+  "refuseModal": {
+    "title": "Refuse Agreement",
+    "message": "Please indicate the reason for refusing this agreement:",
+    "placeholder": "Reason for refusal...",
+    "cancel": "Cancel",
+    "confirm": "Confirm Refusal",
+    "loading": "Sending..."
+  },
+  "modifyModal": {
+    "title": "Request Modification",
+    "message": "Please describe the modifications you would like to make to this agreement:",
+    "placeholder": "Requested modifications...",
+    "cancel": "Cancel",
+    "confirm": "Send Request",
+    "loading": "Sending..."
+  }
+}
