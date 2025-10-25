@@ -181,14 +181,29 @@ const DashBoardEtudiant = () => {
         navigate("/televersement-cv");
     };
 
-    const getConvocationStatusBadge = (statut: string) => {
+    const getConvocationStatusBadge = (statut?: string) => {
         switch (statut) {
-            case 'ACCEPTE':
-                return <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Accepté</span>;
-            case 'REFUSE':
-                return <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Refusé</span>;
-            case 'EN_ATTENTE':
-                return <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">En attente</span>;
+            case 'CONVOQUEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        {t('dashboardEtudiant:convocations.convoked')}
+                    </span>
+                );
+            case 'MODIFIE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                        <Bell className="w-4 h-4 mr-1" />
+                        {t('dashboardEtudiant:convocations.modified')}
+                    </span>
+                );
+            case 'ANNULEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                        <X className="w-4 h-4 mr-1" />
+                        {t('dashboardEtudiant:convocations.cancelled')}
+                    </span>
+                );
             default:
                 return null;
         }
