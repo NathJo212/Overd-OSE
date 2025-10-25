@@ -95,7 +95,7 @@ const Login = () => {
                             navigate('/dashboard-etudiant')
                             break
                         case 'GESTIONNAIRE':
-                            navigate('/offres-stages-gestionnaire')
+                            navigate('/dashboard-gestionnaire')
                             break
                         default:
                             navigate('/')

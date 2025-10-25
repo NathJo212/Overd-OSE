@@ -159,7 +159,7 @@ const NavBar = () => {
                             {isConnected && role === "GESTIONNAIRE" && (
                                 <>
                                     <NavLink
-                                        to="/offres-stages-gestionnaire"
+                                        to="/dashboard-gestionnaire"
                                         onClick={() => setMobileMenuOpen(false)}
                                         className={({ isActive }) =>
                                             `w-full px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${

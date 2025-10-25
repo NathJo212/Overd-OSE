@@ -75,7 +75,7 @@ const InscriptionEtudiant = () => {
                     navigate('/dashboard-etudiant')
                     break
                 case 'GESTIONNAIRE':
-                    navigate('/offres-stages-gestionnaire')
+                    navigate('/dashboard-gestionnaire')
                     break
             }
         }
