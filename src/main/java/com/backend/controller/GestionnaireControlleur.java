@@ -276,5 +276,25 @@ public class GestionnaireControlleur {
         }
     }
 
+    @PostMapping("/etudiant/{etudiantId}/professeur/{professeurId}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> setEtudiantAProfesseur(
+            @PathVariable Long etudiantId,
+            @PathVariable Long professeurId) {
+        try {
+            gestionnaireService.setEtudiantAProfesseur(professeurId, etudiantId);
+            return ResponseEntity.ok(new MessageRetourDTO("Professeur assigné à l'étudiant avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_000", e.getMessage())));
+        }
+    }
+
 
 }

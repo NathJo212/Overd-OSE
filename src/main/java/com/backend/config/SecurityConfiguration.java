@@ -72,6 +72,7 @@ public class SecurityConfiguration {
                         .requestMatchers(ETUDIANT_PATH).hasAuthority("ETUDIANT")
                         .requestMatchers(GESTIONNAIRE_PATH).hasAuthority("GESTIONNAIRE")
 
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

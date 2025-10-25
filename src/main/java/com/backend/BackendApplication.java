@@ -1,11 +1,8 @@
 package com.backend;
 
+import com.backend.service.*;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.ProgrammeDTO;
-import com.backend.service.EmployeurService;
-import com.backend.service.EtudiantService;
-import com.backend.service.GestionnaireService;
-import com.backend.service.UtilisateurService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,7 +20,7 @@ public class BackendApplication {
 
     @Bean
     @Profile("!test")
-    public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService, UtilisateurService utilisateurService, GestionnaireService gestionnaireService) {
+    public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService, UtilisateurService utilisateurService, GestionnaireService gestionnaireService, ProfesseurService professeurService) {
         return _ -> {
             employeurService.creerEmployeur(
                     "mon@employeur.com",
@@ -52,7 +49,13 @@ public class BackendApplication {
                     "Legault"
             );
 
-
+            professeurService.creerProfesseur(
+                    "professeur@example.com",
+                    "Prof128&",
+                    "764-782-4572",
+                    "Louis",
+                    "Poirier"
+            );
 
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");
             System.out.println("Employeur contact: " + utilisateurTest.getUtilisateurDTO().getContact());
@@ -92,6 +95,7 @@ public class BackendApplication {
                     "18$/h",
                     LocalDate.now().minusDays(10)
             );
+
 
 
         };

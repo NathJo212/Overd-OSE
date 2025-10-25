@@ -36,9 +36,10 @@ public class GestionnaireService {
     private final EntenteStageRepository ententeStageRepository;
     private final NotificationRepository notificationRepository;
     private final CandidatureRepository candidatureRepository;
+    private final ProfesseurRepository professeurRepository;
 
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
@@ -48,6 +49,7 @@ public class GestionnaireService {
         this.ententeStageRepository = ententeStageRepository;
         this.notificationRepository = notificationRepository;
         this.candidatureRepository = candidatureRepository;
+        this.professeurRepository = professeurRepository;
     }
 
     @Transactional
@@ -391,4 +393,19 @@ public class GestionnaireService {
 
         throw new EntenteDocumentNonTrouveeException();
     }
+
+    @Transactional
+    public void setEtudiantAProfesseur(Long professeurId, Long etudiantId) throws ActionNonAutoriseeException, UserNotFoundException {
+        verifierGestionnaireConnecte();
+
+        Professeur professeur = professeurRepository.findById(professeurId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Etudiant etudiant = etudiantRepository.findById(etudiantId)
+                .orElseThrow(UserNotFoundException::new);
+
+        etudiant.setProfesseur(professeur);
+        etudiantRepository.save(etudiant);
+    }
+
 }

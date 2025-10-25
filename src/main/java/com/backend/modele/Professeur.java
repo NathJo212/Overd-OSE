@@ -1,0 +1,30 @@
+package com.backend.modele;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import lombok.*;
+
+import java.util.List;
+
+@Entity
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Professeur extends Utilisateur {
+
+
+    private String nom;
+    private String prenom;
+
+    @OneToMany
+    private List<Etudiant> etudiantList;
+
+    public Professeur(String email, String password, String telephone, String nom, String prenom) {
+        super(email, password, telephone);
+        this.nom = nom;
+        this.prenom = prenom;
+
+
+    }
+}
