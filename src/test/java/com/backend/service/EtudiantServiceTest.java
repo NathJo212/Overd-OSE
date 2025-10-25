@@ -209,7 +209,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testCreationEtudiant() throws MotPasseInvalideException {
+    public void testCreationEtudiant() throws MotPasseInvalideException, EmailDejaUtiliseException {
         // Arrange
         Etudiant etudiant = new Etudiant( "etudiant@example.com", "Etudiant128&", "987-654-3210", "Martin", "Durand", Programme.P388_A1, "Automne", "2025");
         when(utilisateurRepository.existsByEmail(etudiant.getEmail())).thenReturn(false);
@@ -237,7 +237,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testCreationEtudiant_DeuxComptesMemeEmail() throws MotPasseInvalideException {
+    public void testCreationEtudiant_DeuxComptesMemeEmail() throws MotPasseInvalideException, EmailDejaUtiliseException {
         // Arrange
         String email = "mon@etudiant.com";
         Etudiant etudiant = new Etudiant(email, "Etudiant128&", "987-654-3210", "Martin", "Durand", Programme.P200_B1, "Automne", "2025");
@@ -275,7 +275,7 @@ public class EtudiantServiceTest {
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
 
-        assertThrows(RuntimeException.class,
+        assertThrows(CVNonExistantException.class,
                 () -> etudiantService.getCvEtudiantConnecte(),
                 "Doit lancer une exception car aucun CV n'est présent");
     }
@@ -1282,77 +1282,4 @@ public class EtudiantServiceTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
-
-// Tests for modifierEntente
-
-    @Test
-    void modifierEntente_succes() throws Exception {
-        // Arrange
-        Etudiant etudiant = mock(Etudiant.class);
-        when(etudiant.getId()).thenReturn(1L);
-
-        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
-        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
-
-        EntenteStage entente = new EntenteStage();
-        entente.setEtudiant(etudiant);
-
-        ModificationEntenteDTO dto = new ModificationEntenteDTO();
-        dto.setModificationEntente("Demande de modification des horaires");
-
-        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
-
-        // Act
-        etudiantService.modifierEntente(10L, dto);
-
-        // Assert
-        assertEquals("Demande de modification des horaires", entente.getMessageModificationEtudiant());
-        verify(ententeStageRepository, times(1)).save(entente);
-    }
-
-    @Test
-    void modifierEntente_ententeNonTrouvee_throw() {
-        // Arrange
-        Etudiant etudiant = mock(Etudiant.class);
-        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
-        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
-
-        ModificationEntenteDTO dto = new ModificationEntenteDTO();
-        dto.setModificationEntente("Message");
-
-        when(ententeStageRepository.findById(99L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(EntenteNonTrouveeException.class,
-                () -> etudiantService.modifierEntente(99L, dto));
-        verify(ententeStageRepository, never()).save(any());
-    }
-
-    @Test
-    void modifierEntente_actionNonAutorisee_throw() {
-        // Arrange
-        Etudiant etudiantConnecte = mock(Etudiant.class);
-        when(etudiantConnecte.getId()).thenReturn(1L);
-
-        Etudiant autreEtudiant = mock(Etudiant.class);
-        when(autreEtudiant.getId()).thenReturn(2L);
-
-        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
-        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiantConnecte);
-
-        EntenteStage entente = new EntenteStage();
-        entente.setEtudiant(autreEtudiant);
-
-        ModificationEntenteDTO dto = new ModificationEntenteDTO();
-        dto.setModificationEntente("Message");
-
-        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
-
-        // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class,
-                () -> etudiantService.modifierEntente(10L, dto));
-        verify(ententeStageRepository, never()).save(any());
-    }
-
-
 }

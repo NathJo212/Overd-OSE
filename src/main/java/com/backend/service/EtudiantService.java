@@ -172,7 +172,7 @@ public class EtudiantService {
 
     @Transactional
     public byte[] getCvPourCandidature(Long candidatureId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException {
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException, CVNonExistantException {
         Etudiant etudiant = getEtudiantConnecte();
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
@@ -389,12 +389,7 @@ public class EtudiantService {
                 EntenteStage.SignatureStatus.EN_ATTENTE
         );
 
-        // Filtrer les ententes qui ont une demande de modification en attente
-        // Si messageModificationEtudiant contient du texte, la modification est en cours
         return ententes.stream()
-                .filter(e -> e.getMessageModificationEtudiant() == null ||
-                        e.getMessageModificationEtudiant().isEmpty() ||
-                        e.getMessageModificationEtudiant().isBlank())
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
@@ -411,25 +406,5 @@ public class EtudiantService {
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
-
-    @Transactional
-    public void modifierEntente(Long ententeId, ModificationEntenteDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveeException, StatutEntenteInvalideException {
-        Etudiant etudiant = getEtudiantConnecte();
-
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveeException::new);
-
-        if (!entente.getEtudiant().getId().equals(etudiant.getId())) {
-            throw new ActionNonAutoriseeException();
-        }
-
-        if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
-            throw new StatutEntenteInvalideException();
-        }
-
-
-        entente.setMessageModificationEtudiant(dto.getModificationEntente());
-        ententeStageRepository.save(entente);
-    }
-
 
 }

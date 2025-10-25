@@ -216,7 +216,7 @@ public class GestionnaireService {
                 .collect(Collectors.toList());
     }
 
-    public void creerEntente(EntenteStageDTO dto) throws ActionNonAutoriseeException, OffreNonExistantException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, com.backend.Exceptions.EntenteDejaExistanteException {
+    public void creerEntente(EntenteStageDTO dto) throws ActionNonAutoriseeException, OffreNonExistantException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, com.backend.Exceptions.EntenteDejaExistanteException, StatutCandidatureInvalideException {
         verifierGestionnaireConnecte();
 
         if (dto.getOffreId() == null) {

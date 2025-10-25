@@ -749,64 +749,6 @@ class EmployeurService {
             throw error;
         }
     }
-
-    async demanderModificationEntente(ententeId: number, modificationMessage: string): Promise<MessageRetour> {
-        try {
-            const token = sessionStorage.getItem('authToken');
-            if (!token) {
-                throw new Error('Vous devez être connecté');
-            }
-
-            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/modification`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ modificationEntente: modificationMessage })
-            });
-
-            const data = await response.json();
-
-            if (data?.erreur) {
-                console.error('Erreur lors de la demande de modification:', data.erreur);
-                const error: any = new Error(data.erreur.message || 'Erreur lors de la demande de modification');
-                error.response = { data };
-                throw error;
-            }
-
-            if (!response.ok) {
-                console.error('Erreur HTTP:', response.status, data);
-                const error: any = new Error(`Erreur HTTP: ${response.status}`);
-                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
-                throw error;
-            }
-
-            return data;
-
-        } catch (error: any) {
-            if (error.response?.data?.erreur) {
-                throw error;
-            }
-
-            if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                const networkError: any = new Error('Erreur de connexion au serveur');
-                networkError.code = 'ERR_NETWORK';
-                throw networkError;
-            }
-
-            const genericError: any = new Error(error.message || 'Erreur inconnue');
-            genericError.response = {
-                data: {
-                    erreur: {
-                        errorCode: 'ERROR_000',
-                        message: error.message
-                    }
-                }
-            };
-            throw genericError;
-        }
-    }
 }
 
 export const employeurService = new EmployeurService();

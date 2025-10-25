@@ -60,7 +60,7 @@ public class JwtTokenProvider {
         return tokenBlacklist.contains(cleanToken);
     }
 
-    public void validateToken(String token) {
+    public void validateToken(String token) throws InvalidJwtTokenException {
         String cleanToken = token.startsWith("Bearer ") ? token.substring(7) : token;
         if (isTokenBlacklisted(cleanToken)) {
             throw new InvalidJwtTokenException();

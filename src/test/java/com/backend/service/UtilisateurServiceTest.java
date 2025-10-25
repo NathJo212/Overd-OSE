@@ -47,7 +47,7 @@ public class UtilisateurServiceTest {
     private UtilisateurService utilisateurService;
 
     @Test
-    public void testAuthentificationEmployeur_Success() {
+    public void testAuthentificationEmployeur_Success() throws AuthenticationException {
         // Arrange
         String email = "employeur@test.com";
         String password = "Password123!";
@@ -77,7 +77,7 @@ public class UtilisateurServiceTest {
     }
 
     @Test
-    public void testAuthentificationEtudiant_Success() {
+    public void testAuthentificationEtudiant_Success() throws AuthenticationException {
         // Arrange
         String email = "etudiant@test.com";
         String password = "Password123!";

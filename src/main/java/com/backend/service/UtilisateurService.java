@@ -31,7 +31,7 @@ public class UtilisateurService {
     }
 
     @Transactional
-    public AuthResponseDTO authentifierUtilisateur(String email, String password) {
+    public AuthResponseDTO authentifierUtilisateur(String email, String password) throws AuthenticationException {
         try {
             // Utilise Spring Security pour l'authentification
             Authentication authentication = authenticationManager.authenticate(

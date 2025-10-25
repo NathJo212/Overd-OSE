@@ -1,7 +1,6 @@
 package com.backend.controller;
 
 import com.backend.Exceptions.AuthenticationException;
-import com.backend.Exceptions.UserNotFoundException;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.ErrorResponse;
 import com.backend.service.DTO.LoginDTO;
@@ -13,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/OSE")
@@ -37,9 +35,6 @@ public class UtilisateurController {
             return ResponseEntity.ok(authResponse);
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new AuthResponseDTO(null,null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new AuthResponseDTO(null,null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

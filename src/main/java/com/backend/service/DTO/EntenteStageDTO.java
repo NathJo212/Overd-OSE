@@ -26,7 +26,6 @@ public class EntenteStageDTO {
     private String etudiantSignature; // EN_ATTENTE, SIGNEE, REFUSEE
     private String employeurSignature;
     private String statut; // EN_ATTENTE, SIGNEE, ANNULEE
-    private String messageModificationEmployeurSignature;
     private boolean archived;
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
@@ -49,7 +48,6 @@ public class EntenteStageDTO {
         dto.setEtudiantSignature(entente.getEtudiantSignature() != null ? entente.getEtudiantSignature().name() : null);
         dto.setEmployeurSignature(entente.getEmployeurSignature() != null ? entente.getEmployeurSignature().name() : null);
         dto.setStatut(entente.getStatut() != null ? entente.getStatut().name() : null);
-        dto.setMessageModificationEmployeurSignature(entente.getMessageModificationEmployeur());
         dto.setArchived(entente.isArchived());
         dto.setDateCreation(entente.getDateCreation());
         dto.setDateModification(entente.getDateModification());
