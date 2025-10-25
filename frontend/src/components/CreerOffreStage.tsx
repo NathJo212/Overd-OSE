@@ -146,7 +146,7 @@ const CreerOffreStage = () => {
                     <div className="w-full flex justify-start mb-6">
                         <button
                             onClick={() => navigate('/dashboard-etudiant')}
-                            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                            className="cursor-pointer flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                         >
                             <ArrowLeft className="w-5 h-5" />
                             <span className="font-medium">{t("offercreate:return.message")}</span>
@@ -339,7 +339,7 @@ const CreerOffreStage = () => {
                         <button
                             type="submit"
                             disabled={loading || loadingProgrammes}
-                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center justify-center gap-2"
+                            className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>

@@ -32,7 +32,6 @@ const EntentesEmployeurs = () => {
     const [showModal, setShowModal] = useState(false);
     const [showRefuseModal, setShowRefuseModal] = useState(false);
     const [showModifyModal, setShowModifyModal] = useState(false);
-    const [refuseReason, setRefuseReason] = useState("");
     const [modificationMessage, setModificationMessage] = useState("");
     const [actionLoading, setActionLoading] = useState(false);
 
@@ -98,7 +97,6 @@ const EntentesEmployeurs = () => {
             setSuccessMessage(t("ententesemployeurs:messages.refused"));
             setShowRefuseModal(false);
             setSelectedEntente(null);
-            setRefuseReason("");
             loadEntentes();
         } catch (err: any) {
             setError(err.message || t("ententesemployeurs:errors.refuseError"));
@@ -167,7 +165,7 @@ const EntentesEmployeurs = () => {
                 <div className="mb-8">
                     <button
                         onClick={() => navigate('/dashboard-employeur')}
-                        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         {t("ententesemployeurs:backToDashboard")}
@@ -189,7 +187,7 @@ const EntentesEmployeurs = () => {
 
                     <button
                         onClick={loadEntentes}
-                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
                         disabled={loading}
                     >
                         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -203,7 +201,7 @@ const EntentesEmployeurs = () => {
                         <div className="flex items-start gap-3">
                             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-green-900">{successMessage}</p>
-                            <button onClick={() => setSuccessMessage("")} className="ml-auto text-green-600 hover:text-green-800">
+                            <button onClick={() => setSuccessMessage("")} className="cursor-pointer ml-auto text-green-600 hover:text-green-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -216,7 +214,7 @@ const EntentesEmployeurs = () => {
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-red-900">{error}</p>
-                            <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                            <button onClick={() => setError("")} className="cursor-pointer ml-auto text-red-600 hover:text-red-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -455,7 +453,7 @@ const EntentesEmployeurs = () => {
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <button
                                         onClick={closeModal}
-                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                        className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                     >
                                         {t("ententesemployeurs:modal.close")}
                                     </button>
@@ -470,7 +468,7 @@ const EntentesEmployeurs = () => {
                                     <button
                                         onClick={handleRefuserClick}
                                         disabled={actionLoading}
-                                        className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                                     >
                                         <X className="w-5 h-5" />
                                         {t("ententesemployeurs:actions.refuse")}
@@ -478,7 +476,7 @@ const EntentesEmployeurs = () => {
                                     <button
                                         onClick={handleSignerClick}
                                         disabled={actionLoading}
-                                        className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                                     >
                                         <Check className="w-5 h-5" />
                                         {t("ententesemployeurs:actions.sign")}
@@ -487,7 +485,7 @@ const EntentesEmployeurs = () => {
                             ) : (
                                 <button
                                     onClick={closeModal}
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                    className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                 >
                                     {t("ententesemployeurs:modal.close")}
                                 </button>
@@ -515,17 +513,16 @@ const EntentesEmployeurs = () => {
                             <button
                                 onClick={() => {
                                     setShowRefuseModal(false);
-                                    setRefuseReason("");
                                     setShowModal(true);
                                 }}
-                                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                                className="cursor-pointer px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
                             >
                                 {t("ententesemployeurs:refuseModal.cancel")}
                             </button>
                             <button
                                 onClick={handleConfirmRefuse}
                                 disabled={actionLoading}
-                                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                                className="cursor-pointer px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                             >
                                 {actionLoading ? t("ententesemployeurs:refuseModal.loading") : t("ententesemployeurs:refuseModal.confirm")}
                             </button>
@@ -562,14 +559,14 @@ const EntentesEmployeurs = () => {
                                     setModificationMessage("");
                                     setShowModal(true);
                                 }}
-                                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                                className="cursor-pointer px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
                             >
                                 {t("ententesemployeurs:modifyModal.cancel")}
                             </button>
                             <button
                                 onClick={handleConfirmModify}
                                 disabled={actionLoading || !modificationMessage.trim()}
-                                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="cursor-pointer px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {actionLoading ? t("ententesemployeurs:modifyModal.loading") : t("ententesemployeurs:modifyModal.confirm")}
                             </button>

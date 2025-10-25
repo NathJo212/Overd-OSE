@@ -189,7 +189,7 @@ const EtudiantSigneEntente = () => {
                 {/* Bouton retour */}
                 <button
                     onClick={() => navigate('/dashboard-etudiant')}
-                    className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                    className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     <span className="font-medium">{t('buttons.backToDashboard')}</span>
@@ -287,7 +287,7 @@ const EtudiantSigneEntente = () => {
                                 <div className="flex gap-3 pt-4 border-t border-gray-200">
                                     <button
                                         onClick={() => setSelectedEntente(entente)}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                                        className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
                                     >
                                         <FileText className="w-4 h-4" />
                                         {t('buttons.viewDetails')}
@@ -300,7 +300,7 @@ const EtudiantSigneEntente = () => {
                                                     setSelectedEntente(entente);
                                                     setShowSignModal(true);
                                                 }}
-                                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 font-semibold"
+                                                className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 font-semibold"
                                             >
                                                 <FileSignature className="w-4 h-4" />
                                                 {t('buttons.sign')}
@@ -310,7 +310,7 @@ const EtudiantSigneEntente = () => {
                                                     setSelectedEntente(entente);
                                                     setShowModifyModal(true);
                                                 }}
-                                                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
+                                                className="cursor-pointer px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
                                             >
                                                 <Edit className="w-4 h-4" />
                                                 {t('buttons.modify')}
@@ -320,7 +320,7 @@ const EtudiantSigneEntente = () => {
                                                     setSelectedEntente(entente);
                                                     setShowRefuseModal(true);
                                                 }}
-                                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                                                className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
                                             >
                                                 <XCircle className="w-4 h-4" />
                                                 {t('buttons.refuse')}
@@ -347,7 +347,7 @@ const EtudiantSigneEntente = () => {
                             </div>
                             <button
                                 onClick={() => setSelectedEntente(null)}
-                                className="text-gray-500 hover:text-gray-700 text-2xl"
+                                className="cursor-pointer text-gray-500 hover:text-gray-700 text-2xl"
                             >
                                 ✕
                             </button>
@@ -443,21 +443,21 @@ const EtudiantSigneEntente = () => {
                             <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
                                 <button
                                     onClick={() => setShowSignModal(true)}
-                                    className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-semibold"
+                                    className="cursor-pointer flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-semibold"
                                 >
                                     <FileSignature className="w-5 h-5" />
                                     {t('buttons.sign')}
                                 </button>
                                 <button
                                     onClick={() => setShowModifyModal(true)}
-                                    className="flex-1 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
+                                    className="cursor-pointer flex-1 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Edit className="w-5 h-5" />
                                     {t('buttons.modify')}
                                 </button>
                                 <button
                                     onClick={() => setShowRefuseModal(true)}
-                                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 font-semibold"
+                                    className="cursor-pointer flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 font-semibold"
                                 >
                                     <XCircle className="w-5 h-5" />
                                     {t('buttons.refuse')}
@@ -485,14 +485,14 @@ const EtudiantSigneEntente = () => {
                             <button
                                 onClick={closeAllModals}
                                 disabled={actionLoading}
-                                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                                className="cursor-pointer flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
                             >
                                 {t('buttons.cancel')}
                             </button>
                             <button
                                 onClick={handleSignEntente}
                                 disabled={actionLoading}
-                                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="cursor-pointer flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {actionLoading ? (
                                     <>
@@ -523,7 +523,7 @@ const EtudiantSigneEntente = () => {
                             </div>
                             <button
                                 onClick={closeAllModals}
-                                className="text-gray-500 hover:text-gray-700 text-2xl"
+                                className="cursor-pointer text-gray-500 hover:text-gray-700 text-2xl"
                             >
                                 ✕
                             </button>
@@ -546,14 +546,14 @@ const EtudiantSigneEntente = () => {
                             <button
                                 onClick={closeAllModals}
                                 disabled={actionLoading}
-                                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                                className="cursor-pointer flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
                             >
                                 {t('buttons.cancel')}
                             </button>
                             <button
                                 onClick={handleModifyEntente}
                                 disabled={actionLoading || !modificationText.trim()}
-                                className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="cursor-pointer flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {actionLoading ? (
                                     <>
@@ -589,14 +589,14 @@ const EtudiantSigneEntente = () => {
                             <button
                                 onClick={closeAllModals}
                                 disabled={actionLoading}
-                                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                                className="cursor-pointer flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
                             >
                                 {t('buttons.cancel')}
                             </button>
                             <button
                                 onClick={handleRefuseEntente}
                                 disabled={actionLoading}
-                                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="cursor-pointer flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {actionLoading ? (
                                     <>

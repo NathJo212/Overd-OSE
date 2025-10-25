@@ -159,7 +159,7 @@ const EntentesStageGestionnaire = () => {
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-red-900">{error}</p>
-                            <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                            <button onClick={() => setError("")} className="cursor-pointer ml-auto text-red-600 hover:text-red-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -286,7 +286,7 @@ const EntentesStageGestionnaire = () => {
                             </div>
                             <button
                                 onClick={closeModal}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
                                 disabled={isSubmitting}
                             >
                                 <X className="w-6 h-6" />
@@ -488,14 +488,14 @@ const EntentesStageGestionnaire = () => {
                                     type="button"
                                     onClick={closeModal}
                                     disabled={isSubmitting}
-                                    className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="cursor-pointer px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {t('modal.actions.cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center gap-2"
+                                    className="cursor-pointer px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center gap-2"
                                 >
                                     {isSubmitting ? (
                                         <>

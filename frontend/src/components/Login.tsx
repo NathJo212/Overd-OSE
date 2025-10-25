@@ -283,7 +283,7 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center justify-center gap-2"
+                            className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>
@@ -310,7 +310,7 @@ const Login = () => {
                                 type="button"
                                 disabled={loading}
                                 onClick={() => handleTestLogin('EMPLOYEUR')}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
+                                className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
                             >
                                 Se connecter en tant qu'Employeur
                             </button>
@@ -318,7 +318,7 @@ const Login = () => {
                                 type="button"
                                 disabled={loading}
                                 onClick={() => handleTestLogin('ETUDIANT')}
-                                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
+                                className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
                             >
                                 Se connecter en tant qu'Étudiant
                             </button>
@@ -326,7 +326,7 @@ const Login = () => {
                                 type="button"
                                 disabled={loading}
                                 onClick={() => handleTestLogin('GESTIONNAIRE')}
-                                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
+                                className="cursor-pointer flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
                             >
                                 Se connecter en tant que Gestionnaire
                             </button>

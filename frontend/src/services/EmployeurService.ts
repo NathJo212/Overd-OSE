@@ -151,16 +151,18 @@ class EmployeurService {
 
     formatFormDataForAPI(formData: {
         nomEntreprise: string;
-        contact: string;
-        email: string;
+        adresseEntreprise?: string;
+        prenomContact?: string;
+        nomContact?: string;
+        emailProfessionnel: string;
         telephone: string;
         motDePasse: string;
-        confirmerMotDePasse: string;
+        confirmerMotDePasse?: string;
     }): EmployeurData {
         return {
             nomEntreprise: formData.nomEntreprise,
-            contact: formData.contact,
-            email: formData.email,
+            contact: `${formData.prenomContact || ''} ${formData.nomContact || ''}`.trim(),
+            email: formData.emailProfessionnel,
             telephone: formData.telephone,
             password: formData.motDePasse,
         };

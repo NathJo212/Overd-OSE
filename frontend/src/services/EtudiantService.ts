@@ -110,7 +110,6 @@ class EtudiantService {
 
             const data = await response.json();
 
-            // ✅ Vérifier si erreur dans MessageRetourDTO
             if (data.erreur) {
                 console.error('Erreur lors de la création du compte:', data.erreur);
 
@@ -163,6 +162,30 @@ class EtudiantService {
             throw genericError;
         }
     }
+
+    formatFormDataForAPI(formData: {
+        prenom: string
+        nom: string
+        email: string
+        telephone: string
+        motDePasse: string
+        confirmerMotDePasse: string
+        programmeEtudes: string
+        anneeEtude: string
+        session: string
+    }): EtudiantData {
+        return {
+            prenom: formData.prenom,
+            nom: formData.nom,
+            email: formData.email,
+            password: formData.motDePasse,
+            telephone: formData.telephone,
+            progEtude: formData.programmeEtudes,
+            session: formData.session,
+            annee: formData.anneeEtude
+        };
+    }
+
 
     /**
      * Récupère toutes les offres approuvées

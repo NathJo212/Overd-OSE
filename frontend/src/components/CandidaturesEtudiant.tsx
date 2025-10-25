@@ -255,7 +255,7 @@ const CandidaturesEtudiant = () => {
                 <div className="mb-8">
                     <button
                         onClick={() => navigate('/dashboard-etudiant')}
-                        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         <span className="font-medium">{t('backToDashboard')}</span>
@@ -397,7 +397,7 @@ const CandidaturesEtudiant = () => {
                         {!searchTerm && statusFilter === "ALL" && (
                             <button
                                 onClick={() => navigate("/dashboard-etudiant")}
-                                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                                className="cursor-pointer inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 <Briefcase className="w-5 h-5 mr-2" />
                                 {t('noCandidatures.viewOffers')}
@@ -433,14 +433,14 @@ const CandidaturesEtudiant = () => {
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={() => handleAccept(candidature)}
-                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                    className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
                                                 >
                                                     <Check className="w-4 h-4" />
                                                     {t("actions.accept")}
                                                 </button>
                                                 <button
                                                     onClick={() => handleRefuse(candidature)}
-                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                    className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
                                                 >
                                                     <X className="w-4 h-4" />
                                                     {t("actions.refuse")}
@@ -499,14 +499,14 @@ const CandidaturesEtudiant = () => {
                                         setCandidatureToAction(null);
                                     }}
                                     disabled={actionLoading}
-                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                    className="cursor-pointer flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                                 >
                                     {t("actions.cancel")}
                                 </button>
                                 <button
                                     onClick={confirmAccept}
                                     disabled={actionLoading}
-                                    className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                                    className="cursor-pointer flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
                                 >
                                     {actionLoading ? t("actions.sending") : t("actions.confirm")}
                                 </button>
@@ -553,14 +553,14 @@ const CandidaturesEtudiant = () => {
                                         setCandidatureToAction(null);
                                     }}
                                     disabled={actionLoading}
-                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                    className="cursor-pointer flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                                 >
                                     {t("actions.cancel")}
                                 </button>
                                 <button
                                     onClick={confirmRefuse}
                                     disabled={actionLoading}
-                                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                                    className="cursor-pointer flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
                                 >
                                     {actionLoading ? t("actions.sending") : t("actions.confirm")}
                                 </button>

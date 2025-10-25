@@ -198,7 +198,7 @@ const VisualiserOffresGestionnaire = () => {
                 <div className="w-full flex justify-start mb-6">
                     <button
                         onClick={() => navigate('/dashboard-etudiant')}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         <span className="font-medium">{t("back")}</span>
@@ -218,7 +218,7 @@ const VisualiserOffresGestionnaire = () => {
                     <div className="flex flex-wrap gap-3">
                         <button
                             onClick={() => filterOffres('all')}
-                            className={`px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
+                            className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
                                 currentFilter === 'all' ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                             }`}
                         >
@@ -226,7 +226,7 @@ const VisualiserOffresGestionnaire = () => {
                         </button>
                         <button
                             onClick={() => filterOffres('pending')}
-                            className={`px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
+                            className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
                                 currentFilter === 'pending' ? 'bg-yellow-500 text-white shadow-lg' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                             }`}
                         >
@@ -234,7 +234,7 @@ const VisualiserOffresGestionnaire = () => {
                         </button>
                         <button
                             onClick={() => filterOffres('approved')}
-                            className={`px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
+                            className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
                                 currentFilter === 'approved' ? 'bg-green-600 text-white shadow-lg' : 'bg-green-100 text-green-700 hover:bg-green-200'
                             }`}
                         >
@@ -242,7 +242,7 @@ const VisualiserOffresGestionnaire = () => {
                         </button>
                         <button
                             onClick={() => filterOffres('refused')}
-                            className={`px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
+                            className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
                                 currentFilter === 'refused' ? 'bg-red-600 text-white shadow-lg' : 'bg-red-100 text-red-700 hover:bg-red-200'
                             }`}
                         >
@@ -250,7 +250,7 @@ const VisualiserOffresGestionnaire = () => {
                         </button>
                         <button
                             onClick={() => filterOffres('expired')}
-                            className={`px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
+                            className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
                                 currentFilter === 'expired' ? 'bg-gray-600 text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         >

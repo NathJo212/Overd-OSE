@@ -214,7 +214,7 @@ const DashBoardEtudiant = () => {
                                 <button
                                     type="button"
                                     onClick={handleCloseNotification}
-                                    className="rounded-md inline-flex hover:opacity-70 focus:outline-none"
+                                    className="cursor-pointer rounded-md inline-flex hover:opacity-70 focus:outline-none"
                                 >
                                     <X className="h-5 w-5" />
                                 </button>
@@ -237,7 +237,7 @@ const DashBoardEtudiant = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                     <button
                         onClick={handleNavigateToCv}
-                        className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
+                        className="cursor-pointer bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
                     >
                         <div className="flex items-start justify-between mb-4">
                             <div className="bg-blue-50 p-4 rounded-xl group-hover:bg-blue-100 transition-colors">
@@ -254,7 +254,7 @@ const DashBoardEtudiant = () => {
 
                     <button
                         onClick={() => navigate("/mes-candidatures")}
-                        className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
+                        className="cursor-pointer bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
                     >
                         <div className="flex items-start justify-between mb-4">
                             <div className="bg-purple-50 p-4 rounded-xl group-hover:bg-purple-100 transition-colors">
@@ -271,7 +271,7 @@ const DashBoardEtudiant = () => {
 
                     <button
                         onClick={() => navigate("/mes-ententes-stage")}
-                        className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
+                        className="cursor-pointer bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
                     >
                         <div className="flex items-start justify-between mb-4">
                             <div className="bg-green-50 p-4 rounded-xl group-hover:bg-green-100 transition-colors">
@@ -310,7 +310,7 @@ const DashBoardEtudiant = () => {
                             setLoadingConvocations(true);
                             try { const convs = await etudiantService.getConvocations(); setConvocations(convs || []); }
                             finally { setLoadingConvocations(false); }
-                        }} className="text-sm text-gray-500 hover:text-gray-700">{t('convocations.refresh') || 'Refresh'}</button>
+                        }} className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">{t('convocations.refresh') || 'Refresh'}</button>
                     </div>
 
                     {loadingConvocations ? (
@@ -333,7 +333,7 @@ const DashBoardEtudiant = () => {
                                             {c.offreTitre && <p className="text-sm text-blue-700 font-medium mt-2">{c.offreTitre}</p>}
                                         </div>
                                         <div className="flex flex-col items-end gap-2">
-                                            <button onClick={() => setSelectedConvocation(c)} className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">{t('convocations.view') || 'View'}</button>
+                                            <button onClick={() => setSelectedConvocation(c)} className="cursor-pointer px-3 py-1 bg-blue-600 text-white rounded-md text-sm">{t('convocations.view') || 'View'}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -355,7 +355,7 @@ const DashBoardEtudiant = () => {
                                 </div>
                                 <p className="text-sm text-gray-600 mt-1">{new Date(selectedConvocation.dateHeure).toLocaleString()}</p>
                             </div>
-                            <button onClick={() => setSelectedConvocation(null)} className="text-gray-500">{t('convocations.close') || 'Close'}</button>
+                            <button onClick={() => setSelectedConvocation(null)} className="cursor-pointer text-gray-500">{t('convocations.close') || 'Close'}</button>
                         </div>
                         <div className="mt-4">
                             <p className="text-sm text-gray-700">{selectedConvocation.message}</p>
