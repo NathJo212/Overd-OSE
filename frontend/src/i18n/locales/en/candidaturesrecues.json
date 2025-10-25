@@ -94,7 +94,8 @@
     "applicationNumber": "Application #",
     "dateHeure": "Date and time",
     "lieu": "Interview location",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "convocation": "Interview"
   },
   "documentCards": {
     "cvTitle": "Curriculum Vitae",
@@ -113,9 +114,13 @@
   "creating": "Creating...",
   "create": "Create Interview",
   "convocationStatus": {
-    "convoked": "Convoked",
-    "modified": "Modified",
+    "convoked": "Convoked to an interview",
+    "modified": "Convocation modified",
     "cancelled": "Cancelled"
+  },
+  "convocation": {
+    "date": "Date and time",
+    "location": "Location / link"
   },
   "placeholders": {
     "lieu": "Ex: Room 301, Building A or https://meet.google.com/...",
