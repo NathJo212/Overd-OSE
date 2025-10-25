@@ -27,8 +27,8 @@
     "close": "Fermer",
     "location": "Lieu",
     "employer": "Employeur",
-    "convoked" : "Convoqué",
-    "modified" : "Modifié",
-    "cancelled" : "Annulée"
+    "convoquee" : "Convoqué à une entrevue",
+    "modifie" : "Convocation modifié",
+    "annulee" : "Convocation annulée"
   }
 }
