@@ -41,6 +41,18 @@ public class BackendApplication {
                     "3ème année"
             );
 
+
+            etudiantService.creerEtudiant(
+                    "etudiant2@example.com",
+                    "Etudiant128&",
+                    "987-654-3210",
+                    "George",
+                    "Dubois",
+                    ProgrammeDTO.P221_A0,
+                    "Automne",
+                    "3ème année"
+            );
+
             gestionnaireService.creerGestionnaire(
                     "gestionnaire@example.com",
                         "Gestion128&",

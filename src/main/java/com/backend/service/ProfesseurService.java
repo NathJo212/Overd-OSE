@@ -5,16 +5,20 @@ import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.Exceptions.UtilisateurPasTrouveException;
+import com.backend.modele.Etudiant;
 import com.backend.modele.Professeur;
 import com.backend.persistence.ProfesseurRepository;
 import com.backend.persistence.UtilisateurRepository;
+import com.backend.service.DTO.EtudiantDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class ProfesseurService {
@@ -58,6 +62,28 @@ public class ProfesseurService {
         }
         throw new UtilisateurPasTrouveException();
     }
+
+    @Transactional
+    public List<EtudiantDTO> getMesEtudiants(Long professeurId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+
+        Professeur professeurConnecte = getProfesseurConnecte();
+
+        if (!professeurConnecte.getId().equals(professeurId)) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        Professeur professeur = professeurRepository.findById(professeurId)
+                .orElseThrow(UtilisateurPasTrouveException::new);
+
+        return professeur.getEtudiantList()
+                .stream()
+                .map(e -> new EtudiantDTO().toDTO(e))
+                .toList();
+    }
+
+
+
 
 
 }
