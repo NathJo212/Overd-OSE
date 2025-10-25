@@ -13,8 +13,7 @@ import {
     CheckCircle,
     RefreshCw,
     X,
-    Check,
-    Edit
+    Check
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -31,8 +30,6 @@ const EntentesEmployeurs = () => {
     const [selectedEntente, setSelectedEntente] = useState<EntenteStageDTO | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [showRefuseModal, setShowRefuseModal] = useState(false);
-    const [showModifyModal, setShowModifyModal] = useState(false);
-    const [modificationMessage, setModificationMessage] = useState("");
     const [actionLoading, setActionLoading] = useState(false);
 
     useEffect(() => {
@@ -100,29 +97,6 @@ const EntentesEmployeurs = () => {
             loadEntentes();
         } catch (err: any) {
             setError(err.message || t("ententesemployeurs:errors.refuseError"));
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
-    const handleModifierClick = () => {
-        setShowModal(false);
-        setShowModifyModal(true);
-    };
-
-    const handleConfirmModify = async () => {
-        if (!selectedEntente || !modificationMessage.trim()) return;
-
-        setActionLoading(true);
-        try {
-            await employeurService.demanderModificationEntente(selectedEntente.id, modificationMessage);
-            setSuccessMessage(t("ententesemployeurs:messages.modified"));
-            setShowModifyModal(false);
-            setSelectedEntente(null);
-            setModificationMessage("");
-            loadEntentes();
-        } catch (err: any) {
-            setError(err.message || t("ententesemployeurs:errors.modifyError"));
         } finally {
             setActionLoading(false);
         }
@@ -458,14 +432,6 @@ const EntentesEmployeurs = () => {
                                         {t("ententesemployeurs:modal.close")}
                                     </button>
                                     <button
-                                        onClick={handleModifierClick}
-                                        disabled={actionLoading}
-                                        className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-                                    >
-                                        <Edit className="w-5 h-5" />
-                                        {t("ententesemployeurs:actions.modify")}
-                                    </button>
-                                    <button
                                         onClick={handleRefuserClick}
                                         disabled={actionLoading}
                                         className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
@@ -525,50 +491,6 @@ const EntentesEmployeurs = () => {
                                 className="cursor-pointer px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                             >
                                 {actionLoading ? t("ententesemployeurs:refuseModal.loading") : t("ententesemployeurs:refuseModal.confirm")}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Modal de modification */}
-            {showModifyModal && selectedEntente && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
-                        <div className="bg-purple-50 px-6 py-4 rounded-t-2xl border-b border-purple-100">
-                            <h3 className="text-xl font-bold text-purple-900">
-                                {t("ententesemployeurs:modifyModal.title")}
-                            </h3>
-                        </div>
-                        <div className="p-6">
-                            <p className="text-gray-700 mb-4">
-                                {t("ententesemployeurs:modifyModal.message")}
-                            </p>
-                            <textarea
-                                value={modificationMessage}
-                                onChange={(e) => setModificationMessage(e.target.value)}
-                                placeholder={t("ententesemployeurs:modifyModal.placeholder")}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                rows={4}
-                            />
-                        </div>
-                        <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
-                            <button
-                                onClick={() => {
-                                    setShowModifyModal(false);
-                                    setModificationMessage("");
-                                    setShowModal(true);
-                                }}
-                                className="cursor-pointer px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-                            >
-                                {t("ententesemployeurs:modifyModal.cancel")}
-                            </button>
-                            <button
-                                onClick={handleConfirmModify}
-                                disabled={actionLoading || !modificationMessage.trim()}
-                                className="cursor-pointer px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {actionLoading ? t("ententesemployeurs:modifyModal.loading") : t("ententesemployeurs:modifyModal.confirm")}
                             </button>
                         </div>
                     </div>

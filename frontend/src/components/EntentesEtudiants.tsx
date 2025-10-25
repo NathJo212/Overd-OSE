@@ -9,7 +9,6 @@ import {
     DollarSign,
     AlertCircle,
     FileSignature,
-    Edit,
     ArrowLeft
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
@@ -17,7 +16,7 @@ import NavBar from "./NavBar.tsx";
 import etudiantService from '../services/EtudiantService.ts';
 import type { EntenteStageDTO } from '../services/EtudiantService.ts';
 
-const EtudiantSigneEntente = () => {
+const EntentesEtudiants = () => {
     const { t } = useTranslation('ententes');
     const navigate = useNavigate();
     const [ententes, setEntentes] = useState<EntenteStageDTO[]>([]);
@@ -26,10 +25,8 @@ const EtudiantSigneEntente = () => {
     const [selectedEntente, setSelectedEntente] = useState<EntenteStageDTO | null>(null);
     const [showSignModal, setShowSignModal] = useState(false);
     const [showRefuseModal, setShowRefuseModal] = useState(false);
-    const [showModifyModal, setShowModifyModal] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
-    const [modificationText, setModificationText] = useState('');
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -96,38 +93,10 @@ const EtudiantSigneEntente = () => {
         }
     };
 
-    const handleModifyEntente = async () => {
-        if (!selectedEntente || !modificationText.trim()) {
-            setError(t('errors.modificationRequired'));
-            return;
-        }
-
-        try {
-            setActionLoading(true);
-            await etudiantService.modifierEntente(selectedEntente.id, {
-                modificationEntente: modificationText
-            });
-            setSuccessMessage(t('success.modificationSent'));
-            setShowModifyModal(false);
-            setSelectedEntente(null);
-            setModificationText('');
-            await loadEntentes();
-
-            setTimeout(() => setSuccessMessage(''), 3000);
-        } catch (err: any) {
-            console.error('Erreur lors de la modification:', err);
-            setError(err.response?.data?.erreur?.message || t('errors.modifyError'));
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
     const closeAllModals = () => {
         setShowSignModal(false);
         setShowRefuseModal(false);
-        setShowModifyModal(false);
         setSelectedEntente(null);
-        setModificationText('');
         setError('');
     };
 
@@ -308,16 +277,6 @@ const EtudiantSigneEntente = () => {
                                             <button
                                                 onClick={() => {
                                                     setSelectedEntente(entente);
-                                                    setShowModifyModal(true);
-                                                }}
-                                                className="cursor-pointer px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                                {t('buttons.modify')}
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedEntente(entente);
                                                     setShowRefuseModal(true);
                                                 }}
                                                 className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
@@ -335,7 +294,7 @@ const EtudiantSigneEntente = () => {
             </div>
 
             {/* Modal de détails */}
-            {selectedEntente && !showSignModal && !showRefuseModal && !showModifyModal && (
+            {selectedEntente && !showSignModal && !showRefuseModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-start mb-6">
@@ -449,13 +408,6 @@ const EtudiantSigneEntente = () => {
                                     {t('buttons.sign')}
                                 </button>
                                 <button
-                                    onClick={() => setShowModifyModal(true)}
-                                    className="cursor-pointer flex-1 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
-                                >
-                                    <Edit className="w-5 h-5" />
-                                    {t('buttons.modify')}
-                                </button>
-                                <button
                                     onClick={() => setShowRefuseModal(true)}
                                     className="cursor-pointer flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 font-semibold"
                                 >
@@ -508,70 +460,6 @@ const EtudiantSigneEntente = () => {
                 </div>
             )}
 
-            {/* Modal de modification */}
-            {showModifyModal && selectedEntente && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                    {t('modals.modify.title')}
-                                </h3>
-                                <p className="text-sm text-gray-600">
-                                    {t('modals.modify.subtitle')}
-                                </p>
-                            </div>
-                            <button
-                                onClick={closeAllModals}
-                                className="cursor-pointer text-gray-500 hover:text-gray-700 text-2xl"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                {t('modals.modify.label')}
-                            </label>
-                            <textarea
-                                value={modificationText}
-                                onChange={(e) => setModificationText(e.target.value)}
-                                placeholder={t('modals.modify.placeholder')}
-                                rows={6}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            />
-                        </div>
-
-                        <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
-                            <button
-                                onClick={closeAllModals}
-                                disabled={actionLoading}
-                                className="cursor-pointer flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
-                            >
-                                {t('buttons.cancel')}
-                            </button>
-                            <button
-                                onClick={handleModifyEntente}
-                                disabled={actionLoading || !modificationText.trim()}
-                                className="cursor-pointer flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                {actionLoading ? (
-                                    <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                        {t('buttons.sending')}
-                                    </>
-                                ) : (
-                                    <>
-                                        <Edit className="w-4 h-4" />
-                                        {t('buttons.sendRequest')}
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Modal de confirmation de refus */}
             {showRefuseModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -615,4 +503,4 @@ const EtudiantSigneEntente = () => {
     );
 };
 
-export default EtudiantSigneEntente;
+export default EntentesEtudiants;
