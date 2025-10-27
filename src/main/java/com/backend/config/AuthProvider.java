@@ -19,7 +19,7 @@ public class AuthProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) {
-        Utilisateur user = null;
+        Utilisateur user;
         try {
             user = loadUserByEmail(authentication.getPrincipal().toString());
         } catch (UtilisateurPasTrouveException e) {
