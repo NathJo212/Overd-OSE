@@ -8,7 +8,6 @@ import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,11 +33,10 @@ public class EmployeurService {
     private final EncryptageCV encryptageCV;
     private final ConvocationEntrevueRepository convocationEntrevueRepository;
     private final NotificationRepository notificationRepository;
-    private final MessageSource messageSource;
     private final EntenteStageRepository ententeStageRepository;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, MessageSource messageSource, EntenteStageRepository ententeStageRepository) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -48,7 +46,6 @@ public class EmployeurService {
         this.encryptageCV = encryptageCV;
         this.convocationEntrevueRepository = convocationEntrevueRepository;
         this.notificationRepository = notificationRepository;
-        this.messageSource = messageSource;
         this.ententeStageRepository = ententeStageRepository;
     }
 
@@ -199,11 +196,6 @@ public class EmployeurService {
         } catch (Exception e) {
             throw new CVNonExistantException();
         }
-    }
-
-    private String extractEmailFromToken(String token) {
-        String cleanToken = token.startsWith("Bearer ") ? token.substring(7) : token;
-        return jwtTokenProvider.getEmailFromJWT(cleanToken);
     }
 
 
