@@ -66,26 +66,29 @@ export interface CandidatureEtudiantDTO {
 // Interface pour les ententes de stage
 export interface EntenteStageDTO {
     id: number;
-    candidatureId: number;
+    etudiantId?: number;
+    etudiantNomComplet?: string;
+    etudiantEmail?: string;
+    employeurContact?: string;
+    employeurEmail?: string;
+    offreId?: number;
+    titre: string;
+    description: string;
+    dateDebut: string;
+    dateFin: string;
+    horaire: string;
+    dureeHebdomadaire: number | null;
+    remuneration: string;
+    responsabilites: string;
+    objectifs: string;
+    documentPdf?: string | null;
+    etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    statut: 'EN_ATTENTE' | 'SIGNEE' | 'ANNULEE' | string;
+    archived?: boolean;
     dateCreation: string;
-    dateSignatureEtudiant?: string;
-    dateSignatureEmployeur?: string;
-    dateSignatureGestionnaire?: string;
-    statut: string;
-    offreTitre?: string;
-    employeurNom?: string;
-    dateDebut?: string;
-    dateFin?: string;
-    lieuStage?: string;
-    nombreHeuresParSemaine?: number;
-    salaire?: number;
-    commentaires?: string;
 }
 
-// Interface pour la modification d'entente
-export interface ModificationEntenteDTO {
-    modificationEntente: string;  // ✅ Matche le backend
-}
 
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
@@ -724,42 +727,6 @@ class EtudiantService {
     }
 
     /**
-     * Récupère les ententes de stage en attente de signature de l'étudiant
-     * @returns Promise avec la liste des ententes en attente
-     */
-    async getEntentesEnAttente(): Promise<EntenteStageDTO[]> {
-        try {
-            const token = this.getAuthToken();
-            if (!token) {
-                throw new Error('Vous devez être connecté');
-            }
-
-            const response = await fetch(`${this.baseUrl}/ententes/en-attente`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP: ${response.status}`);
-            }
-
-            return await response.json();
-
-        } catch (error: any) {
-            console.error('Erreur getEntentesEnAttente:', error);
-            if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                const networkError: any = new Error('Erreur de connexion au serveur');
-                networkError.code = 'ERR_NETWORK';
-                throw networkError;
-            }
-            throw error;
-        }
-    }
-
-    /**
      * Signe une entente de stage
      * @param ententeId - L'ID de l'entente à signer
      * @returns Promise avec la réponse du serveur
@@ -880,6 +847,42 @@ class EtudiantService {
                 }
             };
             throw genericError;
+        }
+    }
+
+    /**
+     * Récupère toutes les ententes pour l'étudiant connecté (toutes, pas seulement en attente)
+     * @returns Promise avec la liste des ententes
+     */
+    async getEntentes(): Promise<EntenteStageDTO[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur getEntentes:', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+            throw error;
         }
     }
 }

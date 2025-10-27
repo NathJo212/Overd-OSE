@@ -34,10 +34,7 @@
   },
   "modal": {
     "title": "Détails de l'entente",
-    "signatures": "Statut des signatures",
-    "studentSignature": "Signature étudiant",
-    "employerSignature": "Signature employeur",
-    "managerSignature": "Signature gestionnaire",
+    "signatures": "Statut de la signature",
     "student": "Informations de l'étudiant",
     "name": "Nom",
     "email": "Courriel",

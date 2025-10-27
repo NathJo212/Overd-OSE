@@ -979,7 +979,6 @@ public class EtudiantServiceTest {
         // Assert
         assertEquals(EntenteStage.SignatureStatus.SIGNEE, entente.getEtudiantSignature());
         assertEquals(EntenteStage.StatutEntente.EN_ATTENTE, entente.getStatut()); // Statut reste EN_ATTENTE car employeur n'a pas signé
-        assertNotNull(entente.getDateModification());
         verify(ententeStageRepository, times(1)).save(entente);
     }
 
@@ -1093,7 +1092,6 @@ public class EtudiantServiceTest {
         // Assert
         assertEquals(EntenteStage.SignatureStatus.REFUSEE, entente.getEtudiantSignature());
         assertEquals(EntenteStage.StatutEntente.ANNULEE, entente.getStatut());
-        assertNotNull(entente.getDateModification());
         verify(ententeStageRepository, times(1)).save(entente);
     }
 

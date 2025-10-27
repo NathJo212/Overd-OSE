@@ -9,7 +9,9 @@ import {
     DollarSign,
     AlertCircle,
     FileSignature,
-    ArrowLeft
+    ArrowLeft,
+    RefreshCw,
+    User, X
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
@@ -17,7 +19,7 @@ import etudiantService from '../services/EtudiantService.ts';
 import type { EntenteStageDTO } from '../services/EtudiantService.ts';
 
 const EntentesEtudiants = () => {
-    const { t } = useTranslation('ententes');
+    const { t } = useTranslation('ententesetudiants');
     const navigate = useNavigate();
     const [ententes, setEntentes] = useState<EntenteStageDTO[]>([]);
     const [loading, setLoading] = useState(true);
@@ -38,16 +40,18 @@ const EntentesEtudiants = () => {
         loadEntentes().then();
     }, [navigate]);
 
-    const loadEntentes = async () => {
+    const loadEntentes = async (): Promise<EntenteStageDTO[]> => {
         try {
             setLoading(true);
             setError('');
-            const data = await etudiantService.getEntentesEnAttente();
-            console.log('Ententes en attente chargées:', data);
+            const data = await etudiantService.getEntentes();
             setEntentes(data);
+            return data;
         } catch (err: any) {
             console.error('Erreur lors du chargement des ententes:', err);
             setError(t('errors.loadError'));
+            setEntentes([]);
+            return [];
         } finally {
             setLoading(false);
         }
@@ -58,11 +62,28 @@ const EntentesEtudiants = () => {
 
         try {
             setActionLoading(true);
+            const prevList = ententes;
+
             await etudiantService.signerEntente(selectedEntente.id);
+
+            const updatedLocal: EntenteStageDTO = {
+                ...selectedEntente,
+                statut: selectedEntente.statut ?? 'SIGNE'
+            };
+
+            const merged = prevList.some(e => e.id === updatedLocal.id)
+                ? prevList.map(e => e.id === updatedLocal.id ? { ...e, ...updatedLocal } : e)
+                : [updatedLocal, ...prevList];
+
+            setEntentes(merged);
             setSuccessMessage(t('success.signed'));
             setShowSignModal(false);
             setSelectedEntente(null);
-            await loadEntentes();
+
+            const reloaded = await loadEntentes();
+            if (!reloaded || reloaded.length === 0) {
+                setEntentes(merged);
+            }
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err: any) {
@@ -78,11 +99,28 @@ const EntentesEtudiants = () => {
 
         try {
             setActionLoading(true);
+            const prevList = ententes;
+
             await etudiantService.refuserEntente(selectedEntente.id);
+
+            const updatedLocal: EntenteStageDTO = {
+                ...selectedEntente,
+                statut: 'REFUSEE'
+            };
+
+            const merged = prevList.some(e => e.id === updatedLocal.id)
+                ? prevList.map(e => e.id === updatedLocal.id ? { ...e, ...updatedLocal } : e)
+                : [updatedLocal, ...prevList];
+
+            setEntentes(merged);
             setSuccessMessage(t('success.refused'));
             setShowRefuseModal(false);
             setSelectedEntente(null);
-            await loadEntentes();
+
+            const reloaded = await loadEntentes();
+            if (!reloaded || reloaded.length === 0) {
+                setEntentes(merged);
+            }
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err: any) {
@@ -101,43 +139,36 @@ const EntentesEtudiants = () => {
     };
 
     const peutSigner = (entente: any) => {
-        return entente.etudiantSignature === 'EN_ATTENTE' && entente.statut === 'EN_ATTENTE';
+        return !entente.dateSignatureEtudiant && entente.statut === 'EN_ATTENTE';
     };
 
-    const getStatutBadge = (entente: any) => {
-        if (entente.statut === 'REFUSEE') {
-            return (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border bg-rose-50 text-rose-700 border-rose-200">
-                    <XCircle className="w-3.5 h-3.5" />
-                    {t('status.refused')}
-                </span>
-            );
+    // Badge unique basé sur la signature de l'étudiant ou statut global (REFUSEE)
+    const getSignatureStatusBadge = (statut: string) => {
+        switch (statut) {
+            case 'SIGNEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        {t("ententesemployeurs:signature.signed")}
+                    </span>
+                );
+            case 'EN_ATTENTE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {t("ententesemployeurs:signature.pending")}
+                    </span>
+                );
+            case 'REFUSEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                        <X className="w-3 h-3 mr-1" />
+                        {t("ententesemployeurs:signature.refused")}
+                    </span>
+                );
+            default:
+                return null;
         }
-
-        if (entente.etudiantSignature === 'EN_ATTENTE') {
-            return (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border bg-amber-50 text-amber-700 border-amber-200">
-                    <Clock className="w-3.5 h-3.5" />
-                    {t('status.waitingYourSignature')}
-                </span>
-            );
-        }
-
-        if (entente.etudiantSignature === 'SIGNE') {
-            return (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border bg-green-50 text-green-700 border-green-200">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    {t('status.youSigned')}
-                </span>
-            );
-        }
-
-        return (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200">
-                <Clock className="w-3.5 h-3.5" />
-                {entente.statut}
-            </span>
-        );
     };
 
     const formatDate = (dateString?: string) => {
@@ -155,26 +186,39 @@ const EntentesEtudiants = () => {
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                {/* Bouton retour */}
-                <button
-                    onClick={() => navigate('/dashboard-etudiant')}
-                    className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                    <ArrowLeft className="w-5 h-5" />
-                    <span className="font-medium">{t('buttons.backToDashboard')}</span>
-                </button>
-
-
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {t('title')}
-                    </h1>
-                    <p className="text-gray-600">
-                        {t('subtitle')}
-                    </p>
+                    <button
+                        onClick={() => navigate('/dashboard-etudiant')}
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                        {t('buttons.backToDashboard')}
+                    </button>
+
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <FileSignature className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900">
+                                {t('title')}
+                            </h1>
+                            <p className="text-gray-600">
+                                {t('subtitle')}
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={loadEntentes}
+                        className="cursor-pointer flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                        disabled={loading}
+                    >
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                        {t('refresh')}
+                    </button>
                 </div>
 
-                {/* Success Message */}
                 {successMessage && (
                     <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
                         <CheckCircle className="w-5 h-5 text-green-600" />
@@ -182,7 +226,6 @@ const EntentesEtudiants = () => {
                     </div>
                 )}
 
-                {/* Error Message */}
                 {error && (
                     <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
                         <AlertCircle className="w-5 h-5 text-red-600" />
@@ -190,7 +233,6 @@ const EntentesEtudiants = () => {
                     </div>
                 )}
 
-                {/* Loading State */}
                 {loading && (
                     <div className="text-center py-12">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -198,229 +240,209 @@ const EntentesEtudiants = () => {
                     </div>
                 )}
 
-                {/* Ententes List */}
-                {!loading && ententes.length === 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                        <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-600 text-lg">{t('noEntentes')}</p>
+                {!loading && ententes.length === 0 ? (
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+                        <div className="flex justify-center mb-4">
+                            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                                <FileSignature className="w-8 h-8 text-slate-400" />
+                            </div>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">{t('noEntentes')}</h3>
+                        <p className="text-gray-600 max-w-md mx-auto">{t('noEntentesSubtitle')}</p>
                     </div>
-                )}
+                ) : (
+                    <div>
+                        <div className="mb-4">
+                            <p className="text-sm text-gray-600">
+                                <span className="font-semibold text-gray-900">{ententes.length}</span> {t('ententeCount')}
+                            </p>
+                        </div>
 
-                {!loading && ententes.length > 0 && (
-                    <div className="grid grid-cols-1 gap-6">
-                        {ententes.map((entente: any) => (
-                            <div
-                                key={entente.id}
-                                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-                            >
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex-1">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                            {entente.titre || t('fields.defaultTitle')}
-                                        </h3>
-                                        <p className="text-gray-600 text-sm">
-                                            {entente.description || t('fields.noDescription')}
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            {ententes.map((entente: any) => (
+                                <div
+                                    key={entente.id}
+                                    onClick={() => setSelectedEntente(entente)}
+                                    role="button"
+                                    tabIndex={0}
+                                    className="bg-white rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-6 border border-slate-200 cursor-pointer group"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        {getSignatureStatusBadge(entente.etudiantSignature)}
+                                        <span className="text-xs text-gray-500">{new Date(entente.dateCreation).toLocaleDateString('fr-CA')}</span>
+                                    </div>
+
+                                    <div className="mb-4 pb-4 border-b border-slate-200">
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <FileSignature className="w-5 h-5 text-blue-600" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-bold text-gray-900 mb-1">{entente.offreTitre || entente.titre || t('fields.defaultTitle')}</h3>
+                                                <p className="text-xs text-gray-600 truncate">{entente.commentaires || t('fields.noDescription')}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1 mb-3">
+                                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                                            <Calendar className="w-3 h-3 flex-shrink-0" />
+                                            <span>{formatDate(entente.dateDebut)} → {formatDate(entente.dateFin)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                                            <Clock className="w-3 h-3 flex-shrink-0" />
+                                            <span>{entente.nombreHeuresParSemaine ?? entente.dureeHebdomadaire ?? '-'}h/{t('week')}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                                            <DollarSign className="w-3 h-3 flex-shrink-0" />
+                                            <span>{entente.salaire ?? entente.remuneration ?? '-'}{entente.salaire ? '$' : ''}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 pt-4 border-t border-slate-200">
+                                        <p className="text-sm text-blue-600 font-medium group-hover:text-blue-700 flex items-center gap-2">
+                                            <FileText className="w-4 h-4" />
+                                            {t('buttons.viewDetails')}
                                         </p>
                                     </div>
-                                    {getStatutBadge(entente)}
                                 </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div className="flex items-center gap-2 text-gray-700">
-                                        <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm">
-                                            {t('fields.startDate')}: {formatDate(entente.dateDebut)}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-gray-700">
-                                        <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm">
-                                            {t('fields.endDate')}: {formatDate(entente.dateFin)}
-                                        </span>
-                                    </div>
-                                    {entente.horaire && (
-                                        <div className="flex items-center gap-2 text-gray-700">
-                                            <Clock className="w-4 h-4 text-gray-400" />
-                                            <span className="text-sm">{entente.horaire}</span>
-                                        </div>
-                                    )}
-                                    {entente.remuneration && (
-                                        <div className="flex items-center gap-2 text-gray-700">
-                                            <DollarSign className="w-4 h-4 text-gray-400" />
-                                            <span className="text-sm">{entente.remuneration}$ / {t('fields.perHour')}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex gap-3 pt-4 border-t border-gray-200">
-                                    <button
-                                        onClick={() => setSelectedEntente(entente)}
-                                        className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                                    >
-                                        <FileText className="w-4 h-4" />
-                                        {t('buttons.viewDetails')}
-                                    </button>
-
-                                    {peutSigner(entente) && (
-                                        <>
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedEntente(entente);
-                                                    setShowSignModal(true);
-                                                }}
-                                                className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 font-semibold"
-                                            >
-                                                <FileSignature className="w-4 h-4" />
-                                                {t('buttons.sign')}
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedEntente(entente);
-                                                    setShowRefuseModal(true);
-                                                }}
-                                                className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
-                                            >
-                                                <XCircle className="w-4 h-4" />
-                                                {t('buttons.refuse')}
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>
 
-            {/* Modal de détails */}
+            {/* Modal de détails (look employeur, bouton fermer, un seul statut, détails du stage) */}
             {selectedEntente && !showSignModal && !showRefuseModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                                    {(selectedEntente as any).titre || t('fields.defaultTitle')}
-                                </h3>
-                                {getStatutBadge(selectedEntente)}
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="sticky top-0 bg-blue-50 px-6 py-4 border-b border-blue-100 rounded-t-2xl">
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <FileSignature className="w-5 h-5 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-blue-900">{t('modal.title')}</h3>
+                                        <p className="text-sm text-blue-700">{selectedEntente.titre}</p>
+                                    </div>
+                                </div>
+
                             </div>
-                            <button
-                                onClick={() => setSelectedEntente(null)}
-                                className="cursor-pointer text-gray-500 hover:text-gray-700 text-2xl"
-                            >
-                                ✕
-                            </button>
                         </div>
 
-                        <div className="space-y-4">
-                            {(selectedEntente as any).description && (
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <p className="text-sm text-blue-800">
-                                        <strong>{t('fields.description')}:</strong> {(selectedEntente as any).description}
-                                    </p>
+                        <div className="p-6 space-y-6">
+                            <div className="bg-gray-50 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900">{t("ententesemployeurs:modal.signatures")}</h4>
+                                    </div>
                                 </div>
-                            )}
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                        <Calendar className="w-4 h-4" />
-                                        {t('fields.startDate')}
-                                    </label>
-                                    <p className="text-gray-900 mt-1 font-semibold">{formatDate((selectedEntente as any).dateDebut)}</p>
+                                <div className="flex items-center gap-2">
+                                    {getSignatureStatusBadge(selectedEntente.etudiantSignature)}
                                 </div>
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                        <Calendar className="w-4 h-4" />
-                                        {t('fields.endDate')}
-                                    </label>
-                                    <p className="text-gray-900 mt-1 font-semibold">{formatDate((selectedEntente as any).dateFin)}</p>
+                            </div>
+                            <div className="bg-blue-50 rounded-xl p-4">
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                    <User className="w-5 h-5 text-blue-600" />
+                                    {t('modal.employer')}
+                                </h4>
+                                <div className="space-y-1">
+                                    <p className="text-gray-800"><span className="font-medium">{t('modal.employerName')}:</span> {selectedEntente.employeurContact}</p>
+                                    <p className="text-gray-800"><span className="font-medium">{t('modal.employerEmail')}:</span> {selectedEntente.employeurEmail}</p>
                                 </div>
                             </div>
 
-                            {(selectedEntente as any).horaire && (
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                        <Clock className="w-4 h-4" />
-                                        {t('fields.schedule')}
-                                    </label>
-                                    <p className="text-gray-900 mt-1">{(selectedEntente as any).horaire}</p>
+                            <div>
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2"><FileSignature className="w-5 h-5 text-blue-600" />{t('modal.internshipInfo')}</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-sm text-gray-600">{t('modal.startDate')}</p>
+                                        <p className="font-medium text-gray-900">{formatDate(selectedEntente.dateDebut)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">{t('modal.endDate')}</p>
+                                        <p className="font-medium text-gray-900">{formatDate(selectedEntente.dateFin)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">{t('modal.schedule')}</p>
+                                        <p className="font-medium text-gray-900">{(selectedEntente as any).horaire ?? '-'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">{t('modal.weeklyHours')}</p>
+                                        <p className="font-medium text-gray-900">{selectedEntente.dureeHebdomadaire}h/{t('week')}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">{t('modal.remuneration')}</p>
+                                        <p className="font-medium text-gray-900">{selectedEntente.remuneration}</p>
+                                    </div>
                                 </div>
-                            )}
+                            </div>
 
-                            {(selectedEntente as any).dureeHebdomadaire && (
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <label className="text-sm font-medium text-gray-700">{t('fields.hoursPerWeek')}</label>
-                                    <p className="text-gray-900 mt-1 font-semibold">{(selectedEntente as any).dureeHebdomadaire} {t('fields.hours')}</p>
-                                </div>
-                            )}
-
-                            {(selectedEntente as any).remuneration && (
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                        <DollarSign className="w-4 h-4" />
-                                        {t('fields.remuneration')}
-                                    </label>
-                                    <p className="text-gray-900 mt-1 font-semibold">{(selectedEntente as any).remuneration}$ / {t('fields.perHour')}</p>
+                            {(selectedEntente as any).description && (
+                                <div>
+                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.description')}</h4>
+                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{selectedEntente.description}</p>
                                 </div>
                             )}
 
                             {(selectedEntente as any).responsabilites && (
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <label className="text-sm font-medium text-gray-700">{t('fields.responsibilities')}</label>
-                                    <p className="text-gray-900 mt-1 whitespace-pre-wrap">{(selectedEntente as any).responsabilites}</p>
+                                <div>
+                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.responsibilities')}</h4>
+                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{(selectedEntente as any).responsabilites}</p>
                                 </div>
                             )}
 
                             {(selectedEntente as any).objectifs && (
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <label className="text-sm font-medium text-gray-700">{t('fields.objectives')}</label>
-                                    <p className="text-gray-900 mt-1 whitespace-pre-wrap">{(selectedEntente as any).objectifs}</p>
+                                <div>
+                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.objectives')}</h4>
+                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{(selectedEntente as any).objectifs}</p>
                                 </div>
                             )}
-
-                            <div className="pt-4 border-t-2 border-gray-300">
-                                <h4 className="font-semibold text-gray-900 mb-3">{t('signatureStatus.title')}</h4>
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                    <span className="font-medium text-gray-700">{t('signatureStatus.yourSignature')}</span>
-                                    {(selectedEntente as any).etudiantSignature === 'SIGNE' ? (
-                                        <span className="text-green-600 flex items-center gap-2 font-semibold">
-                                            <CheckCircle className="w-5 h-5" />
-                                            {t('signatureStatus.signed')}
-                                        </span>
-                                    ) : (
-                                        <span className="text-amber-600 flex items-center gap-2 font-semibold">
-                                            <Clock className="w-5 h-5" />
-                                            {t('signatureStatus.waiting')}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
                         </div>
 
-                        {peutSigner(selectedEntente) && (
-                            <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
+                        {/* Pied du modal style employeur */}
+                        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-2xl">
+                            {peutSigner(selectedEntente) ? (
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <button
+                                        onClick={() => { setSelectedEntente(null); }}
+                                        className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                    >
+                                        {t('buttons.close')}
+                                    </button>
+
+                                    <button
+                                        onClick={() => setShowRefuseModal(true)}
+                                        disabled={actionLoading}
+                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                    >
+                                        <XCircle className="w-5 h-5" />
+                                        {t('buttons.refuse')}
+                                    </button>
+                                    <button
+                                        onClick={() => setShowSignModal(true)}
+                                        disabled={actionLoading}
+                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                    >
+                                        <FileSignature className="w-5 h-5" />
+                                        {t('buttons.sign')}
+                                    </button>
+                                </div>
+                            ) : (
                                 <button
-                                    onClick={() => setShowSignModal(true)}
-                                    className="cursor-pointer flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-semibold"
+                                    onClick={() => setSelectedEntente(null)}
+                                    className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                 >
-                                    <FileSignature className="w-5 h-5" />
-                                    {t('buttons.sign')}
+                                    {t('buttons.close')}
                                 </button>
-                                <button
-                                    onClick={() => setShowRefuseModal(true)}
-                                    className="cursor-pointer flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 font-semibold"
-                                >
-                                    <XCircle className="w-5 h-5" />
-                                    {t('buttons.refuse')}
-                                </button>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
 
-            {/* Modal de confirmation de signature */}
+            {/* Modal confirmation signer/refuser inchangés */}
             {showSignModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-xl max-w-md w-full p-6">
@@ -460,7 +482,6 @@ const EntentesEtudiants = () => {
                 </div>
             )}
 
-            {/* Modal de confirmation de refus */}
             {showRefuseModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-xl max-w-md w-full p-6">

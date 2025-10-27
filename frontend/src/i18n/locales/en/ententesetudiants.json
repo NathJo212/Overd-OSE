@@ -3,13 +3,15 @@
   "subtitle": "View and sign your internship agreements",
   "loading": "Loading agreements...",
   "noEntentes": "No pending internship agreements",
-
+  "noEntentesSubtitle": "You currently have no pending internship agreements.",
+  "refresh": "Refresh",
+  "ententeCount": "pending agreements",
+  "week": "week",
   "status": {
     "waitingYourSignature": "Awaiting your signature",
     "youSigned": "You have signed",
     "refused": "Refused"
   },
-
   "fields": {
     "defaultTitle": "Internship Agreement",
     "noDescription": "No description available",
@@ -24,14 +26,12 @@
     "responsibilities": "Responsibilities",
     "objectives": "Objectives"
   },
-
   "signatureStatus": {
     "title": "Your Signature Status",
     "yourSignature": "Your signature",
     "signed": "Signed",
     "waiting": "Pending"
   },
-
   "buttons": {
     "viewDetails": "View details",
     "sign": "Sign",
@@ -44,9 +44,9 @@
     "refusing": "Refusing...",
     "sendRequest": "Send request",
     "confirmRefuse": "Confirm refusal",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "close": "Close"
   },
-
   "modals": {
     "sign": {
       "title": "Confirm signature",
@@ -63,13 +63,29 @@
       "message": "Are you sure you want to refuse this internship agreement? This action is irreversible."
     }
   },
-
+  "modal": {
+    "title": "Agreement details",
+    "signatures": "Signatures",
+    "studentSignature": "Student signature",
+    "employer": "Employer",
+    "employerName": "Employer name",
+    "employerEmail": "Employer email",
+    "offerTitle": "Offer title",
+    "internshipInfo": "Internship information",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "schedule": "Schedule",
+    "weeklyHours": "Weekly hours",
+    "remuneration": "Remuneration",
+    "description": "Description",
+    "responsibilities": "Responsibilities",
+    "objectives": "Learning objectives"
+  },
   "success": {
     "signed": "Agreement signed successfully!",
     "refused": "Agreement refused successfully",
     "modificationSent": "Modification request sent successfully"
   },
-
   "errors": {
     "loadError": "Error loading internship agreements",
     "signError": "Error signing the agreement",
@@ -77,7 +93,6 @@
     "modifyError": "Error sending modification request",
     "modificationRequired": "Please describe the desired modifications"
   },
-
   "common": {
     "notDefined": "Not defined"
   }

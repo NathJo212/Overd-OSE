@@ -249,7 +249,7 @@ const EntentesEmployeurs = () => {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-gray-900 mb-1">
-                                                    {entente.etudiantPrenom} {entente.etudiantNom}
+                                                    {entente.etudiantNomComplet}
                                                 </h3>
                                                 <p className="text-xs text-gray-600 truncate">
                                                     {entente.etudiantEmail}
@@ -324,23 +324,14 @@ const EntentesEmployeurs = () => {
                         {/* Contenu du modal */}
                         <div className="p-6 space-y-6">
                             {/* Statuts de signature */}
-                            <div className="bg-gray-50 rounded-xl p-4">
-                                <h4 className="font-semibold text-gray-900 mb-3">
-                                    {t("ententesemployeurs:modal.signatures")}
-                                </h4>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-700">{t("ententesemployeurs:modal.studentSignature")}:</span>
-                                        {getSignatureStatusBadge(selectedEntente.etudiantSignature)}
+                            <div className="bg-gray-50 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900">{t("ententesemployeurs:modal.signatures")}</h4>
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-700">{t("ententesemployeurs:modal.employerSignature")}:</span>
-                                        {getSignatureStatusBadge(selectedEntente.employeurSignature)}
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-700">{t("ententesemployeurs:modal.managerSignature")}:</span>
-                                        {getSignatureStatusBadge(selectedEntente.gestionnaireSignature)}
-                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {getSignatureStatusBadge(selectedEntente.employeurSignature)}
                                 </div>
                             </div>
 
@@ -352,7 +343,7 @@ const EntentesEmployeurs = () => {
                                 </h4>
                                 <div className="space-y-1">
                                     <p className="text-gray-800">
-                                        <span className="font-medium">{t("ententesemployeurs:modal.name")}:</span> {selectedEntente.etudiantPrenom} {selectedEntente.etudiantNom}
+                                        <span className="font-medium">{t("ententesemployeurs:modal.name")}:</span> {selectedEntente.etudiantNomComplet}
                                     </p>
                                     <p className="text-gray-800">
                                         <span className="font-medium">{t("ententesemployeurs:modal.email")}:</span> {selectedEntente.etudiantEmail}

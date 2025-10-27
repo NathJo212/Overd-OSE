@@ -490,7 +490,6 @@ public class EmployeurService {
         }
 
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
-        entente.setDateModification(LocalDateTime.now());
 
         // Si les deux ont signé, marquer l'entente comme signée
         if (entente.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE) {
@@ -526,7 +525,6 @@ public class EmployeurService {
 
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.REFUSEE);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
-        entente.setDateModification(LocalDateTime.now());
 
         ententeStageRepository.save(entente);
 

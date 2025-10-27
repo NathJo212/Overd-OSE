@@ -60,30 +60,27 @@ export interface ConvocationEntrevueDTO {
 
 export interface EntenteStageDTO {
     id: number;
+    etudiantId?: number;
+    etudiantNomComplet?: string;
+    etudiantEmail?: string;
+    employeurContact?: string;
+    employeurEmail?: string;
+    offreId?: number;
     titre: string;
     description: string;
     dateDebut: string;
     dateFin: string;
     horaire: string;
-    dureeHebdomadaire: number;
+    dureeHebdomadaire: number | null;
     remuneration: string;
     responsabilites: string;
     objectifs: string;
-    etudiantNom: string;
-    etudiantPrenom: string;
-    etudiantEmail: string;
-    employeurNom?: string;
-    offreTitre?: string;
-    dateCreation: string;
-    statut: string;
+    documentPdf?: string | null;
     etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
     employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
-    gestionnaireSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
-    messageModificationEmployeur?: string;
-}
-
-export interface ModificationEntenteDTO {
-    modificationEntente: string;
+    statut: 'EN_ATTENTE' | 'SIGNEE' | 'ANNULEE' | string;
+    archived?: boolean;
+    dateCreation: string;
 }
 
 // Configuration de l'API

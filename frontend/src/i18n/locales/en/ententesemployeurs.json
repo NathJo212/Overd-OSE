@@ -34,10 +34,7 @@
   },
   "modal": {
     "title": "Agreement Details",
-    "signatures": "Signature Status",
-    "studentSignature": "Student signature",
-    "employerSignature": "Employer signature",
-    "managerSignature": "Manager signature",
+    "signature": "Signature Status",
     "student": "Student Information",
     "name": "Name",
     "email": "Email",

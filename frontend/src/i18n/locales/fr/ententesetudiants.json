@@ -3,13 +3,15 @@
   "subtitle": "Consultez et signez vos ententes de stage",
   "loading": "Chargement des ententes...",
   "noEntentes": "Aucune entente de stage en attente",
-
+  "noEntentesSubtitle": "Vous n'avez actuellement aucune entente de stage en attente.",
+  "refresh": "Rafraîchir",
+  "ententeCount": "ententes en attente",
+  "week": "semaine",
   "status": {
     "waitingYourSignature": "En attente de votre signature",
     "youSigned": "Vous avez signé",
     "refused": "Refusée"
   },
-
   "fields": {
     "defaultTitle": "Entente de stage",
     "noDescription": "Description non disponible",
@@ -24,14 +26,12 @@
     "responsibilities": "Responsabilités",
     "objectives": "Objectifs"
   },
-
   "signatureStatus": {
     "title": "Statut de votre signature",
     "yourSignature": "Votre signature",
     "signed": "Signée",
     "waiting": "En attente"
   },
-
   "buttons": {
     "viewDetails": "Voir les détails",
     "sign": "Signer",
@@ -44,9 +44,9 @@
     "refusing": "Refus...",
     "sendRequest": "Envoyer la demande",
     "confirmRefuse": "Confirmer le refus",
-    "backToDashboard": "Retour au tableau de bord"
+    "backToDashboard": "Retour au tableau de bord",
+    "close": "Fermer"
   },
-
   "modals": {
     "sign": {
       "title": "Confirmer la signature",
@@ -63,13 +63,29 @@
       "message": "Êtes-vous sûr de vouloir refuser cette entente de stage ? Cette action est irréversible."
     }
   },
-
+  "modal": {
+    "title": "Détails de l'entente",
+    "signatures": "Signatures",
+    "studentSignature": "Signature de l'étudiant",
+    "employer": "Employeur",
+    "employerName": "Nom de l'employeur",
+    "employerEmail": "Email de l'employeur",
+    "offerTitle": "Intitulé de l'offre",
+    "internshipInfo": "Informations sur le stage",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "schedule": "Horaire",
+    "weeklyHours": "Heures hebdomadaires",
+    "remuneration": "Rémunération",
+    "description": "Description",
+    "responsibilities": "Responsabilités",
+    "objectives": "Objectifs"
+  },
   "success": {
     "signed": "Entente signée avec succès !",
     "refused": "Entente refusée avec succès",
     "modificationSent": "Demande de modification envoyée avec succès"
   },
-
   "errors": {
     "loadError": "Erreur lors du chargement des ententes de stage",
     "signError": "Erreur lors de la signature de l'entente",
@@ -77,7 +93,6 @@
     "modifyError": "Erreur lors de la demande de modification",
     "modificationRequired": "Veuillez décrire les modifications souhaitées"
   },
-
   "common": {
     "notDefined": "Non définie"
   }

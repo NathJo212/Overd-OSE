@@ -76,7 +76,6 @@ public class EntenteStage {
     private boolean archived = false;
 
     private LocalDateTime dateCreation = LocalDateTime.now();
-    private LocalDateTime dateModification = LocalDateTime.now();
 
     public EntenteStage(Etudiant etudiant, Employeur employeur, Offre offre, String titre, String description, LocalDate dateDebut, LocalDate dateFin,
                         String horaire, Integer dureeHebdomadaire, String remuneration, String responsabilites, String objectifs) {
@@ -97,6 +96,5 @@ public class EntenteStage {
         this.statut = StatutEntente.EN_ATTENTE;
         this.archived = false;
         this.dateCreation = LocalDateTime.now();
-        this.dateModification = LocalDateTime.now();
     }
 }
