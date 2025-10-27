@@ -82,11 +82,6 @@ export interface EntenteStageDTO {
     commentaires?: string;
 }
 
-// Interface pour la modification d'entente
-export interface ModificationEntenteDTO {
-    modificationEntente: string;  // ✅ Matche le backend
-}
-
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const ETUDIANT_ENDPOINT = '/OSEetudiant';
