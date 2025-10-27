@@ -81,11 +81,6 @@ export interface EntenteStageDTO {
     gestionnaireSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
     messageModificationEmployeur?: string;
 }
-
-export interface ModificationEntenteDTO {
-    modificationEntente: string;
-}
-
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const EMPLOYEUR_ENDPOINT = '/OSEemployeur';
@@ -276,33 +271,6 @@ class EmployeurService {
             throw error;
         }
     }
-
-    async getCandidatureSpecifique(id: number): Promise<CandidatureRecueDTO> {
-        try {
-            const token = sessionStorage.getItem('authToken');
-            if (!token) {
-                throw new Error('Vous devez être connecté');
-            }
-
-            const response = await fetch(`${this.baseUrl}/candidatures/${id}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération de la candidature');
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Erreur getCandidatureSpecifique:', error);
-            throw error;
-        }
-    }
-
     async telechargerCvCandidature(id: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
