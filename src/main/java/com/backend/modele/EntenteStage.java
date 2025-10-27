@@ -92,9 +92,6 @@ public class EntenteStage {
         this.remuneration = remuneration;
         this.responsabilites = responsabilites;
         this.objectifs = objectifs;
-        this.etudiantSignature = SignatureStatus.EN_ATTENTE;
-        this.employeurSignature = SignatureStatus.EN_ATTENTE;
-        this.statut = StatutEntente.EN_ATTENTE;
         this.archived = false;
         this.dateCreation = LocalDateTime.now();
         this.dateModification = LocalDateTime.now();
