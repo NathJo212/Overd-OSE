@@ -23,9 +23,9 @@
     "modified": "Modification request sent successfully"
   },
   "signature": {
-    "signed": "Signed",
-    "pending": "Pending",
-    "refused": "Refused"
+    "pending": "Awaiting your signature",
+    "signed": "You have signed",
+    "refused": "Refused by you"
   },
   "actions": {
     "sign": "Sign",

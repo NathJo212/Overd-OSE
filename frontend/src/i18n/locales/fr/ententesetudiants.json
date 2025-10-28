@@ -10,7 +10,7 @@
   "status": {
     "waitingYourSignature": "En attente de votre signature",
     "youSigned": "Vous avez signé",
-    "refused": "Refusée"
+    "refused": "Refusée par vous"
   },
   "fields": {
     "defaultTitle": "Entente de stage",

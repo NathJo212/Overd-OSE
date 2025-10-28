@@ -10,7 +10,7 @@
   "status": {
     "waitingYourSignature": "Awaiting your signature",
     "youSigned": "You have signed",
-    "refused": "Refused"
+    "refused": "Refused by you"
   },
   "fields": {
     "defaultTitle": "Internship Agreement",

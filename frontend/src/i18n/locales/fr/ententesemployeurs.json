@@ -23,9 +23,9 @@
     "modified": "Demande de modification envoyée avec succès"
   },
   "signature": {
-    "signed": "Signée",
-    "pending": "En attente",
-    "refused": "Refusée"
+    "pending": "En attente de votre signature",
+    "signed": "Vous avez signé",
+    "refused": "Refusée par vous"
   },
   "actions": {
     "sign": "Signer",
