@@ -8,7 +8,6 @@ import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -34,11 +32,11 @@ public class EmployeurService {
     private final EncryptageCV encryptageCV;
     private final ConvocationEntrevueRepository convocationEntrevueRepository;
     private final NotificationRepository notificationRepository;
-    private final MessageSource messageSource;
     private final EntenteStageRepository ententeStageRepository;
+    private final EvaluationRepository evaluationRepository;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, MessageSource messageSource, EntenteStageRepository ententeStageRepository) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationRepository evaluationRepository) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -48,8 +46,8 @@ public class EmployeurService {
         this.encryptageCV = encryptageCV;
         this.convocationEntrevueRepository = convocationEntrevueRepository;
         this.notificationRepository = notificationRepository;
-        this.messageSource = messageSource;
         this.ententeStageRepository = ententeStageRepository;
+        this.evaluationRepository = evaluationRepository;
     }
 
     @Transactional
@@ -200,12 +198,6 @@ public class EmployeurService {
             throw new CVNonExistantException();
         }
     }
-
-    private String extractEmailFromToken(String token) {
-        String cleanToken = token.startsWith("Bearer ") ? token.substring(7) : token;
-        return jwtTokenProvider.getEmailFromJWT(cleanToken);
-    }
-
 
     @Transactional
     public void creerConvocation(ConvocationEntrevueDTO dto) throws ConvocationDejaExistanteException, CandidatureNonTrouveeException, ActionNonAutoriseeException, UtilisateurPasTrouveException {
@@ -537,5 +529,39 @@ public class EmployeurService {
             notif.setMessageParam(entente.getTitre());
             notificationRepository.save(notif);
         }
+    }
+
+    @Transactional
+    public void creerEvaluation(EvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
+
+        if (entente.getEmployeur() == null || !entente.getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        Etudiant etudiant = entente.getEtudiant();
+
+        Evaluation eval = new Evaluation(entente, etudiant, employeur, dto.getCompetencesTechniques(), dto.getRespectDelais(), dto.getAttitudeIntegration(), dto.getCommentaires());
+        evaluationRepository.save(eval);
+
+        // Notification pour l'étudiant et le gestionnaire
+        if (etudiant != null) {
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("evaluation.submitted");
+            notif.setMessageParam(entente.getTitre());
+            notificationRepository.save(notif);
+        }
+
+        new EvaluationDTO().toDTO(eval);
+    }
+
+    @Transactional
+    public List<EvaluationDTO> getEvaluationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+        List<Evaluation> evaluations = evaluationRepository.findAllByEmployeurId(employeur.getId());
+        return evaluations.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
     }
 }
