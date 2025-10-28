@@ -3,18 +3,14 @@ import {
     FileSignature,
     User,
     Building2,
-    Calendar,
-    DollarSign,
     AlertCircle,
     Briefcase,
     X,
-    FileText,
     CheckCircle
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from 'react-i18next';
 import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO } from "../services/GestionnaireService";
-import * as React from "react";
 
 const EntentesStageGestionnaire = () => {
     const { t } = useTranslation('ententesStageGestionnaire');
@@ -25,8 +21,6 @@ const EntentesStageGestionnaire = () => {
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
-    const [dateDebut, setDateDebut] = useState("");
-    const [dateFin, setDateFin] = useState("");
     const token = sessionStorage.getItem("authToken") || "";
 
     useEffect(() => {
@@ -59,18 +53,13 @@ const EntentesStageGestionnaire = () => {
         setSelectedCandidature(null);
         setError("");
         setSuccessMessage("");
-        setDateDebut("");
-        setDateFin("");
+        // removed date reset as we don't use them now
     };
 
-    const handleSubmitEntente = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const handleStartEntente = async () => {
         if (!selectedCandidature) return;
-
-        // Validation supplémentaire pour les dates
-        if (dateFin && dateDebut && dateFin < dateDebut) {
-            setError(t('errors.endDateBeforeStart'));
+        if (!selectedCandidature.etudiantId) {
+            setError(t('errors.missingStudentId'));
             return;
         }
 
@@ -79,26 +68,11 @@ const EntentesStageGestionnaire = () => {
         setSuccessMessage("");
 
         try {
-            const formData = new FormData(e.target as HTMLFormElement);
-
-            // Vérifier que nous avons l'etudiantId
-            if (!selectedCandidature.etudiantId) {
-                setError(t('errors.missingStudentId'));
-                return;
-            }
-
+            // Minimal payload: etudiantId and offreId; backend will generate PDF or complete details
             const ententeData: EntenteStageDTO = {
                 etudiantId: selectedCandidature.etudiantId,
                 offreId: selectedCandidature.offreId,
-                titre: selectedCandidature.offreTitre,
-                description: formData.get('description') as string,
-                dateDebut: formData.get('dateDebut') as string,
-                dateFin: formData.get('dateFin') as string,
-                horaire: formData.get('horaire') as string,
-                dureeHebdomadaire: parseInt(formData.get('dureeHebdomadaire') as string),
-                remuneration: formData.get('remuneration') as string,
-                responsabilites: formData.get('responsabilites') as string,
-                objectifs: formData.get('objectifs') as string
+                titre: selectedCandidature.offreTitre
             };
 
             await gestionnaireService.creerEntente(ententeData, token);
@@ -107,12 +81,10 @@ const EntentesStageGestionnaire = () => {
 
             setTimeout(() => {
                 closeModal();
-                // Recharger les candidatures
                 gestionnaireService.getCandidaturesEligiblesEntente(token)
                     .then(data => setCandidatures(data))
                     .catch(err => setError(err.message));
-            }, 2000);
-
+            }, 1200);
         } catch (err: any) {
             const responseData = err.response?.data;
 
@@ -313,9 +285,8 @@ const EntentesStageGestionnaire = () => {
                             </div>
                         )}
 
-                        {/* Formulaire dans le modal */}
-                        <form onSubmit={handleSubmitEntente} className="p-6">
-                            {/* Info candidature (lecture seule) */}
+                        {/* Minimal manager modal: display info and single start button */}
+                        <div className="p-6">
                             <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200">
                                 <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                                     <User className="w-4 h-4 text-blue-600" />
@@ -340,177 +311,11 @@ const EntentesStageGestionnaire = () => {
                                 </div>
                             </div>
 
-                            {/* Section: Période et horaire */}
-                            <div className="mb-6">
-                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                    <Calendar className="w-5 h-5 text-blue-600" />
-                                    {t('modal.sections.periodAndSchedule')}
-                                </h3>
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            {t('modal.fields.startDate')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                        </label>
-                                        <input
-                                            type="date"
-                                            name="dateDebut"
-                                            required
-                                            disabled={isSubmitting}
-                                            value={dateDebut}
-                                            onChange={(e) => setDateDebut(e.target.value)}
-                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            {t('modal.fields.endDate')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                        </label>
-                                        <input
-                                            type="date"
-                                            name="dateFin"
-                                            required
-                                            disabled={isSubmitting}
-                                            value={dateFin}
-                                            onChange={(e) => setDateFin(e.target.value)}
-                                            min={dateDebut || undefined}
-                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
-                                        />
-                                        {dateFin && dateDebut && dateFin < dateDebut && (
-                                            <p className="mt-1 text-sm text-red-600">
-                                                {t('errors.endDateBeforeStart')}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            {t('modal.fields.schedule')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="horaire"
-                                            required
-                                            disabled={isSubmitting}
-                                            placeholder={t('modal.fields.schedulePlaceholder')}
-                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            {t('modal.fields.weeklyDuration')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                        </label>
-                                        <input
-                                            type="number"
-                                            name="dureeHebdomadaire"
-                                            required
-                                            disabled={isSubmitting}
-                                            placeholder={t('modal.fields.weeklyDurationPlaceholder')}
-                                            min="1"
-                                            max="40"
-                                            className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
-                                        />
-                                    </div>
-                                </div>
+                            <div className="flex items-center gap-3 justify-end mt-6">
+                                <button type="button" onClick={closeModal} disabled={isSubmitting} className="px-6 py-3 border rounded-lg">{t('buttons.cancel')}</button>
+                                <button type="button" onClick={handleStartEntente} disabled={isSubmitting} className="px-6 py-3 bg-blue-600 text-white rounded-lg">{isSubmitting ? t('buttons.creating') : t('buttons.startEntenteProcess')}</button>
                             </div>
-
-                            {/* Section: Rémunération */}
-                            <div className="mb-6">
-                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                    <DollarSign className="w-5 h-5 text-blue-600" />
-                                    {t('modal.sections.remuneration')}
-                                </h3>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        {t('modal.fields.remuneration')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="remuneration"
-                                        required
-                                        disabled={isSubmitting}
-                                        placeholder={t('modal.fields.remunerationPlaceholder')}
-                                        className="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Section: Description et objectifs */}
-                            <div className="mb-6">
-                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                    <FileText className="w-5 h-5 text-blue-600" />
-                                    {t('modal.sections.descriptionAndObjectives')}
-                                </h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            {t('modal.fields.description')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                        </label>
-                                        <textarea
-                                            name="description"
-                                            required
-                                            disabled={isSubmitting}
-                                            rows={4}
-                                            placeholder={t('modal.fields.descriptionPlaceholder')}
-                                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            {t('modal.fields.responsibilities')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                        </label>
-                                        <textarea
-                                            name="responsabilites"
-                                            required
-                                            disabled={isSubmitting}
-                                            rows={4}
-                                            placeholder={t('modal.fields.responsibilitiesPlaceholder')}
-                                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            {t('modal.fields.objectives')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                        </label>
-                                        <textarea
-                                            name="objectifs"
-                                            required
-                                            disabled={isSubmitting}
-                                            rows={4}
-                                            placeholder={t('modal.fields.objectivesPlaceholder')}
-                                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-3 text-sm disabled:bg-gray-100"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Boutons d'action */}
-                            <div className="flex gap-4 justify-end pt-6 border-t border-slate-200">
-                                <button
-                                    type="button"
-                                    onClick={closeModal}
-                                    disabled={isSubmitting}
-                                    className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {t('modal.actions.cancel')}
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center gap-2"
-                                >
-                                    {isSubmitting ? (
-                                        <>
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                            {t('modal.actions.creating')}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <FileSignature className="w-4 h-4" />
-                                            {t('modal.actions.create')}
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             )}
@@ -519,3 +324,4 @@ const EntentesStageGestionnaire = () => {
 };
 
 export default EntentesStageGestionnaire;
+

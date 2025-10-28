@@ -60,30 +60,29 @@ export interface ConvocationEntrevueDTO {
 
 export interface EntenteStageDTO {
     id: number;
-    titre: string;
-    description: string;
-    dateDebut: string;
-    dateFin: string;
-    horaire: string;
-    dureeHebdomadaire: number;
-    remuneration: string;
-    responsabilites: string;
-    objectifs: string;
-    etudiantNom: string;
-    etudiantPrenom: string;
-    etudiantEmail: string;
-    employeurNom?: string;
-    offreTitre?: string;
-    dateCreation: string;
-    statut: string;
+    // Primary payload: PDF content (Base64) representing the entente document.
+    pdfBase64?: string;
+
+    // Minimal signatures required
     etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
     employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
-    gestionnaireSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
-    messageModificationEmployeur?: string;
-}
+    gestionnaireSignature?: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
 
-export interface ModificationEntenteDTO {
-    modificationEntente: string;
+    // Minimal display metadata used by UI (optional, keep lightweight)
+    titre?: string; // taken from the underlying offer
+    dateDebut?: string;
+    dateFin?: string;
+    dateCreation?: string;
+
+    // Student/employer display info
+    etudiantNom?: string;
+    etudiantPrenom?: string;
+    etudiantEmail?: string;
+    employeurNom?: string;
+
+    // Optional helper fields for UI
+    lien?: string;
+    statut?: string;
 }
 
 // Configuration de l'API
@@ -748,61 +747,62 @@ class EmployeurService {
         }
     }
 
-    async demanderModificationEntente(ententeId: number, modificationMessage: string): Promise<MessageRetour> {
+    async telechargerPdfEntente(ententeId: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
-            if (!token) {
-                throw new Error('Vous devez être connecté');
-            }
+            if (!token) throw new Error('Vous devez être connecté');
 
-            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/modification`, {
-                method: 'PUT',
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/pdf`, {
+                method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ modificationEntente: modificationMessage })
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
-            const data = await response.json();
-
-            if (data?.erreur) {
-                console.error('Erreur lors de la demande de modification:', data.erreur);
-                const error: any = new Error(data.erreur.message || 'Erreur lors de la demande de modification');
-                error.response = { data };
-                throw error;
-            }
-
+            // If server returns PDF binary
+            const contentType = response.headers.get('Content-Type') || '';
             if (!response.ok) {
-                console.error('Erreur HTTP:', response.status, data);
-                const error: any = new Error(`Erreur HTTP: ${response.status}`);
-                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
-                throw error;
+                // try JSON fallback
+                const text = await response.text().catch(() => '');
+                // if JSON contains base64
+                try {
+                    const json = JSON.parse(text || '{}');
+                    if (json?.pdfBase64) {
+                        const binary = atob(json.pdfBase64);
+                        const len = binary.length;
+                        const bytes = new Uint8Array(len);
+                        for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+                        return new Blob([bytes], { type: 'application/pdf' });
+                    }
+                } catch (e) {
+                    // ignore
+                }
+                throw new Error(`Erreur HTTP: ${response.status}`);
             }
 
-            return data;
+            if (contentType.includes('application/pdf')) {
+                return await response.blob();
+            }
 
+            // Maybe server returned JSON with pdfBase64
+            const data = await response.json().catch(() => ({}));
+            if (data?.pdfBase64) {
+                const binary = atob(data.pdfBase64);
+                const len = binary.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+                return new Blob([bytes], { type: 'application/pdf' });
+            }
+
+            throw new Error('Contenu PDF non trouvé');
         } catch (error: any) {
-            if (error.response?.data?.erreur) {
-                throw error;
-            }
-
+            console.error('Erreur telechargerPdfEntente:', error);
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
                 networkError.code = 'ERR_NETWORK';
                 throw networkError;
             }
-
-            const genericError: any = new Error(error.message || 'Erreur inconnue');
-            genericError.response = {
-                data: {
-                    erreur: {
-                        errorCode: 'ERROR_000',
-                        message: error.message
-                    }
-                }
-            };
-            throw genericError;
+            throw error;
         }
     }
 }

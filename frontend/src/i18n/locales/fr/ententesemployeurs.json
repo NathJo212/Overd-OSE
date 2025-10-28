@@ -15,7 +15,8 @@
     "loadError": "Erreur lors du chargement des ententes",
     "signError": "Erreur lors de la signature de l'entente",
     "refuseError": "Erreur lors du refus de l'entente",
-    "modifyError": "Erreur lors de la modification de l'entente"
+    "modifyError": "Erreur lors de la modification de l'entente",
+    "pdfError": "Erreur lors du téléchargement du PDF"
   },
   "messages": {
     "signed": "Entente signée avec succès",
@@ -30,7 +31,9 @@
   "actions": {
     "sign": "Signer",
     "refuse": "Refuser",
-    "modify": "Modifier"
+    "modify": "Modifier",
+    "startProcess": "Commencer processus entente",
+    "viewPdf": "Voir le PDF"
   },
   "modal": {
     "title": "Détails de l'entente",

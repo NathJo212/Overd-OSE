@@ -66,25 +66,29 @@ export interface CandidatureEtudiantDTO {
 // Interface pour les ententes de stage
 export interface EntenteStageDTO {
     id: number;
-    candidatureId: number;
-    dateCreation: string;
-    dateSignatureEtudiant?: string;
-    dateSignatureEmployeur?: string;
-    dateSignatureGestionnaire?: string;
-    statut: string;
-    offreTitre?: string;
-    employeurNom?: string;
+    // PDF content as base64 (the single source of truth for the entente PDF)
+    pdfBase64?: string;
+
+    // Minimal signatures required
+    etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    gestionnaireSignature?: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+
+    // Optional metadata from offer or backend (kept for UI compatibility)
+    titre?: string;
     dateDebut?: string;
     dateFin?: string;
-    lieuStage?: string;
-    nombreHeuresParSemaine?: number;
-    salaire?: number;
-    commentaires?: string;
-}
+    dateCreation?: string;
 
-// Interface pour la modification d'entente
-export interface ModificationEntenteDTO {
-    modificationEntente: string;  // ✅ Matche le backend
+    // Student/employer display info
+    etudiantNom?: string;
+    etudiantPrenom?: string;
+    etudiantEmail?: string;
+    employeurNom?: string;
+
+    // Optional helper fields for UI (short and minimal)
+    lien?: string;
+    statut?: string;
 }
 
 // Configuration de l'API
@@ -861,69 +865,82 @@ class EtudiantService {
     }
 
     /**
-     * Modifie une entente de stage (demande de modification)
-     * @param ententeId - L'ID de l'entente à modifier
-     * @param modifications - Les modifications à apporter
-     * @returns Promise avec la réponse du serveur
+     * Télécharge le PDF d'une entente de stage
+     * @param ententeId - L'ID de l'entente dont on veut télécharger le PDF
+     * @returns Promise avec le Blob du PDF
      */
-    async modifierEntente(ententeId: number, modifications: ModificationEntenteDTO): Promise<{ message: string }> {
+    async telechargerPdfEntente(ententeId: number): Promise<Blob> {
         try {
             const token = this.getAuthToken();
-            if (!token) {
-                throw new Error('Vous devez être connecté pour modifier une entente');
-            }
+            if (!token) throw new Error('Vous devez être connecté');
 
-            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/modifier`, {
-                method: 'PUT',
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/pdf`, {
+                method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(modifications)
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
-            const data = await response.json();
-
-            if (data.erreur) {
-                console.error('Erreur lors de la modification:', data.erreur);
-                const error: any = new Error(data.erreur.message || 'Erreur lors de la modification de l\'entente');
-                error.response = { data };
-                throw error;
-            }
-
+            const contentType = response.headers.get('Content-Type') || '';
             if (!response.ok) {
-                console.error('Erreur HTTP:', response.status, data);
-                const error: any = new Error(`Erreur HTTP: ${response.status}`);
-                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
-                throw error;
+                // try JSON fallback
+                const text = await response.text().catch(() => '');
+                try {
+                    const json = JSON.parse(text || '{}');
+                    if (json?.pdfBase64) {
+                        const binary = atob(json.pdfBase64);
+                        const len = binary.length;
+                        const bytes = new Uint8Array(len);
+                        for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+                        return new Blob([bytes], { type: 'application/pdf' });
+                    }
+                } catch (e) {
+                    // ignore
+                }
+                throw new Error(`Erreur HTTP: ${response.status}`);
             }
 
-            return data;
+            if (contentType.includes('application/pdf')) {
+                return await response.blob();
+            }
 
+            const data = await response.json().catch(() => ({}));
+            if (data?.pdfBase64) {
+                const binary = atob(data.pdfBase64);
+                const len = binary.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+                return new Blob([bytes], { type: 'application/pdf' });
+            }
+
+            throw new Error('Contenu PDF non trouvé');
         } catch (error: any) {
-            if (error.response?.data?.erreur) {
-                throw error;
-            }
-
+            console.error('Erreur telechargerPdfEntente (etudiant):', error);
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
                 networkError.code = 'ERR_NETWORK';
                 throw networkError;
             }
-
-            const genericError: any = new Error(error.message || 'Erreur inconnue');
-            genericError.response = {
-                data: {
-                    erreur: {
-                        errorCode: 'ERROR_000',
-                        message: error.message
-                    }
-                }
-            };
-            throw genericError;
+            throw error;
         }
     }
+
+    // Helper to map registration form to API payload
+    formatFormDataForAPI(formData: any): EtudiantData {
+        return {
+            email: formData.email || formData.emailProfessionnel || '',
+            password: formData.motDePasse || formData.password || '',
+            telephone: formData.telephone || '',
+            prenom: formData.prenom || formData.prenomContact || '',
+            nom: formData.nom || formData.nomContact || '',
+            progEtude: formData.programmeEtudes || formData.progEtude || '',
+            session: formData.session || '',
+            annee: formData.anneeEtude || formData.annee || '',
+        };
+    }
+
 }
 
 export const etudiantService = new EtudiantService();
 export default etudiantService;
+

@@ -15,7 +15,8 @@
     "loadError": "Error loading agreements",
     "signError": "Error signing the agreement",
     "refuseError": "Error refusing the agreement",
-    "modifyError": "Error requesting modification"
+    "modifyError": "Error requesting modification",
+    "pdfError": "Error downloading the PDF"
   },
   "messages": {
     "signed": "Agreement signed successfully",
@@ -30,7 +31,9 @@
   "actions": {
     "sign": "Sign",
     "refuse": "Refuse",
-    "modify": "Modify"
+    "modify": "Modify",
+    "startProcess": "Start agreement process",
+    "viewPdf": "View PDF"
   },
   "modal": {
     "title": "Agreement Details",

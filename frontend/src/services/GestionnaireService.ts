@@ -73,17 +73,22 @@ export interface CandidatureEligibleDTO {
 
 // Mettre à jour l'interface EntenteStageDTO pour correspondre au backend
 export interface EntenteStageDTO {
+    // minimal payload to start the entente process
     etudiantId: number;
     offreId: number;
-    titre: string;
-    description: string;
-    dateDebut: string;
-    dateFin: string;
-    horaire: string;
-    dureeHebdomadaire: number;
-    remuneration: string;
-    responsabilites: string;
-    objectifs: string;
+    // optional PDF content as base64 (backend may generate later)
+    pdfBase64?: string;
+
+    // optional metadata derived from the offer
+    titre?: string;
+    description?: string;
+    dateDebut?: string;
+    dateFin?: string;
+    horaire?: string;
+    dureeHebdomadaire?: number;
+    remuneration?: string;
+    responsabilites?: string;
+    objectifs?: string;
 }
 
 class GestionnaireService {
@@ -300,17 +305,35 @@ class GestionnaireService {
     }
 
     async creerEntente(ententeData: EntenteStageDTO, token: string): Promise<void> {
+        // Try to create entente without pdf; if backend complains about LOB/stream, retry a minimal payload
         try {
-            const response = await fetch(`${this.baseUrl}/ententes`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(ententeData)
-            });
+            const payload: any = { ...ententeData };
+            if (payload.pdfBase64) delete payload.pdfBase64;
 
-            const data = await response.json();
+            const doPost = async (bodyPayload: any) => {
+                const resp = await fetch(`${this.baseUrl}/ententes`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(bodyPayload)
+                });
+                const json = await resp.json().catch(() => ({}));
+                return { resp, json };
+            };
+
+            // First attempt: payload without pdfBase64
+            const attempt1 = await doPost(payload);
+            const { resp: resp1, json: data1 } = attempt1;
+
+            // If success, return
+            if (resp1.ok && !data1?.erreur) return;
+
+            // Determine if it's a LOB/stream/server error and try fallback minimal payload
+            const errMessage = (data1?.erreur?.message || data1?.message || '').toString().toLowerCase();
+            const isLobError = errMessage.includes('lob') || errMessage.includes('stream') || resp1.status >= 500;
+
 
             if (data.erreur) {
                 console.error('Erreur lors de la création de l\'entente:', data.erreur);

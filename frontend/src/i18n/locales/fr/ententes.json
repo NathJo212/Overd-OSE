@@ -44,7 +44,8 @@
     "refusing": "Refus...",
     "sendRequest": "Envoyer la demande",
     "confirmRefuse": "Confirmer le refus",
-    "backToDashboard": "Retour au tableau de bord"
+    "backToDashboard": "Retour au tableau de bord",
+    "viewPdf": "Voir le PDF"
   },
 
   "modals": {
@@ -75,6 +76,7 @@
     "signError": "Erreur lors de la signature de l'entente",
     "refuseError": "Erreur lors du refus de l'entente",
     "modifyError": "Erreur lors de la demande de modification",
+    "pdfError": "Erreur lors du téléchargement du PDF",
     "modificationRequired": "Veuillez décrire les modifications souhaitées"
   },
 

@@ -44,7 +44,8 @@
     "refusing": "Refusing...",
     "sendRequest": "Send request",
     "confirmRefuse": "Confirm refusal",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "viewPdf": "View PDF"
   },
 
   "modals": {
@@ -75,6 +76,7 @@
     "signError": "Error signing the agreement",
     "refuseError": "Error refusing the agreement",
     "modifyError": "Error sending modification request",
+    "pdfError": "Error downloading the PDF",
     "modificationRequired": "Please describe the desired modifications"
   },
 
