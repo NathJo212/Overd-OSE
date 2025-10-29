@@ -532,7 +532,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerEvaluation(EvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException {
+    public void creerEvaluation(EvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException {
         Employeur employeur = getEmployeurConnecte();
 
         EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
@@ -544,6 +544,10 @@ public class EmployeurService {
         Etudiant etudiant = entente.getEtudiant();
         if (etudiant == null || etudiant.getId() == null) {
             throw new UtilisateurPasTrouveException();
+        }
+
+        if (entente.getStatut() != EntenteStage.StatutEntente.SIGNEE){
+            throw new EntenteNonFinaliseeException();
         }
 
         if (evaluationRepository.existsByEtudiantIdAndEmployeurId(etudiant.getId(), employeur.getId())) {

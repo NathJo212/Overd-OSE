@@ -1657,6 +1657,7 @@ public class EmployeurServiceTest {
         entente.setEmployeur(employeur);
         entente.setEtudiant(etudiant);
         entente.setTitre("Entente Test");
+        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
 
         when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
         when(evaluationRepository.existsByEtudiantIdAndEmployeurId(5L, 1L)).thenReturn(false);
@@ -1723,6 +1724,7 @@ public class EmployeurServiceTest {
         EntenteStage entente = new EntenteStage();
         entente.setEmployeur(employeur);
         entente.setEtudiant(etudiant);
+        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
 
         when(ententeStageRepository.findById(300L)).thenReturn(Optional.of(entente));
         when(evaluationRepository.existsByEtudiantIdAndEmployeurId(6L, 1L)).thenReturn(true);
