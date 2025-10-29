@@ -6,11 +6,10 @@ import {
     AlertCircle,
     Briefcase,
     X,
-    CheckCircle
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from 'react-i18next';
-import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO } from "../services/GestionnaireService";
+import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO, type OffreDTO } from "../services/GestionnaireService";
 
 const EntentesStageGestionnaire = () => {
     const { t } = useTranslation('ententesStageGestionnaire');
@@ -18,6 +17,7 @@ const EntentesStageGestionnaire = () => {
     const [candidatures, setCandidatures] = useState<CandidatureEligibleDTO[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedCandidature, setSelectedCandidature] = useState<CandidatureEligibleDTO | null>(null);
+    const [offerDetails, setOfferDetails] = useState<OffreDTO | null>(null);
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
@@ -42,18 +42,27 @@ const EntentesStageGestionnaire = () => {
     }, [token]);
 
     const handleCandidatureClick = (candidature: CandidatureEligibleDTO) => {
+        // open modal (no form to reset anymore)
         setSelectedCandidature(candidature);
+        // attempt to fetch offer details to show richer entente info in the modal
+        (async () => {
+            try {
+                const offres = await gestionnaireService.getAllOffres(token);
+                const found = offres.find(o => o.id === candidature.offreId);
+                setOfferDetails(found || null);
+            } catch (e) {
+                console.warn('Could not load offer details for modal', e);
+                setOfferDetails(null);
+            }
+        })();
         setShowModal(true);
         setError("");
-        setSuccessMessage("");
     };
 
     const closeModal = () => {
         setShowModal(false);
         setSelectedCandidature(null);
         setError("");
-        setSuccessMessage("");
-        // removed date reset as we don't use them now
     };
 
     const handleStartEntente = async () => {
@@ -68,23 +77,45 @@ const EntentesStageGestionnaire = () => {
         setSuccessMessage("");
 
         try {
-            // Minimal payload: etudiantId and offreId; backend will generate PDF or complete details
+            // Attempt to fetch the full offer details to enrich the entente payload
+            let offerDetails: OffreDTO | undefined;
+            try {
+                const offres = await gestionnaireService.getAllOffres(token);
+                offerDetails = offres.find(o => o.id === selectedCandidature!.offreId);
+            } catch (e) {
+                // Fetching offer details is optional; continue with minimal data if it fails
+                console.warn('Could not fetch offer details for entente enrichment', e);
+            }
+
             const ententeData: EntenteStageDTO = {
                 etudiantId: selectedCandidature.etudiantId,
                 offreId: selectedCandidature.offreId,
-                titre: selectedCandidature.offreTitre
-            };
+                // minimal fields
+                titre: selectedCandidature.offreTitre,
+                // enrich with whatever we can obtain from the offer and candidature
+                dateDebut: offerDetails?.date_debut || undefined,
+                dateFin: offerDetails?.date_fin || undefined,
+                description: offerDetails?.description || undefined,
+                remuneration: offerDetails?.remuneration || undefined,
+                responsabilites: (offerDetails as any)?.responsabilites || undefined,
+                objectifs: (offerDetails as any)?.objectifs || undefined,
+                horaire: (offerDetails as any)?.horaire || undefined,
+                dureeHebdomadaire: (offerDetails as any)?.dureeHebdomadaire || undefined,
+                etudiantNom: selectedCandidature.etudiantNom,
+                etudiantPrenom: selectedCandidature.etudiantPrenom,
+                etudiantEmail: (selectedCandidature as any).etudiantEmail,
+                employeurNom: selectedCandidature.employeurNom,
+            } as unknown as EntenteStageDTO;
 
             await gestionnaireService.creerEntente(ententeData, token);
 
             setSuccessMessage(t('success.created'));
-
             setTimeout(() => {
                 closeModal();
                 gestionnaireService.getCandidaturesEligiblesEntente(token)
                     .then(data => setCandidatures(data))
                     .catch(err => setError(err.message));
-            }, 1200);
+            }, 1000);
         } catch (err: any) {
             const responseData = err.response?.data;
 
@@ -132,6 +163,17 @@ const EntentesStageGestionnaire = () => {
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-red-900">{error}</p>
                             <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+                {successMessage && (
+                    <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <FileSignature className="w-5 h-5 text-green-600 flex-shrink-0" />
+                            <p className="text-sm font-medium text-green-900">{successMessage}</p>
+                            <button onClick={() => setSuccessMessage("")} className="ml-auto text-green-600 hover:text-green-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -238,7 +280,7 @@ const EntentesStageGestionnaire = () => {
                     onClick={(e) => e.target === e.currentTarget && closeModal()}
                 >
                     <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
-                        {/* En-tête du modal */}
+                        {/* Header */}
                         <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between z-10">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -265,60 +307,53 @@ const EntentesStageGestionnaire = () => {
                             </button>
                         </div>
 
-                        {/* Message de succès dans le modal */}
-                        {successMessage && (
-                            <div className="mx-6 mt-6 bg-green-50 border border-green-200 rounded-xl p-4">
-                                <div className="flex items-center gap-3">
-                                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                                    <p className="text-sm font-medium text-green-900">{successMessage}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Erreur dans le modal */}
-                        {error && (
-                            <div className="mx-6 mt-6 bg-red-50 border border-red-200 rounded-xl p-4">
-                                <div className="flex items-center gap-3">
-                                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                                    <p className="text-sm font-medium text-red-900">{error}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Minimal manager modal: display info and single start button */}
-                        <div className="p-6">
-                            <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-                                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                    <User className="w-4 h-4 text-blue-600" />
-                                    {t('modal.applicationInfo.title')}
-                                </h3>
-                                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div className="p-6 space-y-6">
+                            {/* Application info */}
+                            <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                                <h3 className="font-semibold text-gray-900">{t('modal.applicationInfo.title')}</h3>
+                                <div className="mt-3 grid md:grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <span className="text-gray-600">{t('modal.applicationInfo.student')}</span>
-                                        <p className="font-semibold text-gray-900">
-                                            {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
-                                        </p>
-                                        <p className="text-xs text-gray-600">{selectedCandidature.etudiantEmail}</p>
+                                        <div className="text-gray-600">{t('modal.applicationInfo.student')}</div>
+                                        <div className="font-semibold text-gray-900">{selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}</div>
+                                        <div className="text-xs text-gray-600">{(selectedCandidature as any).etudiantEmail}</div>
                                     </div>
                                     <div>
-                                        <span className="text-gray-600">{t('modal.applicationInfo.employer')}</span>
-                                        <p className="font-semibold text-gray-900">{selectedCandidature.employeurNom}</p>
+                                        <div className="text-gray-600">{t('modal.applicationInfo.employer')}</div>
+                                        <div className="font-semibold text-gray-900">{selectedCandidature.employeurNom}</div>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <span className="text-gray-600">{t('modal.applicationInfo.position')}</span>
-                                        <p className="font-semibold text-gray-900">{selectedCandidature.offreTitre}</p>
+                                        <div className="text-gray-600">{t('modal.applicationInfo.position')}</div>
+                                        <div className="font-semibold text-gray-900">{selectedCandidature.offreTitre}</div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 justify-end mt-6">
-                                <button type="button" onClick={closeModal} disabled={isSubmitting} className="px-6 py-3 border rounded-lg">{t('buttons.cancel')}</button>
-                                <button type="button" onClick={handleStartEntente} disabled={isSubmitting} className="px-6 py-3 bg-blue-600 text-white rounded-lg">{isSubmitting ? t('buttons.creating') : t('buttons.startEntenteProcess')}</button>
+                            {/* Offer details (attempt to show fields if available on the entente payload) */}
+                            <div className="bg-white rounded-xl p-4 border border-slate-200">
+                                <h4 className="font-semibold text-gray-900 mb-2">{t('modal.ententeDetails.title')}</h4>
+                                <div className="grid gap-3 text-sm">
+                                    <div>
+                                        <strong>{t('fields.description')}:</strong> {(selectedCandidature as any).description || selectedCandidature.offreTitre || '-'}
+                                    </div>
+
+                                    <div className="flex gap-4 flex-wrap text-gray-700">
+                                        <div><strong>{t('fields.program')}:</strong> {offerDetails?.progEtude || (selectedCandidature as any).progEtude || '-'}</div>
+                                        <div><strong>{t('fields.location')}:</strong> {offerDetails?.lieuStage || (selectedCandidature as any).lieuStage || '-'}</div>
+                                        <div><strong>{t('fields.remuneration')}:</strong> {offerDetails?.remuneration || (selectedCandidature as any).remuneration || '-'}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-3 justify-end">
+                                <button onClick={closeModal} disabled={isSubmitting} className="px-6 py-3 border rounded-lg">{t('buttons.cancel')}</button>
+                                <button onClick={handleStartEntente} disabled={isSubmitting} className="px-6 py-3 bg-blue-600 text-white rounded-lg">{isSubmitting ? t('buttons.creating') : t('buttons.startEntenteProcess')}</button>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 };

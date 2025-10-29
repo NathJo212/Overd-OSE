@@ -68,7 +68,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, LocalDate date_debut, LocalDate date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, LocalDate dateLimite) throws ActionNonAutoriseeException, DateInvalideException {
+    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, LocalDate date_debut, LocalDate date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, LocalDate dateLimite, String horaire, Integer dureeHebdomadaire, String responsabilites, String objectifs) throws ActionNonAutoriseeException, DateInvalideException {
         String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
@@ -82,7 +82,7 @@ public class EmployeurService {
 
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
-        Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur);
+        Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur, horaire, dureeHebdomadaire, responsabilites, objectifs);
         offreRepository.save(offre);
     }
 

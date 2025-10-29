@@ -135,7 +135,7 @@ public class EmployeurServiceTest {
 
         employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1));
+                ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null);
 
         verify(offreRepository, times(1)).save(any(Offre.class));
     }
@@ -148,7 +148,7 @@ public class EmployeurServiceTest {
         assertThrows(ActionNonAutoriseeException.class, () -> {
             employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
                     LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                    ProgrammeDTO.P500_AF, "lieu", "rem", LocalDate.of(2024, 5, 1));
+                    ProgrammeDTO.P500_AF, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null);
         });
     }
 
@@ -687,7 +687,7 @@ public class EmployeurServiceTest {
         assertThrows(DateInvalideException.class, () -> {
             employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
                     LocalDate.of(2024, 6, 1), LocalDate.of(2024, 1, 1),
-                    ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1));
+                    ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null);
         });
     }
     @Test

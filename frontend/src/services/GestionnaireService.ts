@@ -305,10 +305,9 @@ class GestionnaireService {
     }
 
     async creerEntente(ententeData: EntenteStageDTO, token: string): Promise<void> {
-        // Try to create entente without pdf; if backend complains about LOB/stream, retry a minimal payload
         try {
-            const payload: any = { ...ententeData };
-            if (payload.pdfBase64) delete payload.pdfBase64;
+            const payloadWithoutPdf: any = { ...ententeData };
+            if (payloadWithoutPdf.pdfBase64) delete payloadWithoutPdf.pdfBase64;
 
             const doPost = async (bodyPayload: any) => {
                 const resp = await fetch(`${this.baseUrl}/ententes`, {
@@ -324,27 +323,25 @@ class GestionnaireService {
             };
 
             // First attempt: payload without pdfBase64
-            const attempt1 = await doPost(payload);
-            const { resp: resp1, json: data1 } = attempt1;
+            const attempt1 = await doPost(payloadWithoutPdf);
+            if (attempt1.resp.ok && !attempt1.json?.erreur) return;
 
-            // If success, return
-            if (resp1.ok && !data1?.erreur) return;
-
-            // Determine if it's a LOB/stream/server error and try fallback minimal payload
-            const errMessage = (data1?.erreur?.message || data1?.message || '').toString().toLowerCase();
-            const isLobError = errMessage.includes('lob') || errMessage.includes('stream') || resp1.status >= 500;
-
-
-            if (data.erreur) {
-                console.error('Erreur lors de la création de l\'entente:', data.erreur);
-                const error: any = new Error(data.erreur.message || 'Erreur lors de la création de l\'entente');
-                error.response = { data };
+            // If first attempt failed and original ententeData had pdfBase64, try full payload
+            if (ententeData.pdfBase64) {
+                const attempt2 = await doPost(ententeData);
+                if (attempt2.resp.ok && !attempt2.json?.erreur) return;
+                // both attempts failed -> throw with the last error info if any
+                const errMsg = attempt2.json?.erreur?.message || attempt2.json?.message || `Erreur HTTP: ${attempt2.resp.status}`;
+                const error: any = new Error(errMsg);
+                error.response = { data: attempt2.json };
                 throw error;
             }
 
-            if (!response.ok) {
-                throw new Error('Erreur lors de la création de l\'entente');
-            }
+            // No pdf to retry with, throw with attempt1 error info
+            const errMsg1 = attempt1.json?.erreur?.message || attempt1.json?.message || `Erreur HTTP: ${attempt1.resp.status}`;
+            const error1: any = new Error(errMsg1);
+            error1.response = { data: attempt1.json };
+            throw error1;
 
         } catch (error: any) {
             if (error.response?.data) {

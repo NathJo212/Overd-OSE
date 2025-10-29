@@ -925,6 +925,42 @@ class EtudiantService {
         }
     }
 
+    /**
+     * Récupère toutes les ententes de stage pour l'étudiant connecté
+     * @returns Promise avec la liste des ententes
+     */
+    async getEntentes(): Promise<EntenteStageDTO[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur getEntentes (etudiant):', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+            throw error;
+        }
+    }
+
     // Helper to map registration form to API payload
     formatFormDataForAPI(formData: any): EtudiantData {
         return {

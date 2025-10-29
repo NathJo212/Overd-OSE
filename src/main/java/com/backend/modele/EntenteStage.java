@@ -82,20 +82,21 @@ public class EntenteStage {
     private LocalDateTime dateCreation = LocalDateTime.now();
     private LocalDateTime dateModification = LocalDateTime.now();
 
-    public EntenteStage(Etudiant etudiant, Employeur employeur, Offre offre, String titre, String description, LocalDate dateDebut, LocalDate dateFin,
-                        String horaire, Integer dureeHebdomadaire, String remuneration, String responsabilites, String objectifs) {
+    public EntenteStage(Etudiant etudiant, Employeur employeur, Offre offre) {
         this.etudiant = etudiant;
         this.employeur = employeur;
         this.offre = offre;
-        this.titre = titre;
-        this.description = description;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
-        this.horaire = horaire;
-        this.dureeHebdomadaire = dureeHebdomadaire;
-        this.remuneration = remuneration;
-        this.responsabilites = responsabilites;
-        this.objectifs = objectifs;
+        if (offre != null) {
+            this.titre = offre.getTitre();
+            this.description = offre.getDescription();
+            this.dateDebut = offre.getDate_debut();
+            this.dateFin = offre.getDate_fin();
+            this.horaire = offre.getHoraire();
+            this.dureeHebdomadaire = offre.getDureeHebdomadaire();
+            this.remuneration = offre.getRemuneration();
+            this.responsabilites = offre.getResponsabilites();
+            this.objectifs = offre.getObjectifs();
+        }
         this.etudiantSignature = SignatureStatus.EN_ATTENTE;
         this.employeurSignature = SignatureStatus.EN_ATTENTE;
         this.statut = StatutEntente.EN_ATTENTE;

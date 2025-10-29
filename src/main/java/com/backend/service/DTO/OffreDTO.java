@@ -20,6 +20,10 @@ public class OffreDTO {
     private ProgrammeDTO progEtude;
     private String lieuStage;
     private String remuneration;
+    private String horaire;
+    private Integer dureeHebdomadaire;
+    private String responsabilites;
+    private String objectifs;
     private LocalDate dateLimite;
     private String messageRefus;
     private String statutApprouve;
@@ -36,6 +40,10 @@ public class OffreDTO {
         dto.setProgEtude(ProgrammeDTO.toDTO(offre.getProgEtude()));
         dto.setLieuStage(offre.getLieuStage());
         dto.setRemuneration(offre.getRemuneration());
+        dto.setHoraire(offre.getHoraire());
+        dto.setDureeHebdomadaire(offre.getDureeHebdomadaire());
+        dto.setResponsabilites(offre.getResponsabilites());
+        dto.setObjectifs(offre.getObjectifs());
         dto.setDateLimite(offre.getDateLimite());
         dto.setMessageRefus(offre.getMessageRefus());
         dto.setStatutApprouve(offre.getStatutApprouve() != null ? offre.getStatutApprouve().toString() : "ATTENTE");

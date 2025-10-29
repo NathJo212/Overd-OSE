@@ -248,9 +248,7 @@ public class GestionnaireService {
         }
 
 
-        EntenteStage entente = new EntenteStage(etudiant, employeur, offre,
-                dto.getTitre(), dto.getDescription(), dto.getDateDebut(), dto.getDateFin(),
-                dto.getHoraire(), dto.getDureeHebdomadaire(), dto.getRemuneration(), dto.getResponsabilites(), dto.getObjectifs());
+       EntenteStage entente = new EntenteStage(etudiant, employeur, offre);
 
         entente.setDateCreation(LocalDateTime.now());
         entente.setDateModification(LocalDateTime.now());

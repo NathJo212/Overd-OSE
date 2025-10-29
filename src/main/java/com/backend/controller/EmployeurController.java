@@ -44,7 +44,7 @@ public class EmployeurController {
             employeurService.creerOffreDeStage(offreDTO.getAuthResponseDTO(), offreDTO.getTitre(),
                     offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(),
                     offreDTO.getProgEtude(), offreDTO.getLieuStage(), offreDTO.getRemuneration(),
-                    offreDTO.getDateLimite());
+                    offreDTO.getDateLimite(), offreDTO.getHoraire(), offreDTO.getDureeHebdomadaire(), offreDTO.getResponsabilites(), offreDTO.getObjectifs());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Offre de stage créée avec succès", null));
         } catch (ActionNonAutoriseeException e){

@@ -83,6 +83,19 @@ export interface EntenteStageDTO {
     // Optional helper fields for UI
     lien?: string;
     statut?: string;
+
+    // Additional optional fields referenced by the frontend UI
+    description?: string;
+    remuneration?: string;
+    responsabilites?: string;
+    objectifs?: string;
+    // possible aliases coming from different backend versions
+    progEtude?: string;
+    prog?: string;
+    lieuStage?: string;
+    lieu?: string;
+    horaire?: string;
+    dureeHebdomadaire?: number | string;
 }
 
 // Configuration de l'API

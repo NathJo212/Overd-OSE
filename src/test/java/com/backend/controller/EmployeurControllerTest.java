@@ -142,7 +142,7 @@ class EmployeurControllerTest {
     @Test
     void creerOffre_actionNonAutorisee_returnsConflict() throws Exception {
         doThrow(new ActionNonAutoriseeException())
-                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class), anyString(), anyString(), any(LocalDate.class));
+                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class), anyString(), anyString(), any(LocalDate.class), any(), any(), any(), any());
 
         OffreDTO offreDTO = new OffreDTO();
         offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer fakeToken"));
@@ -167,7 +167,7 @@ class EmployeurControllerTest {
     @DisplayName("POST /OSEemployeur/creerOffre retourne 400 si dates invalides")
     void creerOffre_dateInvalide_returnsBadRequest() throws Exception {
         doThrow(new DateInvalideException())
-                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class), anyString(), anyString(), any(LocalDate.class));
+                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class), anyString(), anyString(), any(LocalDate.class), any(), any(), any(), any());
 
         OffreDTO offreDTO = new OffreDTO();
         offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer validToken"));

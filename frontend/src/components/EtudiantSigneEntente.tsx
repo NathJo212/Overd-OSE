@@ -61,9 +61,6 @@ const EtudiantSigneEntente = () => {
             await etudiantService.signerEntente(selectedEntente.id);
             setSuccessMessage(t('success.signed'));
             setShowSignModal(false);
-            setSelectedEntente(null);
-            await loadEntentes();
-
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err: any) {
             console.error('Erreur lors de la signature:', err);
@@ -81,8 +78,9 @@ const EtudiantSigneEntente = () => {
             await etudiantService.refuserEntente(selectedEntente.id);
             setSuccessMessage(t('success.refused'));
             setShowRefuseModal(false);
+            // Update local state: mark as refused but keep in the list
+            setEntentes(prev => prev.map(e => e.id === selectedEntente.id ? { ...e, etudiantSignature: 'REFUSEE', statut: 'REFUSEE' } : e));
             setSelectedEntente(null);
-            await loadEntentes();
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err: any) {
@@ -330,68 +328,123 @@ const EtudiantSigneEntente = () => {
                         </div>
 
                         <div className="space-y-4">
-                            {/* Simplified entente display - entente is now primarily a PDF payload */}
+                            {/* Full entente/offre display */}
                             <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
                                 <h4 className="font-semibold text-gray-900 mb-2">{(selectedEntente as any).titre || t('fields.defaultTitle')}</h4>
-                                <div className="text-sm text-gray-700">
-                                    <div className="mb-1">
-                                        <strong>{t('fields.startDate')}:</strong> {formatDate((selectedEntente as any).dateDebut)}
-                                    </div>
+
+                                <div className="grid gap-3 text-sm text-gray-700">
                                     <div>
-                                        <strong>{t('fields.endDate')}:</strong> {formatDate((selectedEntente as any).dateFin)}
+                                        <strong>{t('fields.description')}:</strong>
+                                        <p className="mt-1 text-gray-800">{(selectedEntente as any).description || t('fields.noDescription')}</p>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-2">
+                                        <div>
+                                            <div className="text-sm text-gray-600">{t('fields.program')}</div>
+                                            <div className="font-medium text-gray-900">{(selectedEntente as any).progEtude || (selectedEntente as any).prog || '-'}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-600">{t('fields.location')}</div>
+                                            <div className="font-medium text-gray-900">{(selectedEntente as any).lieuStage || (selectedEntente as any).lieu || '-'}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-600">{t('fields.schedule')}</div>
+                                            <div className="font-medium text-gray-900">{(selectedEntente as any).horaire || '-'}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-600">{t('fields.weeklyHours')}</div>
+                                            <div className="font-medium text-gray-900">{(selectedEntente as any).dureeHebdomadaire ?? '-'}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-600">{t('fields.remuneration')}</div>
+                                            <div className="font-medium text-gray-900">{(selectedEntente as any).remuneration || '-'}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-600">{t('fields.period')}</div>
+                                            <div className="font-medium text-gray-900">{formatDate((selectedEntente as any).dateDebut)} → {formatDate((selectedEntente as any).dateFin)}</div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div className="text-sm text-gray-600">{t('fields.responsibilities')}</div>
+                                        <div className="mt-1 text-gray-800">{(selectedEntente as any).responsabilites || '-'}</div>
+                                    </div>
+
+                                    <div>
+                                        <div className="text-sm text-gray-600">{t('fields.objectives')}</div>
+                                        <div className="mt-1 text-gray-800">{(selectedEntente as any).objectifs || '-'}</div>
                                     </div>
                                 </div>
+
                                 <div className="mt-3 pt-3 border-t border-blue-100 text-sm text-gray-800">
-                                    <div>{(selectedEntente as any).etudiantPrenom} {(selectedEntente as any).etudiantNom} • {(selectedEntente as any).etudiantEmail}</div>
-                                    <div className="mt-1">{(selectedEntente as any).employeurNom || ''}</div>
+                                    <div className="grid gap-1">
+                                        <div>{(selectedEntente as any).etudiantPrenom} {(selectedEntente as any).etudiantNom} • {(selectedEntente as any).etudiantEmail}</div>
+                                        <div className="text-xs text-gray-600">{t('fields.program')}: {(selectedEntente as any).progEtude || '-'}</div>
+                                        <div className="text-xs text-gray-600">{t('fields.session')}: {(selectedEntente as any).session || (selectedEntente as any).etudiantSession || '-'}</div>
+                                        <div className="mt-2">{(selectedEntente as any).employeurNom || ''}</div>
+                                        <div className="text-xs text-gray-600">{t('fields.email')}: {(selectedEntente as any).employeurEmail || (selectedEntente as any).employeurCourriel || '-'}</div>
+                                        <div className="text-xs text-gray-600">{t('fields.telephone')}: {(selectedEntente as any).employeurTelephone || (selectedEntente as any).employeurTel || '-'}</div>
+                                    </div>
                                 </div>
                             </div>
 
+                            {/* Signatures summary: show both student and employer like employer modal */}
                             <div className="pt-4 border-t-2 border-gray-300">
                                 <h4 className="font-semibold text-gray-900 mb-3">{t('signatureStatus.title')}</h4>
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                    <span className="font-medium text-gray-700">{t('signatureStatus.yourSignature')}</span>
-                                    {(selectedEntente as any).etudiantSignature === 'SIGNEE' ? (
-                                        <span className="text-green-600 flex items-center gap-2 font-semibold">
-                                            <CheckCircle className="w-5 h-5" />
-                                            {t('signatureStatus.signed')}
-                                        </span>
-                                    ) : (
-                                        <span className="text-amber-600 flex items-center gap-2 font-semibold">
-                                            <Clock className="w-5 h-5" />
-                                            {t('signatureStatus.waiting')}
-                                        </span>
-                                    )}
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <span className="font-medium text-gray-700">{t('signatureStatus.yourSignature')}</span>
+                                        {(selectedEntente as any).etudiantSignature === 'SIGNEE' ? (
+                                            <span className="text-green-600 flex items-center gap-2 font-semibold">
+                                                <CheckCircle className="w-5 h-5" />
+                                                {t('signatureStatus.signed')}
+                                            </span>
+                                        ) : (selectedEntente as any).etudiantSignature === 'REFUSEE' ? (
+                                            <span className="text-red-600 flex items-center gap-2 font-semibold">
+                                                <XCircle className="w-5 h-5" />
+                                                {t('signatureStatus.refused')}
+                                            </span>
+                                        ) : (
+                                            <span className="text-amber-600 flex items-center gap-2 font-semibold">
+                                                <Clock className="w-5 h-5" />
+                                                {t('signatureStatus.waiting')}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <span className="font-medium text-gray-700">{t('signatureStatus.employerSignature') || t('signatureStatus.employer')}</span>
+                                        {(selectedEntente as any).employeurSignature === 'SIGNEE' ? (
+                                            <span className="text-green-600 flex items-center gap-2 font-semibold">
+                                                <CheckCircle className="w-5 h-5" />
+                                                {t('signatureStatus.signed')}
+                                            </span>
+                                        ) : (selectedEntente as any).employeurSignature === 'REFUSEE' ? (
+                                            <span className="text-red-600 flex items-center gap-2 font-semibold">
+                                                <XCircle className="w-5 h-5" />
+                                                {t('signatureStatus.refused')}
+                                            </span>
+                                        ) : (
+                                            <span className="text-amber-600 flex items-center gap-2 font-semibold">
+                                                <Clock className="w-5 h-5" />
+                                                {t('signatureStatus.waiting')}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {peutSigner(selectedEntente) && (
-                            <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
-                                <button
-                                    onClick={() => setShowSignModal(true)}
-                                    className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-semibold"
-                                >
-                                    <FileSignature className="w-5 h-5" />
-                                    {t('buttons.sign')}
-                                </button>
-                                <button
-                                    onClick={handleViewPdf}
-                                    disabled={actionLoading}
-                                    className="px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
-                                >
-                                    <FileText className="w-5 h-5" />
-                                    {t('buttons.viewPdf')}
-                                </button>
-                                <button
-                                    onClick={() => setShowRefuseModal(true)}
-                                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 font-semibold"
-                                >
-                                    <XCircle className="w-5 h-5" />
-                                    {t('buttons.refuse')}
-                                </button>
-                            </div>
-                        )}
+                        <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
+                            <button
+                                onClick={handleViewPdf}
+                                disabled={actionLoading}
+                                className="px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                            >
+                                <FileText className="w-5 h-5" />
+                                {t('buttons.viewPdf')}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
