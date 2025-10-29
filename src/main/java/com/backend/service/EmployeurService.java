@@ -532,7 +532,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerEvaluation(EvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException {
+    public void creerEvaluation(EvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException {
         Employeur employeur = getEmployeurConnecte();
 
         EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
@@ -542,18 +542,23 @@ public class EmployeurService {
         }
 
         Etudiant etudiant = entente.getEtudiant();
+        if (etudiant == null || etudiant.getId() == null) {
+            throw new UtilisateurPasTrouveException();
+        }
+
+        if (evaluationRepository.existsByEtudiantIdAndEmployeurId(etudiant.getId(), employeur.getId())) {
+            throw new EvaluationDejaExistanteException();
+        }
 
         Evaluation eval = new Evaluation(entente, etudiant, employeur, dto.getCompetencesTechniques(), dto.getRespectDelais(), dto.getAttitudeIntegration(), dto.getCommentaires());
         evaluationRepository.save(eval);
 
-        // Notification pour l'étudiant et le gestionnaire
-        if (etudiant != null) {
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("evaluation.submitted");
-            notif.setMessageParam(entente.getTitre());
-            notificationRepository.save(notif);
-        }
+        // Notification pour l'étudiant
+        Notification notif = new Notification();
+        notif.setUtilisateur(etudiant);
+        notif.setMessageKey("evaluation.submitted");
+        notif.setMessageParam(entente.getTitre());
+        notificationRepository.save(notif);
 
         new EvaluationDTO().toDTO(eval);
     }

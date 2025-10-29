@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
     List<Evaluation> findAllByEmployeurId(Long employeurId);
+    boolean existsByEtudiantIdAndEmployeurId(Long id, Long id1);
 }
