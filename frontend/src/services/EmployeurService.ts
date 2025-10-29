@@ -83,6 +83,17 @@ export interface EntenteStageDTO {
     dateCreation: string;
 }
 
+export interface EvaluationDTO {
+    id?: number;
+    ententeId: number;
+    etudiantId: number;
+    competencesTechniques: string;
+    respectDelais: string;
+    attitudeIntegration: string;
+    commentaires: string;
+    dateEvaluation?: string;
+}
+
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const EMPLOYEUR_ENDPOINT = '/OSEemployeur';
@@ -743,6 +754,100 @@ class EmployeurService {
             return await response.json();
         } catch (error) {
             console.error('Erreur getEntentes:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Crée une évaluation pour un stagiaire
+     * @param evaluationData - Les données de l'évaluation
+     * @returns Promise<MessageRetour>
+     */
+    async creerEvaluation(evaluationData: EvaluationDTO): Promise<MessageRetour> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/evaluations`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(evaluationData)
+            });
+
+            const data = await response.json();
+
+            // Vérifier si erreur dans MessageRetourDTO
+            if (data?.erreur) {
+                console.error('Erreur lors de la création de l\'évaluation:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la création de l\'évaluation');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                console.error('Erreur HTTP:', response.status, data);
+                const error: any = new Error(`Erreur HTTP: ${response.status}`);
+                error.response = { data: { erreur: { errorCode: 'ERROR_000', message: error.message } } };
+                throw error;
+            }
+
+            return data;
+
+        } catch (error: any) {
+            if (error.response?.data?.erreur) {
+                throw error;
+            }
+
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+
+            const genericError: any = new Error(error.message || 'Erreur inconnue');
+            genericError.response = {
+                data: {
+                    erreur: {
+                        errorCode: 'ERROR_000',
+                        message: error.message
+                    }
+                }
+            };
+            throw genericError;
+        }
+    }
+
+    /**
+     * Récupère toutes les évaluations de l'employeur connecté
+     * @returns Promise<EvaluationDTO[]>
+     */
+    async getEvaluations(): Promise<EvaluationDTO[]> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/evaluations`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des évaluations');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getEvaluations:', error);
             throw error;
         }
     }

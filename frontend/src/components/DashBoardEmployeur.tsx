@@ -214,6 +214,9 @@ const DashBoardEmployeur = () => {
                             <NavLink to="/mes-ententes" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
                                 {t("employerdashboard:myAgreements")}
                             </NavLink>
+                            <NavLink to="/evaluation-stagiaire" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                                {t("employerdashboard:evaluateInterns")}
+                            </NavLink>
                         </div>
                     </div>
 
@@ -369,7 +372,7 @@ const DashBoardEmployeur = () => {
                                             </span>
                                                 <span className="flex items-center">
                                                 <Calendar className="w-4 h-4 mr-1" />
-                                                {t("employerdashboard:end")}: {offre.date_fin}
+                                                    {t("employerdashboard:end")}: {offre.date_fin}
                                             </span>
                                             </div>
 
