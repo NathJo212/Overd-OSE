@@ -12,8 +12,7 @@ import {
     FileText,
     CheckCircle,
     RefreshCw,
-    X,
-    Check
+    X, XCircle
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -427,7 +426,7 @@ const EntentesEmployeurs = () => {
                                         disabled={actionLoading}
                                         className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                                     >
-                                        <X className="w-5 h-5" />
+                                        <XCircle className="w-5 h-5" />
                                         {t("ententesemployeurs:actions.refuse")}
                                     </button>
                                     <button
@@ -435,7 +434,7 @@ const EntentesEmployeurs = () => {
                                         disabled={actionLoading}
                                         className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                                     >
-                                        <Check className="w-5 h-5" />
+                                        <FileSignature className="w-5 h-5" />
                                         {t("ententesemployeurs:actions.sign")}
                                     </button>
                                 </div>
