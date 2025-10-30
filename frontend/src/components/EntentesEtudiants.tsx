@@ -171,16 +171,6 @@ const EntentesEtudiants = () => {
         }
     };
 
-    const formatDate = (dateString?: string) => {
-        if (!dateString) return t('common.notDefined');
-        const date = new Date(dateString);
-        return date.toLocaleDateString('fr-CA', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
-    };
-
     return (
         <div className="bg-gray-50 min-h-screen">
             <NavBar />
@@ -279,7 +269,7 @@ const EntentesEtudiants = () => {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-gray-900 mb-1">{entente.offreTitre || entente.titre || t('fields.defaultTitle')}</h3>
-                                                <p className="text-xs text-gray-600 truncate">{entente.commentaires || t('fields.noDescription')}</p>
+                                                <p className="text-xs text-gray-600 truncate">{entente.description || t('fields.noDescription')}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -287,7 +277,7 @@ const EntentesEtudiants = () => {
                                     <div className="space-y-1 mb-3">
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Calendar className="w-3 h-3 flex-shrink-0" />
-                                            <span>{formatDate(entente.dateDebut)} → {formatDate(entente.dateFin)}</span>
+                                            <span>{entente.dateDebut} → {entente.dateFin}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Clock className="w-3 h-3 flex-shrink-0" />
@@ -358,11 +348,11 @@ const EntentesEtudiants = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <p className="text-sm text-gray-600">{t('modal.startDate')}</p>
-                                        <p className="font-medium text-gray-900">{formatDate(selectedEntente.dateDebut)}</p>
+                                        <p className="font-medium text-gray-900">{selectedEntente.dateDebut}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">{t('modal.endDate')}</p>
-                                        <p className="font-medium text-gray-900">{formatDate(selectedEntente.dateFin)}</p>
+                                        <p className="font-medium text-gray-900">{selectedEntente.dateFin}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">{t('modal.schedule')}</p>

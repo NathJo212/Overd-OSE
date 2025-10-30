@@ -294,10 +294,10 @@ const DashBoardEtudiant = () => {
                             </div>
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                            Ententes de stage
+                            {t('cards.ententes.title')}
                         </h2>
                         <p className="text-gray-600">
-                            Consultez et signez vos ententes de stage
+                            {t('cards.ententes.description')}
                         </p>
                     </button>
                 </div>

@@ -12,6 +12,10 @@
     "applications": {
       "title": "Mes candidatures",
       "description": "Suivez l'état de vos candidatures et gérez vos postulations"
+    },
+    "ententes": {
+      "title": "Ententes de stage",
+      "description": "Consultez et signez vos ententes de stage"
     }
   },
   "offers": {

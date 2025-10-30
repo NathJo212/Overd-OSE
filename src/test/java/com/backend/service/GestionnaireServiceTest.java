@@ -642,10 +642,21 @@ public class GestionnaireServiceTest {
 
     @Test
     public void getEntentesActives_retourneListe() throws Exception {
+        Employeur employeur = mock(Employeur.class);
         EntenteStage e1 = new EntenteStage();
+        e1.setEmployeur(employeur);
+        Etudiant etu1 = mock(Etudiant.class);
+        e1.setEtudiant(etu1);
+        when(etu1.getId()).thenReturn(1L);
         e1.setId(1L);
         EntenteStage e2 = new EntenteStage();
+        e2.setEmployeur(employeur);
+        Etudiant etu2 = mock(Etudiant.class);
+        when(etu2.getId()).thenReturn(2L);
+        e2.setEtudiant(etu2);
         e2.setId(2L);
+
+
         when(ententeStageRepository.findByArchivedFalse()).thenReturn(asList(e1, e2));
 
         var result = gestionnaireService.getEntentesActives();
@@ -655,6 +666,10 @@ public class GestionnaireServiceTest {
     @Test
     public void getEntenteById_retourneDTO() throws Exception {
         EntenteStage e = new EntenteStage();
+        Employeur employeur = mock(Employeur.class);
+        e.setEmployeur(employeur);
+        Etudiant etudiant = mock(Etudiant.class);
+        e.setEtudiant(etudiant);
         e.setId(55L);
         when(ententeStageRepository.findById(55L)).thenReturn(Optional.of(e));
 
