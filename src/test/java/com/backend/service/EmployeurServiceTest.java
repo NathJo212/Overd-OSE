@@ -1345,10 +1345,14 @@ public class EmployeurServiceTest {
         EntenteStage entente1 = new EntenteStage();
         entente1.setEmployeur(employeur);
         entente1.setTitre("Entente 1");
+        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        entente1.setEtudiant(etu1);
 
         EntenteStage entente2 = new EntenteStage();
         entente2.setEmployeur(employeur);
         entente2.setTitre("Entente 2");
+        Etudiant etu2 = new Etudiant("etu2@test.com", "pass", "tel", "Marie", "Curie", Programme.P420_B0, "Automne", "2024");
+        entente2.setEtudiant(etu2);
 
         when(ententeStageRepository.findByEmployeurAndArchivedFalse(employeur))
                 .thenReturn(Arrays.asList(entente1, entente2));
@@ -1381,6 +1385,9 @@ public class EmployeurServiceTest {
         entente1.setEmployeur(employeur);
         entente1.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
 
+        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        entente1.setEtudiant(etu1);
+
         when(ententeStageRepository.findByEmployeurAndEmployeurSignatureAndArchivedFalse(
                 employeur, EntenteStage.SignatureStatus.EN_ATTENTE))
                 .thenReturn(Collections.singletonList(entente1));
@@ -1412,6 +1419,8 @@ public class EmployeurServiceTest {
         EntenteStage entente = new EntenteStage();
         entente.setEmployeur(employeur);
         entente.setTitre("Test Entente");
+        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        entente.setEtudiant(etu1);
 
         when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
 
