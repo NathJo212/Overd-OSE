@@ -278,7 +278,7 @@ public class GestionnaireControlleur {
 
     @PostMapping("/etudiant/{etudiantId}/professeur/{professeurId}")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> setEtudiantAProfesseur(
+    public ResponseEntity<MessageRetourDTO> assignEtudiantAProfesseur(
             @PathVariable Long etudiantId,
             @PathVariable Long professeurId) {
         try {
@@ -295,6 +295,34 @@ public class GestionnaireControlleur {
                     .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_000", e.getMessage())));
         }
     }
+
+    @GetMapping("/etudiants")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EtudiantDTO>> getAllEtudiants() {
+        try {
+            List<EtudiantDTO> etudiants = gestionnaireService.getAllEtudiants();
+            return ResponseEntity.ok(etudiants);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/professeurs")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<ProfesseurDTO>> getAllProfesseurs() {
+        try {
+            List<ProfesseurDTO> professeurs = gestionnaireService.getAllProfesseurs();
+            return ResponseEntity.ok(professeurs);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
 
 }

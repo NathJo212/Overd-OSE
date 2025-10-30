@@ -21,6 +21,7 @@ import DashboardGestionnaire from "./components/DashboardGestionnaire.tsx";
 import EntentesStageGestionnaire from "./components/EntentesStageGestionnaire.tsx";
 import EtudiantSigneEntente from "./components/EtudiantSigneEntente.tsx";
 import EntentesEmployeurs from "./components/EntentesEmployeurs.tsx";
+import GestionnaireAttribueEtudiant from "./components/GestionnaireAttribueEtudiant.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -41,6 +42,7 @@ const router = createBrowserRouter(
             <Route path="mes-ententes-stage" element={<EtudiantSigneEntente/>}/>
             <Route path="ententes-stage-gestionnaire" element={<EntentesStageGestionnaire/>}/>
             <Route path="mes-ententes" element={<EntentesEmployeurs/>}/>
+            <Route path="assigner-professeurs" element={<GestionnaireAttribueEtudiant/>}/>
         </Route>
     )
 );

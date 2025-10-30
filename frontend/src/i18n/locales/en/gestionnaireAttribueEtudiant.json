@@ -1,0 +1,23 @@
+{
+  "title": "Assign Teachers to Students",
+  "subtitle": "Assign a supervising teacher to each student",
+  "error": "Connection error",
+  "selectProfessor": "Please select a teacher",
+  "assignSuccess": "Teacher assigned successfully!",
+  "assignError": "Error during assignment",
+  "searchStudent": "Search a student by name, email, or program...",
+  "searchTeacher": "Search a teacher...",
+  "noStudentsFound": "No students found for this search",
+  "noStudents": "No students available",
+  "student": "Student",
+  "currentTeacher": "Current Teacher",
+  "teacher": "Teacher",
+  "program": "Program",
+  "action": "Action",
+  "noTeacher": "No teacher",
+  "selectOption": "-- Select --",
+  "noTeacherFound": "No teacher found",
+  "assign": "Assign",
+  "changeTeacher": "Change",
+  "assigning": "Assigning..."
+}

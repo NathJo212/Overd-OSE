@@ -3,10 +3,7 @@ package com.backend.controller;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.UtilisateurPasTrouveException;
-import com.backend.modele.Professeur;
-import com.backend.service.DTO.ErrorResponse;
 import com.backend.service.DTO.EtudiantDTO;
-import com.backend.service.DTO.MessageRetourDTO;
 import com.backend.service.ProfesseurService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

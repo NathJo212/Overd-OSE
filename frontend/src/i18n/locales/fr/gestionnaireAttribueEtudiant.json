@@ -1,0 +1,23 @@
+{
+  "title": "Assigner des Professeurs aux Étudiants",
+  "subtitle": "Assignez un professeur superviseur à chaque étudiant",
+  "error": "Erreur de connexion",
+  "selectProfessor": "Veuillez sélectionner un professeur",
+  "assignSuccess": "Professeur assigné avec succès !",
+  "assignError": "Erreur lors de l'assignation",
+  "searchStudent": "Rechercher un étudiant par nom, email ou programme...",
+  "searchTeacher": "Rechercher un professeur...",
+  "noStudentsFound": "Aucun étudiant trouvé pour cette recherche",
+  "noStudents": "Aucun étudiant disponible",
+  "student": "Étudiant",
+  "currentTeacher": "Professeur Actuel",
+  "teacher": "Professeur",
+  "program": "Programme",
+  "action": "Action",
+  "noTeacher": "Aucun professeur",
+  "selectOption": "-- Sélectionner --",
+  "noTeacherFound": "Aucun professeur trouvé",
+  "assign": "Assigner",
+  "changeTeacher": "Changer",
+  "assigning": "Assignation..."
+}
