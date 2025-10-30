@@ -12,6 +12,10 @@
     "applications": {
       "title": "My Applications",
       "description": "Track the status of your applications and manage your submissions"
+    },
+    "ententes": {
+      "title": "Internship agreements",
+      "description": "View and sign your internship agreements"
     }
   },
   "offers": {
