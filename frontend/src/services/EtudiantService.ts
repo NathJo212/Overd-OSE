@@ -79,6 +79,27 @@ export interface EntenteStageDTO {
     dateDebut?: string;
     dateFin?: string;
     dateCreation?: string;
+    etudiantId?: number;
+    etudiantNomComplet?: string;
+    etudiantEmail?: string;
+    employeurContact?: string;
+    employeurEmail?: string;
+    offreId?: number;
+    titre: string;
+    description: string;
+    dateDebut: string;
+    dateFin: string;
+    horaire: string;
+    dureeHebdomadaire: number | null;
+    remuneration: string;
+    responsabilites: string;
+    objectifs: string;
+    documentPdf?: string | null;
+    etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    statut: 'EN_ATTENTE' | 'SIGNEE' | 'ANNULEE' | string;
+    archived?: boolean;
+    dateCreation: string;
 
     // Student/employer display info
     etudiantNom?: string;
@@ -114,7 +135,6 @@ class EtudiantService {
 
             const data = await response.json();
 
-            // ✅ Vérifier si erreur dans MessageRetourDTO
             if (data.erreur) {
                 console.error('Erreur lors de la création du compte:', data.erreur);
 
@@ -167,6 +187,30 @@ class EtudiantService {
             throw genericError;
         }
     }
+
+    formatFormDataForAPI(formData: {
+        prenom: string
+        nom: string
+        email: string
+        telephone: string
+        motDePasse: string
+        confirmerMotDePasse: string
+        programmeEtudes: string
+        anneeEtude: string
+        session: string
+    }): EtudiantData {
+        return {
+            prenom: formData.prenom,
+            nom: formData.nom,
+            email: formData.email,
+            password: formData.motDePasse,
+            telephone: formData.telephone,
+            progEtude: formData.programmeEtudes,
+            session: formData.session,
+            annee: formData.anneeEtude
+        };
+    }
+
 
     /**
      * Récupère toutes les offres approuvées
@@ -868,6 +912,8 @@ class EtudiantService {
      * Télécharge le PDF d'une entente de stage
      * @param ententeId - L'ID de l'entente dont on veut télécharger le PDF
      * @returns Promise avec le Blob du PDF
+     * Récupère toutes les ententes pour l'étudiant connecté (toutes, pas seulement en attente)
+     * @returns Promise avec la liste des ententes
      */
     async telechargerPdfEntente(ententeId: number): Promise<Blob> {
         try {
@@ -974,9 +1020,7 @@ class EtudiantService {
             annee: formData.anneeEtude || formData.annee || '',
         };
     }
-
 }
 
 export const etudiantService = new EtudiantService();
 export default etudiantService;
-

@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
@@ -1169,64 +1168,4 @@ class EmployeurControllerTest {
                 .andExpect(jsonPath("$.message").doesNotExist())
                 .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNKNOWN_ERROR.getCode()));
     }
-
-
-    @Test
-    @DisplayName("PUT /OSEemployeur/ententes/{id}/modification retourne 200 sur succès")
-    void modificationEntente_success_returnsOk() throws Exception {
-        Long ententeId = 1L;
-
-        mockMvc.perform(put("/OSEemployeur/ententes/{id}/modification", ententeId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of("modificationEntente", "nouvelle modification"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Demande de modification de l'entente envoyée avec succès"))
-                .andExpect(jsonPath("$.erreur").doesNotExist());
-    }
-
-    @Test
-    @DisplayName("PUT /OSEemployeur/ententes/{id}/modification retourne 403 si action non autorisée")
-    void modificationEntente_actionNonAutorisee_returnsForbidden() throws Exception {
-        Long ententeId = 1L;
-        doThrow(new ActionNonAutoriseeException())
-                .when(employeurService).modifierEntente(eq(ententeId), any(ModificationEntenteDTO.class));
-
-        mockMvc.perform(put("/OSEemployeur/ententes/{id}/modification", ententeId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of("modificationEntente", "nouvelle modification"))))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
-    }
-
-    @Test
-    @DisplayName("PUT /OSEemployeur/ententes/{id}/modification retourne 401 si utilisateur pas trouvé")
-    void modificationEntente_utilisateurPasTrouve_returnsUnauthorized() throws Exception {
-        Long ententeId = 1L;
-        doThrow(new UtilisateurPasTrouveException())
-                .when(employeurService).modifierEntente(eq(ententeId), any(ModificationEntenteDTO.class));
-
-        mockMvc.perform(put("/OSEemployeur/ententes/{id}/modification", ententeId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of("modificationEntente", "nouvelle modification"))))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.USER_NOT_FOUND.getCode()));
-    }
-
-    @Test
-    @DisplayName("PUT /OSEemployeur/ententes/{id}/modification retourne 500 sur erreur interne")
-    void modificationEntente_internalError_returnsInternalServerError() throws Exception {
-        Long ententeId = 1L;
-        doThrow(new RuntimeException("Erreur interne"))
-                .when(employeurService).modifierEntente(eq(ententeId), any(ModificationEntenteDTO.class));
-
-        mockMvc.perform(put("/OSEemployeur/ententes/{id}/modification", ententeId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of("modificationEntente", "nouvelle modification"))))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNKNOWN_ERROR.getCode()));
-    }
-
 }

@@ -32,7 +32,7 @@ const LanguageSelector = () => {
             <div className="flex gap-1">
                 <button
                     onClick={() => changeLanguage('fr')}
-                    className={`px-3 py-1 text-sm rounded-md font-medium transition-all duration-200 ${
+                    className={`cursor-pointer px-3 py-1 text-sm rounded-md font-medium transition-all duration-200 ${
                         i18n.language === 'fr'
                             ? 'bg-blue-600 text-white shadow-sm'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

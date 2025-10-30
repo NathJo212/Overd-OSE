@@ -138,7 +138,7 @@ public class EmployeurService {
 
     @Transactional
     public CandidatureDTO getCandidatureSpecifique(Long candidatureId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonTrouveeException {
+            throws ActionNonAutoriseeException, CandidatureNonTrouveeException {
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
 
@@ -490,7 +490,6 @@ public class EmployeurService {
         }
 
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
-        entente.setDateModification(LocalDateTime.now());
 
         // Si les deux ont signé, marquer l'entente comme signée
         if (entente.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE) {
@@ -526,7 +525,6 @@ public class EmployeurService {
 
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.REFUSEE);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
-        entente.setDateModification(LocalDateTime.now());
 
         ententeStageRepository.save(entente);
 
@@ -539,22 +537,5 @@ public class EmployeurService {
             notif.setMessageParam(entente.getTitre());
             notificationRepository.save(notif);
         }
-    }
-
-    public void modifierEntente(Long ententeId, ModificationEntenteDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, StatutEntenteInvalideException {
-        Employeur employeur = getEmployeurConnecte();
-
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
-
-        if (!entente.getEmployeur().getId().equals(employeur.getId())) {
-            throw new ActionNonAutoriseeException();
-        }
-
-        if (entente.getEmployeurSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
-            throw new StatutEntenteInvalideException();
-        }
-
-        entente.setMessageModificationEmployeur(dto.getModificationEntente());
-        ententeStageRepository.save(entente);
     }
 }

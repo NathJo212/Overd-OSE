@@ -216,7 +216,7 @@ public class GestionnaireService {
                 .collect(Collectors.toList());
     }
 
-    public void creerEntente(EntenteStageDTO dto) throws ActionNonAutoriseeException, OffreNonExistantException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, com.backend.Exceptions.EntenteDejaExistanteException {
+    public void creerEntente(EntenteStageDTO dto) throws ActionNonAutoriseeException, OffreNonExistantException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, com.backend.Exceptions.EntenteDejaExistanteException, StatutCandidatureInvalideException {
         verifierGestionnaireConnecte();
 
         if (dto.getOffreId() == null) {
@@ -251,7 +251,6 @@ public class GestionnaireService {
        EntenteStage entente = new EntenteStage(etudiant, employeur, offre);
 
         entente.setDateCreation(LocalDateTime.now());
-        entente.setDateModification(LocalDateTime.now());
         ententeStageRepository.save(entente);
 
         // PDF
@@ -300,7 +299,6 @@ public class GestionnaireService {
         entente.setRemuneration(dto.getRemuneration());
         entente.setResponsabilites(dto.getResponsabilites());
         entente.setObjectifs(dto.getObjectifs());
-        entente.setDateModification(LocalDateTime.now());
 
         // reset signatures if modification before final signature
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
@@ -343,7 +341,6 @@ public class GestionnaireService {
         EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setArchived(true);
-        entente.setDateModification(LocalDateTime.now());
         ententeStageRepository.save(entente);
 
         // notifications

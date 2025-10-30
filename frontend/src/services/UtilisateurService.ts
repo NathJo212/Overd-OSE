@@ -51,7 +51,6 @@ class UtilisateurService {
 
             const data = await response.json();
 
-            // ✅ CORRECTION : Vérifier si errorResponse existe dans la réponse
             if (data.errorResponse) {
                 console.error('Erreur lors de la connexion:', data.errorResponse);
 

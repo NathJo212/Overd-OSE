@@ -42,7 +42,6 @@ const EntentesStageGestionnaire = () => {
     }, [token]);
 
     const handleCandidatureClick = (candidature: CandidatureEligibleDTO) => {
-        // open modal (no form to reset anymore)
         setSelectedCandidature(candidature);
         // attempt to fetch offer details to show richer entente info in the modal
         (async () => {
@@ -90,7 +89,6 @@ const EntentesStageGestionnaire = () => {
             const ententeData: EntenteStageDTO = {
                 etudiantId: selectedCandidature.etudiantId,
                 offreId: selectedCandidature.offreId,
-                // minimal fields
                 titre: selectedCandidature.offreTitre,
                 // enrich with whatever we can obtain from the offer and candidature
                 dateDebut: offerDetails?.date_debut || undefined,
@@ -115,7 +113,8 @@ const EntentesStageGestionnaire = () => {
                 gestionnaireService.getCandidaturesEligiblesEntente(token)
                     .then(data => setCandidatures(data))
                     .catch(err => setError(err.message));
-            }, 1000);
+            }, 2000);
+
         } catch (err: any) {
             const responseData = err.response?.data;
 
@@ -280,7 +279,7 @@ const EntentesStageGestionnaire = () => {
                     onClick={(e) => e.target === e.currentTarget && closeModal()}
                 >
                     <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
-                        {/* Header */}
+                        {/* En-tête du modal */}
                         <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between z-10">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -300,7 +299,7 @@ const EntentesStageGestionnaire = () => {
                             </div>
                             <button
                                 onClick={closeModal}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
                                 disabled={isSubmitting}
                             >
                                 <X className="w-6 h-6" />

@@ -3,7 +3,7 @@ package com.backend.Exceptions;
 import lombok.Getter;
 
 @Getter
-public class EmailDejaUtiliseException extends RuntimeException {
+public class EmailDejaUtiliseException extends Exception {
     private final ErrorCode errorCode;
 
     public EmailDejaUtiliseException() {

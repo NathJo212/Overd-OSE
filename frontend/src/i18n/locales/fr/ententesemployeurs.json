@@ -24,9 +24,9 @@
     "modified": "Demande de modification envoyée avec succès"
   },
   "signature": {
-    "signed": "Signée",
-    "pending": "En attente",
-    "refused": "Refusée"
+    "pending": "En attente de votre signature",
+    "signed": "Vous avez signé",
+    "refused": "Refusée par vous"
   },
   "actions": {
     "sign": "Signer",
@@ -37,10 +37,7 @@
   },
   "modal": {
     "title": "Détails de l'entente",
-    "signatures": "Statut des signatures",
-    "studentSignature": "Signature étudiant",
-    "employerSignature": "Signature employeur",
-    "managerSignature": "Signature gestionnaire",
+    "signatures": "Statut de la signature",
     "student": "Informations de l'étudiant",
     "name": "Nom",
     "email": "Courriel",
@@ -48,7 +45,7 @@
     "startDate": "Date de début",
     "endDate": "Date de fin",
     "schedule": "Horaire",
-    "weeklyHours": "Durée hebdomadaire",
+    "weeklyHours": "Heures hebdomadaires",
     "remuneration": "Rémunération",
     "description": "Description",
     "responsibilities": "Responsabilités",

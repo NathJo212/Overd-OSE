@@ -5,6 +5,7 @@ import {
     User,
     Calendar,
     Clock,
+    DollarSign,
     AlertCircle,
     Briefcase,
     ArrowLeft,
@@ -12,6 +13,7 @@ import {
     CheckCircle,
     RefreshCw,
     X,
+    XCircle,
     Check,
     DollarSign
 } from "lucide-react";
@@ -68,6 +70,44 @@ const EntentesEmployeurs = () => {
 
 
 
+    const handleSignerClick = async () => {
+        if (!selectedEntente) return;
+
+        setActionLoading(true);
+        try {
+            await employeurService.signerEntente(selectedEntente.id);
+            setSuccessMessage(t("ententesemployeurs:messages.signed"));
+            closeModal();
+            loadEntentes();
+        } catch (err: any) {
+            setError(err.message || t("ententesemployeurs:errors.signError"));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleRefuserClick = () => {
+        setShowModal(false);
+        setShowRefuseModal(true);
+    };
+
+    const handleConfirmRefuse = async () => {
+        if (!selectedEntente) return;
+
+        setActionLoading(true);
+        try {
+            await employeurService.refuserEntente(selectedEntente.id);
+            setSuccessMessage(t("ententesemployeurs:messages.refused"));
+            setShowRefuseModal(false);
+            setSelectedEntente(null);
+            loadEntentes();
+        } catch (err: any) {
+            setError(err.message || t("ententesemployeurs:errors.refuseError"));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const getSignatureStatusBadge = (statut: string) => {
         switch (statut) {
             case 'SIGNEE':
@@ -96,15 +136,6 @@ const EntentesEmployeurs = () => {
         }
     };
 
-    const formatDate = (dateString?: string) => {
-        if (!dateString) return '-';
-        try {
-            return new Date(dateString).toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric' });
-        } catch {
-            return dateString;
-        }
-    };
-
     const resolveField = (obj: any, ...keys: string[]) => {
         if (!obj) return undefined;
         for (const k of keys) {
@@ -130,7 +161,7 @@ const EntentesEmployeurs = () => {
                 <div className="mb-8">
                     <button
                         onClick={() => navigate('/dashboard-employeur')}
-                        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         {t("ententesemployeurs:backToDashboard")}
@@ -152,7 +183,7 @@ const EntentesEmployeurs = () => {
 
                     <button
                         onClick={loadEntentes}
-                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
                         disabled={loading}
                     >
                         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -166,7 +197,7 @@ const EntentesEmployeurs = () => {
                         <div className="flex items-start gap-3">
                             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-green-900">{successMessage}</p>
-                            <button onClick={() => setSuccessMessage("")} className="ml-auto text-green-600 hover:text-green-800">
+                            <button onClick={() => setSuccessMessage("")} className="cursor-pointer ml-auto text-green-600 hover:text-green-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -179,7 +210,7 @@ const EntentesEmployeurs = () => {
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-red-900">{error}</p>
-                            <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                            <button onClick={() => setError("")} className="cursor-pointer ml-auto text-red-600 hover:text-red-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -240,7 +271,7 @@ const EntentesEmployeurs = () => {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-gray-900 mb-1">
-                                                    {entente.etudiantPrenom} {entente.etudiantNom}
+                                                    {entente.etudiantNomComplet}
                                                 </h3>
                                                 <p className="text-xs text-gray-600 truncate">
                                                     {entente.etudiantEmail}
@@ -616,3 +647,4 @@ const EntentesEmployeurs = () => {
 };
 
 export default EntentesEmployeurs;
+

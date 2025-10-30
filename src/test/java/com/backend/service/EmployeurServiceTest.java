@@ -76,7 +76,7 @@ public class EmployeurServiceTest {
     private org.springframework.context.MessageSource messageSource;
 
     @Test
-    public void testCreationEmployeur() throws MotPasseInvalideException {
+    public void testCreationEmployeur() throws MotPasseInvalideException, EmailDejaUtiliseException {
         // Arrange
         Employeur employeur = new Employeur("mon@employeur.com","Etudiant12?","(514) 582-9898","Gogole","Jaques L'heureux");
         when(utilisateurRepository.existsByEmail(employeur.getEmail())).thenReturn(false);
@@ -104,7 +104,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testCreationEmployeur_DeuxComptesMemeEmail() throws MotPasseInvalideException {
+    public void testCreationEmployeur_DeuxComptesMemeEmail() throws MotPasseInvalideException, EmailDejaUtiliseException {
         // Arrange
         String email = "mon@employeur.com";
         Employeur employeur1 = new Employeur(email, "Etudiant12?", "(514) 582-9898", "Gogole", "Jaques L'heureux");
@@ -1345,10 +1345,14 @@ public class EmployeurServiceTest {
         EntenteStage entente1 = new EntenteStage();
         entente1.setEmployeur(employeur);
         entente1.setTitre("Entente 1");
+        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        entente1.setEtudiant(etu1);
 
         EntenteStage entente2 = new EntenteStage();
         entente2.setEmployeur(employeur);
         entente2.setTitre("Entente 2");
+        Etudiant etu2 = new Etudiant("etu2@test.com", "pass", "tel", "Marie", "Curie", Programme.P420_B0, "Automne", "2024");
+        entente2.setEtudiant(etu2);
 
         when(ententeStageRepository.findByEmployeurAndArchivedFalse(employeur))
                 .thenReturn(Arrays.asList(entente1, entente2));
@@ -1381,6 +1385,9 @@ public class EmployeurServiceTest {
         entente1.setEmployeur(employeur);
         entente1.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
 
+        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        entente1.setEtudiant(etu1);
+
         when(ententeStageRepository.findByEmployeurAndEmployeurSignatureAndArchivedFalse(
                 employeur, EntenteStage.SignatureStatus.EN_ATTENTE))
                 .thenReturn(Collections.singletonList(entente1));
@@ -1412,6 +1419,8 @@ public class EmployeurServiceTest {
         EntenteStage entente = new EntenteStage();
         entente.setEmployeur(employeur);
         entente.setTitre("Test Entente");
+        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        entente.setEtudiant(etu1);
 
         when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
 
@@ -1622,72 +1631,6 @@ public class EmployeurServiceTest {
         // Act & Assert
         assertThrows(ActionNonAutoriseeException.class, () -> {
             employeurService.refuserEntente(1L);
-        });
-    }
-
-    @Test
-    public void testModifierEntente_Succes() throws Exception {
-        // Arrange
-        String email = "employeur@test.com";
-        Employeur employeur = mock(Employeur.class);
-        when(employeur.getId()).thenReturn(1L);
-
-        Collection<GrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("EMPLOYEUR")
-        );
-        when(authentication.getName()).thenReturn(email);
-        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
-
-        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
-
-        EntenteStage entente = new EntenteStage();
-        entente.setEmployeur(employeur);
-        entente.setEtudiant(etudiant);
-        entente.setTitre("Entente Test");
-        entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
-
-        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
-        when(ententeStageRepository.save(any(EntenteStage.class))).thenReturn(entente);
-
-        // Act
-        employeurService.modifierEntente(1L, new ModificationEntenteDTO("Les dates sont erronées"));
-
-        // Assert
-        assertEquals("Les dates sont erronées", entente.getMessageModificationEmployeur());
-        verify(ententeStageRepository, times(1)).save(entente);
-    }
-
-    @Test
-    public void testModifierEntente_NonAutorise() throws Exception {
-        // Arrange
-        String email = "employeur@test.com";
-        Employeur employeur = mock(Employeur.class);
-        when(employeur.getId()).thenReturn(1L);
-
-        Employeur autreEmployeur = mock(Employeur.class);
-        when(autreEmployeur.getId()).thenReturn(2L);
-
-        Collection<GrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("EMPLOYEUR")
-        );
-        when(authentication.getName()).thenReturn(email);
-        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
-
-        EntenteStage entente = new EntenteStage();
-        entente.setEmployeur(autreEmployeur);
-
-        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
-
-        // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.modifierEntente(1L, new ModificationEntenteDTO("Les dates sont erronées"));
         });
     }
 }

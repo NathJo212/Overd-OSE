@@ -73,14 +73,9 @@ public class EntenteStage {
     @Enumerated(EnumType.STRING)
     private StatutEntente statut = StatutEntente.EN_ATTENTE;
 
-    private String messageModificationEtudiant;
-
-    private String messageModificationEmployeur;
-
     private boolean archived = false;
 
     private LocalDateTime dateCreation = LocalDateTime.now();
-    private LocalDateTime dateModification = LocalDateTime.now();
 
     public EntenteStage(Etudiant etudiant, Employeur employeur, Offre offre) {
         this.etudiant = etudiant;
@@ -102,6 +97,5 @@ public class EntenteStage {
         this.statut = StatutEntente.EN_ATTENTE;
         this.archived = false;
         this.dateCreation = LocalDateTime.now();
-        this.dateModification = LocalDateTime.now();
     }
 }

@@ -156,7 +156,7 @@ const DashboardGestionnaire = () => {
                         <div className="flex items-start gap-3">
                             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-green-900">{t(actionMessage)}</p>
-                            <button onClick={() => setActionMessage("")} className="ml-auto text-green-600 hover:text-green-800">
+                            <button onClick={() => setActionMessage("")} className="cursor-pointer ml-auto text-green-600 hover:text-green-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -168,7 +168,7 @@ const DashboardGestionnaire = () => {
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-red-900">{t(error)}</p>
-                            <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                            <button onClick={() => setError("")} className="cursor-pointer ml-auto text-red-600 hover:text-red-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -272,7 +272,7 @@ const DashboardGestionnaire = () => {
                                     <button
                                         onClick={() => handleApprove(offre.id)}
                                         disabled={processingId === offre.id}
-                                        className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-green-400 disabled:shadow-none flex items-center justify-center gap-2"
+                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-green-400 disabled:shadow-none flex items-center justify-center gap-2"
                                     >
                                         <CheckCircle className="w-4 h-4" />
                                         {processingId === offre.id ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.approve')}
@@ -280,7 +280,7 @@ const DashboardGestionnaire = () => {
                                     <button
                                         onClick={() => handleRefuseClick(offre.id)}
                                         disabled={processingId === offre.id}
-                                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-red-400 disabled:shadow-none flex items-center justify-center gap-2"
+                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-red-400 disabled:shadow-none flex items-center justify-center gap-2"
                                     >
                                         <XCircle className="w-4 h-4" />
                                         {processingId === offre.id ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.refuse')}

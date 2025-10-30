@@ -24,9 +24,9 @@
     "modified": "Modification request sent successfully"
   },
   "signature": {
-    "signed": "Signed",
-    "pending": "Pending",
-    "refused": "Refused"
+    "pending": "Awaiting your signature",
+    "signed": "You have signed",
+    "refused": "Refused by you"
   },
   "actions": {
     "sign": "Sign",
@@ -37,18 +37,15 @@
   },
   "modal": {
     "title": "Agreement Details",
-    "signatures": "Signature Status",
-    "studentSignature": "Student signature",
-    "employerSignature": "Employer signature",
-    "managerSignature": "Manager signature",
+    "signature": "Signature Status",
     "student": "Student Information",
     "name": "Name",
     "email": "Email",
     "internshipInfo": "Internship Information",
-    "startDate": "Start Date",
-    "endDate": "End Date",
+    "startDate": "Start date",
+    "endDate": "End date",
     "schedule": "Schedule",
-    "weeklyHours": "Weekly Hours",
+    "weeklyHours": "Hours per week",
     "remuneration": "Remuneration",
     "description": "Description",
     "responsibilities": "Responsibilities",

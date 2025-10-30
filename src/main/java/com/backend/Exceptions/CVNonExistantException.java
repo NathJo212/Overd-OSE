@@ -3,7 +3,7 @@ package com.backend.Exceptions;
 import lombok.Getter;
 
 @Getter
-public class CVNonExistantException extends RuntimeException {
+public class CVNonExistantException extends Exception {
     private final ErrorCode errorCode;
 
     public CVNonExistantException() {

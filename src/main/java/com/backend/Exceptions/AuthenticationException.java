@@ -3,7 +3,7 @@ package com.backend.Exceptions;
 import lombok.Getter;
 
 @Getter
-public class AuthenticationException extends RuntimeException {
+public class AuthenticationException extends Exception {
     private final ErrorCode errorCode;
 
     public AuthenticationException() {
