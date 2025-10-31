@@ -17,8 +17,6 @@ import NavBar from "./NavBar.tsx";
 import etudiantService from '../services/EtudiantService.ts';
 import type { EntenteStageDTO } from '../services/EtudiantService.ts';
 
-const STORAGE_KEY = 'ententesEtudiantPersist';
-
 const EntentesEtudiants = () => {
     const { t } = useTranslation(['ententesetudiants', 'programmes']);
     const navigate = useNavigate();
@@ -41,45 +39,21 @@ const EntentesEtudiants = () => {
         loadEntentes().then();
     }, [navigate]);
 
-    const mergePersisted = (apiEntentes: EntenteStageDTO[]): EntenteStageDTO[] => {
-        const persistedRaw = localStorage.getItem(STORAGE_KEY);
-        const persisted: EntenteStageDTO[] = persistedRaw ? JSON.parse(persistedRaw) : [];
-        const byId = new Map<number, EntenteStageDTO>();
-        for (const e of persisted) byId.set(e.id, e);
-        for (const e of apiEntentes) byId.set(e.id, { ...(byId.get(e.id) || {} as any), ...e });
-        const merged = Array.from(byId.values());
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-        return merged;
-    };
-
     const loadEntentes = async (): Promise<EntenteStageDTO[]> => {
         try {
             setLoading(true);
             setError('');
             const data = await etudiantService.getEntentes();
-            const merged = mergePersisted(data || []);
-            setEntentes(merged);
-            return merged;
+            setEntentes(data || []);
+            return data || [];
         } catch (err: any) {
             console.error('Erreur lors du chargement des ententes:', err);
             setError(t('errors.loadError'));
-            // fallback to persisted if available
-            const persistedRaw = localStorage.getItem(STORAGE_KEY);
-            const persisted: EntenteStageDTO[] = persistedRaw ? JSON.parse(persistedRaw) : [];
-            setEntentes(persisted);
-            return persisted;
+            setEntentes([]);
+            return [];
         } finally {
             setLoading(false);
         }
-    };
-
-    const updatePersisted = (updated: EntenteStageDTO) => {
-        const persistedRaw = localStorage.getItem(STORAGE_KEY);
-        const persisted: EntenteStageDTO[] = persistedRaw ? JSON.parse(persistedRaw) : [];
-        const idx = persisted.findIndex(e => e.id === updated.id);
-        if (idx >= 0) persisted[idx] = { ...persisted[idx], ...updated };
-        else persisted.unshift(updated);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
     };
 
     const handleSignEntente = async () => {
@@ -89,27 +63,14 @@ const EntentesEtudiants = () => {
             setActionLoading(true);
             await etudiantService.signerEntente(selectedEntente.id);
 
-            const updatedLocal: EntenteStageDTO = {
-                ...selectedEntente,
-                etudiantSignature: 'SIGNEE',
-                statut: selectedEntente.statut ?? 'SIGNEE'
-            } as any;
-
-            updatePersisted(updatedLocal);
-            setEntentes(prev => prev.map(e => e.id === updatedLocal.id ? { ...e, ...updatedLocal } : e));
+            // Update local state from API result (optimistic update)
+            setEntentes(prev => prev.map(e => e.id === selectedEntente.id ? { ...e, etudiantSignature: 'SIGNEE', statut: e.statut ?? 'SIGNEE' } : e));
             setSuccessMessage(t('success.signed'));
             setShowSignModal(false);
             setSelectedEntente(null);
 
-            // Reload and merge, but keep local if API hides it
-            const reloaded = await loadEntentes();
-            if (!reloaded.find(e => e.id === updatedLocal.id)) {
-                setEntentes(prev => {
-                    const map = new Map(prev.map(e => [e.id, e]));
-                    map.set(updatedLocal.id, { ...prev.find(e => e.id === updatedLocal.id), ...updatedLocal } as any);
-                    return Array.from(map.values());
-                });
-            }
+            // refresh from server to ensure consistency
+            await loadEntentes();
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err: any) {
@@ -127,26 +88,12 @@ const EntentesEtudiants = () => {
             setActionLoading(true);
             await etudiantService.refuserEntente(selectedEntente.id);
 
-            const updatedLocal: EntenteStageDTO = {
-                ...selectedEntente,
-                etudiantSignature: 'REFUSEE',
-                statut: 'REFUSEE'
-            } as any;
-
-            updatePersisted(updatedLocal);
-            setEntentes(prev => prev.map(e => e.id === updatedLocal.id ? { ...e, ...updatedLocal } : e));
+            setEntentes(prev => prev.map(e => e.id === selectedEntente.id ? { ...e, etudiantSignature: 'REFUSEE', statut: 'REFUSEE' } : e));
             setSuccessMessage(t('success.refused'));
             setShowRefuseModal(false);
             setSelectedEntente(null);
 
-            const reloaded = await loadEntentes();
-            if (!reloaded.find(e => e.id === updatedLocal.id)) {
-                setEntentes(prev => {
-                    const map = new Map(prev.map(e => [e.id, e]));
-                    map.set(updatedLocal.id, { ...prev.find(e => e.id === updatedLocal.id), ...updatedLocal } as any);
-                    return Array.from(map.values());
-                });
-            }
+            await loadEntentes();
 
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err: any) {
