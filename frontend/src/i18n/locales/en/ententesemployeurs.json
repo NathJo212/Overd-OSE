@@ -5,6 +5,7 @@
   "refresh": "Refresh",
   "active": "Active",
   "week": "week",
+  "hourShort": "h",
   "ententeCount": "agreement(s)",
   "viewDetails": "View details",
   "noEntentes": {
@@ -37,7 +38,7 @@
   },
   "modal": {
     "title": "Agreement Details",
-    "signature": "Signature Status",
+    "signatures": "Signature Status",
     "student": "Student Information",
     "name": "Name",
     "email": "Email",

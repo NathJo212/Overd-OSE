@@ -1041,7 +1041,7 @@ const CandidaturesRecues = () => {
                                             {selectedCandidature.alettreMotivation && (
                                                 <button
                                                     onClick={(e) => handleRegarderLettreMotivation(selectedCandidature.id, e)}
-                                                    className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                                                    className="cursor-pointer w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -1096,7 +1096,7 @@ const CandidaturesRecues = () => {
                                 <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
                                     <button
                                         onClick={handleCloseModal}
-                                        className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                                        className="cursor-pointer px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
                                     >
                                         {t("candidaturesrecues:labels.close")}
                                     </button>
@@ -1113,7 +1113,7 @@ const CandidaturesRecues = () => {
                                     <h3 className="text-xl font-semibold">
                                         {selectedDocument.cv ? t("candidaturesrecues:documentCards.cvTitle") : t("candidaturesrecues:documentCards.letterTitle")} - {selectedDocument.prenom} {selectedDocument.nom}
                                     </h3>
-                                    <button onClick={closeDocumentModal} className="text-white hover:text-gray-200" aria-label={t("candidaturesrecues:modal.close")}>
+                                    <button onClick={closeDocumentModal} className="cursor-pointer text-white hover:text-gray-200" aria-label={t("candidaturesrecues:modal.close")}>
                                         <X className="h-6 w-6" />
                                     </button>
                                 </div>
@@ -1150,7 +1150,7 @@ const CandidaturesRecues = () => {
                                     </div>
                                     <button
                                         onClick={handleCloseConvocationModal}
-                                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                        className="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                                     >
                                         <X className="w-6 h-6" />
                                     </button>

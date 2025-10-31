@@ -18,6 +18,8 @@ import NavBar from "./NavBar.tsx";
 import etudiantService from '../services/EtudiantService.ts';
 import type { EntenteStageDTO } from '../services/EtudiantService.ts';
 
+const STORAGE_KEY = 'ententesEtudiantPersist';
+
 const EntentesEtudiants = () => {
     const { t } = useTranslation('ententesetudiants');
     const navigate = useNavigate();
@@ -40,21 +42,45 @@ const EntentesEtudiants = () => {
         loadEntentes().then();
     }, [navigate]);
 
+    const mergePersisted = (apiEntentes: EntenteStageDTO[]): EntenteStageDTO[] => {
+        const persistedRaw = localStorage.getItem(STORAGE_KEY);
+        const persisted: EntenteStageDTO[] = persistedRaw ? JSON.parse(persistedRaw) : [];
+        const byId = new Map<number, EntenteStageDTO>();
+        for (const e of persisted) byId.set(e.id, e);
+        for (const e of apiEntentes) byId.set(e.id, { ...(byId.get(e.id) || {} as any), ...e });
+        const merged = Array.from(byId.values());
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        return merged;
+    };
+
     const loadEntentes = async (): Promise<EntenteStageDTO[]> => {
         try {
             setLoading(true);
             setError('');
             const data = await etudiantService.getEntentes();
-            setEntentes(data);
-            return data;
+            const merged = mergePersisted(data || []);
+            setEntentes(merged);
+            return merged;
         } catch (err: any) {
             console.error('Erreur lors du chargement des ententes:', err);
             setError(t('errors.loadError'));
-            setEntentes([]);
-            return [];
+            // fallback to persisted if available
+            const persistedRaw = localStorage.getItem(STORAGE_KEY);
+            const persisted: EntenteStageDTO[] = persistedRaw ? JSON.parse(persistedRaw) : [];
+            setEntentes(persisted);
+            return persisted;
         } finally {
             setLoading(false);
         }
+    };
+
+    const updatePersisted = (updated: EntenteStageDTO) => {
+        const persistedRaw = localStorage.getItem(STORAGE_KEY);
+        const persisted: EntenteStageDTO[] = persistedRaw ? JSON.parse(persistedRaw) : [];
+        const idx = persisted.findIndex(e => e.id === updated.id);
+        if (idx >= 0) persisted[idx] = { ...persisted[idx], ...updated };
+        else persisted.unshift(updated);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
     };
 
     const handleSignEntente = async () => {
@@ -62,27 +88,28 @@ const EntentesEtudiants = () => {
 
         try {
             setActionLoading(true);
-            const prevList = ententes;
-
             await etudiantService.signerEntente(selectedEntente.id);
 
             const updatedLocal: EntenteStageDTO = {
                 ...selectedEntente,
-                statut: selectedEntente.statut ?? 'SIGNE'
-            };
+                etudiantSignature: 'SIGNEE',
+                statut: selectedEntente.statut ?? 'SIGNEE'
+            } as any;
 
-            const merged = prevList.some(e => e.id === updatedLocal.id)
-                ? prevList.map(e => e.id === updatedLocal.id ? { ...e, ...updatedLocal } : e)
-                : [updatedLocal, ...prevList];
-
-            setEntentes(merged);
+            updatePersisted(updatedLocal);
+            setEntentes(prev => prev.map(e => e.id === updatedLocal.id ? { ...e, ...updatedLocal } : e));
             setSuccessMessage(t('success.signed'));
             setShowSignModal(false);
             setSelectedEntente(null);
 
+            // Reload and merge, but keep local if API hides it
             const reloaded = await loadEntentes();
-            if (!reloaded || reloaded.length === 0) {
-                setEntentes(merged);
+            if (!reloaded.find(e => e.id === updatedLocal.id)) {
+                setEntentes(prev => {
+                    const map = new Map(prev.map(e => [e.id, e]));
+                    map.set(updatedLocal.id, { ...prev.find(e => e.id === updatedLocal.id), ...updatedLocal } as any);
+                    return Array.from(map.values());
+                });
             }
 
             setTimeout(() => setSuccessMessage(''), 3000);
@@ -99,27 +126,27 @@ const EntentesEtudiants = () => {
 
         try {
             setActionLoading(true);
-            const prevList = ententes;
-
             await etudiantService.refuserEntente(selectedEntente.id);
 
             const updatedLocal: EntenteStageDTO = {
                 ...selectedEntente,
+                etudiantSignature: 'REFUSEE',
                 statut: 'REFUSEE'
-            };
+            } as any;
 
-            const merged = prevList.some(e => e.id === updatedLocal.id)
-                ? prevList.map(e => e.id === updatedLocal.id ? { ...e, ...updatedLocal } : e)
-                : [updatedLocal, ...prevList];
-
-            setEntentes(merged);
+            updatePersisted(updatedLocal);
+            setEntentes(prev => prev.map(e => e.id === updatedLocal.id ? { ...e, ...updatedLocal } : e));
             setSuccessMessage(t('success.refused'));
             setShowRefuseModal(false);
             setSelectedEntente(null);
 
             const reloaded = await loadEntentes();
-            if (!reloaded || reloaded.length === 0) {
-                setEntentes(merged);
+            if (!reloaded.find(e => e.id === updatedLocal.id)) {
+                setEntentes(prev => {
+                    const map = new Map(prev.map(e => [e.id, e]));
+                    map.set(updatedLocal.id, { ...prev.find(e => e.id === updatedLocal.id), ...updatedLocal } as any);
+                    return Array.from(map.values());
+                });
             }
 
             setTimeout(() => setSuccessMessage(''), 3000);
@@ -138,12 +165,7 @@ const EntentesEtudiants = () => {
         setError('');
     };
 
-    const peutSigner = (entente: any) => {
-        return !entente.dateSignatureEtudiant && entente.statut === 'EN_ATTENTE';
-    };
-
-    // Badge unique basé sur la signature de l'étudiant ou statut global (REFUSEE)
-    const getSignatureStatusBadge = (statut: string) => {
+    const getSignatureStatusBadge = (statut?: string) => {
         switch (statut) {
             case 'SIGNEE':
                 return (
@@ -167,7 +189,12 @@ const EntentesEtudiants = () => {
                     </span>
                 );
             default:
-                return null;
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {t("ententesemployeurs:signature.pending")}
+                    </span>
+                );
         }
     };
 
@@ -258,8 +285,9 @@ const EntentesEtudiants = () => {
                                     className="bg-white rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-6 border border-slate-200 cursor-pointer group"
                                 >
                                     <div className="flex items-center justify-between mb-4">
+                                        {/* Show student's own signature status on card */}
                                         {getSignatureStatusBadge(entente.etudiantSignature)}
-                                        <span className="text-xs text-gray-500">{new Date(entente.dateCreation).toLocaleDateString('fr-CA')}</span>
+                                        <span className="text-xs text-gray-500">{entente?.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}</span>
                                     </div>
 
                                     <div className="mb-4 pb-4 border-b border-slate-200">
@@ -281,18 +309,18 @@ const EntentesEtudiants = () => {
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Clock className="w-3 h-3 flex-shrink-0" />
-                                            <span>{entente.nombreHeuresParSemaine ?? entente.dureeHebdomadaire ?? '-'}h/{t('week')}</span>
+                                            <span>{entente.nombreHeuresParSemaine ?? entente.dureeHebdomadaire ?? '-'}{" "}{t('hourShort', { defaultValue: 'h' })}/{t('week')}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <DollarSign className="w-3 h-3 flex-shrink-0" />
-                                            <span>{entente.salaire ?? entente.remuneration ?? '-'}{entente.salaire ? '$' : ''}</span>
+                                            <span>{entente.salaire ?? entente.remuneration ?? '-' }{entente.salaire ? '$' : ''}</span>
                                         </div>
                                     </div>
 
                                     <div className="mt-4 pt-4 border-t border-slate-200">
                                         <p className="text-sm text-blue-600 font-medium group-hover:text-blue-700 flex items-center gap-2">
                                             <FileText className="w-4 h-4" />
-                                            {t('buttons.viewDetails')}
+                                            {t('buttons.viewPdf')}
                                         </p>
                                     </div>
                                 </div>
@@ -302,7 +330,7 @@ const EntentesEtudiants = () => {
                 )}
             </div>
 
-            {/* Modal de détails (look employeur, bouton fermer, un seul statut, détails du stage) */}
+            {/* Modal de détails */}
             {selectedEntente && !showSignModal && !showRefuseModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -323,12 +351,11 @@ const EntentesEtudiants = () => {
 
                         <div className="p-6 space-y-6">
                             <div className="bg-gray-50 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                <div className="flex items-center gap-3">
-                                    <div>
-                                        <h4 className="font-semibold text-gray-900">{t("ententesemployeurs:modal.signatures")}</h4>
-                                    </div>
+                                <div>
+                                    <h4 className="font-semibold text-gray-900">{t("ententesemployeurs:modal.signatures")}</h4>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    {/* Both sides signatures */}
                                     {getSignatureStatusBadge(selectedEntente.etudiantSignature)}
                                 </div>
                             </div>
@@ -360,9 +387,17 @@ const EntentesEtudiants = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">{t('modal.weeklyHours')}</p>
-                                        <p className="font-medium text-gray-900">{selectedEntente.dureeHebdomadaire}h/{t('week')}</p>
+                                        <p className="font-medium text-gray-900">{selectedEntente.dureeHebdomadaire}{' '}{t('hourShort', { defaultValue: 'h' })}/{t('week')}</p>
                                     </div>
                                     <div>
+                                        <p className="text-sm text-gray-600">{t('fields.programme') || 'Programme'}</p>
+                                        <p className="font-medium text-gray-900">{(selectedEntente as any).progEtude || (selectedEntente as any).prog || t('common.notDefined')}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">{t('fields.location') || 'Lieu'}</p>
+                                        <p className="font-medium text-gray-900">{(selectedEntente as any).lieuStage || (selectedEntente as any).lieu || t('common.notDefined')}</p>
+                                    </div>
+                                    <div className="col-span-2">
                                         <p className="text-sm text-gray-600">{t('modal.remuneration')}</p>
                                         <p className="font-medium text-gray-900">{selectedEntente.remuneration}</p>
                                     </div>
@@ -391,9 +426,10 @@ const EntentesEtudiants = () => {
                             )}
                         </div>
 
-                        {/* Pied du modal style employeur */}
+                        {/* Pied du modal */}
                         <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-2xl">
-                            {peutSigner(selectedEntente) ? (
+                            {/* Allow actions only if student signature is pending */}
+                            {selectedEntente.etudiantSignature === 'EN_ATTENTE' ? (
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <button
                                         onClick={() => { setSelectedEntente(null); }}
@@ -432,7 +468,7 @@ const EntentesEtudiants = () => {
                 </div>
             )}
 
-            {/* Modal confirmation signer/refuser inchangés */}
+            {/* Modals confirmation */}
             {showSignModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-xl max-w-md w-full p-6">
@@ -515,3 +551,4 @@ const EntentesEtudiants = () => {
 };
 
 export default EntentesEtudiants;
+

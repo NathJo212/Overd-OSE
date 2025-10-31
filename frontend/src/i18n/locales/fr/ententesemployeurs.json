@@ -5,6 +5,7 @@
   "refresh": "Actualiser",
   "active": "Active",
   "week": "semaine",
+  "hourShort": "h",
   "ententeCount": "entente(s)",
   "viewDetails": "Voir les détails",
   "noEntentes": {
@@ -50,7 +51,9 @@
     "description": "Description",
     "responsibilities": "Responsabilités",
     "objectives": "Objectifs d'apprentissage",
-    "close": "Fermer"
+    "close": "Fermer",
+    "programme": "Programme",
+    "location": "Lieu"
   },
   "refuseModal": {
     "title": "Refuser l'entente",
@@ -67,5 +70,12 @@
     "cancel": "Annuler",
     "confirm": "Envoyer la demande",
     "loading": "Envoi en cours..."
+  },
+  "signModal": {
+    "title": "Confirmer la signature",
+    "message": "Êtes-vous sûr de vouloir signer cette entente de stage ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "confirm": "Confirmer la signature",
+    "loading": "Signature..."
   }
 }

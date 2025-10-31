@@ -7,6 +7,7 @@
   "refresh": "Refresh",
   "ententeCount": "pending agreements",
   "week": "week",
+  "hourShort": "h",
   "status": {
     "waitingYourSignature": "Awaiting your signature",
     "youSigned": "You have signed",
@@ -24,7 +25,9 @@
     "remuneration": "Remuneration",
     "perHour": "hour",
     "responsibilities": "Responsibilities",
-    "objectives": "Objectives"
+    "objectives": "Objectives",
+    "programme": "Program",
+    "location": "Location"
   },
   "signatureStatus": {
     "title": "Your Signature Status",
