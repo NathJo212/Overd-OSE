@@ -4,7 +4,6 @@ import {
     CheckCircle,
     XCircle,
     Clock,
-    FileText,
     Calendar,
     DollarSign,
     AlertCircle,
@@ -21,7 +20,7 @@ import type { EntenteStageDTO } from '../services/EtudiantService.ts';
 const STORAGE_KEY = 'ententesEtudiantPersist';
 
 const EntentesEtudiants = () => {
-    const { t } = useTranslation('ententesetudiants');
+    const { t } = useTranslation(['ententesetudiants', 'programmes']);
     const navigate = useNavigate();
     const [ententes, setEntentes] = useState<EntenteStageDTO[]>([]);
     const [loading, setLoading] = useState(true);
@@ -198,6 +197,12 @@ const EntentesEtudiants = () => {
         }
     };
 
+    const getProgrammeLabel = (entente: EntenteStageDTO) => {
+        const raw = entente.progEtude;
+        const prog = raw == null ? '' : String(raw).trim();
+        return t(`programmes:${prog}`, { defaultValue: prog });
+    };
+
     return (
         <div className="bg-gray-50 min-h-screen">
             <NavBar />
@@ -319,8 +324,7 @@ const EntentesEtudiants = () => {
 
                                     <div className="mt-4 pt-4 border-t border-slate-200">
                                         <p className="text-sm text-blue-600 font-medium group-hover:text-blue-700 flex items-center gap-2">
-                                            <FileText className="w-4 h-4" />
-                                            {t('buttons.viewPdf')}
+                                            {t('buttons.viewDetails')}
                                         </p>
                                     </div>
                                 </div>
@@ -390,8 +394,8 @@ const EntentesEtudiants = () => {
                                         <p className="font-medium text-gray-900">{selectedEntente.dureeHebdomadaire}{' '}{t('hourShort', { defaultValue: 'h' })}/{t('week')}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">{t('fields.programme') || 'Programme'}</p>
-                                        <p className="font-medium text-gray-900">{(selectedEntente as any).progEtude || (selectedEntente as any).prog || t('common.notDefined')}</p>
+                                        <p className="text-sm text-gray-600">{t('fields.programme')}</p>
+                                        <p className="font-medium text-gray-900">{getProgrammeLabel(selectedEntente)}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">{t('fields.location') || 'Lieu'}</p>

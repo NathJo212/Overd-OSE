@@ -237,7 +237,7 @@ public class GestionnaireService {
         // Vérifier qu'il n'existe pas déjà une entente non archivée pour cet étudiant et cette offre
         boolean ententeExistante = ententeStageRepository.existsByEtudiantAndOffreAndArchivedFalse(etudiant, offre);
         if (ententeExistante) {
-            throw new com.backend.Exceptions.EntenteDejaExistanteException();
+            throw new EntenteDejaExistanteException();
         }
 
         Candidature candidature = candidatureRepository.findByEtudiantAndOffre(etudiant, offre)
@@ -248,7 +248,7 @@ public class GestionnaireService {
         }
 
 
-       EntenteStage entente = new EntenteStage(etudiant, employeur, offre);
+        EntenteStage entente = new EntenteStage(etudiant, employeur, offre);
 
         entente.setDateCreation(LocalDateTime.now());
         ententeStageRepository.save(entente);

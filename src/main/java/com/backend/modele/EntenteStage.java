@@ -61,6 +61,9 @@ public class EntenteStage {
     @Column(length = 4000)
     private String objectifs;
 
+    private Programme progEtude;
+    private String lieu;
+
     @Column
     private byte[] documentPdf;
 
@@ -91,10 +94,9 @@ public class EntenteStage {
             this.remuneration = offre.getRemuneration();
             this.responsabilites = offre.getResponsabilites();
             this.objectifs = offre.getObjectifs();
+            this.progEtude = offre.getProgEtude();
+            this.lieu = offre.getLieuStage();
         }
-        this.etudiantSignature = SignatureStatus.EN_ATTENTE;
-        this.employeurSignature = SignatureStatus.EN_ATTENTE;
-        this.statut = StatutEntente.EN_ATTENTE;
         this.archived = false;
         this.dateCreation = LocalDateTime.now();
     }

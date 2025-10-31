@@ -10,7 +10,15 @@
     "selectProgram": "Sélectionner un programme",
     "internshipLocation": "Lieu du stage",
     "remuneration": "Rémunération",
-    "deadline": "Date limite de candidature"
+    "deadline": "Date limite de candidature",
+    "schedule": "Horaire",
+    "schedulePlaceholder": "Ex: 9h-17h, 3 jours/sem",
+    "weeklyHours": "Heures hebdomadaires",
+    "weeklyHoursPlaceholder": "Ex: 35",
+    "responsibilities": "Responsabilités",
+    "responsibilitiesPlaceholder": "Décrivez les responsabilités principales",
+    "objectives": "Objectifs",
+    "objectivesPlaceholder": "Décrivez les objectifs d'apprentissage"
   },
   "button": {
     "createOffer": "Créer l'offre",
@@ -40,4 +48,3 @@
     "message": "Retour au tableau de bord"
   }
 }
-

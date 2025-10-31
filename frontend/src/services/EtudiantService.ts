@@ -66,50 +66,40 @@ export interface CandidatureEtudiantDTO {
 // Interface pour les ententes de stage
 export interface EntenteStageDTO {
     id: number;
-    // PDF content as base64 (the single source of truth for the entente PDF)
-    pdfBase64?: string;
+    etudiantId: number;
+    etudiantNomComplet: string;
+    etudiantEmail: string;
+    employeurContact: string;
+    employeurEmail: string;
+    offreId: number;
 
-    // Minimal signatures required
-    etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
-    employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
-    gestionnaireSignature?: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
-
-    // Optional metadata from offer or backend (kept for UI compatibility)
-    titre?: string;
-    dateDebut?: string;
-    dateFin?: string;
-    dateCreation?: string;
-    etudiantId?: number;
-    etudiantNomComplet?: string;
-    etudiantEmail?: string;
-    employeurContact?: string;
-    employeurEmail?: string;
-    offreId?: number;
+    // Champs principaux (peuvent provenir du backend)
     titre: string;
     description: string;
     dateDebut: string;
     dateFin: string;
+    dateCreation: string;
+
+    // Détails de l'entente
     horaire: string;
     dureeHebdomadaire: number | null;
     remuneration: string;
     responsabilites: string;
     objectifs: string;
-    documentPdf?: string | null;
+    documentPdf: string | null;
+
+    // Signatures
     etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
     employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    gestionnaireSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+
+    // Aides UI / état
+    lien: string;
     statut: 'EN_ATTENTE' | 'SIGNEE' | 'ANNULEE' | string;
-    archived?: boolean;
-    dateCreation: string;
+    archived: boolean;
 
-    // Student/employer display info
-    etudiantNom?: string;
-    etudiantPrenom?: string;
-    etudiantEmail?: string;
-    employeurNom?: string;
-
-    // Optional helper fields for UI (short and minimal)
-    lien?: string;
-    statut?: string;
+    progEtude: string;
+    lieu: string;
 }
 
 // Configuration de l'API
@@ -1005,20 +995,6 @@ class EtudiantService {
             }
             throw error;
         }
-    }
-
-    // Helper to map registration form to API payload
-    formatFormDataForAPI(formData: any): EtudiantData {
-        return {
-            email: formData.email || formData.emailProfessionnel || '',
-            password: formData.motDePasse || formData.password || '',
-            telephone: formData.telephone || '',
-            prenom: formData.prenom || formData.prenomContact || '',
-            nom: formData.nom || formData.nomContact || '',
-            progEtude: formData.programmeEtudes || formData.progEtude || '',
-            session: formData.session || '',
-            annee: formData.anneeEtude || formData.annee || '',
-        };
     }
 }
 

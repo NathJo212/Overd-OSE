@@ -1,11 +1,11 @@
 {
   "title": "Mes ententes de stage",
-  "subtitle": "Consultez et signez vos ententes de stage",
+  "subtitle": "Consultez toutes vos ententes de stage actives",
   "loading": "Chargement des ententes...",
   "noEntentes": "Aucune entente de stage en attente",
   "noEntentesSubtitle": "Vous n'avez actuellement aucune entente de stage en attente.",
-  "refresh": "Rafraîchir",
-  "ententeCount": "ententes en attente",
+  "refresh": "Actualiser",
+  "ententeCount": "entente(s)",
   "week": "semaine",
   "hourShort": "h",
   "status": {
@@ -47,7 +47,6 @@
     "refusing": "Refus...",
     "sendRequest": "Envoyer la demande",
     "confirmRefuse": "Confirmer le refus",
-    "backToDashboard": "Retour au tableau de bord",
     "close": "Fermer",
     "backToDashboard": "Retour au tableau de bord",
     "viewPdf": "Voir le PDF"
@@ -72,7 +71,7 @@
     "title": "Détails de l'entente",
     "signatures": "Signatures",
     "studentSignature": "Signature de l'étudiant",
-    "employer": "Employeur",
+    "employer": "Informations de l'employeur",
     "employerName": "Nom",
     "employerEmail": "Courriel",
     "offerTitle": "Intitulé de l'offre",
@@ -84,7 +83,9 @@
     "remuneration": "Rémunération",
     "description": "Description",
     "responsibilities": "Responsabilités",
-    "objectives": "Objectifs"
+    "objectives": "Objectifs d'apprentissage",
+    "programme": "Programme",
+    "location": "Lieu"
   },
   "success": {
     "signed": "Entente signée avec succès !",

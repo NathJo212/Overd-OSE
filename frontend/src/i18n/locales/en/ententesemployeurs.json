@@ -50,8 +50,10 @@
     "remuneration": "Remuneration",
     "description": "Description",
     "responsibilities": "Responsibilities",
-    "objectives": "Learning Objectives",
-    "close": "Close"
+    "objectives": "Learning objectives",
+    "close": "Close",
+    "programme": "Program",
+    "location": "Location"
   },
   "refuseModal": {
     "title": "Refuse Agreement",

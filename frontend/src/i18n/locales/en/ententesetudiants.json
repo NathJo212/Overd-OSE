@@ -1,11 +1,11 @@
 {
   "title": "My Internship Agreements",
-  "subtitle": "View and sign your internship agreements",
+  "subtitle": "View all your active internship agreements",
   "loading": "Loading agreements...",
   "noEntentes": "No pending internship agreements",
   "noEntentesSubtitle": "You currently have no pending internship agreements.",
   "refresh": "Refresh",
-  "ententeCount": "pending agreements",
+  "ententeCount": "agreement(s)",
   "week": "week",
   "hourShort": "h",
   "status": {
@@ -83,7 +83,9 @@
     "remuneration": "Remuneration",
     "description": "Description",
     "responsibilities": "Responsibilities",
-    "objectives": "Learning objectives"
+    "objectives": "Learning objectives",
+    "programme": "Program",
+    "location": "Location"
   },
   "success": {
     "signed": "Agreement signed successfully!",

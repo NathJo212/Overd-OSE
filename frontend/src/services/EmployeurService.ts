@@ -60,57 +60,40 @@ export interface ConvocationEntrevueDTO {
 
 export interface EntenteStageDTO {
     id: number;
-    etudiantId?: number;
-    etudiantNomComplet?: string;
-    etudiantEmail?: string;
-    employeurContact?: string;
-    employeurEmail?: string;
-    offreId?: number;
+    etudiantId: number;
+    etudiantNomComplet: string;
+    etudiantEmail: string;
+    employeurContact: string;
+    employeurEmail: string;
+    offreId: number;
+
+    // Champs principaux (peuvent provenir du backend)
     titre: string;
     description: string;
     dateDebut: string;
     dateFin: string;
+    dateCreation: string;
+
+    // Détails de l'entente
     horaire: string;
     dureeHebdomadaire: number | null;
     remuneration: string;
     responsabilites: string;
     objectifs: string;
-    documentPdf?: string | null;
+    documentPdf: string | null;
+
+    // Signatures
     etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
     employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
-    gestionnaireSignature?: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    gestionnaireSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
 
-    // Minimal display metadata used by UI (optional, keep lightweight)
-    titre?: string; // taken from the underlying offer
-    dateDebut?: string;
-    dateFin?: string;
-    dateCreation?: string;
-
-    // Student/employer display info
-    etudiantNom?: string;
-    etudiantPrenom?: string;
-    etudiantEmail?: string;
-    employeurNom?: string;
-
-    // Optional helper fields for UI
-    lien?: string;
-    statut?: string;
-
-    // Additional optional fields referenced by the frontend UI
-    description?: string;
-    remuneration?: string;
-    responsabilites?: string;
-    objectifs?: string;
-    // possible aliases coming from different backend versions
-    progEtude?: string;
-    prog?: string;
-    lieuStage?: string;
-    lieu?: string;
-    horaire?: string;
-    dureeHebdomadaire?: number | string;
+    // Aides UI / état
+    lien: string;
     statut: 'EN_ATTENTE' | 'SIGNEE' | 'ANNULEE' | string;
-    archived?: boolean;
-    dateCreation: string;
+    archived: boolean;
+
+    progEtude: string;
+    lieu: string;
 }
 
 // Configuration de l'API

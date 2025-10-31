@@ -9,7 +9,6 @@ import {
     AlertCircle,
     Briefcase,
     ArrowLeft,
-    FileText,
     CheckCircle,
     RefreshCw,
     X, XCircle
@@ -20,7 +19,7 @@ import { employeurService, type EntenteStageDTO } from "../services/EmployeurSer
 
 
 const EntentesEmployeurs = () => {
-    const { t } = useTranslation(["ententesemployeurs"]);
+    const { t } = useTranslation(["ententesemployeurs", "programmes"]);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [ententes, setEntentes] = useState<EntenteStageDTO[]>([]);
@@ -128,6 +127,12 @@ const EntentesEmployeurs = () => {
             default:
                 return null;
         }
+    };
+
+    const getProgrammeLabel = (entente: EntenteStageDTO) => {
+        const raw = entente.progEtude;
+        const prog = raw == null ? '' : String(raw).trim();
+        return t(`programmes:${prog}`, { defaultValue: prog });
     };
 
     return (
@@ -287,8 +292,7 @@ const EntentesEmployeurs = () => {
                                     {/* Indicateur hover */}
                                     <div className="mt-4 pt-4 border-t border-slate-200">
                                         <p className="text-sm text-blue-600 font-medium group-hover:text-blue-700 flex items-center gap-2">
-                                            <FileText className="w-4 h-4" />
-                                            {t("ententesemployeurs:actions.viewPdf") || t("ententesemployeurs:viewDetails")}
+                                            {t("ententesemployeurs:viewDetails")}
                                         </p>
                                     </div>
                                 </div>
@@ -376,7 +380,7 @@ const EntentesEmployeurs = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">{t("ententesemployeurs:modal.programme")}</p>
-                                        <p className="font-medium text-gray-900">{(selectedEntente as any).progEtude || (selectedEntente as any).prog || t('ententesetudiants:common.notDefined')}</p>
+                                        <p className="font-medium text-gray-900">{getProgrammeLabel(selectedEntente)}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">{t("ententesemployeurs:modal.location")}</p>

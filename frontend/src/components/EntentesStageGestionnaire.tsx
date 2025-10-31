@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO, type OffreDTO } from "../services/GestionnaireService";
 
 const EntentesStageGestionnaire = () => {
-    const { t } = useTranslation('ententesStageGestionnaire');
+    const { t } = useTranslation(['ententesStageGestionnaire' , 'programmes']);
     const [loading, setLoading] = useState(true);
     const [candidatures, setCandidatures] = useState<CandidatureEligibleDTO[]>([]);
     const [showModal, setShowModal] = useState(false);
@@ -108,12 +108,10 @@ const EntentesStageGestionnaire = () => {
             await gestionnaireService.creerEntente(ententeData, token);
 
             setSuccessMessage(t('success.created'));
-            setTimeout(() => {
-                closeModal();
-                gestionnaireService.getCandidaturesEligiblesEntente(token)
-                    .then(data => setCandidatures(data))
-                    .catch(err => setError(err.message));
-            }, 2000);
+            closeModal();
+            gestionnaireService.getCandidaturesEligiblesEntente(token)
+                .then(data => setCandidatures(data))
+                .catch(err => setError(err.message));
 
         } catch (err: any) {
             const responseData = err.response?.data;
@@ -131,6 +129,12 @@ const EntentesStageGestionnaire = () => {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const getProgrammeLabel = (offreStage: String) => {
+        const raw = offreStage;
+        const prog = raw == null ? '' : String(raw).trim();
+        return t(`programmes:${prog}`, { defaultValue: prog });
     };
 
     return (
@@ -161,7 +165,7 @@ const EntentesStageGestionnaire = () => {
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-red-900">{error}</p>
-                            <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                            <button onClick={() => setError("")} className="cursor-pointer ml-auto text-red-600 hover:text-red-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -172,7 +176,7 @@ const EntentesStageGestionnaire = () => {
                         <div className="flex items-start gap-3">
                             <FileSignature className="w-5 h-5 text-green-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-green-900">{successMessage}</p>
-                            <button onClick={() => setSuccessMessage("")} className="ml-auto text-green-600 hover:text-green-800">
+                            <button onClick={() => setSuccessMessage("")} className="cursor-pointer ml-auto text-green-600 hover:text-green-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -336,7 +340,7 @@ const EntentesStageGestionnaire = () => {
                                     </div>
 
                                     <div className="flex gap-4 flex-wrap text-gray-700">
-                                        <div><strong>{t('fields.program')}:</strong> {offerDetails?.progEtude || (selectedCandidature as any).progEtude || '-'}</div>
+                                        <div><strong>{t('fields.program')}:</strong> {getProgrammeLabel(offerDetails?.progEtude)}</div>
                                         <div><strong>{t('fields.location')}:</strong> {offerDetails?.lieuStage || (selectedCandidature as any).lieuStage || '-'}</div>
                                         <div><strong>{t('fields.remuneration')}:</strong> {offerDetails?.remuneration || (selectedCandidature as any).remuneration || '-'}</div>
                                     </div>
@@ -345,8 +349,8 @@ const EntentesStageGestionnaire = () => {
 
                             {/* Actions */}
                             <div className="flex items-center gap-3 justify-end">
-                                <button onClick={closeModal} disabled={isSubmitting} className="px-6 py-3 border rounded-lg">{t('buttons.cancel')}</button>
-                                <button onClick={handleStartEntente} disabled={isSubmitting} className="px-6 py-3 bg-blue-600 text-white rounded-lg">{isSubmitting ? t('buttons.creating') : t('buttons.startEntenteProcess')}</button>
+                                <button onClick={closeModal} disabled={isSubmitting} className="cursor-pointer px-6 py-3 border rounded-lg">{t('buttons.cancel')}</button>
+                                <button onClick={handleStartEntente} disabled={isSubmitting} className="cursor-pointer px-6 py-3 bg-blue-600 text-white rounded-lg">{isSubmitting ? t('buttons.creating') : t('buttons.startEntenteProcess')}</button>
                             </div>
                         </div>
                     </div>
