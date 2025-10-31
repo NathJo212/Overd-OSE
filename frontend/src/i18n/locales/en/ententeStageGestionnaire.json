@@ -16,7 +16,8 @@
     "description": "There are currently no applications accepted by both student and employer requiring an internship agreement."
   },
   "list": {
-    "count": "{{count}} eligible application(s) for agreement creation",
+    "count": "eligible application",
+    "count_plural": "eligible applications",
     "statusAccepted": "Accepted",
     "clickToCreate": "Click to create agreement"
   },
@@ -28,6 +29,9 @@
       "student": "Student:",
       "employer": "Employer:",
       "position": "Position:"
+    },
+    "ententeDetails": {
+      "title": "Agreement details"
     },
     "sections": {
       "periodAndSchedule": "Period and Schedule",
@@ -56,5 +60,16 @@
       "create": "Create Agreement",
       "creating": "Creating..."
     }
+  },
+  "fields": {
+    "description": "Description",
+    "program": "Study program",
+    "location": "Location",
+    "remuneration": "Remuneration"
+  },
+  "buttons": {
+    "cancel": "Cancel",
+    "creating": "Creating...",
+    "startEntenteProcess": "Start agreement creation"
   }
 }

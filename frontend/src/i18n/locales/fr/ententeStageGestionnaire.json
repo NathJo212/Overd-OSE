@@ -16,7 +16,8 @@
     "description": "Il n'y a actuellement aucune candidature acceptée par l'étudiant et l'employeur nécessitant une entente de stage."
   },
   "list": {
-    "count": "{{count}} candidature(s) éligible(s) pour la création d'entente",
+    "count": "candidature éligible",
+    "count_plural": "candidatures éligibles",
     "statusAccepted": "Acceptée",
     "clickToCreate": "Cliquer pour créer l'entente"
   },
@@ -28,6 +29,9 @@
       "student": "Étudiant:",
       "employer": "Employeur:",
       "position": "Poste:"
+    },
+    "ententeDetails": {
+      "title": "Détails de l'entente"
     },
     "sections": {
       "periodAndSchedule": "Période et horaire",
@@ -56,5 +60,16 @@
       "create": "Créer l'entente",
       "creating": "Création en cours..."
     }
+  },
+  "fields": {
+    "description": "Description",
+    "program": "Programme d'études",
+    "location": "Lieu du stage",
+    "remuneration": "Rémunération"
+  },
+  "buttons": {
+    "cancel": "Annuler",
+    "creating": "Création...",
+    "startEntenteProcess": "Démarrer la création d'entente"
   }
 }
