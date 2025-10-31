@@ -353,11 +353,6 @@ public class EtudiantService {
 
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
 
-        // Si l'employeur a aussi signé, marquer l'entente comme signée
-        if (entente.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE) {
-            entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
-        }
-
         ententeStageRepository.save(entente);
     }
 

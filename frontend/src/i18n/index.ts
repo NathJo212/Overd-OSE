@@ -43,6 +43,8 @@ import ententesStageGestionnaireFr from './locales/fr/ententeStageGestionnaire.j
 import ententesStageGestionnaireEn from './locales/en/ententeStageGestionnaire.json';
 import ententesemployeursEn from './locales/en/ententesemployeurs.json';
 import ententesemployeursFr from './locales/fr/ententesemployeurs.json';
+import evaluationStagiaireFr from './locales/fr/evaluationStagiaire.json';
+import evaluationStagiaireEn from './locales/en/evaluationStagiaire.json';
 
 const resources = {
     fr: {
@@ -66,6 +68,7 @@ const resources = {
         ententesetudiants: ententesFr,
         ententesStageGestionnaire: ententesStageGestionnaireFr,
         ententesemployeurs: ententesemployeursFr,
+        evaluationStagiaire: evaluationStagiaireFr,
     },
     en: {
         registration: registrationEn,
@@ -88,6 +91,7 @@ const resources = {
         ententesetudiants: ententesEn,
         ententesStageGestionnaire: ententesStageGestionnaireEn,
         ententesemployeurs: ententesemployeursEn,
+        evaluationStagiaire: evaluationStagiaireEn,
     }
 };
 

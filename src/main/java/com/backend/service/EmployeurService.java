@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -34,9 +33,10 @@ public class EmployeurService {
     private final ConvocationEntrevueRepository convocationEntrevueRepository;
     private final NotificationRepository notificationRepository;
     private final EntenteStageRepository ententeStageRepository;
+    private final EvaluationRepository evaluationRepository;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationRepository evaluationRepository) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -47,6 +47,7 @@ public class EmployeurService {
         this.convocationEntrevueRepository = convocationEntrevueRepository;
         this.notificationRepository = notificationRepository;
         this.ententeStageRepository = ententeStageRepository;
+        this.evaluationRepository = evaluationRepository;
     }
 
     @Transactional
@@ -197,7 +198,6 @@ public class EmployeurService {
             throw new CVNonExistantException();
         }
     }
-
 
     @Transactional
     public void creerConvocation(ConvocationEntrevueDTO dto) throws ConvocationDejaExistanteException, CandidatureNonTrouveeException, ActionNonAutoriseeException, UtilisateurPasTrouveException {
@@ -483,11 +483,6 @@ public class EmployeurService {
 
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
 
-        // Si les deux ont signé, marquer l'entente comme signée
-        if (entente.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE) {
-            entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
-        }
-
         ententeStageRepository.save(entente);
 
         // Notification pour l'étudiant
@@ -529,5 +524,48 @@ public class EmployeurService {
             notif.setMessageParam(entente.getTitre());
             notificationRepository.save(notif);
         }
+    }
+
+    @Transactional
+    public void creerEvaluation(EvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException {
+        Employeur employeur = getEmployeurConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
+
+        if (entente.getEmployeur() == null || !entente.getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        Etudiant etudiant = entente.getEtudiant();
+        if (etudiant == null || etudiant.getId() == null) {
+            throw new UtilisateurPasTrouveException();
+        }
+
+        if (entente.getStatut() != EntenteStage.StatutEntente.SIGNEE){
+            throw new EntenteNonFinaliseeException();
+        }
+
+        if (evaluationRepository.existsByEtudiantIdAndEmployeurId(etudiant.getId(), employeur.getId())) {
+            throw new EvaluationDejaExistanteException();
+        }
+
+        Evaluation eval = new Evaluation(entente, etudiant, employeur, dto.getCompetencesTechniques(), dto.getRespectDelais(), dto.getAttitudeIntegration(), dto.getCommentaires());
+        evaluationRepository.save(eval);
+
+        // Notification pour l'étudiant
+        Notification notif = new Notification();
+        notif.setUtilisateur(etudiant);
+        notif.setMessageKey("evaluation.submitted");
+        notif.setMessageParam(entente.getTitre());
+        notificationRepository.save(notif);
+
+        new EvaluationDTO().toDTO(eval);
+    }
+
+    @Transactional
+    public List<EvaluationDTO> getEvaluationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+        List<Evaluation> evaluations = evaluationRepository.findAllByEmployeurId(employeur.getId());
+        return evaluations.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
     }
 }
