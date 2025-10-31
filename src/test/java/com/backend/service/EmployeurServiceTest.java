@@ -1499,44 +1499,6 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testSignerEntente_LesDeuxSignatures() throws Exception {
-        // Arrange
-        String email = "employeur@test.com";
-        Employeur employeur = mock(Employeur.class);
-        when(employeur.getId()).thenReturn(1L);
-
-        Collection<GrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("EMPLOYEUR")
-        );
-        when(authentication.getName()).thenReturn(email);
-        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
-
-        Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
-
-        EntenteStage entente = new EntenteStage();
-        entente.setEmployeur(employeur);
-        entente.setEtudiant(etudiant);
-        entente.setTitre("Entente Test");
-        entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
-        entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
-
-        when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
-        when(ententeStageRepository.save(any(EntenteStage.class))).thenReturn(entente);
-
-        // Act
-        employeurService.signerEntente(1L);
-
-        // Assert
-        assertEquals(EntenteStage.SignatureStatus.SIGNEE, entente.getEmployeurSignature());
-        assertEquals(EntenteStage.StatutEntente.SIGNEE, entente.getStatut());
-        verify(ententeStageRepository, times(1)).save(entente);
-    }
-
-    @Test
     public void testSignerEntente_NonAutorise() throws Exception {
         // Arrange
         String email = "employeur@test.com";

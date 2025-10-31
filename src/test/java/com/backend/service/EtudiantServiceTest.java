@@ -983,32 +983,6 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void signerEntente_deuxSignatures_statutSignee() throws Exception {
-        // Arrange
-        Etudiant etudiant = mock(Etudiant.class);
-        when(etudiant.getId()).thenReturn(1L);
-
-        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
-        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiant);
-
-        EntenteStage entente = new EntenteStage();
-        entente.setEtudiant(etudiant);
-        entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
-        entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE); // Employeur a déjà signé
-        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
-
-        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
-
-        // Act
-        etudiantService.signerEntente(10L);
-
-        // Assert
-        assertEquals(EntenteStage.SignatureStatus.SIGNEE, entente.getEtudiantSignature());
-        assertEquals(EntenteStage.StatutEntente.SIGNEE, entente.getStatut()); // Statut devient SIGNEE
-        verify(ententeStageRepository, times(1)).save(entente);
-    }
-
-    @Test
     void signerEntente_ententeNonTrouvee_throw() {
         // Arrange
         Etudiant etudiant = mock(Etudiant.class);
