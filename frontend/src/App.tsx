@@ -21,7 +21,7 @@ import DashboardGestionnaire from "./components/DashboardGestionnaire.tsx";
 import EntentesStageGestionnaire from "./components/EntentesStageGestionnaire.tsx";
 import EntentesEtudiants from "./components/EntentesEtudiants.tsx";
 import EntentesEmployeurs from "./components/EntentesEmployeurs.tsx";
-import EvaluationStagiaire from "./components/EvaluationStagiaire.tsx";
+import EmployeurEvaluationStagiaire from "./components/EmployeurEvaluationStagiaire.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -42,7 +42,7 @@ const router = createBrowserRouter(
             <Route path="mes-ententes-stage" element={<EntentesEtudiants/>}/>
             <Route path="ententes-stage-gestionnaire" element={<EntentesStageGestionnaire/>}/>
             <Route path="mes-ententes" element={<EntentesEmployeurs/>}/>
-            <Route path="evaluation-stagiaire" element={<EvaluationStagiaire/>}/>
+            <Route path="evaluation-stagiaire" element={<EmployeurEvaluationStagiaire/>}/>
         </Route>
     )
 );

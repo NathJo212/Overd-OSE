@@ -19,7 +19,7 @@ import NavBar from "./NavBar";
 import employeurService from '../services/EmployeurService';
 import type { EntenteStageDTO, EvaluationDTO } from '../services/EmployeurService';
 
-const EvaluationStagiaire = () => {
+const EmployeurEvaluationStagiaire = () => {
     const { t } = useTranslation('evaluationStagiaire');
     const navigate = useNavigate();
 
@@ -215,7 +215,7 @@ const EvaluationStagiaire = () => {
                 <div className="mb-8">
                     <button
                         onClick={() => navigate('/dashboard-employeur')}
-                        className="mb-4 flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                        className="cursor-pointer mb-4 flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5 mr-2" />
                         {t('backToDashboard')}
@@ -232,7 +232,7 @@ const EvaluationStagiaire = () => {
                         <button
                             onClick={loadData}
                             disabled={loadingEntentes || loadingEvaluations}
-                            className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-all disabled:opacity-50"
+                            className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-all disabled:opacity-50"
                         >
                             <RefreshCw className={`w-5 h-5 ${(loadingEntentes || loadingEvaluations) ? 'animate-spin' : ''}`} />
                             {t('refresh')}
@@ -254,8 +254,8 @@ const EvaluationStagiaire = () => {
                         onClick={() => setActiveTab('toEvaluate')}
                         className={`flex-1 px-6 py-3 rounded-md font-medium transition-all ${
                             activeTab === 'toEvaluate'
-                                ? 'bg-blue-600 text-white shadow'
-                                : 'text-gray-600 hover:bg-gray-50'
+                                ? 'cursor-pointer bg-blue-600 text-white shadow'
+                                : 'cursor-pointer text-gray-600 hover:bg-gray-50'
                         }`}
                     >
                         {t('tabs.toEvaluate')} ({ententesAEvaluer.length})
@@ -264,8 +264,8 @@ const EvaluationStagiaire = () => {
                         onClick={() => setActiveTab('evaluated')}
                         className={`flex-1 px-6 py-3 rounded-md font-medium transition-all ${
                             activeTab === 'evaluated'
-                                ? 'bg-blue-600 text-white shadow'
-                                : 'text-gray-600 hover:bg-gray-50'
+                                ? 'cursor-pointer bg-blue-600 text-white shadow'
+                                : 'cursor-pointer text-gray-600 hover:bg-gray-50'
                         }`}
                     >
                         {t('tabs.evaluated')} ({evaluations.length})
@@ -345,7 +345,7 @@ const EvaluationStagiaire = () => {
 
                                                 {/* Button */}
                                                 <button
-                                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                                                    className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleOpenEvaluationModal(entente);
@@ -416,7 +416,7 @@ const EvaluationStagiaire = () => {
                                                     )}
 
                                                     <button
-                                                        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                                                        className="cursor-pointer w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleOpenDetailsModal(evaluation);
@@ -445,7 +445,7 @@ const EvaluationStagiaire = () => {
                             </h2>
                             <button
                                 onClick={handleCloseModals}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -564,14 +564,14 @@ const EvaluationStagiaire = () => {
                                         type="button"
                                         onClick={handleCloseModals}
                                         disabled={actionLoading}
-                                        className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-colors disabled:opacity-50"
+                                        className="cursor-pointer flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-colors disabled:opacity-50"
                                     >
                                         {t('modal.actions.cancel')}
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={actionLoading}
-                                        className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                        className="cursor-pointer flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                                     >
                                         {actionLoading ? (
                                             <>
@@ -602,7 +602,7 @@ const EvaluationStagiaire = () => {
                             </h2>
                             <button
                                 onClick={handleCloseModals}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -687,7 +687,7 @@ const EvaluationStagiaire = () => {
                             <div className="mt-8">
                                 <button
                                     onClick={handleCloseModals}
-                                    className="w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-colors"
+                                    className="cursor-pointer w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-colors"
                                 >
                                     {t('detailsModal.close')}
                                 </button>
@@ -700,4 +700,4 @@ const EvaluationStagiaire = () => {
     );
 };
 
-export default EvaluationStagiaire;
+export default EmployeurEvaluationStagiaire;
