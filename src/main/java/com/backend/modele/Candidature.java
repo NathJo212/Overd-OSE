@@ -57,6 +57,5 @@ public class Candidature {
         this.offre = offre;
         this.lettreMotivation = lettreMotivation;
         this.dateCandidature = LocalDateTime.now();
-        this.statut = StatutCandidature.EN_ATTENTE;
     }
 }

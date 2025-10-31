@@ -55,7 +55,7 @@ const VisualiserOffresGestionnaire = () => {
             setError("Token d'authentification manquant");
             return;
         }
-        chargerToutesLesOffres();
+        chargerToutesLesOffres().then();
     }, [navigate, token]);
 
     const filterOffres = (filterType: FilterType) => {

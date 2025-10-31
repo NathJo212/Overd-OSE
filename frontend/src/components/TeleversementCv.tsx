@@ -120,7 +120,7 @@ const TeleversementCv = () => {
             setStatutCv(infos?.statutCV ?? null);
             setMessageRefus(infos?.messageRefusCV ?? null);
         };
-        chargerInfosCv();
+        chargerInfosCv().then();
     }, [navigate]);
 
     return (

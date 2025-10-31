@@ -18,12 +18,6 @@ export interface AuthResponseDTO {
         annee?: number;
     };
 }
-
-export interface ErrorResponse {
-    errorCode: string;
-    message?: string;
-}
-
 const API_BASE_URL = 'http://localhost:8080';
 const UTILISATEUR_ENDPOINT = '/OSE';
 

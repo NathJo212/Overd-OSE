@@ -37,7 +37,7 @@ const EntentesEmployeurs = () => {
             navigate("/login");
             return;
         }
-        loadEntentes();
+        loadEntentes().then();
     }, [navigate]);
 
     const loadEntentes = async () => {
@@ -71,7 +71,7 @@ const EntentesEmployeurs = () => {
             setSuccessMessage(t("ententesemployeurs:messages.signed"));
             setShowSignConfirm(false);
             closeModal();
-            loadEntentes();
+            await loadEntentes();
         } catch (err: any) {
             setError(err.message || t("ententesemployeurs:errors.signError"));
         } finally {
@@ -93,7 +93,7 @@ const EntentesEmployeurs = () => {
             setSuccessMessage(t("ententesemployeurs:messages.refused"));
             setShowRefuseModal(false);
             setSelectedEntente(null);
-            loadEntentes();
+            await loadEntentes();
         } catch (err: any) {
             setError(err.message || t("ententesemployeurs:errors.refuseError"));
         } finally {
@@ -208,7 +208,7 @@ const EntentesEmployeurs = () => {
                         </div>
                     </div>
                 ) : ententes.length === 0 ? (
-                    /* Message: Aucune entente */
+                    /* Message : Aucune entente */
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
                         <div className="flex justify-center mb-4">
                             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
@@ -302,7 +302,7 @@ const EntentesEmployeurs = () => {
                 )}
             </div>
 
-            {/* Modal détails de l'entente */}
+            {/* Modaux détails de l'entente */}
             {showModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">

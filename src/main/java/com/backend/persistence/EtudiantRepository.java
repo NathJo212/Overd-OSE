@@ -1,6 +1,5 @@
 package com.backend.persistence;
 
-import com.backend.modele.Employeur;
 import com.backend.modele.Etudiant;
 import org.springframework.data.repository.CrudRepository;
 

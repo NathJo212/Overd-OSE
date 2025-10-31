@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -85,7 +86,7 @@ public class EtudiantService {
         if (!"application/pdf".equalsIgnoreCase(fichier.getContentType())) {
             throw new CvNonApprouveException();
         }
-        if (!fichier.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
+        if (!Objects.requireNonNull(fichier.getOriginalFilename()).toLowerCase().endsWith(".pdf")) {
             throw new CvNonApprouveException();
         }
     }
@@ -277,9 +278,14 @@ public class EtudiantService {
     }
 
     @Transactional
-    public NotificationDTO marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, Exception {
+    public NotificationDTO marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Etudiant etudiant = getEtudiantConnecte();
-        Notification notif = notificationRepository.findById(notificationId).orElseThrow(() -> new Exception("Notification non trouvée"));
+        Notification notif;
+        try {
+            notif = notificationRepository.findById(notificationId).orElseThrow(() -> new Exception("Notification non trouvée"));
+        } catch (Exception e) {
+            throw new ActionNonAutoriseeException();
+        }
         if (notif.getUtilisateur() == null || !notif.getUtilisateur().getId().equals(etudiant.getId())) {
             throw new ActionNonAutoriseeException();
         }

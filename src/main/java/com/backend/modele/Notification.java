@@ -18,14 +18,12 @@ public class Notification {
     @ManyToOne(fetch = FetchType.LAZY)
     private Utilisateur utilisateur;
 
-    // message libre (compatibilité ascendante) - peut être null, on préfère messageKey/messageParam
     @Column(length = 2000)
     private String message;
 
     // clé i18n (ex: convocation.created)
     private String messageKey;
 
-    // paramètre simple pour la clé (ex: titre de l'offre)
     private String messageParam;
 
     @Column(nullable = false)

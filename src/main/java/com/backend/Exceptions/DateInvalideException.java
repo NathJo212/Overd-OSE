@@ -10,9 +10,4 @@ public class DateInvalideException extends Exception {
         super("Invalid date provided");
         this.errorCode = ErrorCode.OFFER_DATE_INVALID;
     }
-
-    public DateInvalideException(String message) {
-        super(message);
-        this.errorCode = ErrorCode.OFFER_DATE_INVALID;
-    }
 }
