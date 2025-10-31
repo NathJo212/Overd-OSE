@@ -273,7 +273,7 @@ public class EtudiantService {
         Etudiant etudiant = getEtudiantConnecte();
         List<Notification> notes = notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etudiant);
         return notes.stream()
-                .map(n -> new NotificationDTO(n.getId(), n.getMessageKey(), n.getMessageParam(), n.isLu(), n.getDateCreation()))
+                .map(n -> new NotificationDTO(n.getId(), n.getMessageKey(), n.getMessageParam(), n.getReferenceId(), n.getReferenceType(), n.getTitle(), n.isLu(), n.getDateCreation()))
                 .collect(Collectors.toList());
     }
 
@@ -292,7 +292,7 @@ public class EtudiantService {
         notif.setLu(lu);
         notificationRepository.save(notif);
 
-        return new NotificationDTO(notif.getId(), notif.getMessageKey(), notif.getMessageParam(), notif.isLu(), notif.getDateCreation());
+        return new NotificationDTO(notif.getId(), notif.getMessageKey(), notif.getMessageParam(), notif.getReferenceId(), notif.getReferenceType(), notif.getTitle(), notif.isLu(), notif.getDateCreation());
     }
 
     @Transactional

@@ -1,0 +1,12 @@
+{
+  "title": "Notifications",
+  "loading": "Loading notifications...",
+  "noNotifications": "No notifications",
+  "markAsRead": "Mark as read",
+  "view": "View",
+  "read": "Read",
+  "viewAll": "View all notifications",
+  "offre.approuve": "New offer: {{param}}",
+  "entente.created": "New agreement: {{param}}",
+  "competences": "Skills"
+}

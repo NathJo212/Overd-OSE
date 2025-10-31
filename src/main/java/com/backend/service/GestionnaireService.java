@@ -76,6 +76,38 @@ public class GestionnaireService {
         }
         offre.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
         offreRepository.save(offre);
+
+        try {
+            if (offre.getProgEtude() != null) {
+                List<Etudiant> matched = etudiantRepository.findAllByProgEtude(offre.getProgEtude());
+                if (matched != null && !matched.isEmpty()) {
+                    String titre = offre.getTitre() != null ? offre.getTitre() : "Nouvelle offre";
+                    String entreprise = offre.getEmployeur() != null ? offre.getEmployeur().getNomEntreprise() : "";
+                    String dates = (offre.getDate_debut() != null ? offre.getDate_debut().toString() : "") +
+                            (offre.getDate_fin() != null ? " - " + offre.getDate_fin().toString() : "");
+                    String competences = offre.getResponsabilites() != null ? offre.getResponsabilites() : "";
+
+                    String message = "Nouvelle offre de stage : " + titre + (entreprise.isEmpty() ? "" : " chez " + entreprise) + ". " +
+                            (dates.isEmpty() ? "" : "Dates: " + dates + ". ") + (competences.isEmpty() ? "" : "Compétences requises: " + competences + ".");
+
+                    List<Notification> notifications = matched.stream().map(etudiant -> {
+                        Notification n = new Notification(etudiant, message);
+                        n.setMessageKey("offre.approuve");
+                        // structured fields
+                        n.setReferenceId(offre.getId());
+                        n.setReferenceType("OFFRE");
+                        n.setTitle(titre);
+                        // keep messageParam for backward compatibility (optional)
+                        n.setMessageParam(titre);
+                        return n;
+                    }).toList();
+
+                    notificationRepository.saveAll(notifications);
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Erreur lors de la création des notifications: " + ex.getMessage());
+        }
     }
 
     @Transactional

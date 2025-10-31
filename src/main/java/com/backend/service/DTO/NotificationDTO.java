@@ -14,6 +14,9 @@ public class NotificationDTO {
     private Long id;
     private String messageKey;
     private String messageParam;
+    private Long referenceId;
+    private String referenceType;
+    private String title;
     private boolean lu;
     private LocalDateTime dateCreation;
 
@@ -22,6 +25,9 @@ public class NotificationDTO {
             notification.getId(),
             notification.getMessageKey(),
             notification.getMessageParam(),
+            notification.getReferenceId(),
+            notification.getReferenceType(),
+            notification.getTitle(),
             notification.isLu(),
             notification.getDateCreation()
         );

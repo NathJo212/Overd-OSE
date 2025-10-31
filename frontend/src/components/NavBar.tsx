@@ -4,6 +4,7 @@ import { LogOut, Menu, X, FileText, Briefcase, User, FileSignature } from "lucid
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
+import NotificationBell from './NotificationBell';
 import { useTranslation } from "react-i18next";
 
 const NavBar = () => {
@@ -114,6 +115,11 @@ const NavBar = () => {
 
                             <LanguageSelector />
 
+                            {/* Show notification bell for students */}
+                            {isConnected && role === 'ETUDIANT' && (
+                                <NotificationBell />
+                            )}
+
                             {isConnected && (
                                 <button
                                     onClick={handleLogout}
@@ -206,6 +212,13 @@ const NavBar = () => {
                             <div className="flex justify-center">
                                 <LanguageSelector />
                             </div>
+
+                            {/* Notification bell for mobile students */}
+                            {isConnected && role === 'ETUDIANT' && (
+                                <div className="px-4">
+                                    <NotificationBell />
+                                </div>
+                            )}
 
                             {isConnected && (
                                 <button

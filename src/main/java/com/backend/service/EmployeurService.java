@@ -381,6 +381,7 @@ public class EmployeurService {
         }
     }
 
+    /*
     @Transactional
     public List<NotificationDTO> getNotificationsPourEmployeurConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
@@ -414,7 +415,7 @@ public class EmployeurService {
         notification.setLu(lu);
         notificationRepository.save(notification);
     }
-
+*/
     @Transactional
     public List<OffreDTO> getOffresApprouvees() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();

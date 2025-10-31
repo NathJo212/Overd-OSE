@@ -26,6 +26,16 @@ public class Notification {
 
     private String messageParam;
 
+    // structured helper fields
+    // id of a referenced entity (e.g., offre id)
+    private Long referenceId;
+
+    // type of referenced entity (e.g., OFFRE, ENTENTE)
+    private String referenceType;
+
+    // human friendly title for the notification (e.g., offer title)
+    private String title;
+
     @Column(nullable = false)
     private boolean lu = false;
 
