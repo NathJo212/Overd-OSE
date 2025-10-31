@@ -1,4 +1,3 @@
-// Types pour les données d'employeur
 export interface EmployeurData {
     email: string;
     password: string;

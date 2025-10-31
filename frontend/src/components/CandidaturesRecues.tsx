@@ -114,7 +114,7 @@ const CandidaturesRecues = () => {
             return;
         }
 
-        loadCandidatures();
+        loadCandidatures().then();
     }, [navigate]);
 
     useEffect(() => {

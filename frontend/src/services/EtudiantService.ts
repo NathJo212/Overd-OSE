@@ -82,7 +82,6 @@ export interface EntenteStageDTO {
     commentaires?: string;
 }
 
-// Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const ETUDIANT_ENDPOINT = '/OSEetudiant';
 

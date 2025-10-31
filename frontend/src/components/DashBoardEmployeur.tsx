@@ -45,7 +45,7 @@ const DashBoardEmployeur = () => {
                     .then(offres => setOffres(offres))
                     .catch(() => setNotificationMessage(t("employerdashboard:errors.loadOffers")));
             }
-            loadConvocations();
+            loadConvocations().then();
             return;
         }
 
@@ -140,7 +140,7 @@ const DashBoardEmployeur = () => {
             setNotificationMessage(t('employerdashboard:convocations.messages.edited'));
             setShowNotification(true);
             setShowEditModal(false);
-            loadConvocations();
+            await loadConvocations();
         } catch (error: any) {
             setNotificationMessage(error.message || t('employerdashboard:convocations.messages.editError'));
             setShowNotification(true);
@@ -154,7 +154,7 @@ const DashBoardEmployeur = () => {
             await employeurService.annulerConvocation(conv.candidatureId);
             setNotificationMessage(t('employerdashboard:convocations.messages.deleted'));
             setShowNotification(true);
-            loadConvocations();
+            await loadConvocations();
         } catch (error: any) {
             setNotificationMessage(error.message || t('employerdashboard:convocations.messages.deleteError'));
             setShowNotification(true);

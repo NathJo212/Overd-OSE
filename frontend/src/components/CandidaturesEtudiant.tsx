@@ -45,7 +45,7 @@ const CandidaturesEtudiant = () => {
             return;
         }
 
-        loadCandidatures();
+        loadCandidatures().then();
     }, [navigate]);
 
     useEffect(() => {
