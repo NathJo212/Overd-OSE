@@ -114,7 +114,7 @@ const NotificationEtudiant = () => {
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
                         <h4 className="font-semibold text-gray-800">{t('title')}</h4>
                         <button onClick={() => setOpen(false)} className="p-1 text-gray-500 hover:text-gray-800">
-                            <X className="w-4 h-4" />
+                            <X className="cursor-pointer w-4 h-4" />
                         </button>
                     </div>
 
@@ -132,8 +132,7 @@ const NotificationEtudiant = () => {
                             return (
                                 <div
                                     key={n.id}
-                                    onClick={() => markAsRead(n.id)}
-                                    className={`p-3 hover:bg-gray-50 cursor-pointer transition-all bg-blue-50/40`}
+                                    className={`p-3 hover:bg-gray-50 transition-all bg-blue-50/40`}
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="flex-shrink-0 mt-1">
@@ -164,7 +163,7 @@ const NotificationEtudiant = () => {
                                             aria-label={t('markAsRead')}
                                             className="p-1.5 rounded-full hover:bg-blue-50 text-blue-600 transition-all"
                                         >
-                                            <EyeOff className="w-4 h-4" />
+                                            <EyeOff className="cursor-pointer w-4 h-4" />
                                         </button>
                                     </div>
                                 </div>
