@@ -20,7 +20,9 @@ public class EntenteStageDTO {
     private String horaire;
     private Integer dureeHebdomadaire;
     private String remuneration;
-    private String responsabilites;
+    private String responsabilitesEtudiant;
+    private String responsabilitesEmployeur;
+    private String responsabilitesCollege;
     private String objectifs;
     private byte[] documentPdf;
     private String etudiantSignature; // EN_ATTENTE, SIGNEE, REFUSEE
@@ -43,7 +45,9 @@ public class EntenteStageDTO {
         dto.setHoraire(entente.getHoraire());
         dto.setDureeHebdomadaire(entente.getDureeHebdomadaire());
         dto.setRemuneration(entente.getRemuneration());
-        dto.setResponsabilites(entente.getResponsabilites());
+        dto.setResponsabilitesEtudiant(entente.getResponsabilitesEtudiant());
+        dto.setResponsabilitesEmployeur(entente.getResponsabilitesEmployeur());
+        dto.setResponsabilitesCollege(entente.getResponsabilitesCollege());
         dto.setObjectifs(entente.getObjectifs());
         dto.setDocumentPdf(entente.getDocumentPdf());
         dto.setEtudiantSignature(entente.getEtudiantSignature() != null ? entente.getEtudiantSignature().name() : null);

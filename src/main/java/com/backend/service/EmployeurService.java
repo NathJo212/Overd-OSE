@@ -68,8 +68,8 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, LocalDate date_debut, LocalDate date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, LocalDate dateLimite) throws ActionNonAutoriseeException, DateInvalideException {
-        String token = utilisateur.getToken();
+    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, LocalDate date_debut, LocalDate date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, LocalDate dateLimite, String horaire, Integer dureeHebdomadaire, String responsabilitesEtudiant, String responsabilitesEmployeur, String objectifs) throws ActionNonAutoriseeException, DateInvalideException {
+     String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
             throw new ActionNonAutoriseeException();
@@ -82,7 +82,7 @@ public class EmployeurService {
 
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
-        Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur);
+        Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur, horaire, dureeHebdomadaire, responsabilitesEtudiant, responsabilitesEmployeur, objectifs);
         offreRepository.save(offre);
     }
 
@@ -539,22 +539,5 @@ public class EmployeurService {
             notif.setMessageParam(entente.getTitre());
             notificationRepository.save(notif);
         }
-    }
-
-    public void modifierEntente(Long ententeId, ModificationEntenteDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, StatutEntenteInvalideException {
-        Employeur employeur = getEmployeurConnecte();
-
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
-
-        if (!entente.getEmployeur().getId().equals(employeur.getId())) {
-            throw new ActionNonAutoriseeException();
-        }
-
-        if (entente.getEmployeurSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
-            throw new StatutEntenteInvalideException();
-        }
-
-        entente.setMessageModificationEmployeur(dto.getModificationEntente());
-        ententeStageRepository.save(entente);
     }
 }

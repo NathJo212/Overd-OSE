@@ -82,11 +82,26 @@ public class EntentePdfGenerator {
                 cs.newLine();
                 cs.newLine();
 
+                // Responsibilities sections
                 cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Responsabilités: ");
+                cs.showText("Responsabilités (Étudiant): ");
                 cs.newLine();
                 cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 11);
-                printWrapped(cs, entente.getResponsabilites() != null ? entente.getResponsabilites() : "-", 80);
+                printWrapped(cs, entente.getResponsabilitesEtudiant() != null ? entente.getResponsabilitesEtudiant() : "-", 80);
+                cs.newLine();
+
+                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
+                cs.showText("Responsabilités (Employeur): ");
+                cs.newLine();
+                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 11);
+                printWrapped(cs, entente.getResponsabilitesEmployeur() != null ? entente.getResponsabilitesEmployeur() : "-", 80);
+                cs.newLine();
+
+                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
+                cs.showText("Responsabilités (Collège): ");
+                cs.newLine();
+                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 11);
+                printWrapped(cs, entente.getResponsabilitesCollege() != null ? entente.getResponsabilitesCollege() : "-", 80);
                 cs.newLine();
 
                 cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);

@@ -51,12 +51,20 @@ public class EntenteStage {
     private LocalDate dateDebut;
     private LocalDate dateFin;
 
+    private Programme progEtude;
+    private String lieu;
+
     private String horaire;
     private Integer dureeHebdomadaire;
     private String remuneration;
 
     @Column(length = 4000)
-    private String responsabilites;
+    private String responsabilitesEtudiant;
+    @Column(length = 4000)
+    private String responsabilitesEmployeur;
+    @Column(length = 4000)
+    private String responsabilitesCollege;
+
 
     @Column(length = 4000)
     private String objectifs;
@@ -82,23 +90,24 @@ public class EntenteStage {
     private LocalDateTime dateCreation = LocalDateTime.now();
     private LocalDateTime dateModification = LocalDateTime.now();
 
-    public EntenteStage(Etudiant etudiant, Employeur employeur, Offre offre, String titre, String description, LocalDate dateDebut, LocalDate dateFin,
-                        String horaire, Integer dureeHebdomadaire, String remuneration, String responsabilites, String objectifs) {
+    public EntenteStage(Etudiant etudiant, Employeur employeur, Offre offre) {
         this.etudiant = etudiant;
         this.employeur = employeur;
         this.offre = offre;
-        this.titre = titre;
-        this.description = description;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
-        this.horaire = horaire;
-        this.dureeHebdomadaire = dureeHebdomadaire;
-        this.remuneration = remuneration;
-        this.responsabilites = responsabilites;
-        this.objectifs = objectifs;
-        this.etudiantSignature = SignatureStatus.EN_ATTENTE;
-        this.employeurSignature = SignatureStatus.EN_ATTENTE;
-        this.statut = StatutEntente.EN_ATTENTE;
+        if (offre != null) {
+            this.titre = offre.getTitre();
+            this.description = offre.getDescription();
+            this.dateDebut = offre.getDate_debut();
+            this.dateFin = offre.getDate_fin();
+            this.horaire = offre.getHoraire();
+            this.dureeHebdomadaire = offre.getDureeHebdomadaire();
+            this.remuneration = offre.getRemuneration();
+            this.responsabilitesEtudiant = offre.getResponsabilitesEtudiant();
+            this.responsabilitesEmployeur = offre.getResponsabilitesEmployeur();
+            this.objectifs = offre.getObjectifs();
+            this.progEtude = offre.getProgEtude();
+            this.lieu = offre.getLieuStage();
+        }
         this.archived = false;
         this.dateCreation = LocalDateTime.now();
         this.dateModification = LocalDateTime.now();

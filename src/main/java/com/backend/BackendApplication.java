@@ -66,7 +66,12 @@ public class BackendApplication {
                     ProgrammeDTO.P180_A0,
                     "Montréal",
                     "15$/h",
-                    LocalDate.now().plusDays(1)
+                    LocalDate.now().plusDays(1),
+                    "matinale",
+                    20,
+                    "Faire le café",
+                    "Faire du bon café",
+                    "Apprendre React"
             );
 
             employeurService.creerOffreDeStage(
@@ -78,7 +83,12 @@ public class BackendApplication {
                     ProgrammeDTO.P200_B1,
                     "Montréal",
                     "15$/h",
-                    LocalDate.now().plusMonths(6)
+                    LocalDate.now().plusMonths(6),
+                    "soirée",
+                    30,
+                    "Développer des APIs",
+                    "Fournir l'encadrement et les outils nécessaires",
+                    "Utiliser Spring Boot pour développer des APIs RESTful"
             );
 
             employeurService.creerOffreDeStage(
@@ -90,7 +100,12 @@ public class BackendApplication {
                     ProgrammeDTO.P200_B1,
                     "Quebec",
                     "18$/h",
-                    LocalDate.now().minusDays(10)
+                    LocalDate.now().minusDays(10),
+                    "flexible",
+                    25,
+                    "Coder en Java",
+                    "Encadrer et valider le travail de l'étudiant",
+                    "Développer des applications en Java"
             );
 
 
