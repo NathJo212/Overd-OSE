@@ -82,21 +82,10 @@ public class GestionnaireService {
                 List<Etudiant> matched = etudiantRepository.findAllByProgEtude(offre.getProgEtude());
                 if (matched != null && !matched.isEmpty()) {
                     String titre = offre.getTitre() != null ? offre.getTitre() : "Nouvelle offre";
-                    String entreprise = offre.getEmployeur() != null ? offre.getEmployeur().getNomEntreprise() : "";
-                    String dates = (offre.getDate_debut() != null ? offre.getDate_debut().toString() : "") +
-                            (offre.getDate_fin() != null ? " - " + offre.getDate_fin().toString() : "");
-                    String competences = offre.getResponsabilites() != null ? offre.getResponsabilites() : "";
-
-                    String message = "Nouvelle offre de stage : " + titre + (entreprise.isEmpty() ? "" : " chez " + entreprise) + ". " +
-                            (dates.isEmpty() ? "" : "Dates: " + dates + ". ") + (competences.isEmpty() ? "" : "Compétences requises: " + competences + ".");
 
                     List<Notification> notifications = matched.stream().map(etudiant -> {
-                        Notification n = new Notification(etudiant, message);
+                        Notification n = new Notification(etudiant);
                         n.setMessageKey("offre.approuve");
-                        // structured fields
-                        n.setReferenceId(offre.getId());
-                        n.setReferenceType("OFFRE");
-                        n.setTitle(titre);
                         // keep messageParam for backward compatibility (optional)
                         n.setMessageParam(titre);
                         return n;
@@ -293,22 +282,6 @@ public class GestionnaireService {
         } catch (IOException ioe) {
             System.out.println("Erreur");
         }
-
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(etudiant);
-            notifEtudiant.setMessageKey("entente.created");
-            notifEtudiant.setMessageParam(offre.getTitre());
-            notificationRepository.save(notifEtudiant);
-
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(employeur);
-            notifEmployeur.setMessageKey("entente.created");
-            notifEmployeur.setMessageParam(offre.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore notification errors
-        }
     }
 
     @Transactional
@@ -347,23 +320,6 @@ public class GestionnaireService {
         } catch (IOException ioe) {
             System.out.println("Erreur");
         }
-
-        // notifications
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(entente.getEtudiant());
-            notifEtudiant.setMessageKey("entente.modified");
-            notifEtudiant.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEtudiant);
-
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(entente.getEmployeur());
-            notifEmployeur.setMessageKey("entente.modified");
-            notifEmployeur.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore notification errors
-        }
     }
 
     @Transactional
@@ -374,23 +330,6 @@ public class GestionnaireService {
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setArchived(true);
         ententeStageRepository.save(entente);
-
-        // notifications
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(entente.getEtudiant());
-            notifEtudiant.setMessageKey("entente.cancelled");
-            notifEtudiant.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEtudiant);
-
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(entente.getEmployeur());
-            notifEmployeur.setMessageKey("entente.cancelled");
-            notifEmployeur.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore
-        }
     }
 
     @Transactional

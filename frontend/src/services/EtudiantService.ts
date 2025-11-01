@@ -107,12 +107,8 @@ export interface NotificationDTO {
     id: number;
     messageKey?: string | null;
     messageParam?: string | null;
-    message?: string | null;
-    referenceId?: number | null;
-    referenceType?: string | null;
-    title?: string | null;
     lu: boolean;
-    dateCreation: string; // ISO string
+    dateCreation: string;
 }
 
 // Configuration de l'API

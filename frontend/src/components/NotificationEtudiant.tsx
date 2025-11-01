@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Bell, X, EyeOff } from 'lucide-react'; // 👈 remplacé Check par EyeOff
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import etudiantService, { type NotificationDTO } from '../services/EtudiantService';
 
-const NotificationBell = () => {
+const NotificationEtudiant = () => {
     const { t } = useTranslation('notifications');
     const [open, setOpen] = useState(false);
     const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const unreadCount = notifications.filter(n => !n.lu).length;
-    const navigate = useNavigate();
+    // on stocke UNIQUEMENT les notifications non lues côté front
+    const unreadCount = notifications.length;
 
     const load = async () => {
         setLoading(true);
         try {
             const notes = await etudiantService.getNotifications();
-            setNotifications(notes || []);
+            // ne garder que les non lues
+            setNotifications((notes || []).filter((n: NotificationDTO) => !n.lu));
         } catch (e: any) {
             console.error('Erreur getNotifications:', e);
         } finally {
@@ -37,7 +37,8 @@ const NotificationBell = () => {
     };
 
     const markAsRead = async (id: number) => {
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, lu: true } : n));
+        // retirer la notification localement (on n'affiche que les non-lues)
+        setNotifications(prev => prev.filter(n => n.id !== id));
 
         try {
             await etudiantService.marquerNotificationLu(id, true);
@@ -59,23 +60,29 @@ const NotificationBell = () => {
     };
 
     const formatMessage = (n: NotificationDTO) => {
-        if (n.title) return n.title;
         const key = n.messageKey || '';
         const params = parseParams(n.messageParam || undefined);
+
         if (key) {
             const translation = params && typeof params === 'object'
                 ? t(key, { ...(params as Record<string, any>), defaultValue: '' })
                 : t(key, { param: params || '', defaultValue: '' });
             if (translation && translation !== '') return translation;
         }
-        return n.message || key || '';
+
+        // fallback : si le backend a mis messageParam = titre, afficher "Nouvelle offre : {titre}"
+        if (typeof params === 'string' && params.trim() !== '') {
+            return `${t('nouvelleOffre', { defaultValue: 'Nouvelle offre' })} : ${params}`;
+        }
+
+        return '';
     };
 
     const extractDetails = (n: NotificationDTO) => {
         const params = parseParams(n.messageParam || undefined);
         if (params && typeof params === 'object') {
             return {
-                titre: (params.titre as string) || n.title,
+                titre: (params.titre as string) || null,
                 employeur: (params.employeur as string) || null,
                 dateDebut: (params.dateDebut as string) || null,
                 dateFin: (params.dateFin as string) || null,
@@ -95,8 +102,8 @@ const NotificationBell = () => {
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center shadow-sm">
-            {unreadCount}
-          </span>
+                        {unreadCount}
+                    </span>
                 )}
             </button>
 
@@ -113,32 +120,20 @@ const NotificationBell = () => {
 
                     <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
                         {loading && <div className="p-4 text-center text-gray-500">{t('loading')}</div>}
+
                         {!loading && unreadCount === 0 && (
                             <div className="p-4 text-sm text-gray-500 text-center">{t('noNotifications')}</div>
                         )}
 
-                        {!loading && notifications.filter(n => !n.lu).map(n => {
+                        {!loading && notifications.map(n => {
                             const details = extractDetails(n);
                             const mainMessage = formatMessage(n);
 
                             return (
                                 <div
                                     key={n.id}
-                                    onClick={() => {
-                                        if (n.referenceId) {
-                                            sessionStorage.setItem('openOfferId', String(n.referenceId));
-                                            try {
-                                                navigate('/dashboard-etudiant');
-                                            } catch {
-                                                window.location.href = '/dashboard-etudiant';
-                                            }
-                                        } else {
-                                            markAsRead(n.id);
-                                        }
-                                    }}
-                                    className={`p-3 hover:bg-gray-50 cursor-pointer transition-all ${
-                                        !n.lu ? 'bg-blue-50/40' : 'bg-white'
-                                    }`}
+                                    onClick={() => markAsRead(n.id)}
+                                    className={`p-3 hover:bg-gray-50 cursor-pointer transition-all bg-blue-50/40`}
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="flex-shrink-0 mt-1">
@@ -169,7 +164,7 @@ const NotificationBell = () => {
                                             aria-label={t('markAsRead')}
                                             className="p-1.5 rounded-full hover:bg-blue-50 text-blue-600 transition-all"
                                         >
-                                            <EyeOff className="w-4 h-4" /> {/* 👈 nouvelle icône */}
+                                            <EyeOff className="w-4 h-4" />
                                         </button>
                                     </div>
                                 </div>
@@ -182,4 +177,4 @@ const NotificationBell = () => {
     );
 };
 
-export default NotificationBell;
+export default NotificationEtudiant;

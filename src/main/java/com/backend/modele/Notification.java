@@ -18,23 +18,10 @@ public class Notification {
     @ManyToOne(fetch = FetchType.LAZY)
     private Utilisateur utilisateur;
 
-    @Column(length = 2000)
-    private String message;
-
     // clé i18n (ex: convocation.created)
     private String messageKey;
 
     private String messageParam;
-
-    // structured helper fields
-    // id of a referenced entity (e.g., offre id)
-    private Long referenceId;
-
-    // type of referenced entity (e.g., OFFRE, ENTENTE)
-    private String referenceType;
-
-    // human friendly title for the notification (e.g., offer title)
-    private String title;
 
     @Column(nullable = false)
     private boolean lu = false;
@@ -42,9 +29,8 @@ public class Notification {
     @Column(nullable = false)
     private LocalDateTime dateCreation = LocalDateTime.now();
 
-    public Notification(Utilisateur utilisateur, String message) {
+    public Notification(Utilisateur utilisateur) {
         this.utilisateur = utilisateur;
-        this.message = message;
         this.lu = false;
         this.dateCreation = LocalDateTime.now();
     }

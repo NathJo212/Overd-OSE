@@ -4,7 +4,7 @@ import { LogOut, Menu, X, FileText, Briefcase, User, FileSignature } from "lucid
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
-import NotificationBell from './NotificationBell';
+import NotificationEtudiant from './NotificationEtudiant.tsx';
 import { useTranslation } from "react-i18next";
 
 const NavBar = () => {
@@ -117,7 +117,7 @@ const NavBar = () => {
 
                             {/* Show notification bell for students */}
                             {isConnected && role === 'ETUDIANT' && (
-                                <NotificationBell />
+                                <NotificationEtudiant />
                             )}
 
                             {isConnected && (
@@ -216,7 +216,7 @@ const NavBar = () => {
                             {/* Notification bell for mobile students */}
                             {isConnected && role === 'ETUDIANT' && (
                                 <div className="px-4">
-                                    <NotificationBell />
+                                    <NotificationEtudiant />
                                 </div>
                             )}
 
