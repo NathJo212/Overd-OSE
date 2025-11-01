@@ -37,6 +37,8 @@ const Login = () => {
                 case 'GESTIONNAIRE':
                     navigate('/dashboard-gestionnaire')
                     break
+                case 'PROFESSEUR':
+                    navigate('/dashboard-professeur')
             }
         }
     }, [navigate]);
@@ -96,6 +98,9 @@ const Login = () => {
                             break
                         case 'GESTIONNAIRE':
                             navigate('/dashboard-gestionnaire')
+                            break
+                        case 'PROFESSEUR':
+                            navigate('/dashboard-professeur')
                             break
                         default:
                             navigate('/')
