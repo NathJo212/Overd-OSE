@@ -6,7 +6,5 @@
   "view": "Voir",
   "read": "Lu",
   "viewAll": "Voir toutes les notifications",
-  "offre.approuve": "Nouvelle offre : {{param}}",
-  "entente.created": "Nouvelle entente : {{param}}",
-  "competences": "Compétences"
+  "offre.approuve": "Nouvelle offre : {{param}}"
 }
