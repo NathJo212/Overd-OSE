@@ -611,7 +611,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("POST /OSEGestionnaire/etudiant/{etudiantId}/professeur/{professeurId} retourne 404 si utilisateur non trouvé")
     void assignEtudiantAProfesseur_userNotFound() throws Exception {
-        doThrow(new UserNotFoundException()).when(gestionnaireService).setEtudiantAProfesseur(99L, 5L);
+        doThrow(new UtilisateurPasTrouveException()).when(gestionnaireService).setEtudiantAProfesseur(99L, 5L);
 
         mockMvc.perform(post("/OSEGestionnaire/etudiant/5/professeur/99"))
                 .andExpect(status().isNotFound())
@@ -624,7 +624,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("POST /OSEGestionnaire/etudiant/{etudiantId}/professeur/{professeurId} retourne 404 si étudiant non trouvé")
     void assignEtudiantAProfesseur_etudiantNotFound() throws Exception {
-        doThrow(new UserNotFoundException()).when(gestionnaireService).setEtudiantAProfesseur(10L, 99L);
+        doThrow(new UtilisateurPasTrouveException()).when(gestionnaireService).setEtudiantAProfesseur(10L, 99L);
 
         mockMvc.perform(post("/OSEGestionnaire/etudiant/99/professeur/10"))
                 .andExpect(status().isNotFound())
@@ -702,7 +702,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/etudiants retourne 404 si utilisateur non trouvé")
     void getAllEtudiants_userNotFound() throws Exception {
-        when(gestionnaireService.getAllEtudiants()).thenThrow(new UserNotFoundException());
+        when(gestionnaireService.getAllEtudiants()).thenThrow(new UtilisateurPasTrouveException());
 
         mockMvc.perform(get("/OSEGestionnaire/etudiants"))
                 .andExpect(status().isNotFound());

@@ -388,21 +388,21 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void setEtudiantAProfesseur(Long professeurId, Long etudiantId) throws ActionNonAutoriseeException, UserNotFoundException {
+    public void setEtudiantAProfesseur(Long professeurId, Long etudiantId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         verifierGestionnaireConnecte();
 
         Professeur professeur = professeurRepository.findById(professeurId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(UtilisateurPasTrouveException::new);
 
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(UtilisateurPasTrouveException::new);
 
         etudiant.setProfesseur(professeur);
         etudiantRepository.save(etudiant);
     }
 
     @Transactional
-    public List<EtudiantDTO> getAllEtudiants() throws ActionNonAutoriseeException, UserNotFoundException {
+    public List<EtudiantDTO> getAllEtudiants() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         verifierGestionnaireConnecte();
 
         List<EtudiantDTO> etudiants = new ArrayList<>();

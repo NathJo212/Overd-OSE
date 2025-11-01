@@ -731,7 +731,7 @@ public class GestionnaireServiceTest {
         when(professeurRepository.findById(99L)).thenReturn(Optional.empty());
         lenient().when(etudiantRepository.findById(5L)).thenReturn(Optional.of(etudiant));
 
-        assertThrows(UserNotFoundException.class,
+        assertThrows(UtilisateurPasTrouveException.class,
                 () -> gestionnaireService.setEtudiantAProfesseur(99L, 5L));
 
         verify(etudiantRepository, never()).save(any());
@@ -744,7 +744,7 @@ public class GestionnaireServiceTest {
         when(professeurRepository.findById(10L)).thenReturn(Optional.of(professeur));
         when(etudiantRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class,
+        assertThrows(UtilisateurPasTrouveException.class,
                 () -> gestionnaireService.setEtudiantAProfesseur(10L, 99L));
 
         verify(etudiantRepository, never()).save(any());
