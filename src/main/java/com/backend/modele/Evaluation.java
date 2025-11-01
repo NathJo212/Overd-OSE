@@ -26,24 +26,9 @@ public class Evaluation {
     @ManyToOne
     private Employeur employeur;
 
-    private String competencesTechniques;
-    private String respectDelais;
-    private String attitudeIntegration;
-
-    @Column(length = 4000)
-    private String commentaires;
+    @Column(length = 1000000) // Ajustez la taille si nécessaire (1MB ici)
+    private String pdfBase64;
 
     private LocalDateTime dateEvaluation = LocalDateTime.now();
 
-    public Evaluation(EntenteStage entente, Etudiant etudiant, Employeur employeur, String competencesTechniques,
-                      String respectDelais, String attitudeIntegration, String commentaires) {
-        this.entente = entente;
-        this.etudiant = etudiant;
-        this.employeur = employeur;
-        this.competencesTechniques = competencesTechniques;
-        this.respectDelais = respectDelais;
-        this.attitudeIntegration = attitudeIntegration;
-        this.commentaires = commentaires;
-        this.dateEvaluation = LocalDateTime.now();
-    }
 }
