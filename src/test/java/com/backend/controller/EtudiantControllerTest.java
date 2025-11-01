@@ -515,7 +515,7 @@ class EtudiantControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    /*
+
     @Test
     @DisplayName("GET /OSEetudiant/notifications -> retourne liste de notifications")
     void getNotifications_success_returnsList() throws Exception {
@@ -590,7 +590,7 @@ class EtudiantControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.erreur").exists());
     }
-*/
+
 
     @Test
     @DisplayName("PUT /candidatures/{id}/accepter -> succès et 200 OK")
