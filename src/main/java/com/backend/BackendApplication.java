@@ -85,8 +85,8 @@ public class BackendApplication {
                     "matinale",
                     20,
                     "Faire le café",
-                    "Faire du bon café",
-                    "Apprendre React"
+                    "Apprendre React",
+                    "Découvrir le développement front-end en React"
             );
 
             employeurService.creerOffreDeStage(
@@ -102,7 +102,8 @@ public class BackendApplication {
                     "soirée",
                     30,
                     "Développer des APIs",
-                    "Utiliser Spring Boot pour développer des APIs RESTful"
+                    "Utiliser Spring Boot pour développer des APIs RESTful",
+                    "Approfondir la programmation backend"
             );
 
             employeurService.creerOffreDeStage(
@@ -118,13 +119,8 @@ public class BackendApplication {
                     "flexible",
                     25,
                     "Coder en Java",
-                    "Encadrer et valider le travail de l'étudiant",
                     "Développer des applications en Java",
-                    LocalDate.now().minusDays(10),
-                    "flexible",
-                    25,
-                    "Coder en Java",
-                    "Développer des applications en Java"
+                    "Mettre en pratique la programmation orientée objet"
             );
 
 

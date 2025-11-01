@@ -147,7 +147,6 @@ class EmployeurControllerTest {
                         anyString(), anyString(), any(LocalDate.class),
                         anyString(), any(), anyString(), anyString(), anyString()
                 );
-                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class), anyString(), anyString(), any(LocalDate.class), any(), any(), any(), any());
 
         OffreDTO offreDTO = new OffreDTO();
         offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer fakeToken"));
@@ -178,7 +177,6 @@ class EmployeurControllerTest {
                         anyString(), anyString(), any(LocalDate.class),
                         anyString(), any(), anyString(), anyString(), anyString()
                 );
-                .when(employeurService).creerOffreDeStage(any(AuthResponseDTO.class), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class), anyString(), anyString(), any(LocalDate.class), any(), any(), any(), any());
 
         OffreDTO offreDTO = new OffreDTO();
         offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer validToken"));
