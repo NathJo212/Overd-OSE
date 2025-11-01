@@ -1,11 +1,8 @@
 package com.backend;
 
+import com.backend.service.*;
 import com.backend.service.DTO.AuthResponseDTO;
 import com.backend.service.DTO.ProgrammeDTO;
-import com.backend.service.EmployeurService;
-import com.backend.service.EtudiantService;
-import com.backend.service.GestionnaireService;
-import com.backend.service.UtilisateurService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,7 +20,7 @@ public class BackendApplication {
 
     @Bean
     @Profile("!test")
-    public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService, UtilisateurService utilisateurService, GestionnaireService gestionnaireService) {
+    public CommandLineRunner run(EmployeurService employeurService, EtudiantService etudiantService, UtilisateurService utilisateurService, GestionnaireService gestionnaireService, ProfesseurService professeurService) {
         return _ -> {
             employeurService.creerEmployeur(
                     "mon@employeur.com",
@@ -39,6 +36,18 @@ public class BackendApplication {
                     "987-654-3210",
                     "Martin",
                     "Durand",
+                    ProgrammeDTO.P420_B0,
+                    "Automne",
+                    "3ème année"
+            );
+
+
+            etudiantService.creerEtudiant(
+                    "etudiant2@example.com",
+                    "Etudiant128&",
+                    "987-654-3210",
+                    "George",
+                    "Dubois",
                     ProgrammeDTO.P221_A0,
                     "Automne",
                     "3ème année"
@@ -52,7 +61,13 @@ public class BackendApplication {
                     "Legault"
             );
 
-
+            professeurService.creerProfesseur(
+                    "professeur@example.com",
+                    "Prof128&",
+                    "764-782-4572",
+                    "Louis",
+                    "Poirier"
+            );
 
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");
             System.out.println("Employeur contact: " + utilisateurTest.getUtilisateurDTO().getContact());
@@ -63,7 +78,7 @@ public class BackendApplication {
                     "Stage react",
                     LocalDate.now().plusWeeks(1),
                     LocalDate.now().plusMonths(6),
-                    ProgrammeDTO.P180_A0,
+                    ProgrammeDTO.P420_B0,
                     "Montréal",
                     "15$/h",
                     LocalDate.now().plusDays(1),
@@ -80,14 +95,13 @@ public class BackendApplication {
                     "Stage backend sur une application Spring Boot",
                     LocalDate.now().minusMonths(8),
                     LocalDate.now().minusMonths(2),
-                    ProgrammeDTO.P200_B1,
+                    ProgrammeDTO.P420_B0,
                     "Montréal",
                     "15$/h",
                     LocalDate.now().plusMonths(6),
                     "soirée",
                     30,
                     "Développer des APIs",
-                    "Fournir l'encadrement et les outils nécessaires",
                     "Utiliser Spring Boot pour développer des APIs RESTful"
             );
 
@@ -97,7 +111,7 @@ public class BackendApplication {
                     "Test",
                     LocalDate.now(),
                     LocalDate.now().plusMonths(4),
-                    ProgrammeDTO.P200_B1,
+                    ProgrammeDTO.P420_B0,
                     "Quebec",
                     "18$/h",
                     LocalDate.now().minusDays(10),
@@ -105,6 +119,11 @@ public class BackendApplication {
                     25,
                     "Coder en Java",
                     "Encadrer et valider le travail de l'étudiant",
+                    "Développer des applications en Java",
+                    LocalDate.now().minusDays(10),
+                    "flexible",
+                    25,
+                    "Coder en Java",
                     "Développer des applications en Java"
             );
 

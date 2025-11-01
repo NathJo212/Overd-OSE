@@ -95,4 +95,5 @@ public class Offre {
         this.responsabilitesEmployeur = responsabilitesEmployeur;
         this.objectifs = objectifs;
     }
+
 }

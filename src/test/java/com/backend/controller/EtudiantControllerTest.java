@@ -17,7 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -28,7 +27,6 @@ import java.util.List;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -962,102 +960,4 @@ class EtudiantControllerTest {
         mockMvc.perform(get("/OSEetudiant/ententes"))
                 .andExpect(status().isForbidden());
     }
-
-    @Test
-    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> succès et 200 OK")
-    void modifierEntente_success_returnsOkAndMessage() throws Exception {
-        // Arrange
-        ModificationEntenteDTO dto = new ModificationEntenteDTO();
-        dto.setModificationEntente("Demande de modification des horaires");
-
-        // Act & Assert
-        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Demande de modification envoyée avec succès"))
-                .andExpect(jsonPath("$.erreur").doesNotExist());
-
-        Mockito.verify(etudiantService).modifierEntente(eq(10L), any(ModificationEntenteDTO.class));
-    }
-
-    @Test
-    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> 403 Forbidden si ActionNonAutoriseeException")
-    void modifierEntente_unauthorized_returnsForbidden() throws Exception {
-        // Arrange
-        ModificationEntenteDTO dto = new ModificationEntenteDTO();
-        dto.setModificationEntente("Demande de modification");
-
-        ActionNonAutoriseeException expectedException = new ActionNonAutoriseeException();
-        doThrow(expectedException)
-                .when(etudiantService).modifierEntente(anyLong(), any(ModificationEntenteDTO.class));
-
-        // Act & Assert
-        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNAUTHORIZED_ACTION.getCode()));
-    }
-
-    @Test
-    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> 404 Not Found si EntenteNonTrouveeException")
-    void modifierEntente_ententeNotFound_returnsNotFound() throws Exception {
-        // Arrange
-        ModificationEntenteDTO dto = new ModificationEntenteDTO();
-        dto.setModificationEntente("Demande de modification");
-
-        EntenteNonTrouveeException expectedException = new EntenteNonTrouveeException();
-        doThrow(expectedException)
-                .when(etudiantService).modifierEntente(anyLong(), any(ModificationEntenteDTO.class));
-
-        // Act & Assert
-        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.ENTENTE_NON_TROUVE.getCode()));
-    }
-
-    @Test
-    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> 401 Unauthorized si UtilisateurPasTrouveException")
-    void modifierEntente_userNotFound_returnsUnauthorized() throws Exception {
-        // Arrange
-        ModificationEntenteDTO dto = new ModificationEntenteDTO();
-        dto.setModificationEntente("Demande de modification");
-
-        UtilisateurPasTrouveException expectedException = new UtilisateurPasTrouveException();
-        doThrow(expectedException)
-                .when(etudiantService).modifierEntente(anyLong(), any(ModificationEntenteDTO.class));
-
-        // Act & Assert
-        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.USER_NOT_FOUND.getCode()));
-    }
-
-    @Test
-    @DisplayName("PUT /OSEetudiant/ententes/{id}/modifier -> 500 Internal Server Error si Exception")
-    void modifierEntente_internalError_returnsInternalServerError() throws Exception {
-        // Arrange
-        ModificationEntenteDTO dto = new ModificationEntenteDTO();
-        dto.setModificationEntente("Demande de modification");
-
-        doThrow(new RuntimeException("Erreur inattendue"))
-                .when(etudiantService).modifierEntente(anyLong(), any(ModificationEntenteDTO.class));
-
-        // Act & Assert
-        mockMvc.perform(put("/OSEetudiant/ententes/{id}/modifier", 10L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNKNOWN_ERROR.getCode()));
-    }
-
-
-
 }

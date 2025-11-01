@@ -114,7 +114,7 @@ const CandidaturesRecues = () => {
             return;
         }
 
-        loadCandidatures();
+        loadCandidatures().then();
     }, [navigate]);
 
     useEffect(() => {
@@ -510,7 +510,7 @@ const CandidaturesRecues = () => {
                     {/* Bouton retour */}
                     <button
                         onClick={() => navigate('/dashboard-employeur')}
-                        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         <span className="font-medium">{t('candidaturesrecues:backToDashboard')}</span>
@@ -532,7 +532,7 @@ const CandidaturesRecues = () => {
                             </div>
                             <button
                                 onClick={loadCandidatures}
-                                className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                className="cursor-pointer p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                 title={t("candidaturesrecues:labels.refresh")}
                             >
                                 <RefreshCw className="w-5 h-5" />
@@ -619,7 +619,7 @@ const CandidaturesRecues = () => {
                                 </div>
                                 <button
                                     onClick={() => setConvocationSuccess(null)}
-                                    className="p-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100 rounded transition-colors"
+                                    className="cursor-pointer p-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100 rounded transition-colors"
                                     aria-label="Fermer"
                                 >
                                     <X className="w-4 h-4" />
@@ -638,7 +638,7 @@ const CandidaturesRecues = () => {
                                 </div>
                                 <button
                                     onClick={() => setConvocationError(null)}
-                                    className="p-1 text-rose-600 hover:text-rose-800 hover:bg-rose-100 rounded transition-colors"
+                                    className="cursor-pointer p-1 text-rose-600 hover:text-rose-800 hover:bg-rose-100 rounded transition-colors"
                                     aria-label="Fermer"
                                 >
                                     <X className="w-4 h-4" />
@@ -794,7 +794,7 @@ const CandidaturesRecues = () => {
                                                         e.stopPropagation();
                                                         handleOpenModal(candidature);
                                                     }}
-                                                    className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                    className="cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
                                                 >
                                                     <Eye className="w-4 h-4" />
                                                     {t("candidaturesrecues:viewDetails")}
@@ -808,7 +808,7 @@ const CandidaturesRecues = () => {
                                                                 e.stopPropagation();
                                                                 handleApprove(candidature);
                                                             }}
-                                                            className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                            className="cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors"
                                                         >
                                                             <Check className="w-4 h-4" />
                                                             {t("candidaturesrecues:actions.approve")}
@@ -818,7 +818,7 @@ const CandidaturesRecues = () => {
                                                                 e.stopPropagation();
                                                                 handleRefuse(candidature);
                                                             }}
-                                                            className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                            className="cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors"
                                                         >
                                                             <X className="w-4 h-4" />
                                                             {t("candidaturesrecues:actions.refuse")}
@@ -832,7 +832,7 @@ const CandidaturesRecues = () => {
                                                     <button
                                                         onClick={(e) => handleCreerConvocation(candidature, e)}
                                                         disabled={creatingConvocationId === candidature.id}
-                                                        className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                                                        className="cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                                                     >
                                                         <Calendar className="w-4 h-4" />
                                                         {creatingConvocationId === candidature.id ? t('candidaturesrecues:creating') : t('candidaturesrecues:createConvocation')}
@@ -878,7 +878,7 @@ const CandidaturesRecues = () => {
                                                 setShowApproveModal(false);
                                                 setCandidatureToAction(null);
                                             }}
-                                            className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                            className="cursor-pointer flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                                             disabled={actionLoading}
                                         >
                                             {t("candidaturesrecues:actions.cancel")}
@@ -886,7 +886,7 @@ const CandidaturesRecues = () => {
                                         <button
                                             onClick={confirmApprove}
                                             disabled={actionLoading}
-                                            className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                                            className="cursor-pointer flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
                                         >
                                             {actionLoading ? t("candidaturesrecues:actions.sending") : t("candidaturesrecues:actions.confirm")}
                                         </button>
@@ -946,7 +946,7 @@ const CandidaturesRecues = () => {
                                                 setCandidatureToAction(null);
                                                 setRefuseReason("");
                                             }}
-                                            className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                            className="cursor-pointer flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                                             disabled={actionLoading}
                                         >
                                             {t("candidaturesrecues:actions.cancel")}
@@ -954,7 +954,7 @@ const CandidaturesRecues = () => {
                                         <button
                                             onClick={confirmRefuse}
                                             disabled={actionLoading || !refuseReason.trim()}
-                                            className="flex-1 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors disabled:opacity-50"
+                                            className="cursor-pointer flex-1 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors disabled:opacity-50"
                                         >
                                             {actionLoading ? t("candidaturesrecues:actions.sending") : t("candidaturesrecues:actions.confirm")}
                                         </button>
@@ -978,7 +978,7 @@ const CandidaturesRecues = () => {
                                     </div>
                                     <button
                                         onClick={handleCloseModal}
-                                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                        className="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                                     >
                                         <X className="w-6 h-6" />
                                     </button>
@@ -1023,7 +1023,7 @@ const CandidaturesRecues = () => {
                                             {selectedCandidature.acv && (
                                                 <button
                                                     onClick={(e) => handleRegarderCV(selectedCandidature.id, e)}
-                                                    className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                                                    className="cursor-pointer w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -1041,7 +1041,7 @@ const CandidaturesRecues = () => {
                                             {selectedCandidature.alettreMotivation && (
                                                 <button
                                                     onClick={(e) => handleRegarderLettreMotivation(selectedCandidature.id, e)}
-                                                    className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                                                    className="cursor-pointer w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -1096,7 +1096,7 @@ const CandidaturesRecues = () => {
                                 <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
                                     <button
                                         onClick={handleCloseModal}
-                                        className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                                        className="cursor-pointer px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
                                     >
                                         {t("candidaturesrecues:labels.close")}
                                     </button>
@@ -1113,7 +1113,7 @@ const CandidaturesRecues = () => {
                                     <h3 className="text-xl font-semibold">
                                         {selectedDocument.cv ? t("candidaturesrecues:documentCards.cvTitle") : t("candidaturesrecues:documentCards.letterTitle")} - {selectedDocument.prenom} {selectedDocument.nom}
                                     </h3>
-                                    <button onClick={closeDocumentModal} className="text-white hover:text-gray-200" aria-label={t("candidaturesrecues:modal.close")}>
+                                    <button onClick={closeDocumentModal} className="cursor-pointer text-white hover:text-gray-200" aria-label={t("candidaturesrecues:modal.close")}>
                                         <X className="h-6 w-6" />
                                     </button>
                                 </div>
@@ -1150,7 +1150,7 @@ const CandidaturesRecues = () => {
                                     </div>
                                     <button
                                         onClick={handleCloseConvocationModal}
-                                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                        className="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                                     >
                                         <X className="w-6 h-6" />
                                     </button>

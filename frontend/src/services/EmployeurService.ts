@@ -1,4 +1,3 @@
-// Types pour les données d'employeur
 export interface EmployeurData {
     email: string;
     password: string;
@@ -60,30 +59,51 @@ export interface ConvocationEntrevueDTO {
 
 export interface EntenteStageDTO {
     id: number;
+    etudiantId: number;
+    etudiantNomComplet: string;
+    etudiantEmail: string;
+    employeurContact: string;
+    employeurEmail: string;
+    offreId: number;
+
+    // Champs principaux (peuvent provenir du backend)
     titre: string;
     description: string;
     dateDebut: string;
     dateFin: string;
+    dateCreation: string;
+
+    // Détails de l'entente
     horaire: string;
-    dureeHebdomadaire: number;
+    dureeHebdomadaire: number | null;
     remuneration: string;
     responsabilites: string;
     objectifs: string;
-    etudiantNom: string;
-    etudiantPrenom: string;
-    etudiantEmail: string;
-    employeurNom?: string;
-    offreTitre?: string;
-    dateCreation: string;
-    statut: string;
+    documentPdf: string | null;
+
+    // Signatures
     etudiantSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
     employeurSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
     gestionnaireSignature: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
-    messageModificationEmployeur?: string;
+
+    // Aides UI / état
+    lien: string;
+    statut: 'EN_ATTENTE' | 'SIGNEE' | 'ANNULEE' | string;
+    archived: boolean;
+
+    progEtude: string;
+    lieu: string;
 }
 
-export interface ModificationEntenteDTO {
-    modificationEntente: string;
+export interface EvaluationDTO {
+    id?: number;
+    ententeId: number;
+    etudiantId: number;
+    competencesTechniques: string;
+    respectDelais: string;
+    attitudeIntegration: string;
+    commentaires: string;
+    dateEvaluation?: string;
 }
 
 // Configuration de l'API
@@ -151,16 +171,18 @@ class EmployeurService {
 
     formatFormDataForAPI(formData: {
         nomEntreprise: string;
-        contact: string;
-        email: string;
+        adresseEntreprise?: string;
+        prenomContact?: string;
+        nomContact?: string;
+        emailProfessionnel: string;
         telephone: string;
         motDePasse: string;
-        confirmerMotDePasse: string;
+        confirmerMotDePasse?: string;
     }): EmployeurData {
         return {
             nomEntreprise: formData.nomEntreprise,
-            contact: formData.contact,
-            email: formData.email,
+            contact: `${formData.prenomContact || ''} ${formData.nomContact || ''}`.trim(),
+            email: formData.emailProfessionnel,
             telephone: formData.telephone,
             password: formData.motDePasse,
         };
@@ -274,33 +296,6 @@ class EmployeurService {
             throw error;
         }
     }
-
-    async getCandidatureSpecifique(id: number): Promise<CandidatureRecueDTO> {
-        try {
-            const token = sessionStorage.getItem('authToken');
-            if (!token) {
-                throw new Error('Vous devez être connecté');
-            }
-
-            const response = await fetch(`${this.baseUrl}/candidatures/${id}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération de la candidature');
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Erreur getCandidatureSpecifique:', error);
-            throw error;
-        }
-    }
-
     async telechargerCvCandidature(id: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -748,27 +743,33 @@ class EmployeurService {
         }
     }
 
-    async demanderModificationEntente(ententeId: number, modificationMessage: string): Promise<MessageRetour> {
+    /**
+     * Crée une évaluation pour un stagiaire
+     * @param evaluationData - Les données de l'évaluation
+     * @returns Promise<MessageRetour>
+     */
+    async creerEvaluation(evaluationData: EvaluationDTO): Promise<MessageRetour> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/modification`, {
-                method: 'PUT',
+            const response = await fetch(`${this.baseUrl}/evaluations`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ modificationEntente: modificationMessage })
+                body: JSON.stringify(evaluationData)
             });
 
             const data = await response.json();
 
+            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
-                console.error('Erreur lors de la demande de modification:', data.erreur);
-                const error: any = new Error(data.erreur.message || 'Erreur lors de la demande de modification');
+                console.error('Erreur lors de la création de l\'évaluation:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la création de l\'évaluation');
                 error.response = { data };
                 throw error;
             }
@@ -803,6 +804,36 @@ class EmployeurService {
                 }
             };
             throw genericError;
+        }
+    }
+
+    /**
+     * Récupère toutes les évaluations de l'employeur connecté
+     * @returns Promise<EvaluationDTO[]>
+     */
+    async getEvaluations(): Promise<EvaluationDTO[]> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/evaluations`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des évaluations');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getEvaluations:', error);
+            throw error;
         }
     }
 }

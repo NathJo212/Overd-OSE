@@ -1,6 +1,5 @@
-// src/components/NavBar.tsx - Version avec liens pour Gestionnaire incluant Ententes de stage
 import { useNavigate, NavLink } from "react-router-dom";
-import { LogOut, Menu, X, FileText, Briefcase, User, FileSignature } from "lucide-react";
+import { LogOut, Menu, X, FileText, Briefcase, User, FileSignature, UserCog } from "lucide-react";
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
@@ -109,6 +108,20 @@ const NavBar = () => {
                                         <FileSignature className="w-4 h-4" />
                                         {t('navbar:internshipAgreements')}
                                     </NavLink>
+                                    <NavLink
+                                        to="/assigner-professeurs"
+                                        className={({ isActive }) =>
+                                            `px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${
+                                                isActive
+                                                    ? "bg-white text-blue-600 shadow-md"
+                                                    : "text-white hover:bg-white/10 border border-white/20"
+                                            }`
+                                        }
+                                    >
+                                        <UserCog className="w-4 h-4" />
+                                        {t('navbar:assignTeachers')}
+                                    </NavLink>
+
                                 </>
                             )}
 
@@ -117,7 +130,7 @@ const NavBar = () => {
                             {isConnected && (
                                 <button
                                     onClick={handleLogout}
-                                    className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 border border-white/20 hover:border-white/30 shadow-sm"
+                                    className="cursor-pointer bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 border border-white/20 hover:border-white/30 shadow-sm"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     <span className="font-medium">{t('navbar:logout')}</span>
@@ -129,7 +142,7 @@ const NavBar = () => {
                         <div className="md:hidden">
                             <button
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+                                className="cursor-pointer text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
                             >
                                 {mobileMenuOpen ? (
                                     <X className="w-6 h-6" />
@@ -159,7 +172,7 @@ const NavBar = () => {
                             {isConnected && role === "GESTIONNAIRE" && (
                                 <>
                                     <NavLink
-                                        to="/offres-stages-gestionnaire"
+                                        to="/dashboard-gestionnaire"
                                         onClick={() => setMobileMenuOpen(false)}
                                         className={({ isActive }) =>
                                             `w-full px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${
@@ -200,6 +213,20 @@ const NavBar = () => {
                                         <FileSignature className="w-4 h-4" />
                                         {t('navbar:internshipAgreements')}
                                     </NavLink>
+                                    <NavLink
+                                        to="/assigner-professeurs"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className={({ isActive }) =>
+                                            `w-full px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${
+                                                isActive
+                                                    ? "bg-white text-blue-600"
+                                                    : "text-white bg-white/10 hover:bg-white/20"
+                                            }`
+                                        }
+                                    >
+                                        <UserCog className="w-4 h-4" />
+                                        {t('navbar:assignTeachers') || 'Assigner Professeurs'}
+                                    </NavLink>
                                 </>
                             )}
 
@@ -210,7 +237,7 @@ const NavBar = () => {
                             {isConnected && (
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 border border-white/20"
+                                    className="cursor-pointer w-full bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 border border-white/20"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     <span className="font-medium">{t('navbar:logout')}</span>

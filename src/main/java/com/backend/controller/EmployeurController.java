@@ -391,21 +391,23 @@ public class EmployeurController {
         }
     }
 
-    @PutMapping("/ententes/{id}/modification")
+    @PostMapping("/evaluations")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> modifierEntente(@PathVariable Long id, @RequestBody ModificationEntenteDTO dto) {
+    public ResponseEntity<MessageRetourDTO> creerEvaluation(@RequestBody EvaluationDTO evaluationDTO) {
         try {
-            employeurService.modifierEntente(id, dto);
-            return ResponseEntity.ok()
-                    .body(new MessageRetourDTO("Demande de modification de l'entente envoyée avec succès", null));
+            employeurService.creerEvaluation(evaluationDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageRetourDTO("Évaluation créée avec succès", null));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (UtilisateurPasTrouveException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (EntenteNonTrouveException e){
+        } catch (EntenteNonTrouveException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (EvaluationDejaExistanteException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (EntenteNonFinaliseeException e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (EvaluationDejaExistanteException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -416,6 +418,19 @@ public class EmployeurController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+        }
+    }
+
+    @GetMapping("/evaluations")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EvaluationDTO>> getEvaluations() {
+        try {
+            List<EvaluationDTO> dtos = employeurService.getEvaluationsPourEmployeur();
+            return ResponseEntity.ok(dtos);
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

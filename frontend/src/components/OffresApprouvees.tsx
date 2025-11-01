@@ -217,7 +217,7 @@ const OffresApprouvees = () => {
                 <p className="text-red-600">{error}</p>
                 <button
                     onClick={chargerDonnees}
-                    className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    className="cursor-pointer mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
                     {t('error.retry')}
                 </button>
@@ -252,7 +252,7 @@ const OffresApprouvees = () => {
 
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                        className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                     >
                         <SlidersHorizontal className="h-5 w-5" />
                         {t('filters')}
@@ -307,7 +307,7 @@ const OffresApprouvees = () => {
                                 </label>
                                 <button
                                     onClick={toggleSortOrder}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-blue-200 rounded-lg bg-white hover:bg-blue-50 transition-all shadow-sm hover:border-blue-300 font-medium"
+                                    className="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-blue-200 rounded-lg bg-white hover:bg-blue-50 transition-all shadow-sm hover:border-blue-300 font-medium"
                                 >
                                     <ArrowUpDown className="h-5 w-5 text-blue-600" />
                                     {t(`sortOrder.${sortOrder}`)}
@@ -382,7 +382,7 @@ const OffresApprouvees = () => {
                                         <button
                                             onClick={() => handlePostulerClick(offre)}
                                             disabled={aDejaPostule}
-                                            className={`w-full px-4 py-2 rounded-lg transition-colors font-medium ${
+                                            className={`cursor-pointer w-full px-4 py-2 rounded-lg transition-colors font-medium ${
                                                 aDejaPostule
                                                     ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
                                                     : 'bg-blue-600 text-white hover:bg-blue-700'

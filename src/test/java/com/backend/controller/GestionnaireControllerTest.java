@@ -582,4 +582,243 @@ class GestionnaireControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
+    @Test
+    @DisplayName("POST /OSEGestionnaire/etudiant/{etudiantId}/professeur/{professeurId} retourne 200 si succès")
+    void assignEtudiantAProfesseur_success() throws Exception {
+        doNothing().when(gestionnaireService).setEtudiantAProfesseur(10L, 5L);
+
+        mockMvc.perform(post("/OSEGestionnaire/etudiant/5/professeur/10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Professeur assigné à l'étudiant avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        verify(gestionnaireService).setEtudiantAProfesseur(10L, 5L);
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/etudiant/{etudiantId}/professeur/{professeurId} retourne 401 si non autorisé")
+    void assignEtudiantAProfesseur_nonAutorise() throws Exception {
+        doThrow(new ActionNonAutoriseeException()).when(gestionnaireService).setEtudiantAProfesseur(10L, 5L);
+
+        mockMvc.perform(post("/OSEGestionnaire/etudiant/5/professeur/10"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.erreur.errorCode").value("AUTHORIZATION_001"))  // Changed from ACTION_002
+                .andExpect(jsonPath("$.erreur.message").value("Unauthorized action"));
+
+        verify(gestionnaireService).setEtudiantAProfesseur(10L, 5L);
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/etudiant/{etudiantId}/professeur/{professeurId} retourne 404 si utilisateur non trouvé")
+    void assignEtudiantAProfesseur_userNotFound() throws Exception {
+        doThrow(new UtilisateurPasTrouveException()).when(gestionnaireService).setEtudiantAProfesseur(99L, 5L);
+
+        mockMvc.perform(post("/OSEGestionnaire/etudiant/5/professeur/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur.errorCode").value("USER_NOT_FOUND"))
+                .andExpect(jsonPath("$.erreur.message").exists());
+
+        verify(gestionnaireService).setEtudiantAProfesseur(99L, 5L);
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/etudiant/{etudiantId}/professeur/{professeurId} retourne 404 si étudiant non trouvé")
+    void assignEtudiantAProfesseur_etudiantNotFound() throws Exception {
+        doThrow(new UtilisateurPasTrouveException()).when(gestionnaireService).setEtudiantAProfesseur(10L, 99L);
+
+        mockMvc.perform(post("/OSEGestionnaire/etudiant/99/professeur/10"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur.errorCode").value("USER_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").doesNotExist());
+
+        verify(gestionnaireService).setEtudiantAProfesseur(10L, 99L);
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/etudiant/{etudiantId}/professeur/{professeurId} retourne 500 si erreur serveur")
+    void assignEtudiantAProfesseur_erreurServeur() throws Exception {
+        doThrow(new RuntimeException("Erreur interne")).when(gestionnaireService).setEtudiantAProfesseur(10L, 5L);
+
+        mockMvc.perform(post("/OSEGestionnaire/etudiant/5/professeur/10"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.erreur.errorCode").value("ERROR_000"))
+                .andExpect(jsonPath("$.erreur.message").exists());
+
+        verify(gestionnaireService).setEtudiantAProfesseur(10L, 5L);
+    }
+
+// ========== Tests pour getAllEtudiants ==========
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/etudiants retourne 200 et liste complète")
+    void getAllEtudiants_success() throws Exception {
+        EtudiantDTO etu1 = mock(EtudiantDTO.class);
+        when(etu1.getEmail()).thenReturn("sophie@student.com");
+        when(etu1.getNom()).thenReturn("Martin");
+        when(etu1.getPrenom()).thenReturn("Sophie");
+
+        EtudiantDTO etu2 = mock(EtudiantDTO.class);
+        when(etu2.getEmail()).thenReturn("jean@student.com");
+        when(etu2.getNom()).thenReturn("Tremblay");
+        when(etu2.getPrenom()).thenReturn("Jean");
+
+        when(gestionnaireService.getAllEtudiants()).thenReturn(Arrays.asList(etu1, etu2));
+
+        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].email").value("sophie@student.com"))
+                .andExpect(jsonPath("$[1].email").value("jean@student.com"));
+
+        verify(gestionnaireService).getAllEtudiants();
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/etudiants retourne 200 avec liste vide")
+    void getAllEtudiants_listeVide() throws Exception {
+        when(gestionnaireService.getAllEtudiants()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(0))
+                .andExpect(jsonPath("$").isArray());
+
+        verify(gestionnaireService).getAllEtudiants();
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/etudiants retourne 401 si non autorisé")
+    void getAllEtudiants_nonAutorise() throws Exception {
+        when(gestionnaireService.getAllEtudiants()).thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+                .andExpect(status().isUnauthorized());
+
+        verify(gestionnaireService).getAllEtudiants();
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/etudiants retourne 404 si utilisateur non trouvé")
+    void getAllEtudiants_userNotFound() throws Exception {
+        when(gestionnaireService.getAllEtudiants()).thenThrow(new UtilisateurPasTrouveException());
+
+        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+                .andExpect(status().isNotFound());
+
+        verify(gestionnaireService).getAllEtudiants();
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/etudiants retourne 500 si erreur serveur")
+    void getAllEtudiants_erreurServeur() throws Exception {
+        when(gestionnaireService.getAllEtudiants()).thenThrow(new RuntimeException("Erreur interne"));
+
+        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+                .andExpect(status().isInternalServerError());
+
+        verify(gestionnaireService).getAllEtudiants();
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/etudiants retourne étudiants avec professeur assigné")
+    void getAllEtudiants_avecProfesseur() throws Exception {
+        com.backend.service.DTO.ProfesseurDTO prof = mock(com.backend.service.DTO.ProfesseurDTO.class);
+        when(prof.getEmail()).thenReturn("prof@college.com");
+        when(prof.getNom()).thenReturn("Dupont");
+
+        EtudiantDTO etu = mock(EtudiantDTO.class);
+        when(etu.getEmail()).thenReturn("etudiant@test.com");
+        when(etu.getNom()).thenReturn("Test");
+        when(etu.getProfesseur()).thenReturn(prof);
+
+        when(gestionnaireService.getAllEtudiants()).thenReturn(Arrays.asList(etu));
+
+        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].email").value("etudiant@test.com"))
+                .andExpect(jsonPath("$[0].professeur.email").value("prof@college.com"));
+
+        verify(gestionnaireService).getAllEtudiants();
+    }
+
+// ========== Tests pour getAllProfesseurs ==========
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/professeurs retourne 200 et liste complète")
+    void getAllProfesseurs_success() throws Exception {
+        com.backend.service.DTO.ProfesseurDTO prof1 = mock(com.backend.service.DTO.ProfesseurDTO.class);
+        when(prof1.getId()).thenReturn(1L);
+        when(prof1.getEmail()).thenReturn("pierre.dupont@college.com");
+        when(prof1.getNom()).thenReturn("Dupont");
+        when(prof1.getPrenom()).thenReturn("Pierre");
+
+        com.backend.service.DTO.ProfesseurDTO prof2 = mock(com.backend.service.DTO.ProfesseurDTO.class);
+        when(prof2.getId()).thenReturn(2L);
+        when(prof2.getEmail()).thenReturn("marie.labelle@college.com");
+        when(prof2.getNom()).thenReturn("Labelle");
+        when(prof2.getPrenom()).thenReturn("Marie");
+
+        when(gestionnaireService.getAllProfesseurs()).thenReturn(Arrays.asList(prof1, prof2));
+
+        mockMvc.perform(get("/OSEGestionnaire/professeurs"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].email").value("pierre.dupont@college.com"))
+                .andExpect(jsonPath("$[1].email").value("marie.labelle@college.com"));
+
+        verify(gestionnaireService).getAllProfesseurs();
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/professeurs retourne 200 avec liste vide")
+    void getAllProfesseurs_listeVide() throws Exception {
+        when(gestionnaireService.getAllProfesseurs()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/OSEGestionnaire/professeurs"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(0))
+                .andExpect(jsonPath("$").isArray());
+
+        verify(gestionnaireService).getAllProfesseurs();
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/professeurs retourne 500 si erreur serveur")
+    void getAllProfesseurs_erreurServeur() throws Exception {
+        when(gestionnaireService.getAllProfesseurs()).thenThrow(new RuntimeException("Erreur interne"));
+
+        mockMvc.perform(get("/OSEGestionnaire/professeurs"))
+                .andExpect(status().isInternalServerError());
+
+        verify(gestionnaireService).getAllProfesseurs();
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/professeurs retourne un seul professeur")
+    void getAllProfesseurs_unSeul() throws Exception {
+        com.backend.service.DTO.ProfesseurDTO prof = mock(com.backend.service.DTO.ProfesseurDTO.class);
+        when(prof.getId()).thenReturn(5L);
+        when(prof.getEmail()).thenReturn("unique@college.com");
+        when(prof.getNom()).thenReturn("Unique");
+        when(prof.getPrenom()).thenReturn("Prof");
+
+        when(gestionnaireService.getAllProfesseurs()).thenReturn(Arrays.asList(prof));
+
+        mockMvc.perform(get("/OSEGestionnaire/professeurs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].email").value("unique@college.com"))
+                .andExpect(jsonPath("$[0].nom").value("Unique"));
+
+        verify(gestionnaireService).getAllProfesseurs();
+    }
+
+
+
+
 }

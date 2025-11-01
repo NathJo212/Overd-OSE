@@ -152,7 +152,7 @@ const ApprouverRefuserCV = () => {
                                 </div>
                                 <button
                                     onClick={() => setActionMessage("")}
-                                    className="text-green-700 hover:text-green-900"
+                                    className="cursor-pointer text-green-700 hover:text-green-900"
                                 >
                                     <X className="h-5 w-5" />
                                 </button>
@@ -167,7 +167,7 @@ const ApprouverRefuserCV = () => {
                                     <AlertCircle className="h-5 w-5 mr-2" />
                                     <span>{t(error)}</span>
                                 </div>
-                                <button onClick={() => setError("")} className="text-red-700 hover:text-red-900">
+                                <button onClick={() => setError("")} className="cursor-pointer text-red-700 hover:text-red-900">
                                     <X className="h-5 w-5" />
                                 </button>
                             </div>
@@ -220,7 +220,7 @@ const ApprouverRefuserCV = () => {
                                         <div className="flex flex-col sm:flex-row gap-3">
                                             <button
                                                 onClick={() => handleViewCV(etudiant)}
-                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center justify-center gap-2"
+                                                className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center justify-center gap-2"
                                             >
                                                 <FileText className="h-4 w-4" />
                                                 {t("cvmanager:actions.viewCV")}
@@ -228,7 +228,7 @@ const ApprouverRefuserCV = () => {
                                             <button
                                                 onClick={() => handleApprove(etudiant.id!)}
                                                 disabled={processingId === etudiant.id}
-                                                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                                                className="cursor-pointer px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
                                             >
                                                 <CheckCircle className="h-4 w-4" />
                                                 {processingId === etudiant.id ? t("cvmanager:actions.sending") : t("cvmanager:actions.approve")}
@@ -236,7 +236,7 @@ const ApprouverRefuserCV = () => {
                                             <button
                                                 onClick={() => handleRefuseClick(etudiant.id!)}
                                                 disabled={processingId === etudiant.id}
-                                                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                                                className="cursor-pointer px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
                                             >
                                                 <XCircle className="h-4 w-4" />
                                                 {t("cvmanager:actions.refuse")}
@@ -257,7 +257,7 @@ const ApprouverRefuserCV = () => {
                                 <h3 className="text-xl font-semibold">
                                     {t("cvmanager:cvModal.title")} - {selectedCV.prenom} {selectedCV.nom}
                                 </h3>
-                                <button onClick={closeCVModal} className="text-white hover:text-gray-200">
+                                <button onClick={closeCVModal} className="cursor-pointer text-white hover:text-gray-200">
                                     <X className="h-6 w-6" />
                                 </button>
                             </div>
@@ -305,13 +305,13 @@ const ApprouverRefuserCV = () => {
                                 <div className="mt-6 flex gap-3 justify-end">
                                     <button
                                         onClick={() => setShowRefuseModal(false)}
-                                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                                        className="cursor-pointer px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200"
                                     >
                                         {t("cvmanager:actions.cancel")}
                                     </button>
                                     <button
                                         onClick={submitRefuse}
-                                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+                                        className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
                                     >
                                         {t("cvmanager:actions.confirm")}
                                     </button>

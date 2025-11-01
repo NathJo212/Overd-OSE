@@ -45,7 +45,7 @@ const DashBoardEmployeur = () => {
                     .then(offres => setOffres(offres))
                     .catch(() => setNotificationMessage(t("employerdashboard:errors.loadOffers")));
             }
-            loadConvocations();
+            loadConvocations().then();
             return;
         }
 
@@ -140,7 +140,7 @@ const DashBoardEmployeur = () => {
             setNotificationMessage(t('employerdashboard:convocations.messages.edited'));
             setShowNotification(true);
             setShowEditModal(false);
-            loadConvocations();
+            await loadConvocations();
         } catch (error: any) {
             setNotificationMessage(error.message || t('employerdashboard:convocations.messages.editError'));
             setShowNotification(true);
@@ -154,7 +154,7 @@ const DashBoardEmployeur = () => {
             await employeurService.annulerConvocation(conv.candidatureId);
             setNotificationMessage(t('employerdashboard:convocations.messages.deleted'));
             setShowNotification(true);
-            loadConvocations();
+            await loadConvocations();
         } catch (error: any) {
             setNotificationMessage(error.message || t('employerdashboard:convocations.messages.deleteError'));
             setShowNotification(true);
@@ -181,7 +181,7 @@ const DashBoardEmployeur = () => {
                                     <button
                                         type="button"
                                         onClick={handleCloseNotification}
-                                        className="bg-green-50 rounded-md inline-flex text-green-400 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                        className="cursor-pointer bg-green-50 rounded-md inline-flex text-green-400 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                                     >
                                         <span className="sr-only">{t('employerdashboard:modal.close')}</span>
                                         <X className="h-5 w-5" />
@@ -214,6 +214,9 @@ const DashBoardEmployeur = () => {
                             <NavLink to="/mes-ententes" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
                                 {t("employerdashboard:myAgreements")}
                             </NavLink>
+                            <NavLink to="/evaluation-stagiaire" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                                {t("employerdashboard:evaluateInterns")}
+                            </NavLink>
                         </div>
                     </div>
 
@@ -223,7 +226,7 @@ const DashBoardEmployeur = () => {
                             <h2 className="text-2xl font-semibold text-gray-800">{t('employerdashboard:convocations.title')}</h2>
                             <button
                                 onClick={loadConvocations}
-                                className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
+                                className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
                                 disabled={loadingConvocations}
                             >
                                 <RefreshCw className={`w-4 h-4 ${loadingConvocations ? 'animate-spin' : ''}`} />
@@ -271,14 +274,14 @@ const DashBoardEmployeur = () => {
                                                 <div className="flex flex-col gap-2 ml-4">
                                                     <button
                                                         onClick={() => handleEditConvocation(conv)}
-                                                        className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
+                                                        className="cursor-pointer px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
                                                     >
                                                         <Edit className="w-4 h-4" />
                                                         {t('employerdashboard:convocations.edit')}
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteConvocation(conv)}
-                                                        className="px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
+                                                        className="cursor-pointer px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                         {t('employerdashboard:convocations.delete')}
@@ -369,7 +372,7 @@ const DashBoardEmployeur = () => {
                                             </span>
                                                 <span className="flex items-center">
                                                 <Calendar className="w-4 h-4 mr-1" />
-                                                {t("employerdashboard:end")}: {offre.date_fin}
+                                                    {t("employerdashboard:end")}: {offre.date_fin}
                                             </span>
                                             </div>
 
@@ -424,13 +427,13 @@ const DashBoardEmployeur = () => {
                             </div>
                             <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
                                 <button
-                                    className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                                    className="cursor-pointer px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
                                     onClick={() => setShowEditModal(false)}
                                 >
                                     {t('employerdashboard:convocations.editModal.cancel')}
                                 </button>
                                 <button
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    className="cursor-pointer px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                                     onClick={handleSaveEdit}
                                 >
                                     {t('employerdashboard:convocations.editModal.save')}
@@ -464,7 +467,7 @@ const DashBoardEmployeur = () => {
                             </div>
                             <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end">
                                 <button
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+                                    className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
                                     onClick={() => setShowModal(false)}
                                 >
                                     {t("employerdashboard:modal.close")}

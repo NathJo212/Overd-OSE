@@ -9,12 +9,9 @@ import {
     AlertCircle,
     Briefcase,
     ArrowLeft,
-    FileText,
     CheckCircle,
     RefreshCw,
-    X,
-    Check,
-    Edit
+    X, XCircle
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -22,7 +19,7 @@ import { employeurService, type EntenteStageDTO } from "../services/EmployeurSer
 
 
 const EntentesEmployeurs = () => {
-    const { t } = useTranslation(["ententesemployeurs"]);
+    const { t } = useTranslation(["ententesemployeurs", "programmes"]);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [ententes, setEntentes] = useState<EntenteStageDTO[]>([]);
@@ -31,10 +28,8 @@ const EntentesEmployeurs = () => {
     const [selectedEntente, setSelectedEntente] = useState<EntenteStageDTO | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [showRefuseModal, setShowRefuseModal] = useState(false);
-    const [showModifyModal, setShowModifyModal] = useState(false);
-    const [refuseReason, setRefuseReason] = useState("");
-    const [modificationMessage, setModificationMessage] = useState("");
     const [actionLoading, setActionLoading] = useState(false);
+    const [showSignConfirm, setShowSignConfirm] = useState(false);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -42,7 +37,7 @@ const EntentesEmployeurs = () => {
             navigate("/login");
             return;
         }
-        loadEntentes();
+        loadEntentes().then();
     }, [navigate]);
 
     const loadEntentes = async () => {
@@ -70,13 +65,13 @@ const EntentesEmployeurs = () => {
 
     const handleSignerClick = async () => {
         if (!selectedEntente) return;
-
         setActionLoading(true);
         try {
             await employeurService.signerEntente(selectedEntente.id);
             setSuccessMessage(t("ententesemployeurs:messages.signed"));
+            setShowSignConfirm(false);
             closeModal();
-            loadEntentes();
+            await loadEntentes();
         } catch (err: any) {
             setError(err.message || t("ententesemployeurs:errors.signError"));
         } finally {
@@ -98,33 +93,9 @@ const EntentesEmployeurs = () => {
             setSuccessMessage(t("ententesemployeurs:messages.refused"));
             setShowRefuseModal(false);
             setSelectedEntente(null);
-            setRefuseReason("");
-            loadEntentes();
+            await loadEntentes();
         } catch (err: any) {
             setError(err.message || t("ententesemployeurs:errors.refuseError"));
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
-    const handleModifierClick = () => {
-        setShowModal(false);
-        setShowModifyModal(true);
-    };
-
-    const handleConfirmModify = async () => {
-        if (!selectedEntente || !modificationMessage.trim()) return;
-
-        setActionLoading(true);
-        try {
-            await employeurService.demanderModificationEntente(selectedEntente.id, modificationMessage);
-            setSuccessMessage(t("ententesemployeurs:messages.modified"));
-            setShowModifyModal(false);
-            setSelectedEntente(null);
-            setModificationMessage("");
-            loadEntentes();
-        } catch (err: any) {
-            setError(err.message || t("ententesemployeurs:errors.modifyError"));
         } finally {
             setActionLoading(false);
         }
@@ -158,6 +129,12 @@ const EntentesEmployeurs = () => {
         }
     };
 
+    const getProgrammeLabel = (entente: EntenteStageDTO) => {
+        const raw = entente.progEtude;
+        const prog = raw == null ? '' : String(raw).trim();
+        return t(`programmes:${prog}`, { defaultValue: prog });
+    };
+
     return (
         <div className="bg-gray-50 min-h-screen">
             <NavBar />
@@ -167,7 +144,7 @@ const EntentesEmployeurs = () => {
                 <div className="mb-8">
                     <button
                         onClick={() => navigate('/dashboard-employeur')}
-                        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         {t("ententesemployeurs:backToDashboard")}
@@ -189,7 +166,7 @@ const EntentesEmployeurs = () => {
 
                     <button
                         onClick={loadEntentes}
-                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
                         disabled={loading}
                     >
                         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -203,7 +180,7 @@ const EntentesEmployeurs = () => {
                         <div className="flex items-start gap-3">
                             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-green-900">{successMessage}</p>
-                            <button onClick={() => setSuccessMessage("")} className="ml-auto text-green-600 hover:text-green-800">
+                            <button onClick={() => setSuccessMessage("")} className="cursor-pointer ml-auto text-green-600 hover:text-green-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -216,7 +193,7 @@ const EntentesEmployeurs = () => {
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-red-900">{error}</p>
-                            <button onClick={() => setError("")} className="ml-auto text-red-600 hover:text-red-800">
+                            <button onClick={() => setError("")} className="cursor-pointer ml-auto text-red-600 hover:text-red-800">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -231,7 +208,7 @@ const EntentesEmployeurs = () => {
                         </div>
                     </div>
                 ) : ententes.length === 0 ? (
-                    /* Message: Aucune entente */
+                    /* Message : Aucune entente */
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
                         <div className="flex justify-center mb-4">
                             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
@@ -265,7 +242,7 @@ const EntentesEmployeurs = () => {
                                     <div className="flex items-center justify-between mb-4">
                                         {getSignatureStatusBadge(entente.employeurSignature)}
                                         <span className="text-xs text-gray-500">
-                                            {new Date(entente.dateCreation).toLocaleDateString('fr-CA')}
+                                            {entente?.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}
                                         </span>
                                     </div>
 
@@ -277,7 +254,7 @@ const EntentesEmployeurs = () => {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-gray-900 mb-1">
-                                                    {entente.etudiantPrenom} {entente.etudiantNom}
+                                                    {entente.etudiantNomComplet}
                                                 </h3>
                                                 <p className="text-xs text-gray-600 truncate">
                                                     {entente.etudiantEmail}
@@ -304,7 +281,7 @@ const EntentesEmployeurs = () => {
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Clock className="w-3 h-3 flex-shrink-0" />
-                                            <span>{entente.dureeHebdomadaire}h/{t("ententesemployeurs:week")}</span>
+                                            <span>{entente.dureeHebdomadaire}{' '}{t('ententesemployeurs:hourShort', { defaultValue: 'h' })}/{t("ententesemployeurs:week")}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <DollarSign className="w-3 h-3 flex-shrink-0" />
@@ -315,7 +292,6 @@ const EntentesEmployeurs = () => {
                                     {/* Indicateur hover */}
                                     <div className="mt-4 pt-4 border-t border-slate-200">
                                         <p className="text-sm text-blue-600 font-medium group-hover:text-blue-700 flex items-center gap-2">
-                                            <FileText className="w-4 h-4" />
                                             {t("ententesemployeurs:viewDetails")}
                                         </p>
                                     </div>
@@ -326,7 +302,7 @@ const EntentesEmployeurs = () => {
                 )}
             </div>
 
-            {/* Modal détails de l'entente */}
+            {/* Modaux détails de l'entente */}
             {showModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -352,23 +328,14 @@ const EntentesEmployeurs = () => {
                         {/* Contenu du modal */}
                         <div className="p-6 space-y-6">
                             {/* Statuts de signature */}
-                            <div className="bg-gray-50 rounded-xl p-4">
-                                <h4 className="font-semibold text-gray-900 mb-3">
-                                    {t("ententesemployeurs:modal.signatures")}
-                                </h4>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-700">{t("ententesemployeurs:modal.studentSignature")}:</span>
-                                        {getSignatureStatusBadge(selectedEntente.etudiantSignature)}
+                            <div className="bg-gray-50 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900">{t("ententesemployeurs:modal.signatures")}</h4>
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-700">{t("ententesemployeurs:modal.employerSignature")}:</span>
-                                        {getSignatureStatusBadge(selectedEntente.employeurSignature)}
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-700">{t("ententesemployeurs:modal.managerSignature")}:</span>
-                                        {getSignatureStatusBadge(selectedEntente.gestionnaireSignature)}
-                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {getSignatureStatusBadge(selectedEntente.employeurSignature)}
                                 </div>
                             </div>
 
@@ -380,7 +347,7 @@ const EntentesEmployeurs = () => {
                                 </h4>
                                 <div className="space-y-1">
                                     <p className="text-gray-800">
-                                        <span className="font-medium">{t("ententesemployeurs:modal.name")}:</span> {selectedEntente.etudiantPrenom} {selectedEntente.etudiantNom}
+                                        <span className="font-medium">{t("ententesemployeurs:modal.name")}:</span> {selectedEntente.etudiantNomComplet}
                                     </p>
                                     <p className="text-gray-800">
                                         <span className="font-medium">{t("ententesemployeurs:modal.email")}:</span> {selectedEntente.etudiantEmail}
@@ -409,7 +376,15 @@ const EntentesEmployeurs = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">{t("ententesemployeurs:modal.weeklyHours")}</p>
-                                        <p className="font-medium text-gray-900">{selectedEntente.dureeHebdomadaire}h/{t("ententesemployeurs:week")}</p>
+                                        <p className="font-medium text-gray-900">{selectedEntente.dureeHebdomadaire}{' '}{t('ententesemployeurs:hourShort', { defaultValue: 'h' })}/{t("ententesemployeurs:week")}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">{t("ententesemployeurs:modal.programme")}</p>
+                                        <p className="font-medium text-gray-900">{getProgrammeLabel(selectedEntente)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">{t("ententesemployeurs:modal.location")}</p>
+                                        <p className="font-medium text-gray-900">{(selectedEntente as any).lieuStage || (selectedEntente as any).lieu || t('ententesetudiants:common.notDefined')}</p>
                                     </div>
                                     <div className="col-span-2">
                                         <p className="text-sm text-gray-600">{t("ententesemployeurs:modal.remuneration")}</p>
@@ -455,39 +430,31 @@ const EntentesEmployeurs = () => {
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <button
                                         onClick={closeModal}
-                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                        className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                     >
                                         {t("ententesemployeurs:modal.close")}
                                     </button>
                                     <button
-                                        onClick={handleModifierClick}
-                                        disabled={actionLoading}
-                                        className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-                                    >
-                                        <Edit className="w-5 h-5" />
-                                        {t("ententesemployeurs:actions.modify")}
-                                    </button>
-                                    <button
                                         onClick={handleRefuserClick}
                                         disabled={actionLoading}
-                                        className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                                     >
-                                        <X className="w-5 h-5" />
+                                        <XCircle className="w-5 h-5" />
                                         {t("ententesemployeurs:actions.refuse")}
                                     </button>
                                     <button
-                                        onClick={handleSignerClick}
+                                        onClick={() => setShowSignConfirm(true)}
                                         disabled={actionLoading}
-                                        className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                                     >
-                                        <Check className="w-5 h-5" />
+                                        <FileSignature className="w-5 h-5" />
                                         {t("ententesemployeurs:actions.sign")}
                                     </button>
                                 </div>
                             ) : (
                                 <button
                                     onClick={closeModal}
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                    className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                 >
                                     {t("ententesemployeurs:modal.close")}
                                 </button>
@@ -515,17 +482,16 @@ const EntentesEmployeurs = () => {
                             <button
                                 onClick={() => {
                                     setShowRefuseModal(false);
-                                    setRefuseReason("");
                                     setShowModal(true);
                                 }}
-                                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                                className="cursor-pointer px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
                             >
                                 {t("ententesemployeurs:refuseModal.cancel")}
                             </button>
                             <button
                                 onClick={handleConfirmRefuse}
                                 disabled={actionLoading}
-                                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                                className="cursor-pointer px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                             >
                                 {actionLoading ? t("ententesemployeurs:refuseModal.loading") : t("ententesemployeurs:refuseModal.confirm")}
                             </button>
@@ -534,45 +500,30 @@ const EntentesEmployeurs = () => {
                 </div>
             )}
 
-            {/* Modal de modification */}
-            {showModifyModal && selectedEntente && (
+            {/* Modal de confirmation de signature (employeur) */}
+            {showSignConfirm && selectedEntente && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
-                        <div className="bg-purple-50 px-6 py-4 rounded-t-2xl border-b border-purple-100">
-                            <h3 className="text-xl font-bold text-purple-900">
-                                {t("ententesemployeurs:modifyModal.title")}
-                            </h3>
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                        <div className="bg-green-50 px-6 py-4 rounded-t-2xl border-b border-green-100">
+                            <h3 className="text-xl font-bold text-green-900">{t('ententesemployeurs:signModal.title')}</h3>
                         </div>
                         <div className="p-6">
-                            <p className="text-gray-700 mb-4">
-                                {t("ententesemployeurs:modifyModal.message")}
-                            </p>
-                            <textarea
-                                value={modificationMessage}
-                                onChange={(e) => setModificationMessage(e.target.value)}
-                                placeholder={t("ententesemployeurs:modifyModal.placeholder")}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                rows={4}
-                            />
-                        </div>
-                        <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
-                            <button
-                                onClick={() => {
-                                    setShowModifyModal(false);
-                                    setModificationMessage("");
-                                    setShowModal(true);
-                                }}
-                                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-                            >
-                                {t("ententesemployeurs:modifyModal.cancel")}
-                            </button>
-                            <button
-                                onClick={handleConfirmModify}
-                                disabled={actionLoading || !modificationMessage.trim()}
-                                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {actionLoading ? t("ententesemployeurs:modifyModal.loading") : t("ententesemployeurs:modifyModal.confirm")}
-                            </button>
+                            <p className="text-gray-700 mb-6">{t('ententesemployeurs:signModal.message')}</p>
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setShowSignConfirm(false)}
+                                    className="cursor-pointer px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                                >
+                                    {t('ententesemployeurs:signModal.cancel')}
+                                </button>
+                                <button
+                                    onClick={handleSignerClick}
+                                    disabled={actionLoading}
+                                    className="cursor-pointer px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                                >
+                                    {actionLoading ? t('ententesemployeurs:signModal.loading') : t('ententesemployeurs:signModal.confirm')}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

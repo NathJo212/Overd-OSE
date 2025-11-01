@@ -5,6 +5,7 @@
   "refresh": "Actualiser",
   "active": "Active",
   "week": "semaine",
+  "hourShort": "h",
   "ententeCount": "entente(s)",
   "viewDetails": "Voir les détails",
   "noEntentes": {
@@ -15,7 +16,8 @@
     "loadError": "Erreur lors du chargement des ententes",
     "signError": "Erreur lors de la signature de l'entente",
     "refuseError": "Erreur lors du refus de l'entente",
-    "modifyError": "Erreur lors de la modification de l'entente"
+    "modifyError": "Erreur lors de la modification de l'entente",
+    "pdfError": "Erreur lors du téléchargement du PDF"
   },
   "messages": {
     "signed": "Entente signée avec succès",
@@ -23,21 +25,20 @@
     "modified": "Demande de modification envoyée avec succès"
   },
   "signature": {
-    "signed": "Signée",
-    "pending": "En attente",
-    "refused": "Refusée"
+    "pending": "En attente de votre signature",
+    "signed": "Vous avez signé",
+    "refused": "Refusée par vous"
   },
   "actions": {
     "sign": "Signer",
     "refuse": "Refuser",
-    "modify": "Modifier"
+    "modify": "Modifier",
+    "startProcess": "Commencer processus entente",
+    "viewPdf": "Voir le PDF"
   },
   "modal": {
     "title": "Détails de l'entente",
-    "signatures": "Statut des signatures",
-    "studentSignature": "Signature étudiant",
-    "employerSignature": "Signature employeur",
-    "managerSignature": "Signature gestionnaire",
+    "signatures": "Statut de la signature",
     "student": "Informations de l'étudiant",
     "name": "Nom",
     "email": "Courriel",
@@ -45,12 +46,14 @@
     "startDate": "Date de début",
     "endDate": "Date de fin",
     "schedule": "Horaire",
-    "weeklyHours": "Durée hebdomadaire",
+    "weeklyHours": "Heures hebdomadaires",
     "remuneration": "Rémunération",
     "description": "Description",
     "responsibilities": "Responsabilités",
     "objectives": "Objectifs d'apprentissage",
-    "close": "Fermer"
+    "close": "Fermer",
+    "programme": "Programme",
+    "location": "Lieu"
   },
   "refuseModal": {
     "title": "Refuser l'entente",
@@ -67,5 +70,12 @@
     "cancel": "Annuler",
     "confirm": "Envoyer la demande",
     "loading": "Envoi en cours..."
+  },
+  "signModal": {
+    "title": "Confirmer la signature",
+    "message": "Êtes-vous sûr de vouloir signer cette entente de stage ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "confirm": "Confirmer la signature",
+    "loading": "Signature..."
   }
 }

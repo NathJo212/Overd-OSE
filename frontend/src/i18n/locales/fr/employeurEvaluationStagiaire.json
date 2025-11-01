@@ -1,0 +1,91 @@
+{
+  "title": "Évaluation des stagiaires",
+  "subtitle": "Évaluez les performances de vos stagiaires",
+  "backToDashboard": "Retour au tableau de bord",
+  "refresh": "Actualiser",
+
+  "tabs": {
+    "toEvaluate": "À évaluer",
+    "evaluated": "Évaluées"
+  },
+
+  "ententesList": {
+    "title": "Ententes de stage signées",
+    "noEntentes": "Aucune entente de stage signée",
+    "noEntentesDescription": "Vous n'avez actuellement aucune entente de stage signée avec un stagiaire.",
+    "count": "{{count}} entente(s) signée(s)",
+    "student": "Stagiaire",
+    "internship": "Stage",
+    "period": "Période",
+    "to": "au",
+    "evaluate": "Évaluer",
+    "alreadyEvaluated": "Évalué",
+    "viewEvaluation": "Voir l'évaluation"
+  },
+
+  "evaluationsList": {
+    "title": "Évaluations soumises",
+    "noEvaluations": "Aucune évaluation soumise",
+    "noEvaluationsDescription": "Vous n'avez pas encore soumis d'évaluation pour vos stagiaires.",
+    "count": "{{count}} évaluation(s) soumise(s)",
+    "evaluatedOn": "Évalué le",
+    "viewDetails": "Voir les détails"
+  },
+
+  "modal": {
+    "title": "Évaluer le stagiaire",
+    "studentInfo": "Informations du stagiaire",
+    "name": "Nom",
+    "email": "Courriel",
+    "internshipTitle": "Titre du stage",
+    "period": "Période du stage",
+    "to": "au",
+
+    "sections": {
+      "technicalSkills": "Compétences techniques et professionnelles",
+      "timeManagement": "Respect des délais et des objectifs",
+      "attitude": "Attitude et intégration dans l'équipe",
+      "generalComments": "Commentaires généraux"
+    },
+
+    "fields": {
+      "technicalSkillsPlaceholder": "Décrivez les compétences techniques du stagiaire, sa maîtrise des outils et technologies utilisés, sa capacité à résoudre des problèmes...",
+      "timeManagementPlaceholder": "Commentez sur la ponctualité du stagiaire, sa capacité à respecter les échéances, son organisation du travail...",
+      "attitudePlaceholder": "Décrivez l'attitude du stagiaire, son esprit d'équipe, sa communication, sa proactivité, son professionnalisme...",
+      "generalCommentsPlaceholder": "Partagez vos commentaires généraux sur le stage, les points forts du stagiaire, les axes d'amélioration, vos recommandations...",
+      "required": "*"
+    },
+
+    "actions": {
+      "cancel": "Annuler",
+      "submit": "Soumettre l'évaluation",
+      "submitting": "Envoi en cours..."
+    }
+  },
+
+  "detailsModal": {
+    "title": "Détails de l'évaluation",
+    "evaluationDate": "Date d'évaluation",
+    "studentInfo": "Stagiaire évalué",
+    "internshipInfo": "Stage concerné",
+    "close": "Fermer"
+  },
+
+  "messages": {
+    "success": "Évaluation soumise avec succès !",
+    "successDescription": "Le stagiaire et le gestionnaire de stage ont été notifiés."
+  },
+
+  "errors": {
+    "loadEntentes": "Erreur lors du chargement des ententes de stage",
+    "loadEvaluations": "Erreur lors du chargement des évaluations",
+    "submitFailed": "Erreur lors de la soumission de l'évaluation",
+    "allFieldsRequired": "Tous les champs sont obligatoires",
+    "errorCode": "Erreur ({{code}}): {{message}}",
+    "networkError": "Erreur de connexion au serveur",
+    "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action"
+  },
+
+  "loading": "Chargement en cours...",
+  "noData": "Aucune donnée disponible"
+}

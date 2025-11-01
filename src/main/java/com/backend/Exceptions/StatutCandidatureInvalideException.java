@@ -3,7 +3,7 @@ package com.backend.Exceptions;
 import lombok.Getter;
 
 @Getter
-public class StatutCandidatureInvalideException extends RuntimeException {
+public class StatutCandidatureInvalideException extends Exception {
     private final ErrorCode errorCode;
 
     public StatutCandidatureInvalideException() {

@@ -80,7 +80,8 @@ const ModalPostuler = ({ offreId, offreTitre, onClose, onSuccess, onPostuler }: 
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className="cursor-pointer
+                        text-gray-400 hover:text-gray-600 transition-colors"
                         disabled={loading}
                     >
                         <X className="w-5 h-5" />
@@ -156,7 +157,7 @@ const ModalPostuler = ({ offreId, offreTitre, onClose, onSuccess, onPostuler }: 
                                 if (input) input.value = '';
                             }}
                             disabled={loading}
-                            className="mt-2 text-sm text-red-600 hover:text-red-700 transition-colors"
+                            className="cursor-pointer mt-2 text-sm text-red-600 hover:text-red-700 transition-colors"
                         >
                             {t('offresStageApprouve:postuler.removeFile') || 'Retirer le fichier'}
                         </button>
@@ -176,7 +177,7 @@ const ModalPostuler = ({ offreId, offreTitre, onClose, onSuccess, onPostuler }: 
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-blue-400 disabled:shadow-none"
+                        className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-blue-400 disabled:shadow-none"
                     >
                         {loading ? (
                             <span className="flex items-center justify-center gap-2">
@@ -193,7 +194,7 @@ const ModalPostuler = ({ offreId, offreTitre, onClose, onSuccess, onPostuler }: 
                     <button
                         onClick={onClose}
                         disabled={loading}
-                        className="flex-1 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-200 text-gray-800 font-medium py-3 rounded-xl transition-all duration-200"
+                        className="cursor-pointer flex-1 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-200 text-gray-800 font-medium py-3 rounded-xl transition-all duration-200"
                     >
                         {t('offresStageApprouve:postuler.cancel') || 'Annuler'}
                     </button>

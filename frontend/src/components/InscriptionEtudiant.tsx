@@ -75,7 +75,7 @@ const InscriptionEtudiant = () => {
                     navigate('/dashboard-etudiant')
                     break
                 case 'GESTIONNAIRE':
-                    navigate('/offres-stages-gestionnaire')
+                    navigate('/dashboard-gestionnaire')
                     break
             }
         }
@@ -468,7 +468,7 @@ const InscriptionEtudiant = () => {
                             <button
                                 type="submit"
                                 disabled={loading || loadingProgrammes}
-                                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center"
+                                className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center"
                             >
                                 {loading ? (
                                     <>

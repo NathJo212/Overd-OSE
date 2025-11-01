@@ -32,6 +32,7 @@ public abstract class Utilisateur {
             case Employeur _ -> "EMPLOYEUR";
             case Etudiant _ -> "ETUDIANT";
             case GestionnaireStage _ -> "GESTIONNAIRE";
+            case Professeur _ -> "PROFESSEUR";
             default -> "UTILISATEUR";
         };
         return List.of(new SimpleGrantedAuthority(role));

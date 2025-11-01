@@ -12,6 +12,10 @@
     "applications": {
       "title": "My Applications",
       "description": "Track the status of your applications and manage your submissions"
+    },
+    "ententes": {
+      "title": "Internship agreements",
+      "description": "View all your active internship agreements"
     }
   },
   "offers": {
@@ -27,8 +31,8 @@
     "close": "Close",
     "location": "Location",
     "employer": "Employer",
-    "convoked": "Convoked",
-    "modified": "Modified",
-    "cancelled": "Cancelled"
+    "convoquee": "Convoked to an interview",
+    "modifie": "Convocation modified",
+    "annulee": "Convocation cancelled"
   }
 }

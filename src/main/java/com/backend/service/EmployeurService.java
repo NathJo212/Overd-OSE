@@ -8,7 +8,6 @@ import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -34,11 +32,11 @@ public class EmployeurService {
     private final EncryptageCV encryptageCV;
     private final ConvocationEntrevueRepository convocationEntrevueRepository;
     private final NotificationRepository notificationRepository;
-    private final MessageSource messageSource;
     private final EntenteStageRepository ententeStageRepository;
+    private final EvaluationRepository evaluationRepository;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, MessageSource messageSource, EntenteStageRepository ententeStageRepository) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationRepository evaluationRepository) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -48,8 +46,8 @@ public class EmployeurService {
         this.encryptageCV = encryptageCV;
         this.convocationEntrevueRepository = convocationEntrevueRepository;
         this.notificationRepository = notificationRepository;
-        this.messageSource = messageSource;
         this.ententeStageRepository = ententeStageRepository;
+        this.evaluationRepository = evaluationRepository;
     }
 
     @Transactional
@@ -68,8 +66,8 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, LocalDate date_debut, LocalDate date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, LocalDate dateLimite, String horaire, Integer dureeHebdomadaire, String responsabilitesEtudiant, String responsabilitesEmployeur, String objectifs) throws ActionNonAutoriseeException, DateInvalideException {
-     String token = utilisateur.getToken();
+    public void creerOffreDeStage(AuthResponseDTO utilisateur, String titre, String description, LocalDate date_debut, LocalDate date_fin, ProgrammeDTO progEtude, String lieuStage, String remuneration, LocalDate dateLimite, String horaire, Integer dureeHebdomadaire, String responsabilites, String objectifs) throws ActionNonAutoriseeException, DateInvalideException {
+        String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
             throw new ActionNonAutoriseeException();
@@ -77,12 +75,12 @@ public class EmployeurService {
 
         // Validate dates
         if (date_fin != null && date_debut != null && date_fin.isBefore(date_debut)) {
-            throw new DateInvalideException("Date de fin ne peut pas être avant la date de début.");
+            throw new DateInvalideException();
         }
 
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
-        Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur, horaire, dureeHebdomadaire, responsabilitesEtudiant, responsabilitesEmployeur, objectifs);
+        Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur, horaire, dureeHebdomadaire, responsabilites, objectifs);
         offreRepository.save(offre);
     }
 
@@ -138,7 +136,7 @@ public class EmployeurService {
 
     @Transactional
     public CandidatureDTO getCandidatureSpecifique(Long candidatureId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonTrouveeException {
+            throws ActionNonAutoriseeException, CandidatureNonTrouveeException {
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureNonTrouveeException::new);
 
@@ -200,12 +198,6 @@ public class EmployeurService {
             throw new CVNonExistantException();
         }
     }
-
-    private String extractEmailFromToken(String token) {
-        String cleanToken = token.startsWith("Bearer ") ? token.substring(7) : token;
-        return jwtTokenProvider.getEmailFromJWT(cleanToken);
-    }
-
 
     @Transactional
     public void creerConvocation(ConvocationEntrevueDTO dto) throws ConvocationDejaExistanteException, CandidatureNonTrouveeException, ActionNonAutoriseeException, UtilisateurPasTrouveException {
@@ -490,12 +482,6 @@ public class EmployeurService {
         }
 
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
-        entente.setDateModification(LocalDateTime.now());
-
-        // Si les deux ont signé, marquer l'entente comme signée
-        if (entente.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE) {
-            entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
-        }
 
         ententeStageRepository.save(entente);
 
@@ -526,7 +512,6 @@ public class EmployeurService {
 
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.REFUSEE);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
-        entente.setDateModification(LocalDateTime.now());
 
         ententeStageRepository.save(entente);
 
@@ -539,5 +524,48 @@ public class EmployeurService {
             notif.setMessageParam(entente.getTitre());
             notificationRepository.save(notif);
         }
+    }
+
+    @Transactional
+    public void creerEvaluation(EvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException {
+        Employeur employeur = getEmployeurConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
+
+        if (entente.getEmployeur() == null || !entente.getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        Etudiant etudiant = entente.getEtudiant();
+        if (etudiant == null || etudiant.getId() == null) {
+            throw new UtilisateurPasTrouveException();
+        }
+
+        if (entente.getStatut() != EntenteStage.StatutEntente.SIGNEE){
+            throw new EntenteNonFinaliseeException();
+        }
+
+        if (evaluationRepository.existsByEtudiantIdAndEmployeurId(etudiant.getId(), employeur.getId())) {
+            throw new EvaluationDejaExistanteException();
+        }
+
+        Evaluation eval = new Evaluation(entente, etudiant, employeur, dto.getCompetencesTechniques(), dto.getRespectDelais(), dto.getAttitudeIntegration(), dto.getCommentaires());
+        evaluationRepository.save(eval);
+
+        // Notification pour l'étudiant
+        Notification notif = new Notification();
+        notif.setUtilisateur(etudiant);
+        notif.setMessageKey("evaluation.submitted");
+        notif.setMessageParam(entente.getTitre());
+        notificationRepository.save(notif);
+
+        new EvaluationDTO().toDTO(eval);
+    }
+
+    @Transactional
+    public List<EvaluationDTO> getEvaluationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+        List<Evaluation> evaluations = evaluationRepository.findAllByEmployeurId(employeur.getId());
+        return evaluations.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
     }
 }

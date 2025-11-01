@@ -18,12 +18,6 @@ export interface AuthResponseDTO {
         annee?: number;
     };
 }
-
-export interface ErrorResponse {
-    errorCode: string;
-    message?: string;
-}
-
 const API_BASE_URL = 'http://localhost:8080';
 const UTILISATEUR_ENDPOINT = '/OSE';
 
@@ -33,6 +27,11 @@ class UtilisateurService {
     constructor() {
         this.baseUrl = `${API_BASE_URL}${UTILISATEUR_ENDPOINT}`;
     }
+
+    getToken(): string | null {
+        return sessionStorage.getItem('authToken');
+    }
+
 
     /**
      * Authentifie un utilisateur avec email et mot de passe
@@ -51,7 +50,6 @@ class UtilisateurService {
 
             const data = await response.json();
 
-            // ✅ CORRECTION : Vérifier si errorResponse existe dans la réponse
             if (data.errorResponse) {
                 console.error('Erreur lors de la connexion:', data.errorResponse);
 

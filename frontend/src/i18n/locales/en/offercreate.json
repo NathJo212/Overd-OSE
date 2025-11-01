@@ -10,7 +10,15 @@
     "selectProgram": "Select a program",
     "internshipLocation": "Internship Location",
     "remuneration": "Remuneration",
-    "deadline": "Application Deadline"
+    "deadline": "Application Deadline",
+    "schedule": "Schedule",
+    "schedulePlaceholder": "Ex: 9am-5pm, 3 days/week",
+    "weeklyHours": "Weekly hours",
+    "weeklyHoursPlaceholder": "Ex: 35",
+    "responsibilities": "Responsibilities",
+    "responsibilitiesPlaceholder": "Describe the main responsibilities",
+    "objectives": "Objectives",
+    "objectivesPlaceholder": "Describe the learning objectives"
   },
   "button": {
     "createOffer": "Create Offer",
@@ -40,4 +48,3 @@
     "message": "Return to dashboard"
   }
 }
-

@@ -14,8 +14,6 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
 
     List<Candidature> findAllByEtudiant(Etudiant etudiant);
 
-    List<Candidature> findAllByOffre(Offre offre);
-
     boolean existsByEtudiantAndOffre(Etudiant etudiant, Offre offre);
 
     Optional<Candidature> findByEtudiantAndOffre(Etudiant etudiant, Offre offre);

@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -20,13 +19,17 @@ public class AuthProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) {
-        Utilisateur user = null;
+        Utilisateur user;
         try {
             user = loadUserByEmail(authentication.getPrincipal().toString());
         } catch (UtilisateurPasTrouveException e) {
             throw new RuntimeException(e);
         }
-        validateAuthentication(authentication, user);
+        try {
+            validateAuthentication(authentication, user);
+        } catch (AuthenticationException e) {
+            throw new RuntimeException(e);
+        }
         return new UsernamePasswordAuthenticationToken(
                 user.getEmail(),
                 user.getPassword(),
@@ -44,7 +47,7 @@ public class AuthProvider implements AuthenticationProvider {
                 .orElseThrow(UtilisateurPasTrouveException::new);
     }
 
-    private void validateAuthentication(Authentication authentication, Utilisateur user) {
+    private void validateAuthentication(Authentication authentication, Utilisateur user) throws AuthenticationException {
         if (!passwordEncoder.matches(authentication.getCredentials().toString(), user.getPassword())) {
             throw new AuthenticationException();
         }

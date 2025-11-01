@@ -12,6 +12,10 @@
     "applications": {
       "title": "Mes candidatures",
       "description": "Suivez l'état de vos candidatures et gérez vos postulations"
+    },
+    "ententes": {
+      "title": "Ententes de stage",
+      "description": "Consultez toutes vos ententes de stage actives"
     }
   },
   "offers": {
@@ -27,8 +31,8 @@
     "close": "Fermer",
     "location": "Lieu",
     "employer": "Employeur",
-    "convoked" : "Convoqué",
-    "modified" : "Modifié",
-    "cancelled" : "Annulée"
+    "convoquee" : "Convoqué à une entrevue",
+    "modifie" : "Convocation modifié",
+    "annulee" : "Convocation annulée"
   }
 }

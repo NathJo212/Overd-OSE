@@ -3,7 +3,7 @@ package com.backend.Exceptions;
 import lombok.Getter;
 
 @Getter
-public class InvalidJwtTokenException extends RuntimeException {
+public class InvalidJwtTokenException extends Exception {
     private final ErrorCode errorCode;
 
     public InvalidJwtTokenException() {

@@ -21,7 +21,15 @@ const CreerOffreStage = () => {
         }
     }, [navigate]);
 
-    const [formData, setFormData] = useState<Omit<OffreStageDTO, "utilisateur">>({
+    // Local form type allows additional optional fields which may be useful later
+    type FormDataType = Omit<OffreStageDTO, "utilisateur"> & {
+        horaire?: string;
+        dureeHebdomadaire?: string;
+        responsabilites?: string;
+        objectifs?: string;
+    };
+
+    const [formData, setFormData] = useState<FormDataType>({
         titre: "",
         description: "",
         date_debut: "",
@@ -30,6 +38,10 @@ const CreerOffreStage = () => {
         lieuStage: "",
         remuneration: "",
         dateLimite: "",
+        horaire: "",
+        dureeHebdomadaire: "",
+        responsabilites: "",
+        objectifs: "",
     });
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
@@ -67,7 +79,7 @@ const CreerOffreStage = () => {
         if (!formData.description.trim()) validationErrors.push(t("offercreate:errors.descriptionRequired"));
         if (!formData.date_debut) validationErrors.push(t("offercreate:errors.startDateRequired"));
         if (!formData.date_fin) validationErrors.push(t("offercreate:errors.endDateRequired"));
-        if (!formData.progEtude.trim()) validationErrors.push(t("offercreate:errors.studyProgramRequired"));
+        if (!formData.progEtude?.toString().trim()) validationErrors.push(t("offercreate:errors.studyProgramRequired"));
         if (!formData.lieuStage.trim()) validationErrors.push(t("offercreate:errors.internshipLocationRequired"));
         if (!formData.remuneration.trim()) validationErrors.push(t("offercreate:errors.remunerationRequired"));
         if (!formData.dateLimite) validationErrors.push(t("offercreate:errors.deadlineRequired"));
@@ -88,8 +100,9 @@ const CreerOffreStage = () => {
         setLoading(true);
 
         try {
-            const offreDTO: OffreStageDTO = { ...formData, utilisateur: { token } };
-            await employeurService.creerOffreDeStage(offreDTO);
+            // Build payload including optional fields -- backend will ignore unknown fields if not supported
+            const offrePayload: any = { ...formData, utilisateur: { token } };
+            await employeurService.creerOffreDeStage(offrePayload);
             setSuccessMessage(t("offercreate:success.offerCreated"));
             setTimeout(() => {
                 navigate("/dashboard-employeur");
@@ -145,8 +158,8 @@ const CreerOffreStage = () => {
                 <div className="mb-8">
                     <div className="w-full flex justify-start mb-6">
                         <button
-                            onClick={() => navigate('/dashboard-etudiant')}
-                            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                            onClick={() => navigate('/dashboard-employeur')}
+                            className="cursor-pointer flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                         >
                             <ArrowLeft className="w-5 h-5" />
                             <span className="font-medium">{t("offercreate:return.message")}</span>
@@ -319,6 +332,69 @@ const CreerOffreStage = () => {
                             </div>
                         </div>
 
+                        {/* Horaire et Durée hebdomadaire (optionnel) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                    {t("offercreate:form.schedule")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name="horaire"
+                                    value={formData.horaire}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    placeholder={t("offercreate:form.schedulePlaceholder")}
+                                    disabled={loading}
+                                />
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                    {t("offercreate:form.weeklyHours")}
+                                </label>
+                                <input
+                                    type="number"
+                                    name="dureeHebdomadaire"
+                                    value={formData.dureeHebdomadaire}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    placeholder={t("offercreate:form.weeklyHoursPlaceholder")}
+                                    disabled={loading}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Responsabilités et Objectifs (optionnel) */}
+                        <div>
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                {t("offercreate:form.responsibilities")}
+                            </label>
+                            <textarea
+                                name="responsabilites"
+                                value={formData.responsabilites}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                                rows={3}
+                                disabled={loading}
+                                placeholder={t("offercreate:form.responsibilitiesPlaceholder")}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                {t("offercreate:form.objectives")}
+                            </label>
+                            <textarea
+                                name="objectifs"
+                                value={formData.objectifs}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                                rows={3}
+                                disabled={loading}
+                                placeholder={t("offercreate:form.objectivesPlaceholder")}
+                            />
+                        </div>
+
                         {/* Date limite */}
                         <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
@@ -339,7 +415,7 @@ const CreerOffreStage = () => {
                         <button
                             type="submit"
                             disabled={loading || loadingProgrammes}
-                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center justify-center gap-2"
+                            className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>
@@ -364,4 +440,3 @@ const CreerOffreStage = () => {
 };
 
 export default CreerOffreStage;
-

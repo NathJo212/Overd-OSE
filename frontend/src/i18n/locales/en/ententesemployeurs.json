@@ -5,6 +5,7 @@
   "refresh": "Refresh",
   "active": "Active",
   "week": "week",
+  "hourShort": "h",
   "ententeCount": "agreement(s)",
   "viewDetails": "View details",
   "noEntentes": {
@@ -15,7 +16,8 @@
     "loadError": "Error loading agreements",
     "signError": "Error signing the agreement",
     "refuseError": "Error refusing the agreement",
-    "modifyError": "Error requesting modification"
+    "modifyError": "Error requesting modification",
+    "pdfError": "Error downloading the PDF"
   },
   "messages": {
     "signed": "Agreement signed successfully",
@@ -23,34 +25,35 @@
     "modified": "Modification request sent successfully"
   },
   "signature": {
-    "signed": "Signed",
-    "pending": "Pending",
-    "refused": "Refused"
+    "pending": "Awaiting your signature",
+    "signed": "You have signed",
+    "refused": "Refused by you"
   },
   "actions": {
     "sign": "Sign",
     "refuse": "Refuse",
-    "modify": "Modify"
+    "modify": "Modify",
+    "startProcess": "Start agreement process",
+    "viewPdf": "View PDF"
   },
   "modal": {
     "title": "Agreement Details",
     "signatures": "Signature Status",
-    "studentSignature": "Student signature",
-    "employerSignature": "Employer signature",
-    "managerSignature": "Manager signature",
     "student": "Student Information",
     "name": "Name",
     "email": "Email",
     "internshipInfo": "Internship Information",
-    "startDate": "Start Date",
-    "endDate": "End Date",
+    "startDate": "Start date",
+    "endDate": "End date",
     "schedule": "Schedule",
-    "weeklyHours": "Weekly Hours",
+    "weeklyHours": "Hours per week",
     "remuneration": "Remuneration",
     "description": "Description",
     "responsibilities": "Responsibilities",
-    "objectives": "Learning Objectives",
-    "close": "Close"
+    "objectives": "Learning objectives",
+    "close": "Close",
+    "programme": "Program",
+    "location": "Location"
   },
   "refuseModal": {
     "title": "Refuse Agreement",

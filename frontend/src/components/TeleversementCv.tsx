@@ -120,7 +120,7 @@ const TeleversementCv = () => {
             setStatutCv(infos?.statutCV ?? null);
             setMessageRefus(infos?.messageRefusCV ?? null);
         };
-        chargerInfosCv();
+        chargerInfosCv().then();
     }, [navigate]);
 
     return (
@@ -131,7 +131,7 @@ const TeleversementCv = () => {
                 {/* Bouton retour */}
                 <button
                     onClick={() => navigate('/dashboard-etudiant')}
-                    className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                    className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     <span className="font-medium">{t('cv.backToDashboard')}</span>
@@ -162,7 +162,7 @@ const TeleversementCv = () => {
                         <p className="font-medium flex-1">{message.texte}</p>
                         <button
                             onClick={() => setMessage(null)}
-                            className="text-gray-500 hover:text-gray-700"
+                            className="cursor-pointer text-gray-500 hover:text-gray-700"
                         >
                             <X className="w-4 h-4" />
                         </button>
@@ -227,7 +227,7 @@ const TeleversementCv = () => {
                                                 const inputFile = document.getElementById('cv-input') as HTMLInputElement;
                                                 if (inputFile) inputFile.value = '';
                                             }}
-                                            className="text-red-500 hover:text-red-700"
+                                            className="cursor-pointer text-red-500 hover:text-red-700"
                                         >
                                             <X className="w-5 h-5" />
                                         </button>
@@ -240,7 +240,7 @@ const TeleversementCv = () => {
                         <button
                             onClick={handleTeleversement}
                             disabled={!fichier || chargement}
-                            className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-medium
+                            className="cursor-pointer w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-medium
                                      hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500
                                      focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
                                      transition-all duration-200 shadow-sm hover:shadow disabled:shadow-none"
@@ -296,7 +296,7 @@ const TeleversementCv = () => {
                             <button
                                 onClick={handleShowCV}
                                 disabled={chargement}
-                                className="w-full bg-green-600 text-white py-3 px-4 rounded-xl font-medium
+                                className="cursor-pointer w-full bg-green-600 text-white py-3 px-4 rounded-xl font-medium
                      hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500
                      focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
                      transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
@@ -333,7 +333,7 @@ const TeleversementCv = () => {
                             <button
                                 onClick={handleShowCV}
                                 disabled={chargement}
-                                className="mt-6 w-full bg-red-600 text-white py-3 px-4 rounded-xl font-medium
+                                className="cursor-pointer mt-6 w-full bg-red-600 text-white py-3 px-4 rounded-xl font-medium
                 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500
                 focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
                 transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
@@ -363,7 +363,7 @@ const TeleversementCv = () => {
                             <button
                                 onClick={handleShowCV}
                                 disabled={chargement}
-                                className="mt-6 w-full bg-amber-600 text-white py-3 px-4 rounded-xl font-medium
+                                className="cursor-pointer mt-6 w-full bg-amber-600 text-white py-3 px-4 rounded-xl font-medium
                 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500
                 focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed
                 transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2"
@@ -415,7 +415,7 @@ const TeleversementCv = () => {
                             <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
                                 <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
                                     <h3 className="text-xl font-semibold">{t("cv.current.previewTitle")}</h3>
-                                    <button onClick={closeCVModal} className="text-white hover:text-gray-200">
+                                    <button onClick={closeCVModal} className="cursor-pointer text-white hover:text-gray-200">
                                         <X className="h-6 w-6" />
                                     </button>
                                 </div>

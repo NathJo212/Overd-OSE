@@ -12,6 +12,10 @@ import java.time.LocalDateTime;
 public class EntenteStageDTO {
     private Long id;
     private Long etudiantId;
+    private String etudiantNomComplet;
+    private String etudiantEmail;
+    private String employeurContact;
+    private String employeurEmail;
     private Long offreId;
     private String titre;
     private String description;
@@ -24,19 +28,23 @@ public class EntenteStageDTO {
     private String responsabilitesEmployeur;
     private String responsabilitesCollege;
     private String objectifs;
+    private String progEtude;
+    private String lieu;
     private byte[] documentPdf;
     private String etudiantSignature; // EN_ATTENTE, SIGNEE, REFUSEE
     private String employeurSignature;
     private String statut; // EN_ATTENTE, SIGNEE, ANNULEE
-    private String messageModificationEmployeurSignature;
     private boolean archived;
     private LocalDateTime dateCreation;
-    private LocalDateTime dateModification;
 
     public EntenteStageDTO toDTO(EntenteStage entente) {
         EntenteStageDTO dto = new EntenteStageDTO();
         dto.setId(entente.getId());
-        dto.setEtudiantId(entente.getEtudiant() != null ? entente.getEtudiant().getId() : null);
+        dto.setEtudiantId(entente.getEtudiant().getId());
+        dto.setEtudiantNomComplet(entente.getEtudiant().getPrenom() + " " + entente.getEtudiant().getNom());
+        dto.setEtudiantEmail(entente.getEtudiant().getEmail());
+        dto.setEmployeurContact(entente.getEmployeur().getContact());
+        dto.setEmployeurEmail(entente.getEmployeur().getEmail());
         dto.setOffreId(entente.getOffre() != null ? entente.getOffre().getId() : null);
         dto.setTitre(entente.getTitre());
         dto.setDescription(entente.getDescription());
@@ -49,14 +57,14 @@ public class EntenteStageDTO {
         dto.setResponsabilitesEmployeur(entente.getResponsabilitesEmployeur());
         dto.setResponsabilitesCollege(entente.getResponsabilitesCollege());
         dto.setObjectifs(entente.getObjectifs());
+        dto.setProgEtude(String.valueOf(entente.getProgEtude()));
+        dto.setLieu(entente.getLieu());
         dto.setDocumentPdf(entente.getDocumentPdf());
         dto.setEtudiantSignature(entente.getEtudiantSignature() != null ? entente.getEtudiantSignature().name() : null);
         dto.setEmployeurSignature(entente.getEmployeurSignature() != null ? entente.getEmployeurSignature().name() : null);
         dto.setStatut(entente.getStatut() != null ? entente.getStatut().name() : null);
-        dto.setMessageModificationEmployeurSignature(entente.getMessageModificationEmployeur());
         dto.setArchived(entente.isArchived());
         dto.setDateCreation(entente.getDateCreation());
-        dto.setDateModification(entente.getDateModification());
         return dto;
     }
 }

@@ -24,6 +24,7 @@ public class EtudiantDTO {
     private byte[] cv;
     private String statutCV;
     private String messageRefusCV;
+    private ProfesseurDTO professeur;
 
     public EtudiantDTO toDTO(Etudiant etudiant) {
         EtudiantDTO dto = new EtudiantDTO();
@@ -47,6 +48,10 @@ public class EtudiantDTO {
         }
 
         dto.setMessageRefusCV(etudiant.getMessageRefusCV());
+
+        if (etudiant.getProfesseur() != null) {
+            dto.setProfesseur(ProfesseurDTO.toDTO(etudiant.getProfesseur()));
+        }
 
         return dto;
     }

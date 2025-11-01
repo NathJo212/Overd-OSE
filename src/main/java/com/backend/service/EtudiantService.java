@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -85,7 +86,7 @@ public class EtudiantService {
         if (!"application/pdf".equalsIgnoreCase(fichier.getContentType())) {
             throw new CvNonApprouveException();
         }
-        if (!fichier.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
+        if (!Objects.requireNonNull(fichier.getOriginalFilename()).toLowerCase().endsWith(".pdf")) {
             throw new CvNonApprouveException();
         }
     }
@@ -172,7 +173,7 @@ public class EtudiantService {
 
     @Transactional
     public byte[] getCvPourCandidature(Long candidatureId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException {
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, CandidatureNonDisponibleException, CVNonExistantException {
         Etudiant etudiant = getEtudiantConnecte();
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
@@ -277,9 +278,14 @@ public class EtudiantService {
     }
 
     @Transactional
-    public NotificationDTO marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, Exception {
+    public NotificationDTO marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Etudiant etudiant = getEtudiantConnecte();
-        Notification notif = notificationRepository.findById(notificationId).orElseThrow(() -> new Exception("Notification non trouvée"));
+        Notification notif;
+        try {
+            notif = notificationRepository.findById(notificationId).orElseThrow(() -> new Exception("Notification non trouvée"));
+        } catch (Exception e) {
+            throw new ActionNonAutoriseeException();
+        }
         if (notif.getUtilisateur() == null || !notif.getUtilisateur().getId().equals(etudiant.getId())) {
             throw new ActionNonAutoriseeException();
         }
@@ -346,12 +352,6 @@ public class EtudiantService {
         }
 
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
-        entente.setDateModification(LocalDateTime.now());
-
-        // Si l'employeur a aussi signé, marquer l'entente comme signée
-        if (entente.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE) {
-            entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
-        }
 
         ententeStageRepository.save(entente);
     }
@@ -374,7 +374,6 @@ public class EtudiantService {
 
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.REFUSEE);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
-        entente.setDateModification(LocalDateTime.now());
 
         ententeStageRepository.save(entente);
     }
@@ -389,12 +388,7 @@ public class EtudiantService {
                 EntenteStage.SignatureStatus.EN_ATTENTE
         );
 
-        // Filtrer les ententes qui ont une demande de modification en attente
-        // Si messageModificationEtudiant contient du texte, la modification est en cours
         return ententes.stream()
-                .filter(e -> e.getMessageModificationEtudiant() == null ||
-                        e.getMessageModificationEtudiant().isEmpty() ||
-                        e.getMessageModificationEtudiant().isBlank())
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
@@ -411,25 +405,5 @@ public class EtudiantService {
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
-
-    @Transactional
-    public void modifierEntente(Long ententeId, ModificationEntenteDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveeException, StatutEntenteInvalideException {
-        Etudiant etudiant = getEtudiantConnecte();
-
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveeException::new);
-
-        if (!entente.getEtudiant().getId().equals(etudiant.getId())) {
-            throw new ActionNonAutoriseeException();
-        }
-
-        if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
-            throw new StatutEntenteInvalideException();
-        }
-
-
-        entente.setMessageModificationEtudiant(dto.getModificationEntente());
-        ententeStageRepository.save(entente);
-    }
-
 
 }

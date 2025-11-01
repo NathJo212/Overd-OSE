@@ -43,15 +43,10 @@ public class SecurityConfiguration {
     private static final String EMPLOYEUR_REGISTER_PATH = "/OSEemployeur/creerCompte";
     private static final String ETUDIANT_REGISTER_PATH = "/OSEetudiant/creerCompte"; // À ajouter si tu as ce endpoint
     private static final String ETUDIANT_VOIR_OFFRES = "/OSEetudiant/voirOffres";
-    private static final String GESTIONNAIRE_APPROVE_PATH = "/OSEGestionnaire/approuveOffre";
-    private static final String GESTIONNAIRE_DENY_PATH = "/OSEGestionnaire/refuseOffre";
-    private static final String GESTIONNAIRE_AWAITING_OFFERS = "/OSEGestionnaire/offresEnAttente";
-    private static final String GESTIONNAIRE_APPROUVE_CV_PATH = "/OSEGestionnaire/approuveCV";
-    private static final String GESTIONNAIRE_REFUSE_CV_PATH = "/OSEGestionnaire/refuseCV";
-    private static final String GESTIONNAIRE_GET_ALL_CV_PATH = "/OSEGestionnaire/CVsEnAttente";
     private static final String EMPLOYEUR_PATH = "/OSEemployeur/**";
     private static final String ETUDIANT_PATH = "/OSEetudiant/**";
     private static final String GESTIONNAIRE_PATH = "/OSEGestionnaire/**";
+    private static final String PROFESSEUR_PATH = "/OSEProfesseur/**";
 
 
     @Bean
@@ -71,6 +66,8 @@ public class SecurityConfiguration {
                         .requestMatchers(EMPLOYEUR_PATH).hasAuthority("EMPLOYEUR")
                         .requestMatchers(ETUDIANT_PATH).hasAuthority("ETUDIANT")
                         .requestMatchers(GESTIONNAIRE_PATH).hasAuthority("GESTIONNAIRE")
+                        .requestMatchers(PROFESSEUR_PATH).hasAuthority("PROFESSEUR")
+
 
                         .anyRequest().authenticated()
                 )
