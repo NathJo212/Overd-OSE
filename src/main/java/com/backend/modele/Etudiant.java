@@ -43,6 +43,9 @@ public class Etudiant extends Utilisateur {
         AUCUN
     }
 
+    @ManyToOne
+    private Professeur professeur;
+
     @OneToMany(mappedBy = "etudiant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Candidature> candidatures = new ArrayList<>();
 

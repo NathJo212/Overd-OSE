@@ -4,10 +4,7 @@ package com.backend.service;
 import com.backend.Exceptions.*;
 import com.backend.modele.*;
 import com.backend.persistence.*;
-import com.backend.service.DTO.CandidatureDTO;
-import com.backend.service.DTO.EntenteStageDTO;
-import com.backend.service.DTO.EtudiantDTO;
-import com.backend.service.DTO.OffreDTO;
+import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import com.backend.util.EntentePdfGenerator;
 import jakarta.transaction.Transactional;
@@ -20,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,9 +34,10 @@ public class GestionnaireService {
     private final EntenteStageRepository ententeStageRepository;
     private final NotificationRepository notificationRepository;
     private final CandidatureRepository candidatureRepository;
+    private final ProfesseurRepository professeurRepository;
 
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
@@ -48,6 +47,7 @@ public class GestionnaireService {
         this.ententeStageRepository = ententeStageRepository;
         this.notificationRepository = notificationRepository;
         this.candidatureRepository = candidatureRepository;
+        this.professeurRepository = professeurRepository;
     }
 
     @Transactional
@@ -386,4 +386,40 @@ public class GestionnaireService {
 
         throw new EntenteDocumentNonTrouveeException();
     }
+
+    @Transactional
+    public void setEtudiantAProfesseur(Long professeurId, Long etudiantId) throws ActionNonAutoriseeException, UserNotFoundException {
+        verifierGestionnaireConnecte();
+
+        Professeur professeur = professeurRepository.findById(professeurId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Etudiant etudiant = etudiantRepository.findById(etudiantId)
+                .orElseThrow(UserNotFoundException::new);
+
+        etudiant.setProfesseur(professeur);
+        etudiantRepository.save(etudiant);
+    }
+
+    @Transactional
+    public List<EtudiantDTO> getAllEtudiants() throws ActionNonAutoriseeException, UserNotFoundException {
+        verifierGestionnaireConnecte();
+
+        List<EtudiantDTO> etudiants = new ArrayList<>();
+        for (Etudiant etudiant : etudiantRepository.findAll()) {
+            etudiants.add(new EtudiantDTO().toDTO(etudiant));
+        }
+
+        return etudiants;
+
+    }
+
+    public List<ProfesseurDTO> getAllProfesseurs() throws ActionNonAutoriseeException {
+        verifierGestionnaireConnecte();
+        List<Professeur> profs = professeurRepository.findAll();
+        return profs.stream()
+                .map(ProfesseurDTO::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }

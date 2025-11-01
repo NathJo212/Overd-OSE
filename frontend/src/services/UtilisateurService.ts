@@ -28,6 +28,11 @@ class UtilisateurService {
         this.baseUrl = `${API_BASE_URL}${UTILISATEUR_ENDPOINT}`;
     }
 
+    getToken(): string | null {
+        return sessionStorage.getItem('authToken');
+    }
+
+
     /**
      * Authentifie un utilisateur avec email et mot de passe
      * @param loginData - Les données de connexion (email, password)

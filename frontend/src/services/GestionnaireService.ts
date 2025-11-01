@@ -25,6 +25,15 @@ export interface EmployeurDTO {
     contact: string;
 }
 
+export interface ProfesseurDTO {
+    id?: number;
+    email: string;
+    telephone: string;
+    nom: string;
+    prenom: string;
+    etudiantList?: EtudiantDTO[];
+}
+
 export interface EtudiantDTO {
     id?: number;
     email: string;
@@ -37,6 +46,7 @@ export interface EtudiantDTO {
     cv?: string;
     statutCV?: string;
     messageRefusCV?: string;
+    professeur?: ProfesseurDTO;
 }
 
 export interface OffreDTO {
@@ -55,10 +65,9 @@ export interface OffreDTO {
     employeurDTO?: EmployeurDTO;
 }
 
-// Mettre à jour l'interface CandidatureEligibleDTO pour inclure etudiantId
 export interface CandidatureEligibleDTO {
     id: number;
-    etudiantId: number;  // Maintenant requis (backend mis à jour)
+    etudiantId: number;
     offreId: number;
     offreTitre: string;
     employeurNom: string;
@@ -71,9 +80,7 @@ export interface CandidatureEligibleDTO {
     aLettreMotivation: boolean;
 }
 
-// Mettre à jour l'interface EntenteStageDTO pour correspondre au backend
 export interface EntenteStageDTO {
-    // minimal payload to start the entente process
     etudiantId: number;
     offreId: number;
     // optional PDF content as base64 (backend may generate later)
@@ -89,6 +96,18 @@ export interface EntenteStageDTO {
     remuneration?: string;
     responsabilites?: string;
     objectifs?: string;
+}
+
+// Interface for backend error response
+interface ErrorResponse {
+    errorCode: string;
+    message: string;
+}
+
+// Interface for backend MessageRetourDTO
+interface MessageRetourDTO {
+    message: string | null;
+    erreur: ErrorResponse | null;
 }
 
 class GestionnaireService {
@@ -142,7 +161,7 @@ class GestionnaireService {
                 body: JSON.stringify({ id })
             });
 
-            const data = await response.json();
+            const data: MessageRetourDTO = await response.json();
 
             if (data.erreur) {
                 console.error('Erreur lors de l\'approbation de l\'offre:', data.erreur);
@@ -174,7 +193,7 @@ class GestionnaireService {
                 body: JSON.stringify({ id, messageRefus })
             });
 
-            const data = await response.json();
+            const data: MessageRetourDTO = await response.json();
 
             if (data.erreur) {
                 console.error('Erreur lors du refus de l\'offre:', data.erreur);
@@ -229,7 +248,7 @@ class GestionnaireService {
                 body: JSON.stringify({ id })
             });
 
-            const data = await response.json();
+            const data: MessageRetourDTO = await response.json();
 
             if (data.erreur) {
                 console.error('Erreur lors de l\'approbation du CV:', data.erreur);
@@ -261,7 +280,7 @@ class GestionnaireService {
                 body: JSON.stringify({ id, messageRefusCV })
             });
 
-            const data = await response.json();
+            const data: MessageRetourDTO = await response.json();
 
             if (data.erreur) {
                 console.error('Erreur lors du refus du CV:', data.erreur);
@@ -348,6 +367,78 @@ class GestionnaireService {
                 throw error;
             }
             throw new Error('Erreur lors de la création de l\'entente');
+        }
+    }
+
+    // ========== GESTION DES ETUDIANTS ET PROFESSEURS ==========
+    async getAllEtudiants(token: string): Promise<EtudiantDTO[]> {
+        try {
+            const response = await fetch(`${this.baseUrl}/etudiants`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des étudiants');
+            }
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération des étudiants:', error);
+            throw new Error('Erreur lors de la récupération des étudiants');
+        }
+    }
+
+    async getAllProfesseurs(token: string): Promise<ProfesseurDTO[]> {
+        try {
+            const response = await fetch(`${this.baseUrl}/professeurs`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des professeurs');
+            }
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération des professeurs:', error);
+            throw new Error('Erreur lors de la récupération des professeurs');
+        }
+    }
+
+    async assignEtudiantAProfesseur(etudiantId: number, professeurId: number, token: string): Promise<void> {
+        try {
+            const response = await fetch(`${this.baseUrl}/etudiant/${etudiantId}/professeur/${professeurId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data: MessageRetourDTO = await response.json();
+
+            // Check for error response
+            if (data.erreur) {
+                console.error('Erreur lors de l\'assignation:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de l\'assignation de l\'étudiant au professeur');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de l\'assignation de l\'étudiant au professeur');
+            }
+        } catch (error: any) {
+            // If error already has response data, rethrow it
+            if (error.response?.data) {
+                throw error;
+            }
+            console.error('Erreur lors de l\'assignation de l\'étudiant:', error);
+            throw new Error('Erreur lors de l\'assignation de l\'étudiant au professeur');
         }
     }
 }
