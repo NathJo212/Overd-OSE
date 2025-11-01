@@ -27,14 +27,13 @@ class ProfesseurService {
     }
 
     /**
-     * Récupère tous les étudiants assignés au professeur
-     * @param professeurId - L'ID du professeur
+     * Récupère tous les étudiants assignés au professeur authentifié
      * @param token - Le token d'authentification
      * @returns Promise avec la liste des étudiants
      */
-    async getMesEtudiants(professeurId: number, token: string): Promise<EtudiantDTO[]> {
+    async getMesEtudiants(token: string): Promise<EtudiantDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/${professeurId}/etudiants`, {
+            const response = await fetch(`${this.baseUrl}/etudiants`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

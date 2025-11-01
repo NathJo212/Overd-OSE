@@ -5,7 +5,6 @@ import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.EmailDejaUtiliseException;
 import com.backend.Exceptions.MotPasseInvalideException;
 import com.backend.Exceptions.UtilisateurPasTrouveException;
-import com.backend.modele.Etudiant;
 import com.backend.modele.Professeur;
 import com.backend.persistence.ProfesseurRepository;
 import com.backend.persistence.UtilisateurRepository;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class ProfesseurService {
@@ -64,15 +62,7 @@ public class ProfesseurService {
     }
 
     @Transactional
-    public List<EtudiantDTO> getMesEtudiants(Long professeurId)
-            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
-
-        Professeur professeurConnecte = getProfesseurConnecte();
-
-        if (!professeurConnecte.getId().equals(professeurId)) {
-            throw new ActionNonAutoriseeException();
-        }
-
+    public List<EtudiantDTO> getMesEtudiants(Long professeurId) throws UtilisateurPasTrouveException {
         Professeur professeur = professeurRepository.findById(professeurId)
                 .orElseThrow(UtilisateurPasTrouveException::new);
 
@@ -81,9 +71,5 @@ public class ProfesseurService {
                 .map(e -> new EtudiantDTO().toDTO(e))
                 .toList();
     }
-
-
-
-
 
 }

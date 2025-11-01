@@ -14,39 +14,10 @@ const DashboardProfesseur = () => {
     const [professorName, setProfessorName] = useState("");
     const token = sessionStorage.getItem("authToken") || "";
 
-    // Get professor ID from JWT token
-    const getProfesseurId = (): number | null => {
-        try {
-            const userData = sessionStorage.getItem('userData');
-            if (userData) {
-                const user = JSON.parse(userData);
-                // Try to get id from userData first
-                if (user.id) {
-                    return user.id;
-                }
-            }
-
-            // Fallback: decode token
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            console.log('JWT Payload:', payload); // Debug log
-            return payload.userId || payload.id || payload.sub || null;
-        } catch (e) {
-            console.error('Unable to decode token:', e);
-            return null;
-        }
-    };
-
     const chargerEtudiants = async () => {
-        const professeurId = getProfesseurId();
-        if (!professeurId) {
-            setError("Impossible de récupérer l'ID du professeur");
-            setLoading(false);
-            return;
-        }
-
         try {
             setLoading(true);
-            const data = await professeurService.getMesEtudiants(professeurId, token);
+            const data = await professeurService.getMesEtudiants(token);
             setEtudiants(data);
         } catch (e: any) {
             setError(e.message || 'Erreur inconnue');
@@ -115,49 +86,6 @@ const DashboardProfesseur = () => {
                     <p className="text-gray-600">
                         {t('subtitle') || 'Gérez vos étudiants et suivez leurs progrès'}
                     </p>
-                </div>
-
-                {/* Statistiques */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white rounded-2xl shadow-md p-6 border border-slate-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 mb-1">{t('stats.totalStudents') || 'Total Étudiants'}</p>
-                                <p className="text-3xl font-bold text-blue-600">{etudiants.length}</p>
-                            </div>
-                            <div className="bg-blue-50 p-4 rounded-xl">
-                                <Users className="w-8 h-8 text-blue-600" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-2xl shadow-md p-6 border border-slate-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 mb-1">{t('stats.approvedCV') || 'CV Approuvés'}</p>
-                                <p className="text-3xl font-bold text-green-600">
-                                    {etudiants.filter(e => e.statutCV === 'APPROUVE').length}
-                                </p>
-                            </div>
-                            <div className="bg-green-50 p-4 rounded-xl">
-                                <GraduationCap className="w-8 h-8 text-green-600" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-2xl shadow-md p-6 border border-slate-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 mb-1">{t('stats.pendingCV') || 'CV En Attente'}</p>
-                                <p className="text-3xl font-bold text-yellow-600">
-                                    {etudiants.filter(e => e.statutCV === 'ATTENTE').length}
-                                </p>
-                            </div>
-                            <div className="bg-yellow-50 p-4 rounded-xl">
-                                <BookOpen className="w-8 h-8 text-yellow-600" />
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Message d'erreur */}
