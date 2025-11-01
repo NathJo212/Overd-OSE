@@ -41,6 +41,9 @@ public class GestionnaireServiceTest {
     @Mock
     private CandidatureRepository candidatureRepository;
 
+    @Mock
+    private ProfesseurRepository professeurRepository;
+
     @BeforeEach
     public void setupSecurityContext() {
         Authentication auth = mock(Authentication.class);
@@ -682,4 +685,232 @@ public class GestionnaireServiceTest {
 
         assertThrows(EntenteDocumentNonTrouveeException.class, () -> gestionnaireService.getEntenteDocument(67L));
     }
+
+    @Test
+    public void setEtudiantAProfesseur_assigneEtSauvegarde() throws Exception {
+        Professeur professeur = mock(Professeur.class);
+        lenient().when(professeur.getId()).thenReturn(10L);
+        lenient().when(professeur.getNom()).thenReturn("Dupont");
+        lenient().when(professeur.getPrenom()).thenReturn("Pierre");
+        lenient().when(professeur.getEmail()).thenReturn("pierre.dupont@college.com");
+
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getId()).thenReturn(5L);
+        lenient().when(etudiant.getNom()).thenReturn("Martin");
+        lenient().when(etudiant.getPrenom()).thenReturn("Sophie");
+        lenient().when(etudiant.getEmail()).thenReturn("sophie.martin@student.com");
+
+        when(professeurRepository.findById(10L)).thenReturn(Optional.of(professeur));
+        when(etudiantRepository.findById(5L)).thenReturn(Optional.of(etudiant));
+
+        gestionnaireService.setEtudiantAProfesseur(10L, 5L);
+
+        verify(etudiant).setProfesseur(professeur);
+        verify(etudiantRepository).save(etudiant);
+    }
+
+    @Test
+    public void setEtudiantAProfesseur_professeurNonTrouve_lance() {
+        Etudiant etudiant = mock(Etudiant.class);
+
+        when(professeurRepository.findById(99L)).thenReturn(Optional.empty());
+        lenient().when(etudiantRepository.findById(5L)).thenReturn(Optional.of(etudiant));
+
+        assertThrows(UserNotFoundException.class,
+                () -> gestionnaireService.setEtudiantAProfesseur(99L, 5L));
+
+        verify(etudiantRepository, never()).save(any());
+    }
+
+    @Test
+    public void setEtudiantAProfesseur_etudiantNonTrouve_lance() {
+        Professeur professeur = mock(Professeur.class);
+
+        when(professeurRepository.findById(10L)).thenReturn(Optional.of(professeur));
+        when(etudiantRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class,
+                () -> gestionnaireService.setEtudiantAProfesseur(10L, 99L));
+
+        verify(etudiantRepository, never()).save(any());
+    }
+
+    @Test
+    public void setEtudiantAProfesseur_accesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> gestionnaireService.setEtudiantAProfesseur(10L, 5L));
+    }
+
+    @Test
+    public void setEtudiantAProfesseur_changeAssignation() throws Exception {
+        Professeur ancienProf = mock(Professeur.class);
+        lenient().when(ancienProf.getId()).thenReturn(8L);
+
+        Professeur nouveauProf = mock(Professeur.class);
+        lenient().when(nouveauProf.getId()).thenReturn(10L);
+
+        Etudiant etudiant = mock(Etudiant.class);
+        lenient().when(etudiant.getId()).thenReturn(5L);
+
+        when(professeurRepository.findById(10L)).thenReturn(Optional.of(nouveauProf));
+        when(etudiantRepository.findById(5L)).thenReturn(Optional.of(etudiant));
+
+        gestionnaireService.setEtudiantAProfesseur(10L, 5L);
+
+        verify(etudiant).setProfesseur(nouveauProf);
+        verify(etudiantRepository).save(etudiant);
+    }
+
+// ========== Tests pour getAllEtudiants ==========
+
+    @Test
+    public void getAllEtudiants_retourneListeComplete() throws Exception {
+        Etudiant etu1 = mock(Etudiant.class);
+        when(etu1.getEmail()).thenReturn("sophie.martin@student.com");
+        when(etu1.getNom()).thenReturn("Martin");
+        when(etu1.getPrenom()).thenReturn("Sophie");
+        when(etu1.getTelephone()).thenReturn("514-123-4567");
+
+        Etudiant etu2 = mock(Etudiant.class);
+        when(etu2.getEmail()).thenReturn("jean.tremblay@student.com");
+        when(etu2.getNom()).thenReturn("Tremblay");
+        when(etu2.getPrenom()).thenReturn("Jean");
+        when(etu2.getTelephone()).thenReturn("514-987-6543");
+
+        Etudiant etu3 = mock(Etudiant.class);
+        when(etu3.getEmail()).thenReturn("marie.gagnon@student.com");
+        when(etu3.getNom()).thenReturn("Gagnon");
+        when(etu3.getPrenom()).thenReturn("Marie");
+        when(etu3.getTelephone()).thenReturn("438-555-1234");
+
+        when(etudiantRepository.findAll()).thenReturn(asList(etu1, etu2, etu3));
+
+        var result = gestionnaireService.getAllEtudiants();
+
+        assertEquals(3, result.size());
+        assertEquals("sophie.martin@student.com", result.get(0).getEmail());
+        assertEquals("jean.tremblay@student.com", result.get(1).getEmail());
+        assertEquals("marie.gagnon@student.com", result.get(2).getEmail());
+    }
+
+    @Test
+    public void getAllEtudiants_listeVide() throws Exception {
+        when(etudiantRepository.findAll()).thenReturn(Collections.emptyList());
+
+        var result = gestionnaireService.getAllEtudiants();
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void getAllEtudiants_accesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> gestionnaireService.getAllEtudiants());
+    }
+
+    @Test
+    public void getAllEtudiants_avecProfesseurAssigne() throws Exception {
+        Professeur prof = mock(Professeur.class);
+        lenient().when(prof.getId()).thenReturn(10L);
+        lenient().when(prof.getNom()).thenReturn("Dupont");
+        lenient().when(prof.getPrenom()).thenReturn("Pierre");
+        lenient().when(prof.getEmail()).thenReturn("pierre.dupont@college.com");
+        lenient().when(prof.getTelephone()).thenReturn("514-111-2222");
+
+        Etudiant etu = mock(Etudiant.class);
+        when(etu.getEmail()).thenReturn("etudiant@test.com");
+        when(etu.getNom()).thenReturn("Test");
+        when(etu.getPrenom()).thenReturn("Etudiant");
+        when(etu.getTelephone()).thenReturn("514-999-8888");
+        when(etu.getProfesseur()).thenReturn(prof);
+
+        when(etudiantRepository.findAll()).thenReturn(asList(etu));
+
+        var result = gestionnaireService.getAllEtudiants();
+
+        assertEquals(1, result.size());
+        assertNotNull(result.get(0).getProfesseur());
+        assertEquals("pierre.dupont@college.com", result.get(0).getProfesseur().getEmail());
+    }
+
+// ========== Tests pour getAllProfesseurs ==========
+
+    @Test
+    public void getAllProfesseurs_retourneListeComplete() throws Exception {
+        Professeur prof1 = mock(Professeur.class);
+        when(prof1.getId()).thenReturn(1L);
+        when(prof1.getEmail()).thenReturn("pierre.dupont@college.com");
+        when(prof1.getNom()).thenReturn("Dupont");
+        when(prof1.getPrenom()).thenReturn("Pierre");
+        when(prof1.getTelephone()).thenReturn("514-111-1111");
+
+        Professeur prof2 = mock(Professeur.class);
+        when(prof2.getId()).thenReturn(2L);
+        when(prof2.getEmail()).thenReturn("marie.labelle@college.com");
+        when(prof2.getNom()).thenReturn("Labelle");
+        when(prof2.getPrenom()).thenReturn("Marie");
+        when(prof2.getTelephone()).thenReturn("514-222-2222");
+
+        when(professeurRepository.findAll()).thenReturn(asList(prof1, prof2));
+
+        var result = gestionnaireService.getAllProfesseurs();
+
+        assertEquals(2, result.size());
+        assertEquals("pierre.dupont@college.com", result.get(0).getEmail());
+        assertEquals("marie.labelle@college.com", result.get(1).getEmail());
+    }
+
+    @Test
+    public void getAllProfesseurs_listeVide() throws Exception {
+        when(professeurRepository.findAll()).thenReturn(Collections.emptyList());
+
+        var result = gestionnaireService.getAllProfesseurs();
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void getAllProfesseurs_accesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> gestionnaireService.getAllProfesseurs());
+    }
+
+    @Test
+    public void getAllProfesseurs_unSeulProfesseur() throws Exception {
+        Professeur prof = mock(Professeur.class);
+        when(prof.getId()).thenReturn(5L);
+        when(prof.getEmail()).thenReturn("unique@college.com");
+        when(prof.getNom()).thenReturn("Unique");
+        when(prof.getPrenom()).thenReturn("Professeur");
+        when(prof.getTelephone()).thenReturn("514-555-5555");
+
+        when(professeurRepository.findAll()).thenReturn(asList(prof));
+
+        var result = gestionnaireService.getAllProfesseurs();
+
+        assertEquals(1, result.size());
+        assertEquals("unique@college.com", result.get(0).getEmail());
+        assertEquals("Unique", result.get(0).getNom());
+        assertEquals("Professeur", result.get(0).getPrenom());
+    }
+
+
 }

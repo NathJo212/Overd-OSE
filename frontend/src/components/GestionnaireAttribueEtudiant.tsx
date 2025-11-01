@@ -120,7 +120,7 @@ export default function GestionnaireAttribueEtudiant() {
 
     // Filter students based on search
     const filteredEtudiants = etudiants.filter(etudiant => {
-        const fullName = `${etudiant.nom} ${etudiant.prenom}`.toLowerCase();
+        const fullName = `${etudiant.prenom} ${etudiant.nom} `.toLowerCase();
         const email = etudiant.email.toLowerCase();
         const prog = etudiant.progEtude?.toLowerCase() || "";
         const searchLower = studentSearch.toLowerCase();
@@ -136,7 +136,7 @@ export default function GestionnaireAttribueEtudiant() {
         if (!search) return professeurs;
 
         return professeurs.filter(prof => {
-            const fullName = `${prof.nom} ${prof.prenom}`.toLowerCase();
+            const fullName = `${prof.prenom} ${prof.nom}`.toLowerCase();
             const email = prof.email.toLowerCase();
             return fullName.includes(search) || email.includes(search);
         });
@@ -309,7 +309,7 @@ export default function GestionnaireAttribueEtudiant() {
                                         </td>
                                         <td className="p-4 text-gray-600">
                                                 <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm">
-                                                    {etudiant.progEtude || "N/A"}
+                                                    {t(`programmes:${etudiant.progEtude}`) || etudiant.progEtude || "N/A"}
                                                 </span>
                                         </td>
                                         <td className="p-4">
@@ -349,7 +349,7 @@ export default function GestionnaireAttribueEtudiant() {
                                                     </option>
                                                     {getFilteredProfesseurs(etudiant.id!).map((prof) => (
                                                         <option key={prof.id} value={prof.id}>
-                                                            {prof.nom} {prof.prenom} ({prof.email})
+                                                            {prof.prenom} {prof.nom} ({prof.email})
                                                         </option>
                                                     ))}
                                                 </select>

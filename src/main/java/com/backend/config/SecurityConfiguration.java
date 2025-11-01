@@ -52,6 +52,7 @@ public class SecurityConfiguration {
     private static final String EMPLOYEUR_PATH = "/OSEemployeur/**";
     private static final String ETUDIANT_PATH = "/OSEetudiant/**";
     private static final String GESTIONNAIRE_PATH = "/OSEGestionnaire/**";
+    private static final String PROFESSEUR_PATH = "/OSEProfesseur/**";
 
 
     @Bean
@@ -71,6 +72,7 @@ public class SecurityConfiguration {
                         .requestMatchers(EMPLOYEUR_PATH).hasAuthority("EMPLOYEUR")
                         .requestMatchers(ETUDIANT_PATH).hasAuthority("ETUDIANT")
                         .requestMatchers(GESTIONNAIRE_PATH).hasAuthority("GESTIONNAIRE")
+                        .requestMatchers(PROFESSEUR_PATH).hasAuthority("PROFESSEUR")
 
 
                         .anyRequest().authenticated()
