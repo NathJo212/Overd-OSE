@@ -1,11 +1,14 @@
 package com.backend.controller;
 
 import com.backend.Exceptions.ActionNonAutoriseeException;
+import com.backend.Exceptions.CVNonExistantException;
 import com.backend.Exceptions.UtilisateurPasTrouveException;
 import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.ProfesseurDTO;
 import com.backend.service.ProfesseurService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,4 +39,20 @@ public class ProfesseurController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/etudiants/{etudiantId}/cv")
+    public ResponseEntity<byte[]> telechargerCvEtudiant(@PathVariable Long etudiantId)
+            throws CVNonExistantException, UtilisateurPasTrouveException {
+
+        byte[] cvDechiffre = professeurService.getCvEtudiantPourProfesseur(etudiantId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=CV_" + etudiantId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(cvDechiffre.length)
+                .body(cvDechiffre);
+    }
+
+
+
 }

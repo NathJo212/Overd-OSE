@@ -1,0 +1,23 @@
+{
+  "title": "Professor Dashboard",
+  "subtitle": "Manage your students and track their progress",
+  "studentList": {
+    "title": "My Students",
+    "noStudents": "No students assigned at the moment",
+    "student": "Student",
+    "program": "Program",
+    "session": "Session",
+    "contact": "Contact",
+    "cv": {
+      "noCV": "No CV",
+      "download": "Download CV",
+      "downloading": "Downloading..."
+    }
+  },
+  "loading": "Loading...",
+  "error": {
+    "authTokenMissing": "Authentication token missing",
+    "downloadCVFailed": "Error downloading CV",
+    "unknown": "Unknown error"
+  }
+}

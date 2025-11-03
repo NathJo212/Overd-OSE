@@ -10,7 +10,7 @@ export interface EtudiantDTO {
     progEtude?: string;
     session: string;
     annee: string;
-    cv?: string;
+    cv?: string; // This will be base64 encoded or null
     statutCV?: string;
     messageRefusCV?: string;
 }
@@ -55,6 +55,32 @@ class ProfesseurService {
 
         } catch (error: any) {
             console.error('Erreur lors de la récupération des étudiants:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Télécharge le CV d'un étudiant
+     * @param etudiantId - L'ID de l'étudiant
+     * @param token - Le token d'authentification
+     */
+    async telechargerCV(etudiantId: number, token: string): Promise<Blob> {
+        try {
+            const response = await fetch(`${this.baseUrl}/etudiants/${etudiantId}/cv`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du téléchargement du CV');
+            }
+
+            return await response.blob();
+
+        } catch (error: any) {
+            console.error('Erreur lors du téléchargement du CV:', error);
             throw error;
         }
     }

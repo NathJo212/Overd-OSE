@@ -1,0 +1,23 @@
+{
+  "title": "Tableau de bord Professeur",
+  "subtitle": "Gérez vos étudiants et suivez leurs progrès",
+  "studentList": {
+    "title": "Mes Étudiants",
+    "noStudents": "Aucun étudiant assigné pour le moment",
+    "student": "Étudiant",
+    "program": "Programme",
+    "session": "Session",
+    "contact": "Contact",
+    "cv": {
+      "noCV": "Aucun CV",
+      "download": "Télécharger CV",
+      "downloading": "Téléchargement..."
+    }
+  },
+  "loading": "Chargement...",
+  "error": {
+    "authTokenMissing": "Token d'authentification manquant",
+    "downloadCVFailed": "Erreur lors du téléchargement du CV",
+    "unknown": "Erreur inconnue"
+  }
+}

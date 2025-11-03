@@ -1,18 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GraduationCap, Mail, Phone, Calendar, AlertCircle, Users, BookOpen } from "lucide-react";
+import { GraduationCap, Mail, Phone, Calendar, AlertCircle, Users, BookOpen, Download, FileX } from "lucide-react";
 import { professeurService, type EtudiantDTO } from "../services/ProfesseurService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 
 const DashboardProfesseur = () => {
-    const { t } = useTranslation(["dashboardProfesseur"]);
+    const { t, i18n } = useTranslation("dashboardProfesseur");
     const navigate = useNavigate();
     const [etudiants, setEtudiants] = useState<EtudiantDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
     const [professorName, setProfessorName] = useState("");
+    const [downloadingCV, setDownloadingCV] = useState<number | null>(null);
     const token = sessionStorage.getItem("authToken") || "";
+
+    // Debug: Log i18n status
+    useEffect(() => {
+        console.log("Current language:", i18n.language);
+        console.log("Available namespaces:", i18n.options.ns);
+        console.log("Test translation 'title':", t('title'));
+        console.log("i18n resources:", i18n.store.data);
+    }, [i18n, t]);
 
     const chargerEtudiants = async () => {
         try {
@@ -20,7 +29,7 @@ const DashboardProfesseur = () => {
             const data = await professeurService.getMesEtudiants(token);
             setEtudiants(data);
         } catch (e: any) {
-            setError(e.message || 'Erreur inconnue');
+            setError(e.message || t('error.unknown'));
         } finally {
             setLoading(false);
         }
@@ -50,26 +59,67 @@ const DashboardProfesseur = () => {
         }
 
         if (!token) {
-            setError("Token d'authentification manquant");
+            setError(t('error.authTokenMissing'));
             return;
         }
 
         chargerEtudiants();
     }, [navigate, token]);
 
-    const getStatutCVBadge = (statut?: string) => {
-        switch (statut) {
-            case 'APPROUVE':
-                return <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Approuvé</span>;
-            case 'REFUSE':
-                return <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Refusé</span>;
-            case 'ATTENTE':
-                return <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">En attente</span>;
-            case 'AUCUN':
-                return <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Aucun CV</span>;
-            default:
-                return null;
+    const handleDownloadCV = async (etudiant: EtudiantDTO) => {
+        if (!etudiant.id) return;
+
+        try {
+            setDownloadingCV(etudiant.id);
+
+            const blob = await professeurService.telechargerCV(etudiant.id, token);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `CV_${etudiant.prenom}_${etudiant.nom}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error('Erreur lors du téléchargement du CV:', error);
+            alert(t('error.downloadCVFailed'));
+        } finally {
+            setDownloadingCV(null);
         }
+    };
+
+
+    const renderCVColumn = (etudiant: EtudiantDTO) => {
+        if (!etudiant.cv || etudiant.cv.length === 0) {
+            return (
+                <div className="flex items-center gap-2 text-gray-400">
+                    <FileX className="w-4 h-4" />
+                    <span className="text-sm">{t('studentList.cv.noCV')}</span>
+                </div>
+            );
+        }
+
+        return (
+            <button
+                onClick={() => handleDownloadCV(etudiant)}
+                disabled={downloadingCV === etudiant.id}
+                className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {downloadingCV === etudiant.id ? (
+                    <>
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <span className="text-sm">{t('studentList.cv.downloading')}</span>
+                    </>
+                ) : (
+                    <>
+                        <Download className="w-4 h-4" />
+                        <span className="text-sm">{t('studentList.cv.download')}</span>
+                    </>
+                )}
+            </button>
+        );
     };
 
     return (
@@ -80,11 +130,11 @@ const DashboardProfesseur = () => {
                 {/* En-tête */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {t('title') || 'Tableau de bord Professeur'}
+                        {t('title')}
                         {professorName && ` - ${professorName}`}
                     </h1>
                     <p className="text-gray-600">
-                        {t('subtitle') || 'Gérez vos étudiants et suivez leurs progrès'}
+                        {t('subtitle')}
                     </p>
                 </div>
 
@@ -103,7 +153,7 @@ const DashboardProfesseur = () => {
                     <div className="p-6 border-b border-slate-200">
                         <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                             <Users className="w-6 h-6 text-blue-600" />
-                            {t('studentList.title') || 'Mes Étudiants'}
+                            {t('studentList.title')}
                         </h2>
                     </div>
 
@@ -116,7 +166,7 @@ const DashboardProfesseur = () => {
                     ) : etudiants.length === 0 ? (
                         <div className="p-12 text-center">
                             <GraduationCap className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                            <p className="text-gray-600">{t('studentList.noStudents') || 'Aucun étudiant assigné pour le moment'}</p>
+                            <p className="text-gray-600">{t('studentList.noStudents')}</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
@@ -124,19 +174,19 @@ const DashboardProfesseur = () => {
                                 <thead className="bg-gradient-to-r from-blue-50 to-slate-50">
                                 <tr>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('studentList.student') || 'Étudiant'}
+                                        {t('studentList.student')}
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('studentList.program') || 'Programme'}
+                                        {t('studentList.program')}
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('studentList.session') || 'Session'}
+                                        {t('studentList.session')}
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('studentList.contact') || 'Contact'}
+                                        {t('studentList.contact')}
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('studentList.cvStatus') || 'Statut CV'}
+                                        CV
                                     </th>
                                 </tr>
                                 </thead>
@@ -157,10 +207,10 @@ const DashboardProfesseur = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                                                    <BookOpen className="w-3 h-3" />
-                                                    {etudiant.progEtude || 'N/A'}
-                                                </span>
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                                <BookOpen className="w-3 h-3" />
+                                                {etudiant.progEtude || 'N/A'}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -181,7 +231,7 @@ const DashboardProfesseur = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            {getStatutCVBadge(etudiant.statutCV)}
+                                            {renderCVColumn(etudiant)}
                                         </td>
                                     </tr>
                                 ))}

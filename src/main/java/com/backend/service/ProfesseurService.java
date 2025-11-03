@@ -1,14 +1,14 @@
 package com.backend.service;
 
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.EmailDejaUtiliseException;
-import com.backend.Exceptions.MotPasseInvalideException;
-import com.backend.Exceptions.UtilisateurPasTrouveException;
+import com.backend.Exceptions.*;
+import com.backend.modele.Etudiant;
 import com.backend.modele.Professeur;
+import com.backend.persistence.EtudiantRepository;
 import com.backend.persistence.ProfesseurRepository;
 import com.backend.persistence.UtilisateurRepository;
 import com.backend.service.DTO.EtudiantDTO;
+import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,12 +24,16 @@ public class ProfesseurService {
     private final ProfesseurRepository professeurRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EtudiantRepository etudiantRepository;
+    private final EncryptageCV encryptageCV;
 
 
-    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder) {
+    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV) {
         this.professeurRepository = professeurRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
+        this.etudiantRepository = etudiantRepository;
+        this.encryptageCV = encryptageCV;
     }
 
     @Transactional
@@ -71,5 +75,25 @@ public class ProfesseurService {
                 .map(e -> new EtudiantDTO().toDTO(e))
                 .toList();
     }
+
+    @Transactional
+    public byte[] getCvEtudiantPourProfesseur(Long etudiantId)
+            throws CVNonExistantException, UtilisateurPasTrouveException {
+
+        Etudiant etudiant = etudiantRepository.findById(etudiantId)
+                .orElseThrow(UtilisateurPasTrouveException::new);
+
+        if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
+            throw new CVNonExistantException();
+        }
+
+        try {
+            String cvChiffre = new String(etudiant.getCv());
+            return encryptageCV.dechiffrer(cvChiffre);
+        } catch (Exception e) {
+            throw new CVNonExistantException();
+        }
+    }
+
 
 }
