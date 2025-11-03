@@ -1,8 +1,8 @@
 package com.backend.util;
 
-import com.backend.service.DTO.EvaluationDTO;
-import com.backend.modele.NiveauAccord;
+import com.backend.service.DTO.CreerEvaluationDTO;
 
+import com.backend.service.DTO.NiveauAccordDTO;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.Rectangle;
@@ -14,13 +14,13 @@ import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 import static com.itextpdf.io.font.constants.StandardFonts.HELVETICA;
@@ -28,31 +28,25 @@ import static com.itextpdf.io.font.constants.StandardFonts.HELVETICA;
 @Service
 public class PdfGenerationEvaluation {
 
-    private final ResourceLoader resourceLoader;
-
     @Value("classpath:documents/evaluation_stagiaire.pdf")
     private Resource pdfTemplateResource;
 
     // --- COORDONNÉES X DES COLONNES LIKERT ---
-    private static final Map<NiveauAccord, Float> X_CHECKBOX_COLUMNS = Map.of(
-            NiveauAccord.TOTALEMENT_EN_ACCORD, 448f,
-            NiveauAccord.PLUTOT_EN_ACCORD, 486f,
-            NiveauAccord.PLUTOT_EN_DESACCORD, 524f,
-            NiveauAccord.TOTALEMENT_EN_DESACCORD, 562f,
-            NiveauAccord.NON_APPLICABLE, 600f
+    private static final Map<NiveauAccordDTO, Float> X_CHECKBOX_COLUMNS = Map.of(
+            NiveauAccordDTO.TOTALEMENT_EN_ACCORD, 296f,
+            NiveauAccordDTO.PLUTOT_EN_ACCORD, 358f,
+            NiveauAccordDTO.PLUTOT_EN_DESACCORD, 421f,
+            NiveauAccordDTO.TOTALEMENT_EN_DESACCORD, 481f,
+            NiveauAccordDTO.NON_APPLICABLE, 544f
     );
 
     private static final float FONT_SIZE = 10f;
     private static final String CHECK_MARK = "X";
 
-    public PdfGenerationEvaluation(ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
-    }
-
     /**
      * Méthode principale mise à jour avec les nouveaux paramètres.
      */
-    public String genererEtRemplirEvaluationPdf(EvaluationDTO dto, String nomEtudiant, String programme, String nomEntreprise) throws IOException {
+    public String genererEtRemplirEvaluationPdf(CreerEvaluationDTO dto, String nomEtudiant, String programme, String nomEntreprise) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PdfFont font = PdfFontFactory.createFont(HELVETICA);
@@ -96,12 +90,20 @@ public class PdfGenerationEvaluation {
         addText(page, font, CHECK_MARK, x, y - 2);
     }
 
-    private void placeCheck(PdfPage page, PdfFont font, NiveauAccord accord, float y) {
+    private void placeCheck(PdfPage page, PdfFont font, NiveauAccordDTO accord, float y) {
         if (accord != null && X_CHECKBOX_COLUMNS.containsKey(accord)) {
             float x = X_CHECKBOX_COLUMNS.get(accord);
             drawCheckMark(page, font, x, y);
         }
     }
+
+    private void placeCheck(PdfPage page, PdfFont font, NiveauAccordDTO accord, float y, float xOffset) {
+        if (accord != null && X_CHECKBOX_COLUMNS.containsKey(accord)) {
+            float x = X_CHECKBOX_COLUMNS.get(accord) + xOffset;
+            drawCheckMark(page, font, x, y);
+        }
+    }
+
 
     /**
      * Gère le texte multiligne dans une zone rectangulaire (top-down).
@@ -129,93 +131,114 @@ public class PdfGenerationEvaluation {
     }
 
     // ----------------------------------------------------------------------
-    // Remplissage Page 1 (Signatures et Coordonnées révisées)
+    // Remplissage Page 1
     // ----------------------------------------------------------------------
-    private void remplirPage1(PdfDocument pdf, EvaluationDTO dto, PdfFont font, String nomEtudiant, String programme, String nomEntreprise) {
+    private void remplirPage1(PdfDocument pdf, CreerEvaluationDTO dto, PdfFont font, String nomEtudiant, String programme, String nomEntreprise) {
         PdfPage page = pdf.getPage(1);
 
-        // --- 1. Informations de base (X ajusté à 170f, selon votre code) ---
-        addText(page, font, nomEtudiant, 170f, 745f);
-        addText(page, font, programme, 170f, 728f);
-        addText(page, font, nomEntreprise, 170f, 711f);
+        // --- 1. Informations de base ---
+        addText(page, font, nomEtudiant, 120f, 579f);
+        addText(page, font, programme, 150f, 564f);
+        addText(page, font, nomEntreprise, 150f, 547f);
 
         // --- 2. Informations du Superviseur ---
-        addText(page, font, dto.getNomSuperviseur(), 150f, 675f);
-        addText(page, font, dto.getFonctionSuperviseur(), 150f, 658f);
-        addText(page, font, dto.getTelephoneSuperviseur(), 500f, 658f);
+        addText(page, font, dto.getNomSuperviseur(), 150f, 532f);
+        addText(page, font, dto.getFonctionSuperviseur(), 88f, 516f);
+        addText(page, font, dto.getTelephoneSuperviseur(), 376f, 516f);
 
         // --- 3. PRODUCTIVITÉ (Coches) ---
-        float yProdStart = 605f;
-        float ySpacing = 20f;
+        float yProdStart = 342f;
+        float yProdSpacing = 23f;
 
-        placeCheck(page, font, dto.getProdPlanifierOrganiser(), yProdStart);
-        placeCheck(page, font, dto.getProdComprendreDirectives(), yProdStart - ySpacing);
-        placeCheck(page, font, dto.getProdRythmeSoutenu(), yProdStart - 2 * ySpacing);
-        placeCheck(page, font, dto.getProdEtablirPriorites(), yProdStart - 3 * ySpacing);
-        placeCheck(page, font, dto.getProdRespectEcheanciers(), yProdStart - 4 * ySpacing);
+        List<NiveauAccordDTO> prodChecks = List.of(
+                dto.getProdPlanifierOrganiser(),
+                dto.getProdComprendreDirectives(),
+                dto.getProdRythmeSoutenu(),
+                dto.getProdEtablirPriorites(),
+                dto.getProdRespectEcheanciers()
+        );
+        for (int i = 0; i < prodChecks.size(); i++) {
+            placeCheck(page, font, prodChecks.get(i), yProdStart - i * yProdSpacing);
+        }
 
-        // --- 4. Commentaires Productivité (RÉVISÉ : Y_bas ajusté à 430f, Hauteur à 60f) ---
-        // Permet plus d'espace et un meilleur alignement vertical sous le tableau.
-        addMultiLineText(page, font, dto.getCommentairesProductivite(), new Rectangle(80f, 430f, 500f, 60f));
+        // --- 4. Commentaires Productivité ---
+        addMultiLineText(page, font, dto.getCommentairesProductivite(), new Rectangle(100f, 209f, 550f, 20f));
     }
 
     // ----------------------------------------------------------------------
-    // Remplissage Page 2 (Coordonnées révisées)
+    // Remplissage Page 2
     // ----------------------------------------------------------------------
-    private void remplirPage2(PdfDocument pdf, EvaluationDTO dto, PdfFont font) {
+    private void remplirPage2(PdfDocument pdf, CreerEvaluationDTO dto, PdfFont font) {
         PdfPage page = pdf.getPage(2);
 
         // --- 1. QUALITÉ DU TRAVAIL (Coches) ---
-        float yQualStart = 720f;
-        float ySpacingQual = 20f;
+        float yQualStart = 692f;
+        float ySpacingQual = 23f;
 
-        placeCheck(page, font, dto.getQualRespectMandats(), yQualStart);
-        placeCheck(page, font, dto.getQualAttentionDetails(), yQualStart - ySpacingQual);
-        placeCheck(page, font, dto.getQualVerifierTravail(), yQualStart - 2 * ySpacingQual);
-        placeCheck(page, font, dto.getQualRechercherPerfectionnement(), yQualStart - 3 * ySpacingQual);
-        placeCheck(page, font, dto.getQualAnalyseProblemes(), yQualStart - 4 * ySpacingQual);
-
-        // Commentaires Qualité (RÉVISÉ : Y_bas ajusté à 570f, Hauteur à 50f)
-        addMultiLineText(page, font, dto.getCommentairesQualiteTravail(), new Rectangle(80f, 570f, 500f, 50f));
+        List<NiveauAccordDTO> qualChecks = List.of(
+                dto.getQualRespectMandats(),
+                dto.getQualAttentionDetails(),
+                dto.getQualVerifierTravail(),
+                dto.getQualRechercherPerfectionnement(),
+                dto.getQualAnalyseProblemes()
+        );
+        for (int i = 0; i < qualChecks.size(); i++) {
+            placeCheck(page, font, qualChecks.get(i), yQualStart - i * ySpacingQual);
+        }
+        // Commentaires Qualité
+        addMultiLineText(page, font, dto.getCommentairesQualiteTravail(), new Rectangle(100f, 581f, 550f, 20f));
 
         // --- 2. QUALITÉS DES RELATIONS INTERPERSONNELLES (Coches) ---
-        float yRelStart = 500f;
-        float ySpacingRel = 19f;
+        float yRelStart = 485f;
+        float ySpacingRel = 23f;
+        float xSpacingRel = 5f;
 
-        placeCheck(page, font, dto.getRelEtablirContacts(), yRelStart);
-        placeCheck(page, font, dto.getRelContribuerEquipe(), yRelStart - ySpacingRel);
-        placeCheck(page, font, dto.getRelAdapterCulture(), yRelStart - 2 * ySpacingRel);
-        placeCheck(page, font, dto.getRelAccepterCritiques(), yRelStart - 3 * ySpacingRel);
-        placeCheck(page, font, dto.getRelEtreRespectueux(), yRelStart - 4 * ySpacingRel);
-        placeCheck(page, font, dto.getRelEcouteActive(), yRelStart - 5 * ySpacingRel);
+        List<NiveauAccordDTO> relChecks = List.of(
+                dto.getRelEtablirContacts(),
+                dto.getRelContribuerEquipe(),
+                dto.getRelAdapterCulture(),
+                dto.getRelAccepterCritiques(),
+                dto.getRelEtreRespectueux(),
+                dto.getRelEcouteActive()
+        );
+        for (int i = 0; i < relChecks.size(); i++) {
+            placeCheck(page, font, relChecks.get(i), yRelStart - i * ySpacingRel, xSpacingRel);
+        }
 
-        // Commentaires Relations (RÉVISÉ : Y_bas ajusté à 340f, Hauteur à 50f)
-        addMultiLineText(page, font, dto.getCommentairesRelations(), new Rectangle(80f, 340f, 500f, 50f));
+        // Commentaires Relations
+        addMultiLineText(page, font, dto.getCommentairesRelations(), new Rectangle(100f, 346f, 550f, 20f));
 
         // --- 3. HABILETÉS PERSONNELLES (Coches) ---
-        float yHabStart = 275f;
-        float ySpacingHab = 19f;
+        float yHabStart = 255f;
+        float ySpacingHab = 20f;
+        float xSpacingHab = 5f;
 
-        placeCheck(page, font, dto.getHabInteretMotivation(), yHabStart);
-        placeCheck(page, font, dto.getHabExprimerIdees(), yHabStart - ySpacingHab);
-        placeCheck(page, font, dto.getHabFairePreuveInitiative(), yHabStart - 2 * ySpacingHab);
-        placeCheck(page, font, dto.getHabTravaillerSecuritaire(), yHabStart - 3 * ySpacingHab);
-        placeCheck(page, font, dto.getHabSensResponsabilites(), yHabStart - 4 * ySpacingHab);
-        placeCheck(page, font, dto.getHabPonctuelAssidu(), yHabStart - 5 * ySpacingHab);
 
-        // Commentaires Habiletés (RÉVISÉ : Y_bas ajusté à 110f, Hauteur à 50f)
-        addMultiLineText(page, font, dto.getCommentairesHabiletés(), new Rectangle(80f, 110f, 500f, 50f));
+        List<NiveauAccordDTO> habChecks = List.of(
+                dto.getHabInteretMotivation(),
+                dto.getHabExprimerIdees(),
+                dto.getHabFairePreuveInitiative(),
+                dto.getHabTravaillerSecuritaire(),
+                dto.getHabSensResponsabilites(),
+                dto.getHabPonctuelAssidu()
+        );
+        for (int i = 0; i < habChecks.size(); i++) {
+            placeCheck(page, font, habChecks.get(i), yHabStart - i * ySpacingHab, xSpacingHab);
+        }
+
+        // Commentaires Habiletés
+        addMultiLineText(page, font, dto.getCommentairesHabiletes(), new Rectangle(100f, 119f, 550f, 20f));
     }
 
     // ----------------------------------------------------------------------
-    // Remplissage Page 3 (Coordonnées révisées)
+    // Remplissage Page 3
     // ----------------------------------------------------------------------
-    private void remplirPage3(PdfDocument pdf, EvaluationDTO dto, PdfFont font) {
+    private void remplirPage3(PdfDocument pdf, CreerEvaluationDTO dto, PdfFont font) {
         PdfPage page = pdf.getPage(3);
 
         // --- 1. APPRÉCIATION GLOBALE (Coches) ---
-        float yAppreciationStart = 720f;
-        float yAppreciationSpacing = 15.5f;
+        float yAppreciationStart = 719f;
+        float yAppreciationSpacing = 13f;
         Float yAppreciation = switch (dto.getAppreciationGlobale() != null ? dto.getAppreciationGlobale() : "") {
             case "Les habiletés démontrées dépassent de beaucoup les attentes" -> yAppreciationStart;
             case "Les habiletés démontrées dépassent les attentes" -> yAppreciationStart - yAppreciationSpacing;
@@ -226,50 +249,43 @@ public class PdfGenerationEvaluation {
         };
 
         if (yAppreciation != null) {
-            drawCheckMark(page, font, 70f, yAppreciation);
+            drawCheckMark(page, font, 480f, yAppreciation);
         }
 
-        // --- 2. PRÉCISEZ VOTRE APPRÉCIATION (RÉVISÉ : Y_bas ajusté à 580f, Hauteur à 60f) ---
-        addMultiLineText(page, font, dto.getPrecisionAppreciation(), new Rectangle(80f, 580f, 500f, 60f));
+        // --- 2. PRÉCISEZ VOTRE APPRÉCIATION  ---
+        addMultiLineText(page, font, dto.getPrecisionAppreciation(), new Rectangle(34f, 622f, 540f, 360f));
 
-        // --- 3. Discussion avec le stagiaire (RÉVISÉ : X ajusté) ---
+        // --- 3. Discussion avec le stagiaire ---
         if (dto.getDiscussionAvecStagiaire() != null) {
-            float yDiscussion = 555f;
+            float yDiscussion = 530f;
             if (dto.getDiscussionAvecStagiaire()) {
-                drawCheckMark(page, font, 250f, yDiscussion); // Oui
+                drawCheckMark(page, font, 329f, yDiscussion); // Oui
             } else {
-                drawCheckMark(page, font, 360f, yDiscussion); // Non
+                drawCheckMark(page, font, 403f, yDiscussion); // Non
             }
         }
 
         // --- 4. Heures d'encadrement ---
-        addText(page, font, dto.getHeuresEncadrementSemaine() != null ? dto.getHeuresEncadrementSemaine().toString() : "", 520f, 530f);
+        addText(page, font, dto.getHeuresEncadrementSemaine() != null ? dto.getHeuresEncadrementSemaine().toString() : "", 520f, 500f);
 
-        // --- 5. Accueillir prochain stage (RÉVISÉ : X ajusté) ---
-        float yAccueil = 505f;
-        Float xAccueil = switch (dto.getEntrepriseAccueillirProchainStage() != null ? dto.getEntrepriseAccueillirProchainStage() : "") {
-            case "Oui" -> 410f;
-            case "Non" -> 470f;
-            case "Peut-être" -> 530f;
+        // --- 5. Accueillir prochain stage ---
+        float yAccueil = 5568f;
+        Float xAccueil = switch (dto.getEntrepriseAccueillirProchainStage()) {
+            case CreerEvaluationDTO.entrepriseProchainStageChoix.OUI -> 220f;
+            case CreerEvaluationDTO.entrepriseProchainStageChoix.NON -> 314f;
+            case CreerEvaluationDTO.entrepriseProchainStageChoix.PEUT_ETRE -> 427f;
             default -> null;
         };
         if (xAccueil != null) {
             drawCheckMark(page, font, xAccueil, yAccueil);
         }
 
-        // --- 6. Formation technique suffisante (RÉVISÉ : X ajusté) ---
-        if (dto.getFormationTechniqueSuffisante() != null) {
-            float yFormation = 480f;
-            if (dto.getFormationTechniqueSuffisante()) {
-                drawCheckMark(page, font, 540f, yFormation); // Oui
-            } else {
-                drawCheckMark(page, font, 590f, yFormation); // Non
-            }
-        }
+        // --- 6. Formation technique suffisante ---
+        addMultiLineText(page, font, dto.getFormationTechniqueSuffisante(), new Rectangle(34f, 413f, 540f, 360f));
 
         // --- 7. Signature et Date ---
-        addText(page, font, dto.getNomSuperviseur(), 150f, 440f);
-        addText(page, font, dto.getFonctionSuperviseur(), 150f, 400f);
-        addText(page, font, dto.getDateSignature(), 450f, 400f);
+        addText(page, font, dto.getNomSuperviseur(), 70f, 338f);
+        addText(page, font, dto.getFonctionSuperviseur(), 345f, 338f);
+        addText(page, font, String.valueOf(dto.getDateSignature()), 326f, 307f);
     }
 }

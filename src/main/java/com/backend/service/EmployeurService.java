@@ -531,7 +531,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerEvaluation(EvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException, IOException {
+    public void creerEvaluation(CreerEvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException, IOException {
         Employeur employeur = getEmployeurConnecte();
         EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
         Etudiant etudiant = entente.getEtudiant();
@@ -550,8 +550,6 @@ public class EmployeurService {
         eval.setEmployeur(employeur);
         eval.setPdfBase64(pdfBase64);
         evaluationRepository.save(eval);
-
-        new EvaluationDTO().toDTO(eval);
     }
 
     @Transactional

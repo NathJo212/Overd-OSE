@@ -392,10 +392,10 @@ public class EmployeurController {
 
     @PostMapping("/evaluation")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> creerEvaluation(@RequestBody EvaluationDTO evaluationDTO) {
+    public ResponseEntity<MessageRetourDTO> creerEvaluation(@RequestBody CreerEvaluationDTO creerEvaluationDTO) {
         try {
             System.out.println("allo");
-            employeurService.creerEvaluation(evaluationDTO);
+            employeurService.creerEvaluation(creerEvaluationDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(new MessageRetourDTO("Évaluation créée avec succès", null));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)

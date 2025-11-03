@@ -1656,7 +1656,7 @@ public class EmployeurServiceTest {
 
         when(ententeStageRepository.findById(200L)).thenReturn(Optional.empty());
 
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(200L);
 
         // Act & Assert
@@ -1691,7 +1691,7 @@ public class EmployeurServiceTest {
         when(ententeStageRepository.findById(300L)).thenReturn(Optional.of(entente));
         when(evaluationRepository.existsByEtudiantIdAndEmployeurId(6L, 1L)).thenReturn(true);
 
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(300L);
 
         // Act & Assert
@@ -1726,7 +1726,7 @@ public class EmployeurServiceTest {
 
         when(ententeStageRepository.findById(400L)).thenReturn(Optional.of(entente));
 
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(400L);
 
         // Act & Assert

@@ -1186,9 +1186,9 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/evaluations retourne 403 si non autorisé")
     void creerEvaluation_nonAutorise_returnsForbidden() throws Exception {
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(11L);
-        doThrow(new ActionNonAutoriseeException()).when(employeurService).creerEvaluation(any(EvaluationDTO.class));
+        doThrow(new ActionNonAutoriseeException()).when(employeurService).creerEvaluation(any(CreerEvaluationDTO.class));
 
         mockMvc.perform(post("/OSEemployeur/evaluations")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -1200,9 +1200,9 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/evaluations retourne 404 si entente non trouvée")
     void creerEvaluation_ententeNonTrouvee_returnsNotFound() throws Exception {
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(12L);
-        doThrow(new EntenteNonTrouveException()).when(employeurService).creerEvaluation(any(EvaluationDTO.class));
+        doThrow(new EntenteNonTrouveException()).when(employeurService).creerEvaluation(any(CreerEvaluationDTO.class));
 
         mockMvc.perform(post("/OSEemployeur/evaluations")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -1214,9 +1214,9 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/evaluations retourne 409 si evaluation déjà existante")
     void creerEvaluation_dejaExistante_returnsConflict() throws Exception {
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(13L);
-        doThrow(new EvaluationDejaExistanteException()).when(employeurService).creerEvaluation(any(EvaluationDTO.class));
+        doThrow(new EvaluationDejaExistanteException()).when(employeurService).creerEvaluation(any(CreerEvaluationDTO.class));
 
         mockMvc.perform(post("/OSEemployeur/evaluations")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -1228,9 +1228,9 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/evaluations retourne 500 si erreur interne")
     void creerEvaluation_internalError_returnsInternalServerError() throws Exception {
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(14L);
-        doThrow(new RuntimeException("oops")).when(employeurService).creerEvaluation(any(EvaluationDTO.class));
+        doThrow(new RuntimeException("oops")).when(employeurService).creerEvaluation(any(CreerEvaluationDTO.class));
 
         mockMvc.perform(post("/OSEemployeur/evaluations")
                         .contentType(MediaType.APPLICATION_JSON)

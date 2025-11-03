@@ -1,7 +1,6 @@
-package com.backend.modele;
+package com.backend.service.DTO;
 
-
-public enum NiveauAccord {
+public enum NiveauAccordDTO {
     TOTALEMENT_EN_ACCORD("Totalement en accord"),
     PLUTOT_EN_ACCORD("Plutôt en accord"),
     PLUTOT_EN_DESACCORD("Plutôt en désaccord"),
@@ -10,7 +9,7 @@ public enum NiveauAccord {
 
     private final String label;
 
-    NiveauAccord(String label) {
+    NiveauAccordDTO(String label) {
         this.label = label;
     }
 
