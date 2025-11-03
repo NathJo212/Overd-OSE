@@ -1,10 +1,7 @@
 package com.backend.controller;
 
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.CVNonExistantException;
-import com.backend.Exceptions.UtilisateurPasTrouveException;
-import com.backend.service.DTO.EtudiantDTO;
-import com.backend.service.DTO.ProfesseurDTO;
+import com.backend.Exceptions.*;
+import com.backend.service.DTO.*;
 import com.backend.service.ProfesseurService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,6 +50,58 @@ public class ProfesseurController {
                 .body(cvDechiffre);
     }
 
+    @GetMapping("/etudiants/{etudiantId}/ententes")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EntenteStageDTO>> getEntentesPourEtudiant(@PathVariable Long etudiantId) {
+        try {
+            List<EntenteStageDTO> ententes = professeurService.getEntentesPourEtudiant(etudiantId);
+            return ResponseEntity.ok(ententes);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/etudiants/{etudiantId}/candidatures")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesPourEtudiant(@PathVariable Long etudiantId) {
+        try {
+            List<CandidatureDTO> candidatures = professeurService.getCandidaturesPourEtudiant(etudiantId);
+            return ResponseEntity.ok(candidatures);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/candidatures/{candidatureId}/lettre")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> telechargerLettrePresentation(@PathVariable Long candidatureId)
+            throws UtilisateurPasTrouveException, LettreDeMotivationNonDisponibleException {
+
+        byte[] lettreDechiffree = professeurService.getLettrePresentationParCandidature(candidatureId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=LettrePresentation_" + candidatureId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(lettreDechiffree.length)
+                .body(lettreDechiffree);
+    }
+
+    @GetMapping("/ententes/{ententeId}/statut")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<StatutStageDTO> getStatutStage(@PathVariable Long ententeId) {
+        try {
+            StatutStageDTO statut = professeurService.getStatutStage(ententeId);
+            return ResponseEntity.ok(statut);
+        } catch (EntenteNonTrouveeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 
 }

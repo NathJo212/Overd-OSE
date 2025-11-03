@@ -2,12 +2,15 @@ package com.backend.service;
 
 
 import com.backend.Exceptions.*;
+import com.backend.modele.Candidature;
+import com.backend.modele.EntenteStage;
 import com.backend.modele.Etudiant;
 import com.backend.modele.Professeur;
-import com.backend.persistence.EtudiantRepository;
-import com.backend.persistence.ProfesseurRepository;
-import com.backend.persistence.UtilisateurRepository;
+import com.backend.persistence.*;
+import com.backend.service.DTO.CandidatureDTO;
+import com.backend.service.DTO.EntenteStageDTO;
 import com.backend.service.DTO.EtudiantDTO;
+import com.backend.service.DTO.StatutStageDTO;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
@@ -15,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -26,14 +30,18 @@ public class ProfesseurService {
     private final PasswordEncoder passwordEncoder;
     private final EtudiantRepository etudiantRepository;
     private final EncryptageCV encryptageCV;
+    private final EntenteStageRepository ententeStageRepository;
+    private final CandidatureRepository candidatureRepository;
 
 
-    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV) {
+    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository) {
         this.professeurRepository = professeurRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.encryptageCV = encryptageCV;
+        this.ententeStageRepository = ententeStageRepository;
+        this.candidatureRepository = candidatureRepository;
     }
 
     @Transactional
@@ -94,6 +102,72 @@ public class ProfesseurService {
             throw new CVNonExistantException();
         }
     }
+
+    @Transactional
+    public List<EntenteStageDTO> getEntentesPourEtudiant(Long etudiantId) throws UtilisateurPasTrouveException {
+        Etudiant etudiant = etudiantRepository.findById(etudiantId)
+                .orElseThrow(UtilisateurPasTrouveException::new);
+
+        List<EntenteStage> ententes = ententeStageRepository.findByEtudiantId(etudiantId);
+
+        return ententes.stream()
+                .map(entente -> new EntenteStageDTO().toDTO(entente))
+                .toList();
+    }
+
+    @Transactional
+    public List<CandidatureDTO> getCandidaturesPourEtudiant(Long etudiantId) throws UtilisateurPasTrouveException {
+        Etudiant etudiant = etudiantRepository.findById(etudiantId)
+                .orElseThrow(UtilisateurPasTrouveException::new);
+
+        List<Candidature> candidatures = candidatureRepository.findByEtudiantId(etudiantId);
+
+        return candidatures.stream()
+                .map(candidature -> new CandidatureDTO().toDTO(candidature))
+                .toList();
+
+
+    }
+
+    @Transactional
+    public byte[] getLettrePresentationParCandidature(Long candidatureId) throws UtilisateurPasTrouveException, LettreDeMotivationNonDisponibleException {
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(UtilisateurPasTrouveException::new);
+
+        if (candidature.getLettreMotivation() == null) {
+            throw new LettreDeMotivationNonDisponibleException();
+        }
+
+        try {
+            String lettreMotivation = new String(candidature.getLettreMotivation());
+            return encryptageCV.dechiffrer(lettreMotivation);
+        } catch (Exception e) {
+            throw new LettreDeMotivationNonDisponibleException();
+        }
+
+    }
+
+    @Transactional
+    public StatutStageDTO getStatutStage(Long ententeId) throws EntenteNonTrouveeException {
+        EntenteStage ententeStage = ententeStageRepository.findById(ententeId)
+                .orElseThrow(EntenteNonTrouveeException::new);
+
+        LocalDate now = LocalDate.now();
+        LocalDate debut = ententeStage.getDateDebut();
+        LocalDate fin = ententeStage.getDateFin();
+
+        if (debut.isAfter(now)) {
+            return StatutStageDTO.PAS_COMMENCE;
+        } else if ((debut.isBefore(now) || debut.isEqual(now)) &&
+                (fin.isAfter(now) || fin.isEqual(now))) {
+            return StatutStageDTO.EN_COURS;
+        } else {
+            return StatutStageDTO.TERMINE;
+        }
+    }
+
+
+
 
 
 }
