@@ -12,7 +12,8 @@ import {
     Clock,
     MessageSquare,
     AlertCircle,
-    Briefcase
+    Briefcase,
+    Download
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar";
@@ -191,6 +192,37 @@ const EmployeurEvaluationStagiaire = () => {
             }
         } finally {
             setActionLoading(false);
+        }
+    };
+
+    const handleDownloadPDF = (evaluation: EvaluationDTO) => {
+        if (!evaluation.pdfBase64) {
+            alert('PDF non disponible');
+            return;
+        }
+
+        try {
+            // Convertir base64 en Blob
+            const byteCharacters = atob(evaluation.pdfBase64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+            // Créer un lien de téléchargement
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `evaluation_${evaluation.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erreur lors du téléchargement du PDF:', error);
+            alert('Erreur lors du téléchargement du PDF');
         }
     };
 
@@ -435,7 +467,7 @@ const EmployeurEvaluationStagiaire = () => {
                 </div>
             </div>
 
-            {/* Modal d'évaluation */}
+            {/* Modal d'évaluation (CRÉATION) */}
             {showEvaluationModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -592,23 +624,36 @@ const EmployeurEvaluationStagiaire = () => {
                 </div>
             )}
 
-            {/* Modal de détails d'évaluation */}
+            {/* Modal de détails d'évaluation (VISUALISATION PDF) */}
             {showDetailsModal && selectedEvaluation && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex justify-between items-center">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                        {/* Header */}
+                        <div className="bg-white border-b border-gray-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
                             <h2 className="text-2xl font-bold text-gray-800">
                                 {t('detailsModal.title')}
                             </h2>
-                            <button
-                                onClick={handleCloseModals}
-                                className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
+                            <div className="flex items-center gap-3">
+                                {/* Bouton Télécharger */}
+                                <button
+                                    onClick={() => handleDownloadPDF(selectedEvaluation)}
+                                    className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    {t('detailsModal.downloadPdf')}
+                                </button>
+                                {/* Bouton Fermer */}
+                                <button
+                                    onClick={handleCloseModals}
+                                    className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="px-8 py-6">
+                        {/* Body - Affichage du PDF */}
+                        <div className="flex-1 overflow-y-auto p-8">
                             {/* Evaluation Date */}
                             <div className="bg-green-50 rounded-lg p-4 mb-6 flex items-center gap-3">
                                 <CheckCircle className="w-6 h-6 text-green-600" />
@@ -640,58 +685,34 @@ const EmployeurEvaluationStagiaire = () => {
                                 ) : null;
                             })()}
 
-                            {/* Evaluation Details */}
-                            <div className="space-y-6">
-                                <div>
-                                    <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                                        <Star className="w-4 h-4 text-blue-600" />
-                                        {t('modal.sections.technicalSkills')}
-                                    </h4>
-                                    <p className="text-gray-700 bg-gray-50 rounded-lg p-4 whitespace-pre-wrap">
-                                        {selectedEvaluation.competencesTechniques}
+                            {/* Visualiseur PDF */}
+                            {selectedEvaluation.pdfBase64 ? (
+                                <div className="bg-gray-100 rounded-lg p-4">
+                                    <iframe
+                                        src={`data:application/pdf;base64,${selectedEvaluation.pdfBase64}`}
+                                        className="w-full h-[600px] border-0 rounded"
+                                        title="Évaluation PDF"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                                    <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-3" />
+                                    <p className="text-red-800 font-semibold">PDF non disponible</p>
+                                    <p className="text-red-700 text-sm mt-2">
+                                        Le PDF de cette évaluation n'a pas pu être chargé.
                                     </p>
                                 </div>
+                            )}
+                        </div>
 
-                                <div>
-                                    <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-blue-600" />
-                                        {t('modal.sections.timeManagement')}
-                                    </h4>
-                                    <p className="text-gray-700 bg-gray-50 rounded-lg p-4 whitespace-pre-wrap">
-                                        {selectedEvaluation.respectDelais}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                                        <User className="w-4 h-4 text-blue-600" />
-                                        {t('modal.sections.attitude')}
-                                    </h4>
-                                    <p className="text-gray-700 bg-gray-50 rounded-lg p-4 whitespace-pre-wrap">
-                                        {selectedEvaluation.attitudeIntegration}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                                        <MessageSquare className="w-4 h-4 text-blue-600" />
-                                        {t('modal.sections.generalComments')}
-                                    </h4>
-                                    <p className="text-gray-700 bg-gray-50 rounded-lg p-4 whitespace-pre-wrap">
-                                        {selectedEvaluation.commentaires}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Close Button */}
-                            <div className="mt-8">
-                                <button
-                                    onClick={handleCloseModals}
-                                    className="cursor-pointer w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-colors"
-                                >
-                                    {t('detailsModal.close')}
-                                </button>
-                            </div>
+                        {/* Footer */}
+                        <div className="border-t border-gray-200 px-8 py-4 flex-shrink-0">
+                            <button
+                                onClick={handleCloseModals}
+                                className="cursor-pointer w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-colors"
+                            >
+                                {t('detailsModal.close')}
+                            </button>
                         </div>
                     </div>
                 </div>

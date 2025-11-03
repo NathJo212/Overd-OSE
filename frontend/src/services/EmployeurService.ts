@@ -95,14 +95,79 @@ export interface EntenteStageDTO {
     lieu: string;
 }
 
+// Types pour l'échelle de Likert (pour le futur)
+export type NiveauAccord =
+    | 'TOTALEMENT_EN_ACCORD'
+    | 'PLUTOT_EN_ACCORD'
+    | 'PLUTOT_EN_DESACCORD'
+    | 'TOTALEMENT_EN_DESACCORD'
+    | 'NON_APPLICABLE';
+
+// Interface pour l'évaluation du stagiaire
+// NOTE: Le backend stocke SEULEMENT le PDF généré (en base64)
+// Les champs sont envoyés pour la génération du PDF, mais ne sont pas stockés individuellement
 export interface EvaluationDTO {
     id?: number;
     ententeId: number;
-    etudiantId: number;
-    competencesTechniques: string;
-    respectDelais: string;
-    attitudeIntegration: string;
-    commentaires: string;
+    etudiantId?: number;
+
+    // === CHAMPS DU FORMULAIRE SIMPLE (actuellement utilisés) ===
+    competencesTechniques?: string;
+    respectDelais?: string;
+    attitudeIntegration?: string;
+    commentaires?: string;
+
+    // === CHAMPS COMPLETS (optionnels - pour formulaire Likert complet si implémenté plus tard) ===
+    // Informations du superviseur
+    nomSuperviseur?: string;
+    fonctionSuperviseur?: string;
+    telephoneSuperviseur?: string;
+    dateSignature?: string;
+
+    // 1. PRODUCTIVITÉ (5 critères)
+    prodPlanifierOrganiser?: NiveauAccord;
+    prodComprendreDirectives?: NiveauAccord;
+    prodRythmeSoutenu?: NiveauAccord;
+    prodEtablirPriorites?: NiveauAccord;
+    prodRespectEcheanciers?: NiveauAccord;
+    commentairesProductivite?: string;
+
+    // 2. QUALITÉ DU TRAVAIL (5 critères)
+    qualRespectMandats?: NiveauAccord;
+    qualAttentionDetails?: NiveauAccord;
+    qualVerifierTravail?: NiveauAccord;
+    qualRechercherPerfectionnement?: NiveauAccord;
+    qualAnalyseProblemes?: NiveauAccord;
+    commentairesQualiteTravail?: string;
+
+    // 3. QUALITÉS DES RELATIONS INTERPERSONNELLES (6 critères)
+    relEtablirContacts?: NiveauAccord;
+    relContribuerEquipe?: NiveauAccord;
+    relAdapterCulture?: NiveauAccord;
+    relAccepterCritiques?: NiveauAccord;
+    relEtreRespectueux?: NiveauAccord;
+    relEcouteActive?: NiveauAccord;
+    commentairesRelations?: string;
+
+    // 4. HABILETÉS PERSONNELLES (6 critères)
+    habInteretMotivation?: NiveauAccord;
+    habExprimerIdees?: NiveauAccord;
+    habFairePreuveInitiative?: NiveauAccord;
+    habTravaillerSecuritaire?: NiveauAccord;
+    habSensResponsabilites?: NiveauAccord;
+    habPonctuelAssidu?: NiveauAccord;
+    commentairesHabiletés?: string;
+
+    // APPRÉCIATION GLOBALE ET FINALISATION
+    appreciationGlobale?: string;
+    precisionAppreciation?: string;
+    discussionAvecStagiaire?: boolean;
+    heuresEncadrementSemaine?: number;
+    entrepriseAccueillirProchainStage?: string;
+    formationTechniqueSuffisante?: boolean;
+
+    // === LE PDF GÉNÉRÉ (STOCKÉ EN BASE64) ===
+    pdfBase64?: string;
     dateEvaluation?: string;
 }
 
@@ -296,6 +361,7 @@ class EmployeurService {
             throw error;
         }
     }
+
     async telechargerCvCandidature(id: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -328,7 +394,6 @@ class EmployeurService {
                 throw new Error('Vous devez être connecté');
             }
 
-            // ✅ ENDPOINT CORRECT avec trait d'union
             const response = await fetch(`${this.baseUrl}/candidatures/${id}/lettre-motivation`, {
                 method: 'GET',
                 headers: {
@@ -364,7 +429,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors de l\'approbation de la candidature:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors de l\'approbation');
@@ -423,7 +487,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors du refus de la candidature:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
@@ -464,9 +527,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Crée une convocation d'entrevue
-     */
     async creerConvocation(candidatureId: number, convocation: { dateHeure: string; lieuOuLien: string; message: string }): Promise<any> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -618,7 +678,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors de la signature de l\'entente:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors de la signature');
@@ -676,7 +735,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors du refus de l\'entente:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
@@ -745,8 +803,7 @@ class EmployeurService {
 
     /**
      * Crée une évaluation pour un stagiaire
-     * @param evaluationData - Les données de l'évaluation
-     * @returns Promise<MessageRetour>
+     * Le backend génère un PDF et le stocke en base64
      */
     async creerEvaluation(evaluationData: EvaluationDTO): Promise<MessageRetour> {
         try {
@@ -755,7 +812,7 @@ class EmployeurService {
                 throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/evaluations`, {
+            const response = await fetch(`${this.baseUrl}/evaluation`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -766,7 +823,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors de la création de l\'évaluation:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors de la création de l\'évaluation');
@@ -809,7 +865,7 @@ class EmployeurService {
 
     /**
      * Récupère toutes les évaluations de l'employeur connecté
-     * @returns Promise<EvaluationDTO[]>
+     * Chaque évaluation contient le PDF en base64
      */
     async getEvaluations(): Promise<EvaluationDTO[]> {
         try {

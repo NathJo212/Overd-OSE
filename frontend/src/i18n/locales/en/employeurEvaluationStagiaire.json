@@ -1,8 +1,9 @@
 {
   "title": "Intern Evaluation",
   "subtitle": "Evaluate your interns' performance",
-  "backToDashboard": "Back to dashboard",
+  "backToDashboard": "Back to Dashboard",
   "refresh": "Refresh",
+  "loading": "Loading...",
 
   "tabs": {
     "toEvaluate": "To Evaluate",
@@ -15,45 +16,41 @@
     "noEntentesDescription": "You currently have no signed internship agreements with an intern.",
     "count": "{{count}} signed agreement(s)",
     "student": "Intern",
-    "internship": "Internship",
-    "period": "Period",
     "to": "to",
-    "evaluate": "Evaluate",
-    "alreadyEvaluated": "Evaluated",
-    "viewEvaluation": "View evaluation"
+    "evaluate": "Evaluate"
   },
 
   "evaluationsList": {
     "title": "Submitted evaluations",
-    "noEvaluations": "No submitted evaluations",
-    "noEvaluationsDescription": "You have not yet submitted any evaluations for your interns.",
+    "noEvaluations": "No evaluations",
+    "noEvaluationsDescription": "You have not submitted any evaluations yet.",
     "count": "{{count}} submitted evaluation(s)",
     "evaluatedOn": "Evaluated on",
-    "viewDetails": "View details"
+    "viewDetails": "View Evaluation"
   },
 
   "modal": {
-    "title": "Evaluate Intern",
+    "title": "Intern Evaluation",
     "studentInfo": "Intern Information",
-    "name": "Name",
+    "name": "Full Name",
     "email": "Email",
     "internshipTitle": "Internship Title",
-    "period": "Internship Period",
+    "period": "Period",
     "to": "to",
 
     "sections": {
-      "technicalSkills": "Technical and Professional Skills",
-      "timeManagement": "Meeting Deadlines and Objectives",
-      "attitude": "Attitude and Team Integration",
+      "technicalSkills": "Technical Skills",
+      "timeManagement": "Time Management",
+      "attitude": "Attitude and Integration",
       "generalComments": "General Comments"
     },
 
     "fields": {
-      "technicalSkillsPlaceholder": "Describe the intern's technical skills, mastery of tools and technologies used, problem-solving abilities...",
-      "timeManagementPlaceholder": "Comment on the intern's punctuality, ability to meet deadlines, work organization...",
-      "attitudePlaceholder": "Describe the intern's attitude, teamwork, communication, proactivity, professionalism...",
-      "generalCommentsPlaceholder": "Share your general comments about the internship, the intern's strengths, areas for improvement, your recommendations...",
-      "required": "*"
+      "required": "*",
+      "technicalSkillsPlaceholder": "Describe the intern's technical skills...",
+      "timeManagementPlaceholder": "How does the intern manage deadlines and priorities?",
+      "attitudePlaceholder": "Describe the intern's general attitude and integration...",
+      "generalCommentsPlaceholder": "Additional comments on overall performance..."
     },
 
     "actions": {
@@ -66,26 +63,22 @@
   "detailsModal": {
     "title": "Evaluation Details",
     "evaluationDate": "Evaluation Date",
-    "studentInfo": "Evaluated Intern",
-    "internshipInfo": "Related Internship",
+    "studentInfo": "Intern Information",
+    "internshipInfo": "Internship Information",
+    "downloadPdf": "Download PDF",
     "close": "Close"
   },
 
   "messages": {
     "success": "Evaluation submitted successfully!",
-    "successDescription": "The intern and internship manager have been notified."
+    "successDescription": "The evaluation has been saved."
   },
 
   "errors": {
-    "loadEntentes": "Error loading internship agreements",
+    "loadEntentes": "Error loading agreements",
     "loadEvaluations": "Error loading evaluations",
+    "allFieldsRequired": "All fields are required:",
     "submitFailed": "Error submitting evaluation",
-    "allFieldsRequired": "All fields are required",
-    "errorCode": "Error ({{code}}): {{message}}",
-    "networkError": "Server connection error",
-    "unauthorized": "You are not authorized to perform this action"
-  },
-
-  "loading": "Loading...",
-  "noData": "No data available"
+    "networkError": "Server connection error"
+  }
 }

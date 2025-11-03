@@ -3,6 +3,7 @@
   "subtitle": "Évaluez les performances de vos stagiaires",
   "backToDashboard": "Retour au tableau de bord",
   "refresh": "Actualiser",
+  "loading": "Chargement...",
 
   "tabs": {
     "toEvaluate": "À évaluer",
@@ -15,77 +16,69 @@
     "noEntentesDescription": "Vous n'avez actuellement aucune entente de stage signée avec un stagiaire.",
     "count": "{{count}} entente(s) signée(s)",
     "student": "Stagiaire",
-    "internship": "Stage",
-    "period": "Période",
     "to": "au",
-    "evaluate": "Évaluer",
-    "alreadyEvaluated": "Évalué",
-    "viewEvaluation": "Voir l'évaluation"
+    "evaluate": "Évaluer"
   },
 
   "evaluationsList": {
     "title": "Évaluations soumises",
-    "noEvaluations": "Aucune évaluation soumise",
-    "noEvaluationsDescription": "Vous n'avez pas encore soumis d'évaluation pour vos stagiaires.",
+    "noEvaluations": "Aucune évaluation",
+    "noEvaluationsDescription": "Vous n'avez soumis aucune évaluation pour le moment.",
     "count": "{{count}} évaluation(s) soumise(s)",
-    "evaluatedOn": "Évalué le",
-    "viewDetails": "Voir les détails"
+    "evaluatedOn": "Évaluée le",
+    "viewDetails": "Voir l'évaluation"
   },
 
   "modal": {
-    "title": "Évaluer le stagiaire",
+    "title": "Évaluation du stagiaire",
     "studentInfo": "Informations du stagiaire",
-    "name": "Nom",
+    "name": "Nom complet",
     "email": "Courriel",
     "internshipTitle": "Titre du stage",
-    "period": "Période du stage",
+    "period": "Période",
     "to": "au",
 
     "sections": {
-      "technicalSkills": "Compétences techniques et professionnelles",
-      "timeManagement": "Respect des délais et des objectifs",
-      "attitude": "Attitude et intégration dans l'équipe",
+      "technicalSkills": "Compétences techniques",
+      "timeManagement": "Respect des délais",
+      "attitude": "Attitude et intégration",
       "generalComments": "Commentaires généraux"
     },
 
     "fields": {
-      "technicalSkillsPlaceholder": "Décrivez les compétences techniques du stagiaire, sa maîtrise des outils et technologies utilisés, sa capacité à résoudre des problèmes...",
-      "timeManagementPlaceholder": "Commentez sur la ponctualité du stagiaire, sa capacité à respecter les échéances, son organisation du travail...",
-      "attitudePlaceholder": "Décrivez l'attitude du stagiaire, son esprit d'équipe, sa communication, sa proactivité, son professionnalisme...",
-      "generalCommentsPlaceholder": "Partagez vos commentaires généraux sur le stage, les points forts du stagiaire, les axes d'amélioration, vos recommandations...",
-      "required": "*"
+      "required": "*",
+      "technicalSkillsPlaceholder": "Décrivez les compétences techniques du stagiaire...",
+      "timeManagementPlaceholder": "Comment le stagiaire gère-t-il les délais et priorités ?",
+      "attitudePlaceholder": "Décrivez l'attitude générale et l'intégration du stagiaire...",
+      "generalCommentsPlaceholder": "Commentaires additionnels sur la performance globale..."
     },
 
     "actions": {
       "cancel": "Annuler",
       "submit": "Soumettre l'évaluation",
-      "submitting": "Envoi en cours..."
+      "submitting": "Soumission en cours..."
     }
   },
 
   "detailsModal": {
     "title": "Détails de l'évaluation",
     "evaluationDate": "Date d'évaluation",
-    "studentInfo": "Stagiaire évalué",
-    "internshipInfo": "Stage concerné",
+    "studentInfo": "Informations du stagiaire",
+    "internshipInfo": "Informations du stage",
+    "downloadPdf": "Télécharger le PDF",
     "close": "Fermer"
   },
 
   "messages": {
     "success": "Évaluation soumise avec succès !",
-    "successDescription": "Le stagiaire et le gestionnaire de stage ont été notifiés."
+    "successDescription": "L'évaluation a été enregistrée."
   },
 
   "errors": {
-    "loadEntentes": "Erreur lors du chargement des ententes de stage",
+    "loadEntentes": "Erreur lors du chargement des ententes",
     "loadEvaluations": "Erreur lors du chargement des évaluations",
+    "allFieldsRequired": "Tous les champs sont requis :",
     "submitFailed": "Erreur lors de la soumission de l'évaluation",
-    "allFieldsRequired": "Tous les champs sont obligatoires",
-    "errorCode": "Erreur ({{code}}): {{message}}",
-    "networkError": "Erreur de connexion au serveur",
-    "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action"
-  },
-
-  "loading": "Chargement en cours...",
-  "noData": "Aucune donnée disponible"
+    "networkError": "Erreur de connexion au serveur"
+  }
 }
