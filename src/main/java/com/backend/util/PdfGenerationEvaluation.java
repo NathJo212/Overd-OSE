@@ -211,7 +211,7 @@ public class PdfGenerationEvaluation {
         // --- 3. HABILETÉS PERSONNELLES (Coches) ---
         float yHabStart = 255f;
         float ySpacingHab = 20f;
-        float xSpacingHab = 6f;
+        float xSpacingHab = 4f;
 
 
         List<NiveauAccordDTO> habChecks = List.of(
