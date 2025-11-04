@@ -223,11 +223,15 @@ public class PdfGenerationEvaluation {
                 dto.getHabPonctuelAssidu()
         );
         for (int i = 0; i < habChecks.size(); i++) {
-            placeCheck(page, font, habChecks.get(i), yHabStart - i * ySpacingHab, xSpacingHab);
+            float y = yHabStart - i * ySpacingHab;
+            if (i == habChecks.size() - 1) {
+                y -= 13f; // dernier élément : décalage de -13 px en Y (Plus bas que le reste)
+            }
+            placeCheck(page, font, habChecks.get(i), y, xSpacingHab);
         }
 
         // Commentaires Habiletés
-        addMultiLineText(page, font, dto.getCommentairesHabiletes(), new Rectangle(100f, 119f, 550f, 20f));
+        addMultiLineText(page, font, dto.getCommentairesHabiletes(), new Rectangle(100f, 108f, 550f, 20f));
     }
 
     // ----------------------------------------------------------------------
@@ -252,7 +256,7 @@ public class PdfGenerationEvaluation {
         }
 
         if (yAppreciation != null) {
-            drawCheckMark(page, font, 480f, yAppreciation);
+            drawCheckMark(page, font, 482f, yAppreciation);
         }
 
         // --- 2. PRÉCISEZ VOTRE APPRÉCIATION  ---
@@ -260,9 +264,9 @@ public class PdfGenerationEvaluation {
 
         // --- 3. Discussion avec le stagiaire ---
         if (dto.getDiscussionAvecStagiaire() != null) {
-            float yDiscussion = 530f;
+            float yDiscussion = 534f;
             if (dto.getDiscussionAvecStagiaire()) {
-                drawCheckMark(page, font, 329f, yDiscussion); // Oui
+                drawCheckMark(page, font, 332f, yDiscussion); // Oui
             } else {
                 drawCheckMark(page, font, 403f, yDiscussion); // Non
             }
@@ -272,9 +276,9 @@ public class PdfGenerationEvaluation {
         addText(page, font, dto.getHeuresEncadrementSemaine() != null ? dto.getHeuresEncadrementSemaine().toString() : "", 520f, 500f);
 
         // --- 5. Accueillir prochain stage ---
-        float yAccueil = 454f;
+        float yAccueil = 452f;
         Float xAccueil = switch (dto.getEntrepriseAccueillirProchainStage()) {
-            case CreerEvaluationDTO.entrepriseProchainStageChoix.OUI -> 220f;
+            case CreerEvaluationDTO.entrepriseProchainStageChoix.OUI -> 222f;
             case CreerEvaluationDTO.entrepriseProchainStageChoix.NON -> 314f;
             case CreerEvaluationDTO.entrepriseProchainStageChoix.PEUT_ETRE -> 427f;
         };
