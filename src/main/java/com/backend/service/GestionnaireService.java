@@ -428,4 +428,90 @@ public class GestionnaireService {
                 .collect(Collectors.toList());
     }
 
+
+    @Transactional
+    public void signerEntente(Long ententeId)
+            throws ActionNonAutoriseeException, EntenteNonTrouveException, StatutEntenteInvalideException {
+        verifierGestionnaireConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(EntenteNonTrouveException::new);
+
+        if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.SIGNEE
+                || entente.getEmployeurSignature() != EntenteStage.SignatureStatus.SIGNEE) {
+            throw new StatutEntenteInvalideException();
+        }
+
+        if (entente.getStatut() == EntenteStage.StatutEntente.SIGNEE
+                || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
+            throw new StatutEntenteInvalideException();
+        }
+
+        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        ententeStageRepository.save(entente);
+
+        try {
+            Notification notifEtudiant = new Notification();
+            notifEtudiant.setUtilisateur(entente.getEtudiant());
+            notifEtudiant.setMessageKey("entente.signed");
+            notifEtudiant.setMessageParam(entente.getTitre());
+            notificationRepository.save(notifEtudiant);
+
+            Notification notifEmployeur = new Notification();
+            notifEmployeur.setUtilisateur(entente.getEmployeur());
+            notifEmployeur.setMessageKey("entente.signed");
+            notifEmployeur.setMessageParam(entente.getTitre());
+            notificationRepository.save(notifEmployeur);
+        } catch (Exception e) {
+            // ignore notification errors
+        }
+    }
+
+    @Transactional
+    public void refuserEntente(Long ententeId)
+            throws ActionNonAutoriseeException, EntenteNonTrouveException, StatutEntenteInvalideException {
+        verifierGestionnaireConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(EntenteNonTrouveException::new);
+
+        if (entente.getStatut() == EntenteStage.StatutEntente.SIGNEE
+                || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
+            throw new StatutEntenteInvalideException();
+        }
+
+        entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
+        entente.setArchived(true);
+        ententeStageRepository.save(entente);
+
+
+        try {
+            Notification notifEtudiant = new Notification();
+            notifEtudiant.setUtilisateur(entente.getEtudiant());
+            notifEtudiant.setMessageKey("entente.refused");
+            notifEtudiant.setMessageParam(entente.getTitre());
+            notificationRepository.save(notifEtudiant);
+
+            Notification notifEmployeur = new Notification();
+            notifEmployeur.setUtilisateur(entente.getEmployeur());
+            notifEmployeur.setMessageKey("entente.refused");
+            notifEmployeur.setMessageParam(entente.getTitre());
+            notificationRepository.save(notifEmployeur);
+        } catch (Exception e) {
+            // ignore notification errors
+        }
+    }
+
+    @Transactional
+    public List<EntenteStageDTO> getEntentesEnAttente() throws ActionNonAutoriseeException {
+        verifierGestionnaireConnecte();
+        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+        return ententes.stream()
+                .filter(e -> e.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE
+                        && e.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE
+                        && e.getStatut() == EntenteStage.StatutEntente.EN_ATTENTE)
+                .map(e -> new EntenteStageDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
+
 }
