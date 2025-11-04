@@ -255,7 +255,7 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
-
+/*
     @GetMapping("/notifications")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<NotificationDTO>> getNotifications() {
@@ -289,7 +289,7 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
-
+*/
     @GetMapping("/offres-approuvees")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<OffreDTO>> getOffresApprouvees() {

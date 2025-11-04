@@ -222,17 +222,6 @@ public class EmployeurService {
         convocationEntrevueRepository.save(convocation);
         candidature.setConvocationEntrevue(convocation);
         candidatureRepository.save(candidature);
-
-        // créer et sauvegarder la notification pour l'étudiant lié
-        Etudiant etudiant = candidature.getEtudiant();
-        if (etudiant != null) {
-            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("convocation.created");
-            notif.setMessageParam(titreOffre);
-            notificationRepository.save(notif);
-        }
     }
 
     @Transactional
@@ -260,17 +249,6 @@ public class EmployeurService {
         convocation.setStatut(ConvocationEntrevue.StatutConvocation.MODIFIE);
 
         convocationEntrevueRepository.save(convocation);
-
-        // notification de modification pour l'étudiant
-        Etudiant etudiant = candidature.getEtudiant();
-        if (etudiant != null) {
-            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("convocation.modified");
-            notif.setMessageParam(titreOffre);
-            notificationRepository.save(notif);
-        }
     }
 
     @Transactional
@@ -294,17 +272,6 @@ public class EmployeurService {
 
         convocation.setStatut(ConvocationEntrevue.StatutConvocation.ANNULEE);
         convocationEntrevueRepository.save(convocation);
-
-        // notification d'annulation pour l'étudiant
-        Etudiant etudiant = candidature.getEtudiant();
-        if (etudiant != null) {
-            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("convocation.cancelled");
-            notif.setMessageParam(titreOffre);
-            notificationRepository.save(notif);
-        }
     }
 
     @Transactional
@@ -340,16 +307,6 @@ public class EmployeurService {
         }
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
         candidatureRepository.save(candidature);
-
-        Etudiant etudiant = candidature.getEtudiant();
-        if (etudiant != null) {
-            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("offre.approved");
-            notif.setMessageParam(titreOffre);
-            notificationRepository.save(notif);
-        }
     }
 
     @Transactional
@@ -369,18 +326,9 @@ public class EmployeurService {
         candidature.setStatut(Candidature.StatutCandidature.REFUSEE);
         candidature.setMessageReponse(raison);
         candidatureRepository.save(candidature);
-
-        Etudiant etudiant = candidature.getEtudiant();
-        if (etudiant != null) {
-            String titreOffre = candidature.getOffre() != null ? candidature.getOffre().getTitre() : null;
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("offre.refused");
-            notif.setMessageParam(titreOffre);
-            notificationRepository.save(notif);
-        }
     }
 
+    /*
     @Transactional
     public List<NotificationDTO> getNotificationsPourEmployeurConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
@@ -414,7 +362,7 @@ public class EmployeurService {
         notification.setLu(lu);
         notificationRepository.save(notification);
     }
-
+*/
     @Transactional
     public List<OffreDTO> getOffresApprouvees() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
@@ -484,16 +432,6 @@ public class EmployeurService {
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
 
         ententeStageRepository.save(entente);
-
-        // Notification pour l'étudiant
-        Etudiant etudiant = entente.getEtudiant();
-        if (etudiant != null) {
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("entente.employer.signed");
-            notif.setMessageParam(entente.getTitre());
-            notificationRepository.save(notif);
-        }
     }
 
     @Transactional
@@ -514,16 +452,6 @@ public class EmployeurService {
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
 
         ententeStageRepository.save(entente);
-
-        // Notification pour l'étudiant
-        Etudiant etudiant = entente.getEtudiant();
-        if (etudiant != null) {
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("entente.employer.refused");
-            notif.setMessageParam(entente.getTitre());
-            notificationRepository.save(notif);
-        }
     }
 
     @Transactional
@@ -551,13 +479,6 @@ public class EmployeurService {
 
         Evaluation eval = new Evaluation(entente, etudiant, employeur, dto.getCompetencesTechniques(), dto.getRespectDelais(), dto.getAttitudeIntegration(), dto.getCommentaires());
         evaluationRepository.save(eval);
-
-        // Notification pour l'étudiant
-        Notification notif = new Notification();
-        notif.setUtilisateur(etudiant);
-        notif.setMessageKey("evaluation.submitted");
-        notif.setMessageParam(entente.getTitre());
-        notificationRepository.save(notif);
 
         new EvaluationDTO().toDTO(eval);
     }

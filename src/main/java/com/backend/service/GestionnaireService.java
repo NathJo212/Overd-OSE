@@ -76,6 +76,27 @@ public class GestionnaireService {
         }
         offre.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
         offreRepository.save(offre);
+
+        try {
+            if (offre.getProgEtude() != null) {
+                List<Etudiant> matched = etudiantRepository.findAllByProgEtude(offre.getProgEtude());
+                if (matched != null && !matched.isEmpty()) {
+                    String titre = offre.getTitre() != null ? offre.getTitre() : "Nouvelle offre";
+
+                    List<Notification> notifications = matched.stream().map(etudiant -> {
+                        Notification n = new Notification(etudiant);
+                        n.setMessageKey("offre.approuve");
+                        // keep messageParam for backward compatibility (optional)
+                        n.setMessageParam(titre);
+                        return n;
+                    }).toList();
+
+                    notificationRepository.saveAll(notifications);
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Erreur lors de la création des notifications: " + ex.getMessage());
+        }
     }
 
     @Transactional
@@ -261,22 +282,6 @@ public class GestionnaireService {
         } catch (IOException ioe) {
             System.out.println("Erreur");
         }
-
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(etudiant);
-            notifEtudiant.setMessageKey("entente.created");
-            notifEtudiant.setMessageParam(offre.getTitre());
-            notificationRepository.save(notifEtudiant);
-
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(employeur);
-            notifEmployeur.setMessageKey("entente.created");
-            notifEmployeur.setMessageParam(offre.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore notification errors
-        }
     }
 
     @Transactional
@@ -315,23 +320,6 @@ public class GestionnaireService {
         } catch (IOException ioe) {
             System.out.println("Erreur");
         }
-
-        // notifications
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(entente.getEtudiant());
-            notifEtudiant.setMessageKey("entente.modified");
-            notifEtudiant.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEtudiant);
-
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(entente.getEmployeur());
-            notifEmployeur.setMessageKey("entente.modified");
-            notifEmployeur.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore notification errors
-        }
     }
 
     @Transactional
@@ -342,23 +330,6 @@ public class GestionnaireService {
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setArchived(true);
         ententeStageRepository.save(entente);
-
-        // notifications
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(entente.getEtudiant());
-            notifEtudiant.setMessageKey("entente.cancelled");
-            notifEtudiant.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEtudiant);
-
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(entente.getEmployeur());
-            notifEmployeur.setMessageKey("entente.cancelled");
-            notifEmployeur.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore
-        }
     }
 
     @Transactional

@@ -1,0 +1,10 @@
+{
+  "title": "Notifications",
+  "loading": "Chargement des notifications...",
+  "noNotifications": "Aucune notification",
+  "markAsRead": "Marquer comme lue",
+  "view": "Voir",
+  "read": "Lu",
+  "viewAll": "Voir toutes les notifications",
+  "offre.approuve": "Nouvelle offre : {{param}}"
+}
