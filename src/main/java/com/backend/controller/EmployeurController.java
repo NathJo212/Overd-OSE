@@ -394,7 +394,6 @@ public class EmployeurController {
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> creerEvaluation(@RequestBody CreerEvaluationDTO creerEvaluationDTO) {
         try {
-            System.out.println("allo");
             employeurService.creerEvaluation(creerEvaluationDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(new MessageRetourDTO("Évaluation créée avec succès", null));
         } catch (ActionNonAutoriseeException e) {

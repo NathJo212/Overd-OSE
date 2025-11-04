@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 import com.backend.modele.Etudiant;
@@ -534,6 +535,11 @@ public class EmployeurService {
     public void creerEvaluation(CreerEvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException, IOException {
         Employeur employeur = getEmployeurConnecte();
         EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
+
+        if(entente.getStatut() != EntenteStage.StatutEntente.SIGNEE){
+            throw new EntenteNonFinaliseeException();
+        }
+
         Etudiant etudiant = entente.getEtudiant();
 
         if (evaluationRepository.existsByEntenteId(entente.getId())) {
@@ -576,7 +582,7 @@ public class EmployeurService {
         }
 
         try {
-            return java.util.Base64.getDecoder().decode(base64);
+            return Base64.getDecoder().decode(base64);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid base64 PDF data");
         }
