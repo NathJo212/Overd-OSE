@@ -17,6 +17,14 @@ public class CreerEvaluationDTO {
         PEUT_ETRE
     }
 
+    public enum AppreciationGlobale {
+        HABILETES_DEPASSENT_DE_BEAUCOUP_LES_ATTENTES,
+        HABILETES_DEPASSENT_LES_ATTENTES,
+        HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES,
+        HABILETES_REPONDENT_PARTIELLEMENT_AUX_ATTENTES,
+        HABILETES_NE_REPONDENT_PAS_AUX_ATTENTES
+    }
+
     private Long id;
     private Long ententeId;
     private Long etudiantId;
@@ -62,7 +70,7 @@ public class CreerEvaluationDTO {
     private String commentairesHabiletes;
 
     // APPRÉCIATION GLOBALE ET FINALISATION
-    private String appreciationGlobale;
+    private AppreciationGlobale appreciationGlobale;
     private String precisionAppreciation;
     private Boolean discussionAvecStagiaire;
     private Integer heuresEncadrementSemaine;

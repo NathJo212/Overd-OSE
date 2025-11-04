@@ -186,7 +186,7 @@ public class PdfGenerationEvaluation {
             placeCheck(page, font, qualChecks.get(i), yQualStart - i * ySpacingQual);
         }
         // Commentaires Qualité
-        addMultiLineText(page, font, dto.getCommentairesQualiteTravail(), new Rectangle(100f, 581f, 550f, 20f));
+        addMultiLineText(page, font, dto.getCommentairesQualiteTravail(), new Rectangle(100f, 560f, 550f, 20f));
 
         // --- 2. QUALITÉS DES RELATIONS INTERPERSONNELLES (Coches) ---
         float yRelStart = 485f;
@@ -206,7 +206,7 @@ public class PdfGenerationEvaluation {
         }
 
         // Commentaires Relations
-        addMultiLineText(page, font, dto.getCommentairesRelations(), new Rectangle(100f, 346f, 550f, 20f));
+        addMultiLineText(page, font, dto.getCommentairesRelations(), new Rectangle(100f, 335f, 550f, 20f));
 
         // --- 3. HABILETÉS PERSONNELLES (Coches) ---
         float yHabStart = 255f;
@@ -239,21 +239,24 @@ public class PdfGenerationEvaluation {
         // --- 1. APPRÉCIATION GLOBALE (Coches) ---
         float yAppreciationStart = 719f;
         float yAppreciationSpacing = 13f;
-        Float yAppreciation = switch (dto.getAppreciationGlobale() != null ? dto.getAppreciationGlobale() : "") {
-            case "Les habiletés démontrées dépassent de beaucoup les attentes" -> yAppreciationStart;
-            case "Les habiletés démontrées dépassent les attentes" -> yAppreciationStart - yAppreciationSpacing;
-            case "Les habiletés démontrées répondent pleinement aux attentes" -> yAppreciationStart - 2 * yAppreciationSpacing;
-            case "Les habiletés démontrées répondent partiellement aux attentes" -> yAppreciationStart - 3 * yAppreciationSpacing;
-            case "Les habiletés démontrées ne répondent pas aux attentes" -> yAppreciationStart - 4 * yAppreciationSpacing;
-            default -> null;
-        };
+        CreerEvaluationDTO.AppreciationGlobale appreciation = dto.getAppreciationGlobale();
+        Float yAppreciation = null;
+        if (appreciation != null) {
+            yAppreciation = switch (appreciation) {
+                case HABILETES_DEPASSENT_DE_BEAUCOUP_LES_ATTENTES -> yAppreciationStart;
+                case HABILETES_DEPASSENT_LES_ATTENTES -> yAppreciationStart - yAppreciationSpacing;
+                case HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES -> yAppreciationStart - 2 * yAppreciationSpacing;
+                case HABILETES_REPONDENT_PARTIELLEMENT_AUX_ATTENTES -> yAppreciationStart - 3 * yAppreciationSpacing;
+                case HABILETES_NE_REPONDENT_PAS_AUX_ATTENTES -> yAppreciationStart - 4 * yAppreciationSpacing;
+            };
+        }
 
         if (yAppreciation != null) {
             drawCheckMark(page, font, 480f, yAppreciation);
         }
 
         // --- 2. PRÉCISEZ VOTRE APPRÉCIATION  ---
-        addMultiLineText(page, font, dto.getPrecisionAppreciation(), new Rectangle(34f, 622f, 540f, 360f));
+        addMultiLineText(page, font, dto.getPrecisionAppreciation(), new Rectangle(34f, 576f, 540f, 60f));
 
         // --- 3. Discussion avec le stagiaire ---
         if (dto.getDiscussionAvecStagiaire() != null) {
@@ -269,19 +272,17 @@ public class PdfGenerationEvaluation {
         addText(page, font, dto.getHeuresEncadrementSemaine() != null ? dto.getHeuresEncadrementSemaine().toString() : "", 520f, 500f);
 
         // --- 5. Accueillir prochain stage ---
-        float yAccueil = 5568f;
+        float yAccueil = 454f;
         Float xAccueil = switch (dto.getEntrepriseAccueillirProchainStage()) {
             case CreerEvaluationDTO.entrepriseProchainStageChoix.OUI -> 220f;
             case CreerEvaluationDTO.entrepriseProchainStageChoix.NON -> 314f;
             case CreerEvaluationDTO.entrepriseProchainStageChoix.PEUT_ETRE -> 427f;
-            default -> null;
         };
-        if (xAccueil != null) {
-            drawCheckMark(page, font, xAccueil, yAccueil);
-        }
+        drawCheckMark(page, font, xAccueil, yAccueil);
+
 
         // --- 6. Formation technique suffisante ---
-        addMultiLineText(page, font, dto.getFormationTechniqueSuffisante(), new Rectangle(34f, 413f, 540f, 360f));
+        addMultiLineText(page, font, dto.getFormationTechniqueSuffisante(), new Rectangle(34f, 363f, 450f, 60f));
 
         // --- 7. Signature et Date ---
         addText(page, font, dto.getNomSuperviseur(), 70f, 338f);
