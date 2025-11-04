@@ -6,7 +6,7 @@ import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 
 const DashboardProfesseur = () => {
-    const { t, i18n } = useTranslation("dashboardProfesseur");
+    const { t} = useTranslation(["dashboardProfesseur", "programmes"]);
     const navigate = useNavigate();
     const [etudiants, setEtudiants] = useState<EtudiantDTO[]>([]);
     const [loading, setLoading] = useState(true);
@@ -14,7 +14,7 @@ const DashboardProfesseur = () => {
     const [professorName, setProfessorName] = useState("");
     const [downloadingCV, setDownloadingCV] = useState<number | null>(null);
     const [downloadingLettre, setDownloadingLettre] = useState<number | null>(null);
-    const [selectedStudent, setSelectedStudent] = useState<number | null>(null);
+    const [, setSelectedStudent] = useState<number | null>(null);
     const [candidatures, setCandidatures] = useState<CandidatureDTO[]>([]);
     const [ententes, setEntentes] = useState<EntenteStageDTO[]>([]);
     const [loadingCandidatures, setLoadingCandidatures] = useState(false);
@@ -29,7 +29,7 @@ const DashboardProfesseur = () => {
             const data = await professeurService.getMesEtudiants(token);
             setEtudiants(data);
         } catch (e: any) {
-            setError(e.message || t('error.unknown'));
+            setError(e.message || t('dashboardProfesseur:error.unknown'));
         } finally {
             setLoading(false);
         }
@@ -58,7 +58,7 @@ const DashboardProfesseur = () => {
         }
 
         if (!token) {
-            setError(t('error.authTokenMissing'));
+            setError(t('dashboardProfesseur:error.authTokenMissing'));
             return;
         }
 
@@ -81,7 +81,7 @@ const DashboardProfesseur = () => {
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Erreur lors du téléchargement du CV:', error);
-            alert(t('error.downloadCVFailed'));
+            alert(t('dashboardProfesseur:error.downloadCVFailed'));
         } finally {
             setDownloadingCV(null);
         }
@@ -100,7 +100,7 @@ const DashboardProfesseur = () => {
             setCandidatures(data);
         } catch (error) {
             console.error('Erreur lors du chargement des candidatures:', error);
-            alert("Erreur lors du chargement des candidatures");
+            alert(t('dashboardProfesseur:error.unknown'));
         } finally {
             setLoadingCandidatures(false);
         }
@@ -132,7 +132,7 @@ const DashboardProfesseur = () => {
             setStatutsStage(statuts);
         } catch (error) {
             console.error('Erreur lors du chargement des ententes:', error);
-            alert("Erreur lors du chargement des ententes");
+            alert(t('dashboardProfesseur:error.unknown'));
         } finally {
             setLoadingEntentes(false);
         }
@@ -152,7 +152,7 @@ const DashboardProfesseur = () => {
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Erreur lors du téléchargement de la lettre:', error);
-            alert("Erreur lors du téléchargement de la lettre");
+            alert(t('dashboardProfesseur:error.downloadLetterFailed'));
         } finally {
             setDownloadingLettre(null);
         }
@@ -176,16 +176,20 @@ const DashboardProfesseur = () => {
         return styles[statut] || 'bg-gray-100 text-gray-800';
     };
 
+    const getStatutLabel = (statut: string) => {
+        return t(`dashboardProfesseur:candidatures.statusBadge.${statut}`, statut);
+    };
+
     const getStatutStageDisplay = (statut: StatutStageDTO) => {
-        const config: Record<string, { text: string, Icon: any, color: string }> = {
-            'PAS_COMMENCE': { text: 'Pas commencé', Icon: Clock, color: 'text-gray-600' },
-            'EN_COURS': { text: 'En cours', Icon: CheckCircle, color: 'text-blue-600' },
-            'TERMINE': { text: 'Terminé', Icon: CheckCircle, color: 'text-green-600' },
+        const config: Record<string, { Icon: any, color: string }> = {
+            'PAS_COMMENCE': { Icon: Clock, color: 'text-gray-600' },
+            'EN_COURS': { Icon: CheckCircle, color: 'text-blue-600' },
+            'TERMINE': { Icon: CheckCircle, color: 'text-green-600' },
         };
 
-        // Fallback if statut doesn't match
-        const statusConfig = config[statut] || { text: statut, Icon: Clock, color: 'text-gray-600' };
-        const { text, Icon, color } = statusConfig;
+        const statusConfig = config[statut] || { Icon: Clock, color: 'text-gray-600' };
+        const { Icon, color } = statusConfig;
+        const text = t(`dashboardProfesseur:ententes.statutStage.${statut}`, statut);
 
         return (
             <span className={`flex items-center gap-1 ${color}`}>
@@ -195,12 +199,19 @@ const DashboardProfesseur = () => {
         );
     };
 
+    const getProgramName = (programCode: string | undefined) => {
+        if (!programCode) return 'N/A';
+        // Try to get translation from programmes namespace
+        const translatedName = t(`programmes:${programCode}`, { defaultValue: programCode });
+        return translatedName;
+    };
+
     const renderCVColumn = (etudiant: EtudiantDTO) => {
         if (!etudiant.cv || etudiant.cv.length === 0) {
             return (
                 <div className="flex items-center gap-2 text-gray-400">
                     <FileX className="w-4 h-4" />
-                    <span className="text-sm">{t('studentList.cv.noCV')}</span>
+                    <span className="text-sm">{t('dashboardProfesseur:studentList.cv.noCV')}</span>
                 </div>
             );
         }
@@ -214,12 +225,12 @@ const DashboardProfesseur = () => {
                 {downloadingCV === etudiant.id ? (
                     <>
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        <span className="text-sm">{t('studentList.cv.downloading')}</span>
+                        <span className="text-sm">{t('dashboardProfesseur:studentList.cv.downloading')}</span>
                     </>
                 ) : (
                     <>
                         <Download className="w-4 h-4" />
-                        <span className="text-sm">{t('studentList.cv.download')}</span>
+                        <span className="text-sm">{t('dashboardProfesseur:studentList.cv.download')}</span>
                     </>
                 )}
             </button>
@@ -233,11 +244,11 @@ const DashboardProfesseur = () => {
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {t('title')}
+                        {t('dashboardProfesseur:title')}
                         {professorName && ` - ${professorName}`}
                     </h1>
                     <p className="text-gray-600">
-                        {t('subtitle')}
+                        {t('dashboardProfesseur:subtitle')}
                     </p>
                 </div>
 
@@ -254,7 +265,7 @@ const DashboardProfesseur = () => {
                     <div className="p-6 border-b border-slate-200">
                         <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                             <Users className="w-6 h-6 text-blue-600" />
-                            {t('studentList.title')}
+                            {t('dashboardProfesseur:studentList.title')}
                         </h2>
                     </div>
 
@@ -265,7 +276,7 @@ const DashboardProfesseur = () => {
                     ) : etudiants.length === 0 ? (
                         <div className="p-12 text-center">
                             <GraduationCap className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                            <p className="text-gray-600">{t('studentList.noStudents')}</p>
+                            <p className="text-gray-600">{t('dashboardProfesseur:studentList.noStudents')}</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
@@ -273,22 +284,22 @@ const DashboardProfesseur = () => {
                                 <thead className="bg-gradient-to-r from-blue-50 to-slate-50">
                                 <tr>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('studentList.student')}
+                                        {t('dashboardProfesseur:studentList.student')}
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('studentList.program')}
+                                        {t('dashboardProfesseur:studentList.program')}
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('studentList.session')}
+                                        {t('dashboardProfesseur:studentList.session')}
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('studentList.contact')}
+                                        {t('dashboardProfesseur:studentList.contact')}
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
                                         CV
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        Actions
+                                        {t('dashboardProfesseur:studentList.actions.title', 'Actions')}
                                     </th>
                                 </tr>
                                 </thead>
@@ -311,7 +322,7 @@ const DashboardProfesseur = () => {
                                         <td className="px-6 py-4">
                                                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                                                     <BookOpen className="w-3 h-3" />
-                                                    {etudiant.progEtude || 'N/A'}
+                                                    {getProgramName(etudiant.progEtude)}
                                                 </span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -342,14 +353,14 @@ const DashboardProfesseur = () => {
                                                     className="flex items-center gap-1 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
                                                 >
                                                     <FileText className="w-4 h-4" />
-                                                    Candidatures
+                                                    {t('dashboardProfesseur:studentList.actions.candidatures')}
                                                 </button>
                                                 <button
                                                     onClick={() => etudiant.id && handleViewEntentes(etudiant.id)}
                                                     className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
                                                 >
                                                     <Briefcase className="w-4 h-4" />
-                                                    Ententes
+                                                    {t('dashboardProfesseur:studentList.actions.ententes')}
                                                 </button>
                                             </div>
                                         </td>
@@ -368,7 +379,7 @@ const DashboardProfesseur = () => {
                         <div className="p-6 border-b border-slate-200 flex justify-between items-center">
                             <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                 <FileText className="w-6 h-6 text-purple-600" />
-                                Candidatures de l'étudiant
+                                {t('dashboardProfesseur:candidatures.title')}
                             </h3>
                             <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                                 <X className="w-6 h-6" />
@@ -380,7 +391,7 @@ const DashboardProfesseur = () => {
                                     <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-purple-600" />
                                 </div>
                             ) : candidatures.length === 0 ? (
-                                <p className="text-center text-gray-600 py-12">Aucune candidature trouvée</p>
+                                <p className="text-center text-gray-600 py-12">{t('dashboardProfesseur:candidatures.noCandidatures')}</p>
                             ) : (
                                 <div className="space-y-4">
                                     {candidatures.map((candidature) => (
@@ -388,13 +399,13 @@ const DashboardProfesseur = () => {
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
                                                     <h4 className="text-lg font-semibold text-gray-900">{candidature.offreTitre}</h4>
-                                                    <p className="text-sm text-gray-600">Employeur: {candidature.employeurNom}</p>
+                                                    <p className="text-sm text-gray-600">{t('dashboardProfesseur:ententes.labels.employer')}: {candidature.employeurNom}</p>
                                                     <p className="text-sm text-gray-500">
                                                         Date: {new Date(candidature.dateCandidature).toLocaleDateString()}
                                                     </p>
                                                 </div>
                                                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatutBadge(candidature.statut)}`}>
-                                                    {candidature.statut}
+                                                    {getStatutLabel(candidature.statut)}
                                                 </span>
                                             </div>
 
@@ -409,19 +420,19 @@ const DashboardProfesseur = () => {
                                                             {downloadingLettre === candidature.id ? (
                                                                 <>
                                                                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                                                    <span>Téléchargement...</span>
+                                                                    <span>{t('dashboardProfesseur:candidatures.letterMotivation.downloading')}</span>
                                                                 </>
                                                             ) : (
                                                                 <>
                                                                     <Download className="w-4 h-4" />
-                                                                    <span>Lettre de motivation</span>
+                                                                    <span>{t('dashboardProfesseur:candidatures.letterMotivation.download')}</span>
                                                                 </>
                                                             )}
                                                         </button>
                                                     ) : (
                                                         <div className="flex items-center gap-2 text-gray-400">
                                                             <FileX className="w-4 h-4" />
-                                                            <span className="text-sm">Aucune lettre de motivation</span>
+                                                            <span className="text-sm">{t('dashboardProfesseur:candidatures.letterMotivation.none')}</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -429,7 +440,7 @@ const DashboardProfesseur = () => {
 
                                             {candidature.messageReponse && (
                                                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                                                    <p className="text-sm text-gray-700"><strong>Message:</strong> {candidature.messageReponse}</p>
+                                                    <p className="text-sm text-gray-700"><strong>{t('dashboardProfesseur:candidatures.message')}:</strong> {candidature.messageReponse}</p>
                                                 </div>
                                             )}
                                         </div>
@@ -447,7 +458,7 @@ const DashboardProfesseur = () => {
                         <div className="p-6 border-b border-slate-200 flex justify-between items-center">
                             <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                 <Briefcase className="w-6 h-6 text-green-600" />
-                                Ententes de stage
+                                {t('dashboardProfesseur:ententes.title')}
                             </h3>
                             <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                                 <X className="w-6 h-6" />
@@ -459,7 +470,7 @@ const DashboardProfesseur = () => {
                                     <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-green-600" />
                                 </div>
                             ) : ententes.length === 0 ? (
-                                <p className="text-center text-gray-600 py-12">Aucune entente trouvée</p>
+                                <p className="text-center text-gray-600 py-12">{t('dashboardProfesseur:ententes.noEntentes')}</p>
                             ) : (
                                 <div className="space-y-4">
                                     {ententes.map((entente) => {
@@ -474,21 +485,21 @@ const DashboardProfesseur = () => {
                                                         <p className="text-sm text-gray-600 mt-1">{entente.description}</p>
                                                         <div className="mt-3 grid grid-cols-2 gap-3">
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Employeur</p>
+                                                                <p className="text-sm text-gray-500">{t('dashboardProfesseur:ententes.labels.employer')}</p>
                                                                 <p className="text-sm font-medium text-gray-900">{entente.employeurContact}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Lieu</p>
+                                                                <p className="text-sm text-gray-500">{t('dashboardProfesseur:ententes.labels.location')}</p>
                                                                 <p className="text-sm font-medium text-gray-900">{entente.lieu}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Période</p>
+                                                                <p className="text-sm text-gray-500">{t('dashboardProfesseur:ententes.labels.period')}</p>
                                                                 <p className="text-sm font-medium text-gray-900">
                                                                     {new Date(entente.dateDebut).toLocaleDateString()} - {new Date(entente.dateFin).toLocaleDateString()}
                                                                 </p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Durée hebdomadaire</p>
+                                                                <p className="text-sm text-gray-500">{t('dashboardProfesseur:ententes.labels.weeklyHours')}</p>
                                                                 <p className="text-sm font-medium text-gray-900">{entente.dureeHebdomadaire}h</p>
                                                             </div>
                                                         </div>
@@ -505,7 +516,9 @@ const DashboardProfesseur = () => {
                                                             ) : (
                                                                 <Clock className="w-5 h-5 text-yellow-600" />
                                                             )}
-                                                            <span className="text-sm text-gray-600">Étudiant: {entente.etudiantSignature}</span>
+                                                            <span className="text-sm text-gray-600">
+                                                                {t('dashboardProfesseur:ententes.labels.student')}: {t(`dashboardProfesseur:ententes.signatures.${entente.etudiantSignature}`, entente.etudiantSignature)}
+                                                            </span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             {entente.employeurSignature === 'SIGNEE' ? (
@@ -515,13 +528,15 @@ const DashboardProfesseur = () => {
                                                             ) : (
                                                                 <Clock className="w-5 h-5 text-yellow-600" />
                                                             )}
-                                                            <span className="text-sm text-gray-600">Employeur: {entente.employeurSignature}</span>
+                                                            <span className="text-sm text-gray-600">
+                                                                {t('dashboardProfesseur:ententes.labels.employer')}: {t(`dashboardProfesseur:ententes.signatures.${entente.employeurSignature}`, entente.employeurSignature)}
+                                                            </span>
                                                         </div>
                                                     </div>
 
                                                     {statut && (
                                                         <div className="px-4 py-2 bg-blue-50 rounded-lg">
-                                                            <div className="text-sm font-semibold text-gray-700">Statut du stage:</div>
+                                                            <div className="text-sm font-semibold text-gray-700">{t('dashboardProfesseur:ententes.labels.statutStage')}:</div>
                                                             <div className="mt-1">{getStatutStageDisplay(statut)}</div>
                                                         </div>
                                                     )}
