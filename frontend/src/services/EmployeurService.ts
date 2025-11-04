@@ -95,7 +95,13 @@ export interface EntenteStageDTO {
     lieu: string;
 }
 
-// Types pour l'échelle de Likert (pour le futur)
+// ========================================
+// TYPES POUR L'ÉVALUATION DES STAGIAIRES
+// ========================================
+
+/**
+ * Échelle de Likert pour l'évaluation (correspond à NiveauAccordDTO.java)
+ */
 export type NiveauAccord =
     | 'TOTALEMENT_EN_ACCORD'
     | 'PLUTOT_EN_ACCORD'
@@ -103,70 +109,92 @@ export type NiveauAccord =
     | 'TOTALEMENT_EN_DESACCORD'
     | 'NON_APPLICABLE';
 
-// Interface pour l'évaluation du stagiaire
-// NOTE: Le backend stocke SEULEMENT le PDF généré (en base64)
-// Les champs sont envoyés pour la génération du PDF, mais ne sont pas stockés individuellement
-export interface EvaluationDTO {
+/**
+ * Appréciation globale du stagiaire (correspond à CreerEvaluationDTO.AppreciationGlobale)
+ */
+export type AppreciationGlobale =
+    | 'HABILETES_DEPASSENT_DE_BEAUCOUP_LES_ATTENTES'
+    | 'HABILETES_DEPASSENT_LES_ATTENTES'
+    | 'HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES'
+    | 'HABILETES_REPONDENT_PARTIELLEMENT_AUX_ATTENTES'
+    | 'HABILETES_NE_REPONDENT_PAS_AUX_ATTENTES';
+
+/**
+ * Choix pour accueillir le stagiaire pour un prochain stage (correspond à CreerEvaluationDTO.entrepriseProchainStageChoix)
+ */
+export type EntrepriseProchainStageChoix =
+    | 'OUI'
+    | 'NON'
+    | 'PEUT_ETRE';
+
+/**
+ * Interface pour créer une évaluation (correspond EXACTEMENT à CreerEvaluationDTO.java)
+ * IMPORTANT: Tous les champs doivent correspondre exactement aux noms Java en camelCase
+ */
+export interface CreerEvaluationDTO {
     id?: number;
     ententeId: number;
     etudiantId?: number;
 
-    // === CHAMPS DU FORMULAIRE SIMPLE (actuellement utilisés) ===
-    competencesTechniques?: string;
-    respectDelais?: string;
-    attitudeIntegration?: string;
-    commentaires?: string;
-
-    // === CHAMPS COMPLETS (optionnels - pour formulaire Likert complet si implémenté plus tard) ===
     // Informations du superviseur
-    nomSuperviseur?: string;
-    fonctionSuperviseur?: string;
-    telephoneSuperviseur?: string;
-    dateSignature?: string;
+    nomSuperviseur: string;
+    fonctionSuperviseur: string;
+    telephoneSuperviseur: string;
+    dateSignature: string; // Format: YYYY-MM-DD (LocalDate en Java)
 
-    // 1. PRODUCTIVITÉ (5 critères)
-    prodPlanifierOrganiser?: NiveauAccord;
-    prodComprendreDirectives?: NiveauAccord;
-    prodRythmeSoutenu?: NiveauAccord;
-    prodEtablirPriorites?: NiveauAccord;
-    prodRespectEcheanciers?: NiveauAccord;
-    commentairesProductivite?: string;
+    // 1. PRODUCTIVITÉ (5 questions + commentaires)
+    prodPlanifierOrganiser: NiveauAccord;
+    prodComprendreDirectives: NiveauAccord;
+    prodRythmeSoutenu: NiveauAccord;
+    prodEtablirPriorites: NiveauAccord;
+    prodRespectEcheanciers: NiveauAccord;
+    commentairesProductivite: string;
 
-    // 2. QUALITÉ DU TRAVAIL (5 critères)
-    qualRespectMandats?: NiveauAccord;
-    qualAttentionDetails?: NiveauAccord;
-    qualVerifierTravail?: NiveauAccord;
-    qualRechercherPerfectionnement?: NiveauAccord;
-    qualAnalyseProblemes?: NiveauAccord;
-    commentairesQualiteTravail?: string;
+    // 2. QUALITÉ DU TRAVAIL (5 questions + commentaires)
+    qualRespectMandats: NiveauAccord;
+    qualAttentionDetails: NiveauAccord;
+    qualVerifierTravail: NiveauAccord;
+    qualRechercherPerfectionnement: NiveauAccord;
+    qualAnalyseProblemes: NiveauAccord;
+    commentairesQualiteTravail: string;
 
-    // 3. QUALITÉS DES RELATIONS INTERPERSONNELLES (6 critères)
-    relEtablirContacts?: NiveauAccord;
-    relContribuerEquipe?: NiveauAccord;
-    relAdapterCulture?: NiveauAccord;
-    relAccepterCritiques?: NiveauAccord;
-    relEtreRespectueux?: NiveauAccord;
-    relEcouteActive?: NiveauAccord;
-    commentairesRelations?: string;
+    // 3. QUALITÉS DES RELATIONS INTERPERSONNELLES (6 questions + commentaires)
+    relEtablirContacts: NiveauAccord;
+    relContribuerEquipe: NiveauAccord;
+    relAdapterCulture: NiveauAccord;
+    relAccepterCritiques: NiveauAccord;
+    relEtreRespectueux: NiveauAccord;
+    relEcouteActive: NiveauAccord;
+    commentairesRelations: string;
 
-    // 4. HABILETÉS PERSONNELLES (6 critères)
-    habInteretMotivation?: NiveauAccord;
-    habExprimerIdees?: NiveauAccord;
-    habFairePreuveInitiative?: NiveauAccord;
-    habTravaillerSecuritaire?: NiveauAccord;
-    habSensResponsabilites?: NiveauAccord;
-    habPonctuelAssidu?: NiveauAccord;
-    commentairesHabiletés?: string;
+    // 4. HABILETÉS PERSONNELLES (6 questions + commentaires)
+    habInteretMotivation: NiveauAccord;
+    habExprimerIdees: NiveauAccord;
+    habFairePreuveInitiative: NiveauAccord;
+    habTravaillerSecuritaire: NiveauAccord;
+    habSensResponsabilites: NiveauAccord;
+    habPonctuelAssidu: NiveauAccord;
+    commentairesHabiletes: string; // ATTENTION: pas d'accent (comme dans le backend Java)
 
     // APPRÉCIATION GLOBALE ET FINALISATION
-    appreciationGlobale?: string;
-    precisionAppreciation?: string;
-    discussionAvecStagiaire?: boolean;
-    heuresEncadrementSemaine?: number;
-    entrepriseAccueillirProchainStage?: string;
-    formationTechniqueSuffisante?: boolean;
+    appreciationGlobale: AppreciationGlobale;
+    precisionAppreciation: string;
+    discussionAvecStagiaire: boolean;
+    heuresEncadrementSemaine: number;
+    entrepriseAccueillirProchainStage: EntrepriseProchainStageChoix;
+    formationTechniqueSuffisante: string; // String (pas boolean) - pour les commentaires
+}
 
-    // === LE PDF GÉNÉRÉ (STOCKÉ EN BASE64) ===
+/**
+ * Interface pour récupérer une évaluation (correspond à EvaluationDTO.java)
+ * Le backend retourne uniquement l'id, ententeId, etudiantId, dateEvaluation
+ * Le PDF est récupéré séparément via un endpoint dédié
+ */
+export interface EvaluationDTO {
+    id?: number;
+    ententeId: number;
+    etudiantId?: number;
+    employeurId?: number;
     pdfBase64?: string;
     dateEvaluation?: string;
 }
@@ -803,9 +831,11 @@ class EmployeurService {
 
     /**
      * Crée une évaluation pour un stagiaire
-     * Le backend génère un PDF et le stocke en base64
+     * Le backend génère automatiquement un PDF avec toutes les données du formulaire
+     * @param evaluationData - Données complètes de l'évaluation (CreerEvaluationDTO)
+     * @returns Message de succès ou erreur
      */
-    async creerEvaluation(evaluationData: EvaluationDTO): Promise<MessageRetour> {
+    async creerEvaluation(evaluationData: CreerEvaluationDTO): Promise<MessageRetour> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
@@ -865,7 +895,7 @@ class EmployeurService {
 
     /**
      * Récupère toutes les évaluations de l'employeur connecté
-     * Chaque évaluation contient le PDF en base64
+     * @returns Liste des évaluations (id, ententeId, etudiantId, dateEvaluation)
      */
     async getEvaluations(): Promise<EvaluationDTO[]> {
         try {
@@ -889,6 +919,36 @@ class EmployeurService {
             return await response.json();
         } catch (error) {
             console.error('Erreur getEvaluations:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Télécharge le PDF d'une évaluation spécifique
+     * @param evaluationId - ID de l'évaluation
+     * @returns Blob du fichier PDF
+     */
+    async telechargerPdfEvaluation(evaluationId: number): Promise<Blob> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/evaluations/${evaluationId}/pdf`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du téléchargement du PDF d\'évaluation');
+            }
+
+            return await response.blob();
+        } catch (error) {
+            console.error('Erreur telechargerPdfEvaluation:', error);
             throw error;
         }
     }
