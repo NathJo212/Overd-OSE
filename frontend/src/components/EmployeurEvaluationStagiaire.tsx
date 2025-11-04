@@ -172,8 +172,12 @@ const EmployeurEvaluationStagiaire = () => {
             setLoadingEntentes(true);
             setError('');
             const data = await employeurService.getEntentes();
+            // Filtrer uniquement les ententes signées par les deux parties
             const ententesSignees = data.filter(
-                e => e.etudiantSignature === 'SIGNEE' && e.employeurSignature === 'SIGNEE'
+                e => e.etudiantSignature === 'SIGNEE'
+                    && e.employeurSignature === 'SIGNEE'
+                    && e.gestionnaireSignature === 'SIGNEE'
+                    && e.statut === 'SIGNEE'
             );
             setEntentes(ententesSignees);
         } catch (err: any) {
@@ -331,12 +335,23 @@ const EmployeurEvaluationStagiaire = () => {
         } catch (err: any) {
             console.error('Erreur lors de la soumission:', err);
 
+            // Log l'erreur complète pour le debug
+            console.error('Détails de l\'erreur:', {
+                response: err.response,
+                message: err.message,
+                code: err.code
+            });
+
             if (err.response?.data?.erreur) {
-                setFormErrors([err.response.data.erreur.message || t('errors.submitFailed')]);
+                const errorMessage = err.response.data.erreur.message || t('errors.submitFailed');
+                const errorCode = err.response.data.erreur.errorCode;
+
+                // Afficher le message d'erreur avec le code si disponible
+                setFormErrors([errorCode ? `[${errorCode}] ${errorMessage}` : errorMessage]);
             } else if (err.code === 'ERR_NETWORK') {
                 setFormErrors([t('errors.networkError')]);
             } else {
-                setFormErrors([t('errors.submitFailed')]);
+                setFormErrors([err.message || t('errors.submitFailed')]);
             }
         } finally {
             setActionLoading(false);
