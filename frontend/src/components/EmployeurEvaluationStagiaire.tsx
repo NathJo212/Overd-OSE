@@ -9,16 +9,78 @@ import {
     Calendar,
     FileText,
     Star,
-    Clock,
-    MessageSquare,
     AlertCircle,
     Briefcase,
-    Download
+    Download,
+    ClipboardCheck,
+    Users,
+    Lightbulb,
+    TrendingUp
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar";
 import employeurService from '../services/EmployeurService';
-import type { EntenteStageDTO, EvaluationDTO } from '../services/EmployeurService';
+import type {
+    EntenteStageDTO,
+    EvaluationDTO,
+    CreerEvaluationDTO,
+    NiveauAccord,
+    AppreciationGlobale,
+    EntrepriseProchainStageChoix
+} from '../services/EmployeurService';
+
+// Composant pour les boutons radio Likert
+interface LikertRadioProps {
+    name: string;
+    value: NiveauAccord | null;
+    onChange: (value: NiveauAccord) => void;
+    label: string;
+    required?: boolean;
+}
+
+const LikertRadio: React.FC<LikertRadioProps> = ({ name, value, onChange, label, required }) => {
+    const { t } = useTranslation('evaluationStagiaire');
+
+    const options: { value: NiveauAccord; labelKey: string; colorClass: string }[] = [
+        { value: 'TOTALEMENT_EN_ACCORD', labelKey: 'likertScale.totallyAgree', colorClass: 'hover:bg-green-50 peer-checked:bg-green-100 peer-checked:border-green-500' },
+        { value: 'PLUTOT_EN_ACCORD', labelKey: 'likertScale.agree', colorClass: 'hover:bg-blue-50 peer-checked:bg-blue-100 peer-checked:border-blue-500' },
+        { value: 'PLUTOT_EN_DESACCORD', labelKey: 'likertScale.disagree', colorClass: 'hover:bg-yellow-50 peer-checked:bg-yellow-100 peer-checked:border-yellow-500' },
+        { value: 'TOTALEMENT_EN_DESACCORD', labelKey: 'likertScale.totallyDisagree', colorClass: 'hover:bg-red-50 peer-checked:bg-red-100 peer-checked:border-red-500' },
+        { value: 'NON_APPLICABLE', labelKey: 'likertScale.notApplicable', colorClass: 'hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:border-gray-500' }
+    ];
+
+    return (
+        <div className="mb-4">
+            <p className="text-sm text-gray-700 mb-3 flex items-start">
+                <span className="mr-2">•</span>
+                <span>{label}</span>
+                {required && <span className="text-red-500 ml-1">*</span>}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                {options.map((option) => (
+                    <label
+                        key={option.value}
+                        className={`relative flex items-center justify-center cursor-pointer border-2 rounded-lg p-3 transition-all ${
+                            value === option.value ? 'ring-2 ring-offset-1' : ''
+                        } ${option.colorClass}`}
+                    >
+                        <input
+                            type="radio"
+                            name={name}
+                            value={option.value}
+                            checked={value === option.value}
+                            onChange={() => onChange(option.value)}
+                            className="peer sr-only"
+                        />
+                        <span className="text-xs font-medium text-gray-700 text-center">
+                            {t(option.labelKey)}
+                        </span>
+                    </label>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const EmployeurEvaluationStagiaire = () => {
     const { t } = useTranslation('evaluationStagiaire');
@@ -36,11 +98,55 @@ const EmployeurEvaluationStagiaire = () => {
     const [selectedEntente, setSelectedEntente] = useState<EntenteStageDTO | null>(null);
     const [selectedEvaluation, setSelectedEvaluation] = useState<EvaluationDTO | null>(null);
 
-    const [formData, setFormData] = useState({
-        competencesTechniques: '',
-        respectDelais: '',
-        attitudeIntegration: '',
-        commentaires: ''
+    // Form data complet pour CreerEvaluationDTO
+    const [formData, setFormData] = useState<Omit<CreerEvaluationDTO, 'ententeId'>>({
+        // Informations du superviseur
+        nomSuperviseur: '',
+        fonctionSuperviseur: '',
+        telephoneSuperviseur: '',
+        dateSignature: new Date().toISOString().split('T')[0],
+
+        // Section 1: PRODUCTIVITÉ
+        prodPlanifierOrganiser: 'PLUTOT_EN_ACCORD',
+        prodComprendreDirectives: 'PLUTOT_EN_ACCORD',
+        prodRythmeSoutenu: 'PLUTOT_EN_ACCORD',
+        prodEtablirPriorites: 'PLUTOT_EN_ACCORD',
+        prodRespectEcheanciers: 'PLUTOT_EN_ACCORD',
+        commentairesProductivite: '',
+
+        // Section 2: QUALITÉ DU TRAVAIL
+        qualRespectMandats: 'PLUTOT_EN_ACCORD',
+        qualAttentionDetails: 'PLUTOT_EN_ACCORD',
+        qualVerifierTravail: 'PLUTOT_EN_ACCORD',
+        qualRechercherPerfectionnement: 'PLUTOT_EN_ACCORD',
+        qualAnalyseProblemes: 'PLUTOT_EN_ACCORD',
+        commentairesQualiteTravail: '',
+
+        // Section 3: RELATIONS INTERPERSONNELLES
+        relEtablirContacts: 'PLUTOT_EN_ACCORD',
+        relContribuerEquipe: 'PLUTOT_EN_ACCORD',
+        relAdapterCulture: 'PLUTOT_EN_ACCORD',
+        relAccepterCritiques: 'PLUTOT_EN_ACCORD',
+        relEtreRespectueux: 'PLUTOT_EN_ACCORD',
+        relEcouteActive: 'PLUTOT_EN_ACCORD',
+        commentairesRelations: '',
+
+        // Section 4: HABILETÉS PERSONNELLES
+        habInteretMotivation: 'PLUTOT_EN_ACCORD',
+        habExprimerIdees: 'PLUTOT_EN_ACCORD',
+        habFairePreuveInitiative: 'PLUTOT_EN_ACCORD',
+        habTravaillerSecuritaire: 'PLUTOT_EN_ACCORD',
+        habSensResponsabilites: 'PLUTOT_EN_ACCORD',
+        habPonctuelAssidu: 'PLUTOT_EN_ACCORD',
+        commentairesHabiletes: '',
+
+        // Section 5: APPRÉCIATION GLOBALE
+        appreciationGlobale: 'HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES',
+        precisionAppreciation: '',
+        discussionAvecStagiaire: true,
+        heuresEncadrementSemaine: 0,
+        entrepriseAccueillirProchainStage: 'OUI',
+        formationTechniqueSuffisante: ''
     });
 
     const [actionLoading, setActionLoading] = useState(false);
@@ -66,7 +172,6 @@ const EmployeurEvaluationStagiaire = () => {
             setLoadingEntentes(true);
             setError('');
             const data = await employeurService.getEntentes();
-            // Filtrer uniquement les ententes signées par les deux parties
             const ententesSignees = data.filter(
                 e => e.etudiantSignature === 'SIGNEE' && e.employeurSignature === 'SIGNEE'
             );
@@ -98,18 +203,51 @@ const EmployeurEvaluationStagiaire = () => {
 
     const handleOpenEvaluationModal = (entente: EntenteStageDTO) => {
         setSelectedEntente(entente);
+        // Réinitialiser le formulaire avec des valeurs par défaut
         setFormData({
-            competencesTechniques: '',
-            respectDelais: '',
-            attitudeIntegration: '',
-            commentaires: ''
+            nomSuperviseur: '',
+            fonctionSuperviseur: '',
+            telephoneSuperviseur: '',
+            dateSignature: new Date().toISOString().split('T')[0],
+            prodPlanifierOrganiser: 'PLUTOT_EN_ACCORD',
+            prodComprendreDirectives: 'PLUTOT_EN_ACCORD',
+            prodRythmeSoutenu: 'PLUTOT_EN_ACCORD',
+            prodEtablirPriorites: 'PLUTOT_EN_ACCORD',
+            prodRespectEcheanciers: 'PLUTOT_EN_ACCORD',
+            commentairesProductivite: '',
+            qualRespectMandats: 'PLUTOT_EN_ACCORD',
+            qualAttentionDetails: 'PLUTOT_EN_ACCORD',
+            qualVerifierTravail: 'PLUTOT_EN_ACCORD',
+            qualRechercherPerfectionnement: 'PLUTOT_EN_ACCORD',
+            qualAnalyseProblemes: 'PLUTOT_EN_ACCORD',
+            commentairesQualiteTravail: '',
+            relEtablirContacts: 'PLUTOT_EN_ACCORD',
+            relContribuerEquipe: 'PLUTOT_EN_ACCORD',
+            relAdapterCulture: 'PLUTOT_EN_ACCORD',
+            relAccepterCritiques: 'PLUTOT_EN_ACCORD',
+            relEtreRespectueux: 'PLUTOT_EN_ACCORD',
+            relEcouteActive: 'PLUTOT_EN_ACCORD',
+            commentairesRelations: '',
+            habInteretMotivation: 'PLUTOT_EN_ACCORD',
+            habExprimerIdees: 'PLUTOT_EN_ACCORD',
+            habFairePreuveInitiative: 'PLUTOT_EN_ACCORD',
+            habTravaillerSecuritaire: 'PLUTOT_EN_ACCORD',
+            habSensResponsabilites: 'PLUTOT_EN_ACCORD',
+            habPonctuelAssidu: 'PLUTOT_EN_ACCORD',
+            commentairesHabiletes: '',
+            appreciationGlobale: 'HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES',
+            precisionAppreciation: '',
+            discussionAvecStagiaire: true,
+            heuresEncadrementSemaine: 0,
+            entrepriseAccueillirProchainStage: 'OUI',
+            formationTechniqueSuffisante: ''
         });
         setFormErrors([]);
         setSuccessMessage('');
         setShowEvaluationModal(true);
     };
 
-    const handleOpenDetailsModal = (evaluation: EvaluationDTO) => {
+    const handleOpenDetailsModal = async (evaluation: EvaluationDTO) => {
         setSelectedEvaluation(evaluation);
         setShowDetailsModal(true);
     };
@@ -119,29 +257,44 @@ const EmployeurEvaluationStagiaire = () => {
         setShowDetailsModal(false);
         setSelectedEntente(null);
         setSelectedEvaluation(null);
-        setFormData({
-            competencesTechniques: '',
-            respectDelais: '',
-            attitudeIntegration: '',
-            commentaires: ''
-        });
         setFormErrors([]);
+        setSuccessMessage('');
     };
 
     const validateForm = (): boolean => {
         const errors: string[] = [];
 
-        if (!formData.competencesTechniques.trim()) {
-            errors.push(t('modal.sections.technicalSkills'));
+        // Validation informations superviseur
+        if (!formData.nomSuperviseur.trim()) {
+            errors.push(t('modal.supervisor.name'));
         }
-        if (!formData.respectDelais.trim()) {
-            errors.push(t('modal.sections.timeManagement'));
+        if (!formData.fonctionSuperviseur.trim()) {
+            errors.push(t('modal.supervisor.function'));
         }
-        if (!formData.attitudeIntegration.trim()) {
-            errors.push(t('modal.sections.attitude'));
+        if (!formData.telephoneSuperviseur.trim()) {
+            errors.push(t('modal.supervisor.phone'));
         }
-        if (!formData.commentaires.trim()) {
-            errors.push(t('modal.sections.generalComments'));
+
+        // Validation commentaires (obligatoires)
+        if (!formData.commentairesProductivite.trim()) {
+            errors.push(t('modal.sections.productivity') + ' - ' + t('modal.fields.comments'));
+        }
+        if (!formData.commentairesQualiteTravail.trim()) {
+            errors.push(t('modal.sections.workQuality') + ' - ' + t('modal.fields.comments'));
+        }
+        if (!formData.commentairesRelations.trim()) {
+            errors.push(t('modal.sections.interpersonalSkills') + ' - ' + t('modal.fields.comments'));
+        }
+        if (!formData.commentairesHabiletes.trim()) {
+            errors.push(t('modal.sections.personalSkills') + ' - ' + t('modal.fields.comments'));
+        }
+
+        // Validation appréciation globale
+        if (!formData.precisionAppreciation.trim()) {
+            errors.push(t('modal.globalAssessment.specifyAssessment'));
+        }
+        if (!formData.formationTechniqueSuffisante.trim()) {
+            errors.push(t('modal.finalSection.technicalTraining'));
         }
 
         setFormErrors(errors);
@@ -159,25 +312,20 @@ const EmployeurEvaluationStagiaire = () => {
             setActionLoading(true);
             setFormErrors([]);
 
-            const evaluationData: EvaluationDTO = {
+            const evaluationData: CreerEvaluationDTO = {
                 ententeId: selectedEntente.id,
-                etudiantId: selectedEntente.etudiantId || 0,
-                competencesTechniques: formData.competencesTechniques,
-                respectDelais: formData.respectDelais,
-                attitudeIntegration: formData.attitudeIntegration,
-                commentaires: formData.commentaires
+                etudiantId: selectedEntente.etudiantId,
+                ...formData
             };
 
             await employeurService.creerEvaluation(evaluationData);
 
             setSuccessMessage(t('messages.success'));
 
-            // Recharger les données
             await loadEvaluations();
 
             setTimeout(() => {
                 handleCloseModals();
-                setSuccessMessage('');
             }, 2000);
 
         } catch (err: any) {
@@ -195,23 +343,9 @@ const EmployeurEvaluationStagiaire = () => {
         }
     };
 
-    const handleDownloadPDF = (evaluation: EvaluationDTO) => {
-        if (!evaluation.pdfBase64) {
-            alert('PDF non disponible');
-            return;
-        }
-
+    const handleDownloadPDF = async (evaluation: EvaluationDTO) => {
         try {
-            // Convertir base64 en Blob
-            const byteCharacters = atob(evaluation.pdfBase64);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-            // Créer un lien de téléchargement
+            const blob = await employeurService.telechargerPdfEvaluation(evaluation.id!);
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
@@ -222,7 +356,7 @@ const EmployeurEvaluationStagiaire = () => {
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Erreur lors du téléchargement du PDF:', error);
-            alert('Erreur lors du téléchargement du PDF');
+            alert(t('errors.pdfDownloadFailed'));
         }
     };
 
@@ -341,7 +475,6 @@ const EmployeurEvaluationStagiaire = () => {
                                                 className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all cursor-pointer bg-gradient-to-br from-white to-blue-50"
                                                 onClick={() => handleOpenEvaluationModal(entente)}
                                             >
-                                                {/* Stagiaire Info */}
                                                 <div className="flex items-start gap-3 mb-4 pb-4 border-b border-gray-200">
                                                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                                                         <User className="w-6 h-6 text-blue-600" />
@@ -359,7 +492,6 @@ const EmployeurEvaluationStagiaire = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Internship Info */}
                                                 <div className="space-y-3 mb-4">
                                                     <div className="flex items-center gap-2">
                                                         <Briefcase className="w-4 h-4 text-blue-600 flex-shrink-0" />
@@ -375,7 +507,6 @@ const EmployeurEvaluationStagiaire = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Button */}
                                                 <button
                                                     className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
                                                     onClick={(e) => {
@@ -467,11 +598,12 @@ const EmployeurEvaluationStagiaire = () => {
                 </div>
             </div>
 
-            {/* Modal d'évaluation (CRÉATION) */}
+            {/* Modal d'évaluation (CRÉATION) - FORMULAIRE COMPLET */}
             {showEvaluationModal && selectedEntente && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex justify-between items-center">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full my-8">
+                        {/* Header */}
+                        <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex justify-between items-center rounded-t-2xl z-10">
                             <h2 className="text-2xl font-bold text-gray-800">
                                 {t('modal.title')}
                             </h2>
@@ -483,7 +615,7 @@ const EmployeurEvaluationStagiaire = () => {
                             </button>
                         </div>
 
-                        <div className="px-8 py-6">
+                        <div className="px-8 py-6 max-h-[calc(90vh-120px)] overflow-y-auto">
                             {/* Success Message */}
                             {successMessage && (
                                 <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
@@ -529,69 +661,463 @@ const EmployeurEvaluationStagiaire = () => {
                             </div>
 
                             {/* Evaluation Form */}
-                            <form onSubmit={handleSubmitEvaluation} className="space-y-6">
-                                {/* Compétences techniques */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                        <Star className="w-4 h-4 text-blue-600" />
-                                        {t('modal.sections.technicalSkills')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                    </label>
-                                    <textarea
-                                        value={formData.competencesTechniques}
-                                        onChange={(e) => setFormData({...formData, competencesTechniques: e.target.value})}
-                                        placeholder={t('modal.fields.technicalSkillsPlaceholder')}
-                                        rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
+                            <form onSubmit={handleSubmitEvaluation} className="space-y-8">
+                                {/* SECTION: Informations du superviseur */}
+                                <div className="bg-gray-50 rounded-lg p-6">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                        <User className="w-5 h-5 text-blue-600" />
+                                        {t('modal.supervisor.title')}
+                                    </h3>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                {t('modal.supervisor.name')} <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.nomSuperviseur}
+                                                onChange={(e) => setFormData({...formData, nomSuperviseur: e.target.value})}
+                                                placeholder={t('modal.supervisor.namePlaceholder')}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                {t('modal.supervisor.function')} <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.fonctionSuperviseur}
+                                                onChange={(e) => setFormData({...formData, fonctionSuperviseur: e.target.value})}
+                                                placeholder={t('modal.supervisor.functionPlaceholder')}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                {t('modal.supervisor.phone')} <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                value={formData.telephoneSuperviseur}
+                                                onChange={(e) => setFormData({...formData, telephoneSuperviseur: e.target.value})}
+                                                placeholder={t('modal.supervisor.phonePlaceholder')}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                {t('modal.supervisor.signatureDate')} <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={formData.dateSignature}
+                                                onChange={(e) => setFormData({...formData, dateSignature: e.target.value})}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {/* Respect des délais */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-blue-600" />
-                                        {t('modal.sections.timeManagement')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                    </label>
-                                    <textarea
-                                        value={formData.respectDelais}
-                                        onChange={(e) => setFormData({...formData, respectDelais: e.target.value})}
-                                        placeholder={t('modal.fields.timeManagementPlaceholder')}
-                                        rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
+                                {/* SECTION 1: PRODUCTIVITÉ */}
+                                <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                        <TrendingUp className="w-5 h-5 text-blue-600" />
+                                        {t('modal.sections.productivity')}
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mb-4">{t('modal.sections.productivitySubtitle')}</p>
+
+                                    <div className="space-y-4">
+                                        <LikertRadio
+                                            name="prodPlanifierOrganiser"
+                                            value={formData.prodPlanifierOrganiser}
+                                            onChange={(val) => setFormData({...formData, prodPlanifierOrganiser: val})}
+                                            label={t('modal.productivity.planOrganize')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="prodComprendreDirectives"
+                                            value={formData.prodComprendreDirectives}
+                                            onChange={(val) => setFormData({...formData, prodComprendreDirectives: val})}
+                                            label={t('modal.productivity.understandDirectives')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="prodRythmeSoutenu"
+                                            value={formData.prodRythmeSoutenu}
+                                            onChange={(val) => setFormData({...formData, prodRythmeSoutenu: val})}
+                                            label={t('modal.productivity.sustainedPace')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="prodEtablirPriorites"
+                                            value={formData.prodEtablirPriorites}
+                                            onChange={(val) => setFormData({...formData, prodEtablirPriorites: val})}
+                                            label={t('modal.productivity.setPriorities')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="prodRespectEcheanciers"
+                                            value={formData.prodRespectEcheanciers}
+                                            onChange={(val) => setFormData({...formData, prodRespectEcheanciers: val})}
+                                            label={t('modal.productivity.respectDeadlines')}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            {t('modal.fields.comments')} <span className="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.commentairesProductivite}
+                                            onChange={(e) => setFormData({...formData, commentairesProductivite: e.target.value})}
+                                            placeholder={t('modal.fields.commentsPlaceholder')}
+                                            rows={3}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
                                 </div>
 
-                                {/* Attitude et intégration */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                        <User className="w-4 h-4 text-blue-600" />
-                                        {t('modal.sections.attitude')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                    </label>
-                                    <textarea
-                                        value={formData.attitudeIntegration}
-                                        onChange={(e) => setFormData({...formData, attitudeIntegration: e.target.value})}
-                                        placeholder={t('modal.fields.attitudePlaceholder')}
-                                        rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
+                                {/* SECTION 2: QUALITÉ DU TRAVAIL */}
+                                <div className="border border-green-200 rounded-lg p-6 bg-green-50">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                        <ClipboardCheck className="w-5 h-5 text-green-600" />
+                                        {t('modal.sections.workQuality')}
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mb-4">{t('modal.sections.workQualitySubtitle')}</p>
+
+                                    <div className="space-y-4">
+                                        <LikertRadio
+                                            name="qualRespectMandats"
+                                            value={formData.qualRespectMandats}
+                                            onChange={(val) => setFormData({...formData, qualRespectMandats: val})}
+                                            label={t('modal.workQuality.respectMandates')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="qualAttentionDetails"
+                                            value={formData.qualAttentionDetails}
+                                            onChange={(val) => setFormData({...formData, qualAttentionDetails: val})}
+                                            label={t('modal.workQuality.attentionToDetail')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="qualVerifierTravail"
+                                            value={formData.qualVerifierTravail}
+                                            onChange={(val) => setFormData({...formData, qualVerifierTravail: val})}
+                                            label={t('modal.workQuality.verifyWork')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="qualRechercherPerfectionnement"
+                                            value={formData.qualRechercherPerfectionnement}
+                                            onChange={(val) => setFormData({...formData, qualRechercherPerfectionnement: val})}
+                                            label={t('modal.workQuality.seekImprovement')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="qualAnalyseProblemes"
+                                            value={formData.qualAnalyseProblemes}
+                                            onChange={(val) => setFormData({...formData, qualAnalyseProblemes: val})}
+                                            label={t('modal.workQuality.analyzeProblems')}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            {t('modal.fields.comments')} <span className="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.commentairesQualiteTravail}
+                                            onChange={(e) => setFormData({...formData, commentairesQualiteTravail: e.target.value})}
+                                            placeholder={t('modal.fields.commentsPlaceholder')}
+                                            rows={3}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
                                 </div>
 
-                                {/* Commentaires généraux */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                        <MessageSquare className="w-4 h-4 text-blue-600" />
-                                        {t('modal.sections.generalComments')} <span className="text-red-500">{t('modal.fields.required')}</span>
-                                    </label>
-                                    <textarea
-                                        value={formData.commentaires}
-                                        onChange={(e) => setFormData({...formData, commentaires: e.target.value})}
-                                        placeholder={t('modal.fields.generalCommentsPlaceholder')}
-                                        rows={5}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
+                                {/* SECTION 3: QUALITÉS DES RELATIONS INTERPERSONNELLES */}
+                                <div className="border border-purple-200 rounded-lg p-6 bg-purple-50">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                        <Users className="w-5 h-5 text-purple-600" />
+                                        {t('modal.sections.interpersonalSkills')}
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mb-4">{t('modal.sections.interpersonalSkillsSubtitle')}</p>
+
+                                    <div className="space-y-4">
+                                        <LikertRadio
+                                            name="relEtablirContacts"
+                                            value={formData.relEtablirContacts}
+                                            onChange={(val) => setFormData({...formData, relEtablirContacts: val})}
+                                            label={t('modal.interpersonal.establishContacts')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="relContribuerEquipe"
+                                            value={formData.relContribuerEquipe}
+                                            onChange={(val) => setFormData({...formData, relContribuerEquipe: val})}
+                                            label={t('modal.interpersonal.contributeTeam')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="relAdapterCulture"
+                                            value={formData.relAdapterCulture}
+                                            onChange={(val) => setFormData({...formData, relAdapterCulture: val})}
+                                            label={t('modal.interpersonal.adaptCulture')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="relAccepterCritiques"
+                                            value={formData.relAccepterCritiques}
+                                            onChange={(val) => setFormData({...formData, relAccepterCritiques: val})}
+                                            label={t('modal.interpersonal.acceptCriticism')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="relEtreRespectueux"
+                                            value={formData.relEtreRespectueux}
+                                            onChange={(val) => setFormData({...formData, relEtreRespectueux: val})}
+                                            label={t('modal.interpersonal.beRespectful')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="relEcouteActive"
+                                            value={formData.relEcouteActive}
+                                            onChange={(val) => setFormData({...formData, relEcouteActive: val})}
+                                            label={t('modal.interpersonal.activeListening')}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            {t('modal.fields.comments')} <span className="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.commentairesRelations}
+                                            onChange={(e) => setFormData({...formData, commentairesRelations: e.target.value})}
+                                            placeholder={t('modal.fields.commentsPlaceholder')}
+                                            rows={3}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* SECTION 4: HABILETÉS PERSONNELLES */}
+                                <div className="border border-orange-200 rounded-lg p-6 bg-orange-50">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                        <Lightbulb className="w-5 h-5 text-orange-600" />
+                                        {t('modal.sections.personalSkills')}
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mb-4">{t('modal.sections.personalSkillsSubtitle')}</p>
+
+                                    <div className="space-y-4">
+                                        <LikertRadio
+                                            name="habInteretMotivation"
+                                            value={formData.habInteretMotivation}
+                                            onChange={(val) => setFormData({...formData, habInteretMotivation: val})}
+                                            label={t('modal.personalSkills.interestMotivation')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="habExprimerIdees"
+                                            value={formData.habExprimerIdees}
+                                            onChange={(val) => setFormData({...formData, habExprimerIdees: val})}
+                                            label={t('modal.personalSkills.expressIdeas')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="habFairePreuveInitiative"
+                                            value={formData.habFairePreuveInitiative}
+                                            onChange={(val) => setFormData({...formData, habFairePreuveInitiative: val})}
+                                            label={t('modal.personalSkills.showInitiative')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="habTravaillerSecuritaire"
+                                            value={formData.habTravaillerSecuritaire}
+                                            onChange={(val) => setFormData({...formData, habTravaillerSecuritaire: val})}
+                                            label={t('modal.personalSkills.workSafely')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="habSensResponsabilites"
+                                            value={formData.habSensResponsabilites}
+                                            onChange={(val) => setFormData({...formData, habSensResponsabilites: val})}
+                                            label={t('modal.personalSkills.senseResponsibility')}
+                                            required
+                                        />
+                                        <LikertRadio
+                                            name="habPonctuelAssidu"
+                                            value={formData.habPonctuelAssidu}
+                                            onChange={(val) => setFormData({...formData, habPonctuelAssidu: val})}
+                                            label={t('modal.personalSkills.punctualDiligent')}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            {t('modal.fields.comments')} <span className="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.commentairesHabiletes}
+                                            onChange={(e) => setFormData({...formData, commentairesHabiletes: e.target.value})}
+                                            placeholder={t('modal.fields.commentsPlaceholder')}
+                                            rows={3}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* SECTION 5: APPRÉCIATION GLOBALE */}
+                                <div className="border border-indigo-200 rounded-lg p-6 bg-indigo-50">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                        <Star className="w-5 h-5 text-indigo-600" />
+                                        {t('modal.globalAssessment.title')}
+                                    </h3>
+
+                                    <div className="space-y-3 mb-4">
+                                        {[
+                                            { value: 'HABILETES_DEPASSENT_DE_BEAUCOUP_LES_ATTENTES', labelKey: 'exceedExpectationsGreatly' },
+                                            { value: 'HABILETES_DEPASSENT_LES_ATTENTES', labelKey: 'exceedExpectations' },
+                                            { value: 'HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES', labelKey: 'fullyMeetExpectations' },
+                                            { value: 'HABILETES_REPONDENT_PARTIELLEMENT_AUX_ATTENTES', labelKey: 'partiallyMeetExpectations' },
+                                            { value: 'HABILETES_NE_REPONDENT_PAS_AUX_ATTENTES', labelKey: 'doNotMeetExpectations' }
+                                        ].map((option) => (
+                                            <label
+                                                key={option.value}
+                                                className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                                                    formData.appreciationGlobale === option.value
+                                                        ? 'border-indigo-500 bg-indigo-100'
+                                                        : 'border-gray-300 hover:border-indigo-300 hover:bg-indigo-50'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="appreciationGlobale"
+                                                    value={option.value}
+                                                    checked={formData.appreciationGlobale === option.value}
+                                                    onChange={(e) => setFormData({...formData, appreciationGlobale: e.target.value as AppreciationGlobale})}
+                                                    className="w-4 h-4 text-indigo-600"
+                                                />
+                                                <span className="ml-3 text-sm font-medium text-gray-700">
+                                                    {t(`modal.globalAssessment.${option.labelKey}`)}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            {t('modal.globalAssessment.specifyAssessment')} <span className="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.precisionAppreciation}
+                                            onChange={(e) => setFormData({...formData, precisionAppreciation: e.target.value})}
+                                            placeholder={t('modal.globalAssessment.specifyAssessmentPlaceholder')}
+                                            rows={4}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* SECTION 6: FINALISATION */}
+                                <div className="bg-gray-50 rounded-lg p-6">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-4">
+                                        {t('modal.finalSection.title')}
+                                    </h3>
+
+                                    <div className="space-y-4">
+                                        {/* Discussion avec stagiaire */}
+                                        <div>
+                                            <label className="flex items-center gap-3 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.discussionAvecStagiaire}
+                                                    onChange={(e) => setFormData({...formData, discussionAvecStagiaire: e.target.checked})}
+                                                    className="w-5 h-5 text-blue-600 rounded"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700">
+                                                    {t('modal.finalSection.discussedWithIntern')}
+                                                </span>
+                                            </label>
+                                        </div>
+
+                                        {/* Heures d'encadrement */}
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                {t('modal.finalSection.supervisionHours')}
+                                            </label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={formData.heuresEncadrementSemaine}
+                                                onChange={(e) => setFormData({...formData, heuresEncadrementSemaine: parseInt(e.target.value) || 0})}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+
+                                        {/* Entreprise accueillir prochain stage */}
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                {t('modal.finalSection.welcomeNextInternship')}
+                                            </label>
+                                            <div className="flex gap-4">
+                                                {[
+                                                    { value: 'OUI', labelKey: 'yes' },
+                                                    { value: 'NON', labelKey: 'no' },
+                                                    { value: 'PEUT_ETRE', labelKey: 'maybe' }
+                                                ].map((option) => (
+                                                    <label
+                                                        key={option.value}
+                                                        className={`flex-1 flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                                                            formData.entrepriseAccueillirProchainStage === option.value
+                                                                ? 'border-blue-500 bg-blue-100'
+                                                                : 'border-gray-300 hover:border-blue-300 hover:bg-blue-50'
+                                                        }`}
+                                                    >
+                                                        <input
+                                                            type="radio"
+                                                            name="entrepriseAccueillirProchainStage"
+                                                            value={option.value}
+                                                            checked={formData.entrepriseAccueillirProchainStage === option.value}
+                                                            onChange={(e) => setFormData({...formData, entrepriseAccueillirProchainStage: e.target.value as EntrepriseProchainStageChoix})}
+                                                            className="sr-only"
+                                                        />
+                                                        <span className="text-sm font-medium text-gray-700">
+                                                            {t(`modal.finalSection.${option.labelKey}`)}
+                                                        </span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Formation technique suffisante */}
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                {t('modal.finalSection.technicalTraining')} <span className="text-red-500">*</span>
+                                            </label>
+                                            <textarea
+                                                value={formData.formationTechniqueSuffisante}
+                                                onChange={(e) => setFormData({...formData, formationTechniqueSuffisante: e.target.value})}
+                                                placeholder={t('modal.finalSection.technicalTrainingPlaceholder')}
+                                                rows={3}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex gap-4 pt-4">
+                                <div className="flex gap-4 pt-4 sticky bottom-0 bg-white py-4 border-t border-gray-200">
                                     <button
                                         type="button"
                                         onClick={handleCloseModals}
@@ -628,13 +1154,11 @@ const EmployeurEvaluationStagiaire = () => {
             {showDetailsModal && selectedEvaluation && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                        {/* Header */}
                         <div className="bg-white border-b border-gray-200 px-8 py-6 flex justify-between items-center flex-shrink-0">
                             <h2 className="text-2xl font-bold text-gray-800">
                                 {t('detailsModal.title')}
                             </h2>
                             <div className="flex items-center gap-3">
-                                {/* Bouton Télécharger */}
                                 <button
                                     onClick={() => handleDownloadPDF(selectedEvaluation)}
                                     className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
@@ -642,7 +1166,6 @@ const EmployeurEvaluationStagiaire = () => {
                                     <Download className="w-4 h-4" />
                                     {t('detailsModal.downloadPdf')}
                                 </button>
-                                {/* Bouton Fermer */}
                                 <button
                                     onClick={handleCloseModals}
                                     className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
@@ -652,9 +1175,7 @@ const EmployeurEvaluationStagiaire = () => {
                             </div>
                         </div>
 
-                        {/* Body - Affichage du PDF */}
                         <div className="flex-1 overflow-y-auto p-8">
-                            {/* Evaluation Date */}
                             <div className="bg-green-50 rounded-lg p-4 mb-6 flex items-center gap-3">
                                 <CheckCircle className="w-6 h-6 text-green-600" />
                                 <div>
@@ -663,7 +1184,6 @@ const EmployeurEvaluationStagiaire = () => {
                                 </div>
                             </div>
 
-                            {/* Stagiaire Info */}
                             {(() => {
                                 const entente = ententes.find(e => e.id === selectedEvaluation.ententeId);
                                 return entente ? (
@@ -685,27 +1205,18 @@ const EmployeurEvaluationStagiaire = () => {
                                 ) : null;
                             })()}
 
-                            {/* Visualiseur PDF */}
-                            {selectedEvaluation.pdfBase64 ? (
-                                <div className="bg-gray-100 rounded-lg p-4">
-                                    <iframe
-                                        src={`data:application/pdf;base64,${selectedEvaluation.pdfBase64}`}
-                                        className="w-full h-[600px] border-0 rounded"
-                                        title="Évaluation PDF"
-                                    />
-                                </div>
-                            ) : (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                                    <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-3" />
-                                    <p className="text-red-800 font-semibold">PDF non disponible</p>
-                                    <p className="text-red-700 text-sm mt-2">
-                                        Le PDF de cette évaluation n'a pas pu être chargé.
-                                    </p>
-                                </div>
-                            )}
+                            <div className="bg-gray-100 rounded-lg p-4 text-center">
+                                <p className="text-gray-700 mb-4">{t('detailsModal.pdfInfo')}</p>
+                                <button
+                                    onClick={() => handleDownloadPDF(selectedEvaluation)}
+                                    className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                                >
+                                    <Download className="w-5 h-5" />
+                                    {t('detailsModal.downloadPdf')}
+                                </button>
+                            </div>
                         </div>
 
-                        {/* Footer */}
                         <div className="border-t border-gray-200 px-8 py-4 flex-shrink-0">
                             <button
                                 onClick={handleCloseModals}
