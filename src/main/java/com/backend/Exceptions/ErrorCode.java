@@ -45,6 +45,9 @@ public enum ErrorCode {
     ENTENTE_STATUT_INVALID("ENT_005"),
     ENTENTE_NON_FINALISEE("ENT_006"),
 
+    // Notifications
+    NOTIFICATION_PAS_TROUVE("NOT_001"),
+
     // Evaluations
     EVALUATION_DEJA_EXISTANTE("EVA_001"),
 

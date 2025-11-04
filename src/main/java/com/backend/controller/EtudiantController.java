@@ -234,6 +234,9 @@ public class EtudiantController {
             etudiantService.marquerNotificationLu(id, lu);
             return ResponseEntity.ok()
                     .body(new MessageRetourDTO("Notification marquée comme lue", null));
+        }catch (NotificationPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
