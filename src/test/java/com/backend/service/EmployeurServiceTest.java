@@ -1219,7 +1219,7 @@ public class EmployeurServiceTest {
         notif2.setMessageKey("test.message2");
         notif2.setLu(true);
 
-        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(employeur))
+        when(notificationRepository.findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(employeur))
                 .thenReturn(Arrays.asList(notif1, notif2));
 
         // Act
@@ -1228,7 +1228,7 @@ public class EmployeurServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
-        verify(notificationRepository, times(1)).findAllByUtilisateurOrderByDateCreationDesc(employeur);
+        verify(notificationRepository, times(1)).findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(employeur);
     }
 
     @Test

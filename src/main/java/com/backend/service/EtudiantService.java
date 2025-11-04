@@ -289,7 +289,7 @@ public class EtudiantService {
     @Transactional
     public List<NotificationDTO> getNotificationsPourEtudiantConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Etudiant etudiant = getEtudiantConnecte();
-        List<Notification> notes = notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etudiant);
+        List<Notification> notes = notificationRepository.findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(etudiant);
         return notes.stream()
                     .map(n -> new NotificationDTO(n.getId(), n.getMessageKey(), n.getMessageParam(), n.isLu(), n.getDateCreation()))
                 .collect(Collectors.toList());

@@ -333,7 +333,7 @@ public class EmployeurService {
     @Transactional
     public List<NotificationDTO> getNotificationsPourEmployeurConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
-        List<Notification> notes = notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(employeur);
+        List<Notification> notes = notificationRepository.findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(employeur);
         return notes.stream()
                 .map(n -> new NotificationDTO(n.getId(), n.getMessageKey(), n.getMessageParam(), n.isLu(), n.getDateCreation()))
                 .collect(Collectors.toList());
