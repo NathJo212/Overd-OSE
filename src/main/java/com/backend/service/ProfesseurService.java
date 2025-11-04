@@ -130,22 +130,24 @@ public class ProfesseurService {
     }
 
     @Transactional
-    public byte[] getLettrePresentationParCandidature(Long candidatureId) throws UtilisateurPasTrouveException, LettreDeMotivationNonDisponibleException {
+    public byte[] getLettrePresentationParCandidature(Long candidatureId)
+            throws UtilisateurPasTrouveException, LettreDeMotivationNonDisponibleException {
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(UtilisateurPasTrouveException::new);
 
-        if (candidature.getLettreMotivation() == null) {
+        if (candidature.getLettreMotivation() == null || candidature.getLettreMotivation().length == 0) {
             throw new LettreDeMotivationNonDisponibleException();
         }
 
         try {
-            String lettreMotivation = new String(candidature.getLettreMotivation());
-            return encryptageCV.dechiffrer(lettreMotivation);
+            // Follow CV logic: directly convert byte[] to String
+            String lettreChiffree = new String(candidature.getLettreMotivation());
+            return encryptageCV.dechiffrer(lettreChiffree);
         } catch (Exception e) {
             throw new LettreDeMotivationNonDisponibleException();
         }
-
     }
+
 
     @Transactional
     public StatutStageDTO getStatutStage(Long ententeId) throws EntenteNonTrouveeException {

@@ -12,12 +12,55 @@
       "noCV": "Aucun CV",
       "download": "Télécharger CV",
       "downloading": "Téléchargement..."
+    },
+    "actions": {
+      "candidatures": "Candidatures",
+      "ententes": "Ententes de stage"
+    }
+  },
+  "candidatures": {
+    "title": "Candidatures de l'étudiant",
+    "noCandidatures": "Aucune candidature trouvée",
+    "letterMotivation": {
+      "download": "Télécharger la lettre de motivation",
+      "none": "Aucune lettre de motivation",
+      "downloading": "Téléchargement..."
+    },
+    "statusBadge": {
+      "EN_ATTENTE": "En attente",
+      "ACCEPTEE": "Acceptée",
+      "REFUSEE": "Refusée",
+      "ENTREVUE": "Entrevue"
+    },
+    "message": "Message"
+  },
+  "ententes": {
+    "title": "Ententes de stage",
+    "noEntentes": "Aucune entente trouvée",
+    "labels": {
+      "student": "Étudiant",
+      "employer": "Employeur",
+      "period": "Période",
+      "weeklyHours": "Durée hebdomadaire",
+      "location": "Lieu",
+      "statutStage": "Statut du stage"
+    },
+    "signatures": {
+      "SIGNEE": "Signée",
+      "REFUSEE": "Refusée",
+      "EN_ATTENTE": "En attente"
+    },
+    "statutStage": {
+      "PAS_COMMENCE": "Pas commencé",
+      "EN_COURS": "En cours",
+      "TERMINE": "Terminé"
     }
   },
   "loading": "Chargement...",
   "error": {
     "authTokenMissing": "Token d'authentification manquant",
     "downloadCVFailed": "Erreur lors du téléchargement du CV",
+    "downloadLetterFailed": "Erreur lors du téléchargement de la lettre de motivation",
     "unknown": "Erreur inconnue"
   }
 }

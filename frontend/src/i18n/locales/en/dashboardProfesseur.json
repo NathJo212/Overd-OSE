@@ -12,12 +12,55 @@
       "noCV": "No CV",
       "download": "Download CV",
       "downloading": "Downloading..."
+    },
+    "actions": {
+      "candidatures": "Candidatures",
+      "ententes": "Internship Agreements"
+    }
+  },
+  "candidatures": {
+    "title": "Student Applications",
+    "noCandidatures": "No applications found",
+    "letterMotivation": {
+      "download": "Download Cover Letter",
+      "none": "No cover letter available",
+      "downloading": "Downloading..."
+    },
+    "statusBadge": {
+      "EN_ATTENTE": "Pending",
+      "ACCEPTEE": "Accepted",
+      "REFUSEE": "Rejected",
+      "ENTREVUE": "Interview"
+    },
+    "message": "Message"
+  },
+  "ententes": {
+    "title": "Internship Agreements",
+    "noEntentes": "No agreements found",
+    "labels": {
+      "student": "Student",
+      "employer": "Employer",
+      "period": "Period",
+      "weeklyHours": "Weekly Hours",
+      "location": "Location",
+      "statutStage": "Internship Status"
+    },
+    "signatures": {
+      "SIGNEE": "Signed",
+      "REFUSEE": "Refused",
+      "EN_ATTENTE": "Pending"
+    },
+    "statutStage": {
+      "PAS_COMMENCE": "Not started",
+      "EN_COURS": "In progress",
+      "TERMINE": "Completed"
     }
   },
   "loading": "Loading...",
   "error": {
     "authTokenMissing": "Authentication token missing",
     "downloadCVFailed": "Error downloading CV",
+    "downloadLetterFailed": "Error downloading cover letter",
     "unknown": "Unknown error"
   }
 }

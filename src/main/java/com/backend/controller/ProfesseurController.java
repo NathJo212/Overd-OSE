@@ -38,6 +38,7 @@ public class ProfesseurController {
     }
 
     @GetMapping("/etudiants/{etudiantId}/cv")
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<byte[]> telechargerCvEtudiant(@PathVariable Long etudiantId)
             throws CVNonExistantException, UtilisateurPasTrouveException {
 
