@@ -39,16 +39,20 @@ public class ProfesseurController {
 
     @GetMapping("/etudiants/{etudiantId}/cv")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<byte[]> telechargerCvEtudiant(@PathVariable Long etudiantId)
-            throws CVNonExistantException, UtilisateurPasTrouveException {
+    public ResponseEntity<byte[]> telechargerCvEtudiant(@PathVariable Long etudiantId) {
+        try {
+            byte[] cvDechiffre = professeurService.getCvEtudiantPourProfesseur(etudiantId);
 
-        byte[] cvDechiffre = professeurService.getCvEtudiantPourProfesseur(etudiantId);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=CV_" + etudiantId + ".pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .contentLength(cvDechiffre.length)
-                .body(cvDechiffre);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=CV_" + etudiantId + ".pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(cvDechiffre.length)
+                    .body(cvDechiffre);
+        } catch (CVNonExistantException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/etudiants/{etudiantId}/ententes")
@@ -79,16 +83,20 @@ public class ProfesseurController {
 
     @GetMapping("/candidatures/{candidatureId}/lettre")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<byte[]> telechargerLettrePresentation(@PathVariable Long candidatureId)
-            throws UtilisateurPasTrouveException, LettreDeMotivationNonDisponibleException {
+    public ResponseEntity<byte[]> telechargerLettrePresentation(@PathVariable Long candidatureId) {
+        try {
+            byte[] lettreDechiffree = professeurService.getLettrePresentationParCandidature(candidatureId);
 
-        byte[] lettreDechiffree = professeurService.getLettrePresentationParCandidature(candidatureId);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=LettrePresentation_" + candidatureId + ".pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .contentLength(lettreDechiffree.length)
-                .body(lettreDechiffree);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=LettrePresentation_" + candidatureId + ".pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(lettreDechiffree.length)
+                    .body(lettreDechiffree);
+        } catch (UtilisateurPasTrouveException | LettreDeMotivationNonDisponibleException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/ententes/{ententeId}/statut")
@@ -103,6 +111,4 @@ public class ProfesseurController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
 }
