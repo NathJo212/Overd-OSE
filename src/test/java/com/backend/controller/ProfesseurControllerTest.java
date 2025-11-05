@@ -136,7 +136,7 @@ class ProfesseurControllerTest {
         mockMvc.perform(get("/OSEProfesseur/etudiants/{etudiantId}/cv", etudiantId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-                .andExpect(header().string("Content-Disposition", "attachment; filename=CV_10.pdf"))
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"cv.pdf\""))
                 .andExpect(content().bytes(cvData));
 
         verify(professeurService).getCvEtudiantPourProfesseur(etudiantId);
