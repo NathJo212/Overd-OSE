@@ -55,6 +55,7 @@ public class EmployeurController {
                     offreDTO.getDureeHebdomadaire(),
                     offreDTO.getResponsabilitesEtudiant(),
                     offreDTO.getResponsabilitesEmployeur(),
+                    offreDTO.getResponsabiliteCollege(),
                     offreDTO.getObjectifs()
             );
             return ResponseEntity.status(HttpStatus.CREATED)

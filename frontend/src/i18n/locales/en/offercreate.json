@@ -17,6 +17,12 @@
     "weeklyHoursPlaceholder": "Ex: 35",
     "responsibilities": "Responsibilities",
     "responsibilitiesPlaceholder": "Describe the main responsibilities",
+    "responsibilitiesStudent": "Student responsibilities",
+    "responsibilitiesStudentPlaceholder": "E.g., follow the schedule, complete assigned tasks",
+    "responsibilitiesEmployer": "Employer responsibilities",
+    "responsibilitiesEmployerPlaceholder": "E.g., provide guidance, ensure safety",
+    "responsibilitiesCollege": "College responsibilities",
+    "responsibilitiesCollegePlaceholder": "E.g., academic follow-up, evaluation support",
     "objectives": "Objectives",
     "objectivesPlaceholder": "Describe the learning objectives"
   },

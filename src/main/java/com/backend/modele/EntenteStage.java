@@ -108,6 +108,7 @@ public class EntenteStage {
         this.remuneration = offre.getRemuneration();
         this.responsabilitesEtudiant = offre.getResponsabilitesEtudiant();
         this.responsabilitesEmployeur = offre.getResponsabilitesEmployeur();
+        this.responsabilitesCollege = offre.getResponsabilitesCollege();
         this.progEtude = offre.getProgEtude();
         this.lieu = offre.getLieuStage();
         this.objectifs = offre.getObjectifs();

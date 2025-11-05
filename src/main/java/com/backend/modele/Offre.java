@@ -44,6 +44,7 @@ public class Offre {
 
     private String responsabilitesEtudiant;
     private String responsabilitesEmployeur;
+    private String responsabilitesCollege;
 
     private String objectifs;
 
@@ -78,7 +79,7 @@ public class Offre {
         this.objectifs = null;
     }
 
-    public Offre(String titre, String description, LocalDate date_debut, LocalDate date_fin, Programme progEtude, String lieuStage, String remuneration, LocalDate dateLimite, Employeur employeur, String horaire, Integer dureeHebdomadaire, String responsabilitesEtudiant, String responsabilitesEmployeur,String objectifs) {
+    public Offre(String titre, String description, LocalDate date_debut, LocalDate date_fin, Programme progEtude, String lieuStage, String remuneration, LocalDate dateLimite, Employeur employeur, String horaire, Integer dureeHebdomadaire, String responsabilitesEtudiant, String responsabilitesEmployeur,String responsabilitesCollege, String objectifs) {
         this.titre = titre;
         this.description = description;
         this.date_debut = date_debut;
@@ -93,6 +94,7 @@ public class Offre {
         this.dureeHebdomadaire = dureeHebdomadaire;
         this.responsabilitesEtudiant = responsabilitesEtudiant;
         this.responsabilitesEmployeur = responsabilitesEmployeur;
+        this.responsabilitesCollege = responsabilitesCollege;
         this.objectifs = objectifs;
     }
 

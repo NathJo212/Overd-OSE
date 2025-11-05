@@ -17,6 +17,12 @@
     "weeklyHoursPlaceholder": "Ex: 35",
     "responsibilities": "Responsabilités",
     "responsibilitiesPlaceholder": "Décrivez les responsabilités principales",
+    "responsibilitiesStudent": "Responsabilités de l'étudiant",
+    "responsibilitiesStudentPlaceholder": "Ex: Respecter l'horaire, compléter les tâches assignées",
+    "responsibilitiesEmployer": "Responsabilités de l'employeur",
+    "responsibilitiesEmployerPlaceholder": "Ex: Fournir l'encadrement, assurer la sécurité",
+    "responsibilitiesCollege": "Responsabilités du collège",
+    "responsibilitiesCollegePlaceholder": "Ex: Suivi pédagogique, soutien à l'évaluation",
     "objectives": "Objectifs",
     "objectivesPlaceholder": "Décrivez les objectifs d'apprentissage"
   },

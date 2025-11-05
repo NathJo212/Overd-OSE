@@ -24,8 +24,10 @@ const CreerOffreStage = () => {
     // Local form type allows additional optional fields which may be useful later
     type FormDataType = Omit<OffreStageDTO, "utilisateur"> & {
         horaire?: string;
-        dureeHebdomadaire?: string;
-        responsabilites?: string;
+        dureeHebdomadaire?: string | number;
+        responsabilitesEtudiant?: string;
+        responsabilitesEmployeur?: string;
+        responsabilitesCollege?: string;
         objectifs?: string;
     };
 
@@ -40,7 +42,9 @@ const CreerOffreStage = () => {
         dateLimite: "",
         horaire: "",
         dureeHebdomadaire: "",
-        responsabilites: "",
+        responsabilitesEtudiant: "",
+        responsabilitesEmployeur: "",
+        responsabilitesCollege: "",
         objectifs: "",
     });
     const [loading, setLoading] = useState(false);
@@ -100,7 +104,7 @@ const CreerOffreStage = () => {
         setLoading(true);
 
         try {
-            // Build payload including optional fields -- backend will ignore unknown fields if not supported
+            // Build payload including optional fields
             const offrePayload: any = { ...formData, utilisateur: { token } };
             await employeurService.creerOffreDeStage(offrePayload);
             setSuccessMessage(t("offercreate:success.offerCreated"));
@@ -341,7 +345,7 @@ const CreerOffreStage = () => {
                                 <input
                                     type="text"
                                     name="horaire"
-                                    value={formData.horaire}
+                                    value={formData.horaire as string}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                     placeholder={t("offercreate:form.schedulePlaceholder")}
@@ -355,7 +359,7 @@ const CreerOffreStage = () => {
                                 <input
                                     type="number"
                                     name="dureeHebdomadaire"
-                                    value={formData.dureeHebdomadaire}
+                                    value={formData.dureeHebdomadaire as any}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                     placeholder={t("offercreate:form.weeklyHoursPlaceholder")}
@@ -364,22 +368,51 @@ const CreerOffreStage = () => {
                             </div>
                         </div>
 
-                        {/* Responsabilités et Objectifs (optionnel) */}
+                        {/* Responsabilités (3 sections) */}
                         <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                {t("offercreate:form.responsibilities")}
+                                {t("offercreate:form.responsibilitiesStudent")}
                             </label>
                             <textarea
-                                name="responsabilites"
-                                value={formData.responsabilites}
+                                name="responsabilitesEtudiant"
+                                value={formData.responsabilitesEtudiant}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                 rows={3}
                                 disabled={loading}
-                                placeholder={t("offercreate:form.responsibilitiesPlaceholder")}
+                                placeholder={t("offercreate:form.responsibilitiesStudentPlaceholder")}
+                            />
+                        </div>
+                        <div>
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                {t("offercreate:form.responsibilitiesEmployer")}
+                            </label>
+                            <textarea
+                                name="responsabilitesEmployeur"
+                                value={formData.responsabilitesEmployeur}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                                rows={3}
+                                disabled={loading}
+                                placeholder={t("offercreate:form.responsibilitiesEmployerPlaceholder")}
+                            />
+                        </div>
+                        <div>
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                {t("offercreate:form.responsibilitiesCollege")}
+                            </label>
+                            <textarea
+                                name="responsabilitesCollege"
+                                value={formData.responsabilitesCollege}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                                rows={3}
+                                disabled={loading}
+                                placeholder={t("offercreate:form.responsibilitiesCollegePlaceholder")}
                             />
                         </div>
 
+                        {/* Objectifs (optionnel) */}
                         <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                 {t("offercreate:form.objectives")}

@@ -86,6 +86,7 @@ public class BackendApplication {
                     20,
                     "Faire le café",
                     "Apprendre React",
+                    "Encourager l'étudiant",
                     "Découvrir le développement front-end en React"
             );
 
@@ -103,6 +104,7 @@ public class BackendApplication {
                     30,
                     "Développer des APIs",
                     "Utiliser Spring Boot pour développer des APIs RESTful",
+                    "Faire respecter les droits de l'étudiant",
                     "Approfondir la programmation backend"
             );
 
@@ -120,6 +122,7 @@ public class BackendApplication {
                     25,
                     "Coder en Java",
                     "Développer des applications en Java",
+                    "Veiller à l'apprentissage de l'étudiant",
                     "Mettre en pratique la programmation orientée objet"
             );
 

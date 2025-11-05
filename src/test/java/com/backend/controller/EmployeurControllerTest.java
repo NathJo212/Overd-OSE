@@ -145,7 +145,7 @@ class EmployeurControllerTest {
                         any(AuthResponseDTO.class), anyString(), anyString(),
                         any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class),
                         anyString(), anyString(), any(LocalDate.class),
-                        anyString(), any(), anyString(), anyString(), anyString()
+                        anyString(), any(), anyString(), anyString(), anyString(), anyString()
                 );
 
         OffreDTO offreDTO = new OffreDTO();
@@ -175,7 +175,7 @@ class EmployeurControllerTest {
                         any(AuthResponseDTO.class), anyString(), anyString(),
                         any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class),
                         anyString(), anyString(), any(LocalDate.class),
-                        anyString(), any(), anyString(), anyString(), anyString()
+                        anyString(), any(), anyString(), anyString(), anyString(), anyString()
                 );
 
         OffreDTO offreDTO = new OffreDTO();
