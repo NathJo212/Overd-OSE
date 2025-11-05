@@ -684,7 +684,7 @@ public class GestionnaireServiceTest {
     public void getEntenteDocument_retourneBytes_siPresent() throws Exception {
         EntenteStage e = new EntenteStage();
         e.setId(66L);
-        e.setDocumentPdf(new byte[]{1,2,3});
+        e.setPdfBase64(Base64.getEncoder().encodeToString(new byte[]{1,2,3}));
         when(ententeStageRepository.findById(66L)).thenReturn(Optional.of(e));
 
         byte[] doc = gestionnaireService.getEntenteDocument(66L);
@@ -695,7 +695,7 @@ public class GestionnaireServiceTest {
     public void getEntenteDocument_absent_lance() throws Exception {
         EntenteStage e = new EntenteStage();
         e.setId(67L);
-        e.setDocumentPdf(null);
+        e.setPdfBase64(null);
         when(ententeStageRepository.findById(67L)).thenReturn(Optional.of(e));
 
         assertThrows(EntenteDocumentNonTrouveeException.class, () -> gestionnaireService.getEntenteDocument(67L));

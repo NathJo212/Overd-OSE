@@ -21,6 +21,9 @@ public class EntenteStageDTO {
     private String description;
     private LocalDate dateDebut;
     private LocalDate dateFin;
+    private LocalDate dateSignatureEtudiant;
+    private LocalDate dateSignatureEmployeur;
+    private LocalDate dateSignatureGestionnaire;
     private String horaire;
     private Integer dureeHebdomadaire;
     private String remuneration;
@@ -30,7 +33,7 @@ public class EntenteStageDTO {
     private String objectifs;
     private String progEtude;
     private String lieu;
-    private byte[] documentPdf;
+    private String pdfBase64;
     private String etudiantSignature; // EN_ATTENTE, SIGNEE, REFUSEE
     private String employeurSignature;
     private String statut; // EN_ATTENTE, SIGNEE, ANNULEE
@@ -50,6 +53,9 @@ public class EntenteStageDTO {
         dto.setDescription(entente.getDescription());
         dto.setDateDebut(entente.getDateDebut());
         dto.setDateFin(entente.getDateFin());
+        dto.setDateSignatureEtudiant(entente.getDateSignatureEtudiant());
+        dto.setDateSignatureEmployeur(entente.getDateSignatureEmployeur());
+        dto.setDateSignatureGestionnaire(entente.getDateSignatureGestionnaire());
         dto.setHoraire(entente.getHoraire());
         dto.setDureeHebdomadaire(entente.getDureeHebdomadaire());
         dto.setRemuneration(entente.getRemuneration());
@@ -59,7 +65,7 @@ public class EntenteStageDTO {
         dto.setObjectifs(entente.getObjectifs());
         dto.setProgEtude(String.valueOf(entente.getProgEtude()));
         dto.setLieu(entente.getLieu());
-        dto.setDocumentPdf(entente.getDocumentPdf());
+        dto.setPdfBase64(entente.getPdfBase64());
         dto.setEtudiantSignature(entente.getEtudiantSignature() != null ? entente.getEtudiantSignature().name() : null);
         dto.setEmployeurSignature(entente.getEmployeurSignature() != null ? entente.getEmployeurSignature().name() : null);
         dto.setStatut(entente.getStatut() != null ? entente.getStatut().name() : null);

@@ -1,141 +1,101 @@
 package com.backend.util;
 
 import com.backend.modele.EntenteStage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.util.Matrix;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+
+import java.io.*;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 public class EntentePdfGenerator {
 
-    public static byte[] generatePdfBytes(EntenteStage entente) throws IOException {
+    /**
+     * Generates a filled PDF copy of ContratEntente.pdf,
+     * keeping the layout intact and replacing placeholders in-place.
+     */
+    public static byte[] generatePdfBytes(EntenteStage entente, String gestionnaireNom) throws IOException {
         if (entente == null) throw new IllegalArgumentException("Entente null");
 
-        try (PDDocument doc = new PDDocument()) {
-            PDPage page = new PDPage(PDRectangle.LETTER);
-            doc.addPage(page);
+        // --- Load the template ---
+        try (InputStream is = EntentePdfGenerator.class.getResourceAsStream("/documents/ContratEntente.pdf")) {
+            if (is == null) throw new FileNotFoundException("Template ContratEntente.pdf introuvable");
+            PDDocument doc = Loader.loadPDF(is.readAllBytes());
 
-            try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
-                cs.setLeading(14.5f);
+            // --- Build replacement values ---
+            String nomGestionnaire = gestionnaireNom != null ? gestionnaireNom : "-";
+            String nomEmployeur = entente.getEmployeur() != null ? entente.getEmployeur().getNomEntreprise() : "-";
+            String nomEtudiant = entente.getEtudiant() != null
+                    ? entente.getEtudiant().getPrenom() + " " + entente.getEtudiant().getNom()
+                    : "-";
+            String lieu = entente.getLieu() != null ? entente.getLieu() : "-";
+            String horaire = entente.getHoraire() != null ? entente.getHoraire() : "-";
+            String taux = entente.getRemuneration() != null ? entente.getRemuneration() : "-";
+            String description = entente.getDescription() != null ? entente.getDescription() : "-";
+
+            long semaines = 0;
+            if (entente.getDateDebut() != null && entente.getDateFin() != null) {
+                semaines = ChronoUnit.WEEKS.between(entente.getDateDebut(), entente.getDateFin());
+                if (semaines < 0) semaines = 0;
+            }
+
+            // --- Placeholder mapping (kept for future templating if needed) ---
+            Map<String, String> replacements = Map.ofEntries(
+                    Map.entry("[xx]", entente.getDateDebut() != null ? entente.getDateDebut().toString() : "-"),
+                    Map.entry("xx", entente.getDateFin() != null ? entente.getDateFin().toString() : "-"),
+                    Map.entry("[nom_gestionnaire]", nomGestionnaire),
+                    Map.entry("[nom_employeur]", nomEmployeur),
+                    Map.entry("[nom_etudiant]", nomEtudiant),
+                    Map.entry("[offre_lieuStage]", lieu),
+                    Map.entry("[offre_tauxHoraire]", taux),
+                    Map.entry("[offre_description]", description),
+                    Map.entry("[date_signature_etudiant]", entente.getDateSignatureEtudiant() != null ? entente.getDateSignatureEtudiant().toString() : "-"),
+                    Map.entry("[date_signature_employeur]", entente.getDateSignatureEmployeur() != null ? entente.getDateSignatureEmployeur().toString() : "-"),
+                    Map.entry("[date_signature_gestionnaire]", entente.getDateSignatureGestionnaire() != null ? entente.getDateSignatureGestionnaire().toString() : "-")
+            );
+
+            // --- Get the first page ---
+            PDPage page = doc.getPage(0);
+
+            // --- Prepare overlay stream ---
+            try (PDPageContentStream cs = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true)) {
+                PDType1Font font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+                cs.setFont(font, 11);
+
+                // --- For simplicity, overlay values in fixed positions near placeholders ---
+                float startX = 200; // left margin for text overlay
+                float y = 720;      // start height; adjust downward as needed per line
+                float lineSpacing = 15f;
+
                 cs.beginText();
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 16);
-                cs.newLineAtOffset(50, 700);
-                cs.showText("Entente de stage");
-                cs.newLine();
-                cs.newLine();
+                cs.setTextMatrix(Matrix.getTranslateInstance(startX, y));
 
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA),12);
-                String etudiant = entente.getEtudiant() != null ? entente.getEtudiant().getPrenom() + " " + entente.getEtudiant().getNom() : "-";
-                String employeur = entente.getEmployeur() != null ? entente.getEmployeur().getContact() : "-";
-                String offre = entente.getOffre() != null ? entente.getOffre().getTitre() : "-";
-
-                cs.showText("Etudiant: " + etudiant);
-                cs.newLine();
-                cs.showText("Employeur: " + employeur);
-                cs.newLine();
-                cs.showText("Offre: " + offre);
-                cs.newLine();
-                cs.newLine();
-
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD),13);
-                cs.showText("Titre: ");
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
-                cs.showText(entente.getTitre() != null ? entente.getTitre() : "-");
-                cs.newLine();
-
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Description: ");
-                cs.newLine();
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 11);
-
-                String desc = entente.getDescription() != null ? entente.getDescription() : "-";
-                printWrapped(cs, desc, 80);
-                cs.newLine();
-
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Dates: ");
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
-                String dates = (entente.getDateDebut() != null ? entente.getDateDebut().toString() : "-") + " - " + (entente.getDateFin() != null ? entente.getDateFin().toString() : "-");
-                cs.showText(dates);
-                cs.newLine();
-
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Horaire: ");
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
-                cs.showText(entente.getHoraire() != null ? entente.getHoraire() : "-");
-                cs.newLine();
-
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Durée hebdomadaire: ");
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
-                cs.showText(entente.getDureeHebdomadaire() != null ? entente.getDureeHebdomadaire().toString() + " heures" : "-");
-                cs.newLine();
-
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Rémunération: ");
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
-                cs.showText(entente.getRemuneration() != null ? entente.getRemuneration() : "-");
-                cs.newLine();
-                cs.newLine();
-
-                // Responsibilities sections
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Responsabilités (Étudiant): ");
-                cs.newLine();
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 11);
-                printWrapped(cs, entente.getResponsabilitesEtudiant() != null ? entente.getResponsabilitesEtudiant() : "-", 80);
-                cs.newLine();
-
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Responsabilités (Employeur): ");
-                cs.newLine();
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 11);
-                printWrapped(cs, entente.getResponsabilitesEmployeur() != null ? entente.getResponsabilitesEmployeur() : "-", 80);
-                cs.newLine();
-
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Responsabilités (Collège): ");
-                cs.newLine();
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 11);
-                printWrapped(cs, entente.getResponsabilitesCollege() != null ? entente.getResponsabilitesCollege() : "-", 80);
-                cs.newLine();
-
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 13);
-                cs.showText("Objectifs: ");
-                cs.newLine();
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 11);
-                printWrapped(cs, entente.getObjectifs() != null ? entente.getObjectifs() : "-", 80);
-                cs.newLine();
+                cs.showText("Gestionnaire : " + nomGestionnaire); cs.newLineAtOffset(0, -lineSpacing);
+                cs.showText("Employeur : " + nomEmployeur); cs.newLineAtOffset(0, -lineSpacing);
+                cs.showText("Étudiant : " + nomEtudiant); cs.newLineAtOffset(0, -lineSpacing);
+                cs.showText("Adresse : " + lieu); cs.newLineAtOffset(0, -lineSpacing);
+                cs.showText("Horaire : " + horaire); cs.newLineAtOffset(0, -lineSpacing);
+                cs.showText("Salaire : " + taux); cs.newLineAtOffset(0, -lineSpacing);
+                cs.showText("Description : " + description); cs.newLineAtOffset(0, -lineSpacing);
+                cs.showText("Début : " + (entente.getDateDebut() != null ? entente.getDateDebut().toString() : "-")); cs.newLineAtOffset(0, -lineSpacing);
+                cs.showText("Fin : " + (entente.getDateFin() != null ? entente.getDateFin().toString() : "-")); cs.newLineAtOffset(0, -lineSpacing);
+                cs.showText("Semaines : " + semaines);
 
                 cs.endText();
             }
 
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                doc.save(baos);
-                return baos.toByteArray();
-            }
-        }
-    }
+            // --- Save to byte array ---
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            doc.save(baos);
+            doc.close();
 
-    private static void printWrapped(PDPageContentStream cs, String text, int maxCharsPerLine) throws IOException {
-        if (text == null) return;
-        String[] words = text.split("\\s+");
-        StringBuilder line = new StringBuilder();
-        for (String w : words) {
-            if (line.length() + w.length() + 1 > maxCharsPerLine) {
-                cs.showText(line.toString());
-                cs.newLine();
-                line = new StringBuilder();
-            }
-            if (line.length() > 0) line.append(' ');
-            line.append(w);
-        }
-        if (line.length() > 0) {
-            cs.showText(line.toString());
+            return baos.toByteArray();
         }
     }
 }

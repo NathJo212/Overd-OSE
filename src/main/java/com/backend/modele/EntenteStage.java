@@ -73,8 +73,8 @@ public class EntenteStage {
     @Column(length = 4000)
     private String objectifs;
 
-    @Column
-    private byte[] documentPdf;
+    @Column(length = 1000000)
+    private String pdfBase64;
 
     @Enumerated(EnumType.STRING)
     private SignatureStatus etudiantSignature = SignatureStatus.EN_ATTENTE;

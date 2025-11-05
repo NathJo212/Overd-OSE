@@ -6,7 +6,7 @@ import com.backend.modele.*;
 import com.backend.persistence.*;
 import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
-import com.backend.util.EntentePdfGenerator;
+import com.backend.util.CreateEntenteForm;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -257,14 +259,7 @@ public class GestionnaireService {
         entente.setDateCreation(LocalDateTime.now());
         ententeStageRepository.save(entente);
 
-        // PDF
-        try {
-            byte[] pdfBytes = EntentePdfGenerator.generatePdfBytes(entente);
-            entente.setDocumentPdf(pdfBytes);
-            ententeStageRepository.save(entente);
-        } catch (IOException ioe) {
-            System.out.println("Erreur");
-        }
+        // PDF generation is deferred until final gestionnaire signature
 
         try {
             Notification notifEtudiant = new Notification();
@@ -310,17 +305,16 @@ public class GestionnaireService {
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+        // clear signature dates and previously generated document
+        entente.setDateSignatureEtudiant(null);
+        entente.setDateSignatureEmployeur(null);
+        entente.setDateSignatureGestionnaire(null);
+        entente.setPdfBase64(null);
+        entente.setDateModification(LocalDateTime.now());
 
         ententeStageRepository.save(entente);
 
-        // PDF et save
-        try {
-            byte[] pdfBytes = EntentePdfGenerator.generatePdfBytes(entente);
-            entente.setDocumentPdf(pdfBytes);
-            ententeStageRepository.save(entente);
-        } catch (IOException ioe) {
-            System.out.println("Erreur");
-        }
+        // PDF regeneration is deferred until final gestionnaire signature
 
         // notifications
         try {
@@ -386,10 +380,13 @@ public class GestionnaireService {
         verifierGestionnaireConnecte();
         EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
 
-        if (entente.getDocumentPdf() != null && entente.getDocumentPdf().length > 0) {
-            return entente.getDocumentPdf();
+        if (entente.getPdfBase64() != null && !entente.getPdfBase64().isEmpty()) {
+            try {
+                return Base64.getDecoder().decode(entente.getPdfBase64());
+            } catch (IllegalArgumentException e) {
+                // invalid base64
+            }
         }
-
         throw new EntenteDocumentNonTrouveeException();
     }
 
@@ -449,6 +446,13 @@ public class GestionnaireService {
 
         entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
         entente.setDateSignatureGestionnaire(LocalDate.now());
+
+        // Generate and store the final PDF upon final signature
+        try {
+            generateAndStoreEntentePdf(entente);
+        } catch (IOException ioe) {
+            // Keep entente signed even if PDF generation fails; log or handle as needed
+        }
         ententeStageRepository.save(entente);
 
         Etudiant etudiant = entente.getEtudiant();
@@ -461,13 +465,32 @@ public class GestionnaireService {
         }
 
         Employeur employeur = entente.getEmployeur();
-        if (etudiant != null) {
+        if (employeur != null) {
             Notification notif = new Notification();
             notif.setUtilisateur(employeur);
             notif.setMessageKey("entente.gestionnaire.signed");
             notif.setMessageParam(entente.getTitre());
             notificationRepository.save(notif);
         }
+    }
+
+    // Helper to generate the entente PDF and store it on the entity
+    private void generateAndStoreEntentePdf(EntenteStage entente) throws IOException {
+        String gestionnaireNom = null;
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                String email = auth.getName();
+                Optional<Utilisateur> opt = utilisateurRepository.findByEmail(email);
+                if (opt.isPresent() && opt.get() instanceof GestionnaireStage g) {
+                    gestionnaireNom = g.getPrenom() + " " + g.getNom();
+                }
+            }
+        } catch (Exception ignored) {}
+
+        // Use utils CreateEntenteForm to build the final PDF bytes
+        byte[] pdfBytes = CreateEntenteForm.generatePdfBytes(entente, gestionnaireNom);
+        entente.setPdfBase64(Base64.getEncoder().encodeToString(pdfBytes));
     }
 
     @Transactional
@@ -498,7 +521,7 @@ public class GestionnaireService {
         }
 
         Employeur employeur = entente.getEmployeur();
-        if (etudiant != null) {
+        if (employeur != null) {
             Notification notif = new Notification();
             notif.setUtilisateur(employeur);
             notif.setMessageKey("entente.gestionnaire.refused");
