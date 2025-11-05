@@ -81,8 +81,16 @@ export interface CandidatureEligibleDTO {
 }
 
 export interface EntenteStageDTO {
+    id?: number;
     etudiantId: number;
     offreId: number;
+
+    // Informations complètes de l'entente (retournées par le backend)
+    etudiantNomComplet?: string;
+    etudiantEmail?: string;
+    employeurContact?: string;
+    employeurEmail?: string;
+
     // optional PDF content as base64 (backend may generate later)
     pdfBase64?: string;
 
@@ -96,6 +104,17 @@ export interface EntenteStageDTO {
     remuneration?: string;
     responsabilites?: string;
     objectifs?: string;
+
+    // Informations additionnelles
+    progEtude?: string;
+    lieu?: string;
+    dateCreation?: string;
+
+    // Statuts de signature
+    etudiantSignature?: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    employeurSignature?: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    statut?: 'EN_ATTENTE' | 'SIGNEE' | 'ANNULEE';
+    archived?: boolean;
 }
 
 // Interface for backend error response
@@ -439,6 +458,111 @@ class GestionnaireService {
             }
             console.error('Erreur lors de l\'assignation de l\'étudiant:', error);
             throw new Error('Erreur lors de l\'assignation de l\'étudiant au professeur');
+        }
+    }
+
+    // ========== GESTION DES ENTENTES - SIGNATURE PAR LE GESTIONNAIRE ==========
+    /**
+     * Récupère les ententes prêtes pour la signature du gestionnaire
+     * (Où l'étudiant ET l'employeur ont déjà signé)
+     * @param token - Token d'authentification
+     * @returns Promise avec la liste des ententes prêtes
+     */
+    async getEntentesPretes(token: string): Promise<EntenteStageDTO[]> {
+        try {
+            const response = await fetch(`${this.baseUrl}/ententes/pretes`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des ententes prêtes');
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération des ententes prêtes:', error);
+            throw new Error('Erreur lors de la récupération des ententes prêtes');
+        }
+    }
+
+    /**
+     * Signe une entente de stage en tant que gestionnaire
+     * Cette action finalise l'entente et notifie toutes les parties
+     * @param ententeId - L'ID de l'entente à signer
+     * @param token - Token d'authentification
+     * @returns Promise avec la réponse du serveur
+     */
+    async signerEntente(ententeId: number, token: string): Promise<void> {
+        try {
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/signer`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data: MessageRetourDTO = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors de la signature de l\'entente:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la signature de l\'entente');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la signature de l\'entente');
+            }
+
+        } catch (error: any) {
+            if (error.response?.data) {
+                throw error;
+            }
+            throw new Error('Erreur lors de la signature de l\'entente');
+        }
+    }
+
+    /**
+     * Refuse une entente de stage en tant que gestionnaire
+     * L'entente sera annulée et archivée
+     * @param ententeId - L'ID de l'entente à refuser
+     * @param token - Token d'authentification
+     * @returns Promise avec la réponse du serveur
+     */
+    async refuserEntente(ententeId: number, token: string): Promise<void> {
+        try {
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/refuser`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data: MessageRetourDTO = await response.json();
+
+            if (data.erreur) {
+                console.error('Erreur lors du refus de l\'entente:', data.erreur);
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus de l\'entente');
+                error.response = { data };
+                throw error;
+            }
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du refus de l\'entente');
+            }
+
+        } catch (error: any) {
+            if (error.response?.data) {
+                throw error;
+            }
+            throw new Error('Erreur lors du refus de l\'entente');
         }
     }
 }

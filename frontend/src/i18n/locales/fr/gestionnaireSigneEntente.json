@@ -1,0 +1,102 @@
+{
+  "title": "Ententes prêtes pour signature",
+  "subtitle": "Signez les ententes où l'étudiant et l'employeur ont déjà signé",
+  "loading": "Chargement des ententes...",
+  "refresh": "Actualiser",
+  "backToDashboard": "Retour au tableau de bord",
+
+  "noEntentes": "Aucune entente prête",
+  "noEntentesSubtitle": "Il n'y a actuellement aucune entente en attente de votre signature. Les ententes apparaîtront ici une fois que l'étudiant et l'employeur auront signé.",
+
+  "ententeCount": "entente(s) en attente",
+  "week": "semaine",
+  "hourShort": "h",
+
+  "cards": {
+    "ready": "Prête à signer",
+    "waitingBoth": "En attente des signatures",
+    "studentSigned": "Étudiant: Signé",
+    "employerSigned": "Employeur: Signé",
+    "studentPending": "Étudiant: En attente",
+    "employerPending": "Employeur: En attente"
+  },
+
+  "fields": {
+    "title": "Titre",
+    "description": "Description",
+    "student": "Étudiant",
+    "employer": "Employeur",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "schedule": "Horaire",
+    "weeklyHours": "Heures hebdomadaires",
+    "remuneration": "Rémunération",
+    "responsibilities": "Responsabilités",
+    "objectives": "Objectifs d'apprentissage",
+    "programme": "Programme",
+    "location": "Lieu",
+    "creationDate": "Date de création",
+    "notDefined": "Non défini"
+  },
+
+  "signatureStatus": {
+    "title": "Statut des signatures",
+    "yourSignature": "Votre signature",
+    "studentSignature": "Signature de l'étudiant",
+    "employerSignature": "Signature de l'employeur",
+    "signed": "Signée",
+    "pending": "En attente",
+    "refused": "Refusée",
+    "waitingForOthers": "En attente des autres parties"
+  },
+
+  "buttons": {
+    "viewDetails": "Voir les détails",
+    "sign": "Signer l'entente",
+    "refuse": "Refuser l'entente",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "signing": "Signature en cours...",
+    "refusing": "Refus en cours...",
+    "viewPdf": "Voir le PDF"
+  },
+
+  "modals": {
+    "details": {
+      "title": "Détails de l'entente"
+    },
+    "sign": {
+      "title": "Confirmer la signature finale",
+      "message": "Êtes-vous sûr de vouloir signer cette entente de stage ? Cette signature finalise officiellement l'entente et valide l'engagement de toutes les parties. Cette action est irréversible.",
+      "requirements": "L'étudiant et l'employeur ont déjà signé cette entente."
+    },
+    "refuse": {
+      "title": "Refuser l'entente",
+      "message": "Êtes-vous sûr de vouloir refuser cette entente de stage ? L'entente sera annulée et archivée. Cette action est irréversible.",
+      "warning": "L'étudiant et l'employeur seront notifiés du refus."
+    }
+  },
+
+  "success": {
+    "signed": "Entente signée avec succès ! L'étudiant et l'employeur ont été notifiés.",
+    "refused": "Entente refusée avec succès. Les parties concernées ont été notifiées."
+  },
+
+  "errors": {
+    "loadError": "Erreur lors du chargement des ententes",
+    "signError": "Erreur lors de la signature de l'entente",
+    "refuseError": "Erreur lors du refus de l'entente",
+    "pdfError": "Erreur lors du téléchargement du PDF",
+    "networkError": "Erreur de connexion au serveur",
+    "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action",
+    "invalidStatus": "Cette entente ne peut pas être signée dans son état actuel",
+    "notFound": "Entente non trouvée",
+    "errorCode": "Erreur ({{code}}): {{message}}"
+  },
+
+  "notifications": {
+    "finalSignature": "Signature finale effectuée",
+    "partiesNotified": "Toutes les parties ont été notifiées"
+  }
+}

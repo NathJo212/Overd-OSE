@@ -1,0 +1,102 @@
+{
+  "title": "Agreements Ready for Signature",
+  "subtitle": "Sign agreements where both student and employer have already signed",
+  "loading": "Loading agreements...",
+  "refresh": "Refresh",
+  "backToDashboard": "Back to Dashboard",
+
+  "noEntentes": "No Agreements Ready",
+  "noEntentesSubtitle": "There are currently no agreements waiting for your signature. Agreements will appear here once both the student and employer have signed.",
+
+  "ententeCount": "agreement(s) pending",
+  "week": "week",
+  "hourShort": "h",
+
+  "cards": {
+    "ready": "Ready to sign",
+    "waitingBoth": "Waiting for signatures",
+    "studentSigned": "Student: Signed",
+    "employerSigned": "Employer: Signed",
+    "studentPending": "Student: Pending",
+    "employerPending": "Employer: Pending"
+  },
+
+  "fields": {
+    "title": "Title",
+    "description": "Description",
+    "student": "Student",
+    "employer": "Employer",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "schedule": "Schedule",
+    "weeklyHours": "Weekly Hours",
+    "remuneration": "Remuneration",
+    "responsibilities": "Responsibilities",
+    "objectives": "Learning Objectives",
+    "programme": "Program",
+    "location": "Location",
+    "creationDate": "Creation Date",
+    "notDefined": "Not defined"
+  },
+
+  "signatureStatus": {
+    "title": "Signature Status",
+    "yourSignature": "Your Signature",
+    "studentSignature": "Student Signature",
+    "employerSignature": "Employer Signature",
+    "signed": "Signed",
+    "pending": "Pending",
+    "refused": "Refused",
+    "waitingForOthers": "Waiting for other parties"
+  },
+
+  "buttons": {
+    "viewDetails": "View Details",
+    "sign": "Sign Agreement",
+    "refuse": "Refuse Agreement",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "signing": "Signing...",
+    "refusing": "Refusing...",
+    "viewPdf": "View PDF"
+  },
+
+  "modals": {
+    "details": {
+      "title": "Agreement Details"
+    },
+    "sign": {
+      "title": "Confirm Final Signature",
+      "message": "Are you sure you want to sign this internship agreement? This signature officially finalizes the agreement and validates the commitment of all parties. This action is irreversible.",
+      "requirements": "The student and employer have already signed this agreement."
+    },
+    "refuse": {
+      "title": "Refuse Agreement",
+      "message": "Are you sure you want to refuse this internship agreement? The agreement will be cancelled and archived. This action is irreversible.",
+      "warning": "The student and employer will be notified of the refusal."
+    }
+  },
+
+  "success": {
+    "signed": "Agreement signed successfully! The student and employer have been notified.",
+    "refused": "Agreement refused successfully. The concerned parties have been notified."
+  },
+
+  "errors": {
+    "loadError": "Error loading agreements",
+    "signError": "Error signing the agreement",
+    "refuseError": "Error refusing the agreement",
+    "pdfError": "Error downloading PDF",
+    "networkError": "Server connection error",
+    "unauthorized": "You are not authorized to perform this action",
+    "invalidStatus": "This agreement cannot be signed in its current state",
+    "notFound": "Agreement not found",
+    "errorCode": "Error ({{code}}): {{message}}"
+  },
+
+  "notifications": {
+    "finalSignature": "Final signature completed",
+    "partiesNotified": "All parties have been notified"
+  }
+}
