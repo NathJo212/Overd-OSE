@@ -422,27 +422,8 @@ public class GestionnaireService {
             // Keep entente signed even if PDF generation fails; log or handle as needed
         }
         ententeStageRepository.save(entente);
-
-        Etudiant etudiant = entente.getEtudiant();
-        if (etudiant != null) {
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("entente.gestionnaire.signed");
-            notif.setMessageParam(entente.getTitre());
-            notificationRepository.save(notif);
-        }
-
-        Employeur employeur = entente.getEmployeur();
-        if (employeur != null) {
-            Notification notif = new Notification();
-            notif.setUtilisateur(employeur);
-            notif.setMessageKey("entente.gestionnaire.signed");
-            notif.setMessageParam(entente.getTitre());
-            notificationRepository.save(notif);
-        }
     }
 
-    // Helper to generate the entente PDF and store it on the entity
     private void generateAndStoreEntentePdf(EntenteStage entente) throws IOException {
         String gestionnaireNom = null;
         try {
@@ -477,25 +458,6 @@ public class GestionnaireService {
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setArchived(true);
         ententeStageRepository.save(entente);
-
-
-        Etudiant etudiant = entente.getEtudiant();
-        if (etudiant != null) {
-            Notification notif = new Notification();
-            notif.setUtilisateur(etudiant);
-            notif.setMessageKey("entente.gestionnaire.refused");
-            notif.setMessageParam(entente.getTitre());
-            notificationRepository.save(notif);
-        }
-
-        Employeur employeur = entente.getEmployeur();
-        if (employeur != null) {
-            Notification notif = new Notification();
-            notif.setUtilisateur(employeur);
-            notif.setMessageKey("entente.gestionnaire.refused");
-            notif.setMessageParam(entente.getTitre());
-            notificationRepository.save(notif);
-        }
     }
 
     @Transactional

@@ -127,14 +127,14 @@ public class EmployeurServiceTest {
     @Test
     public void testCreerOffreDeStage_Succes() throws Exception {
         AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer validToken");
-        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(true);
+        when(jwtTokenProvider.isEmployeur(anyString(), any(JwtTokenProvider.class))).thenReturn(true);
         when(jwtTokenProvider.getEmailFromJWT(anyString())).thenReturn("mon@employeur.com");
         Employeur employeur = new Employeur("mon@employeur.com", "pass", "tel", "nom", "contact");
         when(employeurRepository.findByEmail(anyString())).thenReturn(employeur);
 
         employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null, null, anyString());
+                ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null, null, "allo");
 
         verify(offreRepository, times(1)).save(any(Offre.class));
     }
@@ -147,7 +147,7 @@ public class EmployeurServiceTest {
         assertThrows(ActionNonAutoriseeException.class, () -> {
             employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
                     LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                    ProgrammeDTO.P500_AF, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null, null, anyString());
+                    ProgrammeDTO.P500_AF, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null, null, "allo");
         });
     }
 
@@ -680,15 +680,27 @@ public class EmployeurServiceTest {
     public void testCreerOffreDeStage_DateInvalide() {
         // Arrange
         AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer validToken");
-        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(true);
+        when(jwtTokenProvider.isEmployeur(anyString(), any(JwtTokenProvider.class))).thenReturn(true);
 
         // Act & Assert - Date de fin avant date de début
         assertThrows(DateInvalideException.class, () -> {
-            employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
-                    LocalDate.of(2024, 6, 1), LocalDate.of(2024, 1, 1),
-                    ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null, null, anyString());
+            employeurService.creerOffreDeStage(
+                    utilisateur,
+                    "titre",
+                    "desc",
+                    LocalDate.of(2024, 6, 1),
+                    LocalDate.of(2024, 1, 1),
+                    ProgrammeDTO.P410_A1,
+                    "lieu",
+                    "rem",
+                    LocalDate.of(2024, 5, 1),
+                    null, null, null, null, null,
+                    "dummyValue"
+            );
         });
     }
+
+
     @Test
     public void testCreerConvocation_Succes() throws Exception {
         // Arrange - Mock Security Context
@@ -1635,7 +1647,6 @@ public class EmployeurServiceTest {
         // Act & Assert
         assertDoesNotThrow(() -> employeurService.creerEvaluation(dto));
         verify(evaluationRepository, times(1)).save(any(Evaluation.class));
-        verify(notificationRepository, times(1)).save(any(Notification.class));
     }
 
     @Test

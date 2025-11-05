@@ -141,11 +141,18 @@ class EmployeurControllerTest {
     @Test
     void creerOffre_actionNonAutorisee_returnsConflict() throws Exception {
         doThrow(new ActionNonAutoriseeException())
-                .when(employeurService).creerOffreDeStage(
-                        any(AuthResponseDTO.class), anyString(), anyString(),
-                        any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class),
-                        anyString(), anyString(), any(LocalDate.class),
-                        anyString(), any(), anyString(), anyString(), anyString(), anyString()
+                .when(employeurService)
+                .creerOffreDeStage(
+                        new AuthResponseDTO("Bearer fakeToken"),
+                        "titre",
+                        "desc",
+                        LocalDate.of(2024, 1, 1),
+                        LocalDate.of(2024, 6, 1),
+                        ProgrammeDTO.P200_B1,
+                        "lieu",
+                        "rem",
+                        LocalDate.of(2024, 5, 1),
+                        null, null, null, null, null, null
                 );
 
         OffreDTO offreDTO = new OffreDTO();
@@ -170,16 +177,26 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/creerOffre retourne 400 si dates invalides")
     void creerOffre_dateInvalide_returnsBadRequest() throws Exception {
+        // Arrange
+        AuthResponseDTO authDTO = new AuthResponseDTO("Bearer validToken");
+
         doThrow(new DateInvalideException())
-                .when(employeurService).creerOffreDeStage(
-                        any(AuthResponseDTO.class), anyString(), anyString(),
-                        any(LocalDate.class), any(LocalDate.class), any(ProgrammeDTO.class),
-                        anyString(), anyString(), any(LocalDate.class),
-                        anyString(), any(), anyString(), anyString(), anyString(), anyString()
+                .when(employeurService)
+                .creerOffreDeStage(
+                        eq(authDTO),
+                        eq("titre"),
+                        eq("desc"),
+                        eq(LocalDate.of(2024, 6, 1)),
+                        eq(LocalDate.of(2024, 1, 1)),
+                        eq(ProgrammeDTO.P420_B0),
+                        eq("lieu"),
+                        eq("rem"),
+                        eq(LocalDate.of(2024, 5, 1)),
+                        isNull(), isNull(), isNull(), isNull(), isNull(), isNull()
                 );
 
         OffreDTO offreDTO = new OffreDTO();
-        offreDTO.setAuthResponseDTO(new AuthResponseDTO("Bearer validToken"));
+        offreDTO.setAuthResponseDTO(authDTO);
         offreDTO.setTitre("titre");
         offreDTO.setDescription("desc");
         offreDTO.setDate_debut(LocalDate.of(2024, 6, 1));
@@ -189,13 +206,15 @@ class EmployeurControllerTest {
         offreDTO.setRemuneration("rem");
         offreDTO.setDateLimite(LocalDate.of(2024, 5, 1));
 
+        // Act & Assert
         mockMvc.perform(post("/OSEemployeur/creerOffre")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(offreDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").doesNotExist())
-                .andExpect(jsonPath("$.erreur.message").value("Invalid date provided"));
+                .andExpect(jsonPath("$.erreur.message").value("Invalid date provided"))
+                .andExpect(jsonPath("$.message").doesNotExist());
     }
+
 
     @Test
     @DisplayName("POST /OSEemployeur/OffresParEmployeur retourne 200 et liste d'offres avec employeur existant")
