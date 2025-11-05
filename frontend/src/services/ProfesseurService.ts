@@ -119,7 +119,7 @@ class ProfesseurService {
      * @param token - Le token d'authentification
      * @returns Promise avec le Blob du CV
      */
-    async telechargerCV(etudiantId: number, token: string): Promise<Blob> {
+    async getCV(etudiantId: number, token: string): Promise<Blob> {
         try {
             const response = await fetch(`${this.baseUrl}/etudiants/${etudiantId}/cv`, {
                 method: 'GET',
@@ -208,7 +208,7 @@ class ProfesseurService {
      * @param token - Le token d'authentification
      * @returns Promise avec le Blob de la lettre
      */
-    async telechargerLettreMotivation(candidatureId: number, token: string): Promise<Blob> {
+    async getLettreMotivation(candidatureId: number, token: string): Promise<Blob> {
         try {
             const response = await fetch(`${this.baseUrl}/candidatures/${candidatureId}/lettre`, {
                 method: 'GET',

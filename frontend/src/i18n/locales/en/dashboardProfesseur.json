@@ -9,9 +9,8 @@
     "session": "Session",
     "contact": "Contact",
     "cv": {
-      "noCV": "No CV",
-      "download": "Download CV",
-      "downloading": "Downloading..."
+      "noCV": "No Resume",
+      "view": "View Resume"
     },
     "actions": {
       "candidatures": "Candidatures",
@@ -22,15 +21,16 @@
     "title": "Student Applications",
     "noCandidatures": "No applications found",
     "letterMotivation": {
-      "download": "Download Cover Letter",
-      "none": "No cover letter available",
-      "downloading": "Downloading..."
+      "view": "View Cover Letter",
+      "none": "No Cover Letter"
     },
     "statusBadge": {
-      "EN_ATTENTE": "Pending",
-      "ACCEPTEE": "Accepted",
-      "REFUSEE": "Rejected",
-      "ENTREVUE": "Interview"
+      "EN_ATTENTE": "Applied for the job",
+      "ACCEPTEE": "Accepted by employer",
+      "REFUSEE": "Rejected by employer",
+      "RETIREE": "Withdrawn from the offer",
+      "ACCEPTEE_PAR_ETUDIANT": "Accepted by student",
+      "REFUSEE_PAR_ETUDIANT": "Rejected by student"
     },
     "message": "Message"
   },

@@ -39,14 +39,13 @@ public class ProfesseurController {
 
     @GetMapping("/etudiants/{etudiantId}/cv")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<byte[]> telechargerCvEtudiant(@PathVariable Long etudiantId) {
+    public ResponseEntity<byte[]> getCvEtudiant(@PathVariable Long etudiantId) {
         try {
             byte[] cvDechiffre = professeurService.getCvEtudiantPourProfesseur(etudiantId);
 
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=CV_" + etudiantId + ".pdf")
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .contentLength(cvDechiffre.length)
+                    .header("Content-Disposition", "attachment; filename=\"cv.pdf\"")
+                    .header("Content-Type", "application/pdf")
                     .body(cvDechiffre);
         } catch (CVNonExistantException | UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -83,7 +82,7 @@ public class ProfesseurController {
 
     @GetMapping("/candidatures/{candidatureId}/lettre")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<byte[]> telechargerLettrePresentation(@PathVariable Long candidatureId) {
+    public ResponseEntity<byte[]> getLettrePresentation(@PathVariable Long candidatureId) {
         try {
             byte[] lettreDechiffree = professeurService.getLettrePresentationParCandidature(candidatureId);
 

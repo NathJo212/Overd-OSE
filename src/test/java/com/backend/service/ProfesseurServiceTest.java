@@ -296,7 +296,7 @@ public class ProfesseurServiceTest {
     @Test
     public void getEntentesPourEtudiant_retourneListe() throws Exception {
         Etudiant etudiant = mock(Etudiant.class);
-        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+        when(etudiantRepository.existsById(1L)).thenReturn(true);
 
         Employeur employeur = mock(Employeur.class);
         EntenteStage entente1 = new EntenteStage();
@@ -321,7 +321,7 @@ public class ProfesseurServiceTest {
     @Test
     public void getEntentesPourEtudiant_listeVide() throws Exception {
         Etudiant etudiant = mock(Etudiant.class);
-        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+        when(etudiantRepository.existsById(1L)).thenReturn(true);
         when(ententeStageRepository.findByEtudiantId(1L)).thenReturn(Collections.emptyList());
 
         List<EntenteStageDTO> result = professeurService.getEntentesPourEtudiant(1L);
@@ -331,7 +331,7 @@ public class ProfesseurServiceTest {
 
     @Test
     public void getEntentesPourEtudiant_etudiantNonTrouve_lance() {
-        when(etudiantRepository.findById(99L)).thenReturn(Optional.empty());
+        when(etudiantRepository.existsById(99L)).thenReturn(false);
 
         assertThrows(UtilisateurPasTrouveException.class, () ->
                 professeurService.getEntentesPourEtudiant(99L)
@@ -343,7 +343,7 @@ public class ProfesseurServiceTest {
     @Test
     public void getCandidaturesPourEtudiant_retourneListe() throws Exception {
         Etudiant etudiant = mock(Etudiant.class);
-        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+        when(etudiantRepository.existsById(1L)).thenReturn(true);
 
         Employeur employeur = mock(Employeur.class);
         Offre offre1 = new Offre();
@@ -374,7 +374,7 @@ public class ProfesseurServiceTest {
     @Test
     public void getCandidaturesPourEtudiant_listeVide() throws Exception {
         Etudiant etudiant = mock(Etudiant.class);
-        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+        when(etudiantRepository.existsById(1L)).thenReturn(true);
         when(candidatureRepository.findByEtudiantId(1L)).thenReturn(Collections.emptyList());
 
         List<CandidatureDTO> result = professeurService.getCandidaturesPourEtudiant(1L);
@@ -384,7 +384,7 @@ public class ProfesseurServiceTest {
 
     @Test
     public void getCandidaturesPourEtudiant_etudiantNonTrouve_lance() {
-        when(etudiantRepository.findById(99L)).thenReturn(Optional.empty());
+        when(etudiantRepository.existsById(99L)).thenReturn(false);
 
         assertThrows(UtilisateurPasTrouveException.class, () ->
                 professeurService.getCandidaturesPourEtudiant(99L)

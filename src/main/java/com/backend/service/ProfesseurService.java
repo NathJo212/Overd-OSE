@@ -105,9 +105,9 @@ public class ProfesseurService {
 
     @Transactional
     public List<EntenteStageDTO> getEntentesPourEtudiant(Long etudiantId) throws UtilisateurPasTrouveException {
-        Etudiant etudiant = etudiantRepository.findById(etudiantId)
-                .orElseThrow(UtilisateurPasTrouveException::new);
-
+        if(!etudiantRepository.existsById(etudiantId)){
+            throw new UtilisateurPasTrouveException();
+        }
         List<EntenteStage> ententes = ententeStageRepository.findByEtudiantId(etudiantId);
 
         return ententes.stream()
@@ -117,8 +117,9 @@ public class ProfesseurService {
 
     @Transactional
     public List<CandidatureDTO> getCandidaturesPourEtudiant(Long etudiantId) throws UtilisateurPasTrouveException {
-        Etudiant etudiant = etudiantRepository.findById(etudiantId)
-                .orElseThrow(UtilisateurPasTrouveException::new);
+        if(!etudiantRepository.existsById(etudiantId)){
+            throw new UtilisateurPasTrouveException();
+        }
 
         List<Candidature> candidatures = candidatureRepository.findByEtudiantId(etudiantId);
 
@@ -167,9 +168,4 @@ public class ProfesseurService {
             return StatutStageDTO.TERMINE;
         }
     }
-
-
-
-
-
 }

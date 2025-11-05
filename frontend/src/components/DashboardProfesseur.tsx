@@ -1,9 +1,30 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { GraduationCap, Mail, Phone, Calendar, AlertCircle, Users, BookOpen, Download, FileX, FileText, Briefcase, X, Clock, CheckCircle, XCircle } from "lucide-react";
-import { professeurService, type EtudiantDTO, type CandidatureDTO, type EntenteStageDTO, type StatutStageDTO } from "../services/ProfesseurService";
+import {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {
+    AlertCircle,
+    BookOpen,
+    Briefcase,
+    Calendar,
+    CheckCircle,
+    Clock,
+    FileText,
+    FileX,
+    GraduationCap,
+    Mail,
+    Phone,
+    Users,
+    X,
+    XCircle
+} from "lucide-react";
+import {
+    type CandidatureDTO,
+    type EntenteStageDTO,
+    type EtudiantDTO,
+    professeurService,
+    type StatutStageDTO
+} from "../services/ProfesseurService";
 import NavBar from "./NavBar.tsx";
-import { useTranslation } from "react-i18next";
+import {useTranslation} from "react-i18next";
 
 const DashboardProfesseur = () => {
     const { t} = useTranslation(["dashboardProfesseur", "programmes"]);
@@ -22,6 +43,8 @@ const DashboardProfesseur = () => {
     const [viewMode, setViewMode] = useState<'candidatures' | 'ententes' | null>(null);
     const [statutsStage, setStatutsStage] = useState<Record<number, StatutStageDTO>>({});
     const token = sessionStorage.getItem("authToken") || "";
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [pdfTitle, setPdfTitle] = useState<string>("");
 
     const chargerEtudiants = async () => {
         try {
@@ -65,27 +88,23 @@ const DashboardProfesseur = () => {
         chargerEtudiants();
     }, [navigate, token, t]);
 
-    const handleDownloadCV = async (etudiant: EtudiantDTO) => {
+    const handleViewCV = async (etudiant: EtudiantDTO) => {
         if (!etudiant.id) return;
 
         try {
             setDownloadingCV(etudiant.id);
-            const blob = await professeurService.telechargerCV(etudiant.id, token);
+            const blob = await professeurService.getCV(etudiant.id, token);
             const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `CV_${etudiant.prenom}_${etudiant.nom}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            setPdfUrl(url);
+            setPdfTitle(`CV de ${etudiant.prenom} ${etudiant.nom}`);
         } catch (error) {
-            console.error('Erreur lors du téléchargement du CV:', error);
-            alert(t('dashboardProfesseur:error.downloadCVFailed'));
+            console.error("Erreur lors du chargement du CV:", error);
+            alert(t("dashboardProfesseur:error.downloadCVFailed"));
         } finally {
             setDownloadingCV(null);
         }
     };
+
 
     const handleViewCandidatures = async (etudiantId: number) => {
         setSelectedStudent(etudiantId);
@@ -138,25 +157,21 @@ const DashboardProfesseur = () => {
         }
     };
 
-    const handleDownloadLettre = async (candidatureId: number) => {
+    const handleViewLettre = async (candidatureId: number) => {
         try {
             setDownloadingLettre(candidatureId);
-            const blob = await professeurService.telechargerLettreMotivation(candidatureId, token);
+            const blob = await professeurService.getLettreMotivation(candidatureId, token);
             const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `Lettre_Motivation_${candidatureId}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            setPdfUrl(url);
+            setPdfTitle(`Lettre de motivation #${candidatureId}`);
         } catch (error) {
-            console.error('Erreur lors du téléchargement de la lettre:', error);
-            alert(t('dashboardProfesseur:error.downloadLetterFailed'));
+            console.error("Erreur lors du chargement de la lettre:", error);
+            alert(t("dashboardProfesseur:error.downloadLetterFailed"));
         } finally {
             setDownloadingLettre(null);
         }
     };
+
 
     const closeModal = () => {
         setSelectedStudent(null);
@@ -202,8 +217,7 @@ const DashboardProfesseur = () => {
     const getProgramName = (programCode: string | undefined) => {
         if (!programCode) return 'N/A';
         // Try to get translation from programmes namespace
-        const translatedName = t(`programmes:${programCode}`, { defaultValue: programCode });
-        return translatedName;
+        return t(`programmes:${programCode}`, {defaultValue: programCode});
     };
 
     const renderCVColumn = (etudiant: EtudiantDTO) => {
@@ -218,22 +232,14 @@ const DashboardProfesseur = () => {
 
         return (
             <button
-                onClick={() => handleDownloadCV(etudiant)}
+                onClick={() => handleViewCV(etudiant)}
                 disabled={downloadingCV === etudiant.id}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium hover:shadow-md hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {downloadingCV === etudiant.id ? (
-                    <>
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        <span className="text-sm">{t('dashboardProfesseur:studentList.cv.downloading')}</span>
-                    </>
-                ) : (
-                    <>
-                        <Download className="w-4 h-4" />
-                        <span className="text-sm">{t('dashboardProfesseur:studentList.cv.download')}</span>
-                    </>
-                )}
+                <FileText className="w-4 h-4" />
+                <span className="text-sm">{t('dashboardProfesseur:studentList.cv.view')}</span>
             </button>
+
         );
     };
 
@@ -261,10 +267,10 @@ const DashboardProfesseur = () => {
                     </div>
                 )}
 
-                <div className="bg-white rounded-2xl shadow-md border border-slate-200">
-                    <div className="p-6 border-b border-slate-200">
-                        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                            <Users className="w-6 h-6 text-blue-600" />
+                <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl border border-slate-200 overflow-hidden">
+                    <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                        <h2 className="text-xl font-semibold flex items-center gap-2">
+                            <Users className="w-6 h-6" />
                             {t('dashboardProfesseur:studentList.title')}
                         </h2>
                     </div>
@@ -303,9 +309,9 @@ const DashboardProfesseur = () => {
                                     </th>
                                 </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-200">
+                                <tbody className="divide-y divide-slate-100">
                                 {etudiants.map((etudiant) => (
-                                    <tr key={etudiant.id} className="hover:bg-blue-50 transition-colors">
+                                    <tr key={etudiant.id} className="hover:shadow-sm hover:bg-blue-50/60 transition-all duration-200">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -413,21 +419,12 @@ const DashboardProfesseur = () => {
                                                 <div className="flex items-center gap-2">
                                                     {candidature.alettreMotivation ? (
                                                         <button
-                                                            onClick={() => handleDownloadLettre(candidature.id)}
+                                                            onClick={() => handleViewLettre(candidature.id)}
                                                             disabled={downloadingLettre === candidature.id}
                                                             className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm"
                                                         >
-                                                            {downloadingLettre === candidature.id ? (
-                                                                <>
-                                                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                                                    <span>{t('dashboardProfesseur:candidatures.letterMotivation.downloading')}</span>
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Download className="w-4 h-4" />
-                                                                    <span>{t('dashboardProfesseur:candidatures.letterMotivation.download')}</span>
-                                                                </>
-                                                            )}
+                                                            <FileText className="w-4 h-4" />
+                                                            <span>{t('dashboardProfesseur:candidatures.letterMotivation.view')}</span>
                                                         </button>
                                                     ) : (
                                                         <div className="flex items-center gap-2 text-gray-400">
@@ -439,7 +436,7 @@ const DashboardProfesseur = () => {
                                             </div>
 
                                             {candidature.messageReponse && (
-                                                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                                                <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
                                                     <p className="text-sm text-gray-700"><strong>{t('dashboardProfesseur:candidatures.message')}:</strong> {candidature.messageReponse}</p>
                                                 </div>
                                             )}
@@ -550,6 +547,31 @@ const DashboardProfesseur = () => {
                     </div>
                 </div>
             )}
+            {pdfUrl && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-gray-200">
+                        <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                            <h2 className="text-lg font-semibold text-gray-800">{pdfTitle}</h2>
+                            <button
+                                onClick={() => {
+                                    window.URL.revokeObjectURL(pdfUrl);
+                                    setPdfUrl(null);
+                                }}
+                                className="p-2 hover:bg-gray-200 rounded-lg"
+                            >
+                                <X className="w-5 h-5 text-gray-700" />
+                            </button>
+                        </div>
+                        <iframe
+                            src={pdfUrl}
+                            title={pdfTitle}
+                            className="flex-1 w-full"
+                            style={{ border: "none" }}
+                        />
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };
