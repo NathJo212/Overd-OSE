@@ -273,7 +273,7 @@ public class EtudiantService {
         Etudiant etudiant = getEtudiantConnecte();
         List<Notification> notes = notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etudiant);
         return notes.stream()
-                .map(n -> new NotificationDTO(n.getId(), n.getMessageKey(), n.getMessageParam(), n.isLu(), n.getDateCreation()))
+                    .map(n -> new NotificationDTO(n.getId(), n.getMessageKey(), n.getMessageParam(), n.isLu(), n.getDateCreation()))
                 .collect(Collectors.toList());
     }
 

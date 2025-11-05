@@ -18,9 +18,6 @@ public class Notification {
     @ManyToOne(fetch = FetchType.LAZY)
     private Utilisateur utilisateur;
 
-    @Column(length = 2000)
-    private String message;
-
     // clé i18n (ex: convocation.created)
     private String messageKey;
 
@@ -32,9 +29,8 @@ public class Notification {
     @Column(nullable = false)
     private LocalDateTime dateCreation = LocalDateTime.now();
 
-    public Notification(Utilisateur utilisateur, String message) {
+    public Notification(Utilisateur utilisateur) {
         this.utilisateur = utilisateur;
-        this.message = message;
         this.lu = false;
         this.dateCreation = LocalDateTime.now();
     }

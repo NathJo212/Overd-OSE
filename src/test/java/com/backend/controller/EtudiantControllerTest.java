@@ -515,6 +515,7 @@ class EtudiantControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+
     @Test
     @DisplayName("GET /OSEetudiant/notifications -> retourne liste de notifications")
     void getNotifications_success_returnsList() throws Exception {
