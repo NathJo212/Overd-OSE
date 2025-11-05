@@ -818,7 +818,133 @@ class GestionnaireControllerTest {
         verify(gestionnaireService).getAllProfesseurs();
     }
 
+    // ===== New endpoint tests: signer/refuser entente and ententes pretes =====
 
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id}/signer retourne 200 si succès")
+    void signerEntente_success() throws Exception {
+        doNothing().when(gestionnaireService).signerEntente(42L);
 
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/42/signer"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Entente signée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        verify(gestionnaireService).signerEntente(42L);
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id}/signer retourne 401 si non autorisé")
+    void signerEntente_nonAutorise() throws Exception {
+        doThrow(new ActionNonAutoriseeException()).when(gestionnaireService).signerEntente(42L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/42/signer"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.erreur.errorCode").exists())
+                .andExpect(jsonPath("$.erreur.message").value("Unauthorized action"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id}/signer retourne 404 si entente non trouvée")
+    void signerEntente_notFound() throws Exception {
+        doThrow(new EntenteNonTrouveException()).when(gestionnaireService).signerEntente(404L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/404/signer"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id}/signer retourne 400 si statut invalide")
+    void signerEntente_statutInvalide() throws Exception {
+        doThrow(new StatutEntenteInvalideException()).when(gestionnaireService).signerEntente(7L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/7/signer"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id}/signer retourne 500 si erreur serveur")
+    void signerEntente_erreurServeur() throws Exception {
+        doThrow(new RuntimeException("Erreur interne")).when(gestionnaireService).signerEntente(9L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/9/signer"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.erreur.errorCode").value("ERROR_000"))
+                .andExpect(jsonPath("$.erreur.message").exists());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id}/refuser retourne 200 si succès")
+    void refuserEntente_success() throws Exception {
+        doNothing().when(gestionnaireService).refuserEntente(50L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/50/refuser"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Entente refusée avec succès"))
+                .andExpect(jsonPath("$.erreur").doesNotExist());
+
+        verify(gestionnaireService).refuserEntente(50L);
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id}/refuser retourne 401 si non autorisé")
+    void refuserEntente_nonAutorise() throws Exception {
+        doThrow(new ActionNonAutoriseeException()).when(gestionnaireService).refuserEntente(50L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/50/refuser"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.erreur.errorCode").exists())
+                .andExpect(jsonPath("$.erreur.message").value("Unauthorized action"));
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id}/refuser retourne 404 si entente non trouvée")
+    void refuserEntente_notFound() throws Exception {
+        doThrow(new EntenteNonTrouveException()).when(gestionnaireService).refuserEntente(404L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/404/refuser"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("PUT /OSEGestionnaire/ententes/{id}/refuser retourne 400 si statut invalide")
+    void refuserEntente_statutInvalide() throws Exception {
+        doThrow(new StatutEntenteInvalideException()).when(gestionnaireService).refuserEntente(7L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/7/refuser"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erreur").exists());
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/pretes retourne 200 et liste")
+    void getEntentesPretes_success() throws Exception {
+        when(gestionnaireService.getEntentesEnAttente()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/pretes"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/pretes retourne 401 si non autorisé")
+    void getEntentesPretes_nonAutorise() throws Exception {
+        when(gestionnaireService.getEntentesEnAttente()).thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/pretes"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/pretes retourne 500 si erreur serveur")
+    void getEntentesPretes_erreurServeur() throws Exception {
+        when(gestionnaireService.getEntentesEnAttente()).thenThrow(new RuntimeException("Erreur"));
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/pretes"))
+                .andExpect(status().isInternalServerError());
+    }
 
 }

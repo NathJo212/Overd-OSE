@@ -927,5 +927,152 @@ public class GestionnaireServiceTest {
         assertEquals("Professeur", result.get(0).getPrenom());
     }
 
+    // ===== New service tests: signerEntente, refuserEntente, getEntentesEnAttente =====
+
+    @Test
+    public void signerEntente_succes_modifieStatutEtDate() throws Exception {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(42L);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
+        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(42L)).thenReturn(Optional.of(entente));
+
+        gestionnaireService.signerEntente(42L);
+
+        assertEquals(EntenteStage.StatutEntente.SIGNEE, entente.getStatut());
+        assertNotNull(entente.getDateSignatureGestionnaire());
+        verify(ententeStageRepository).save(entente);
+    }
+
+    @Test
+    public void signerEntente_signaturesManquantes_lanceStatutInvalide() {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(7L);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
+        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(7L)).thenReturn(Optional.of(entente));
+
+        assertThrows(StatutEntenteInvalideException.class, () -> gestionnaireService.signerEntente(7L));
+    }
+
+    @Test
+    public void signerEntente_dejaSignee_lanceStatutInvalide() {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(8L);
+        entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
+        entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
+        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+
+        when(ententeStageRepository.findById(8L)).thenReturn(Optional.of(entente));
+
+        assertThrows(StatutEntenteInvalideException.class, () -> gestionnaireService.signerEntente(8L));
+    }
+
+    @Test
+    public void signerEntente_ententeNonTrouvee_lance() {
+        when(ententeStageRepository.findById(404L)).thenReturn(Optional.empty());
+        assertThrows(EntenteNonTrouveException.class, () -> gestionnaireService.signerEntente(404L));
+    }
+
+    @Test
+    public void signerEntente_accesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.signerEntente(1L));
+    }
+
+    @Test
+    public void refuserEntente_succes_archive() throws Exception {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(50L);
+        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(50L)).thenReturn(Optional.of(entente));
+
+        gestionnaireService.refuserEntente(50L);
+
+        assertEquals(EntenteStage.StatutEntente.ANNULEE, entente.getStatut());
+        assertTrue(entente.isArchived());
+        verify(ententeStageRepository).save(entente);
+    }
+
+    @Test
+    public void refuserEntente_ententeNonTrouvee_lance() {
+        when(ententeStageRepository.findById(404L)).thenReturn(Optional.empty());
+        assertThrows(EntenteNonTrouveException.class, () -> gestionnaireService.refuserEntente(404L));
+    }
+
+    @Test
+    public void refuserEntente_statutInvalide_dejaSignee() {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(51L);
+        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        when(ententeStageRepository.findById(51L)).thenReturn(Optional.of(entente));
+
+        assertThrows(StatutEntenteInvalideException.class, () -> gestionnaireService.refuserEntente(51L));
+    }
+
+    @Test
+    public void refuserEntente_accesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.refuserEntente(1L));
+    }
+
+    @Test
+    public void getEntentesEnAttente_filtreCorrectement() throws Exception {
+        EntenteStage e1 = new EntenteStage();
+        e1.setId(1L);
+        e1.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
+        e1.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
+        e1.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+   
+        Etudiant etu = mock(Etudiant.class);
+        when(etu.getId()).thenReturn(100L);
+        e1.setEtudiant(etu);
+        Employeur emp = mock(Employeur.class);
+        e1.setEmployeur(emp);
+
+        EntenteStage e2 = new EntenteStage();
+        e2.setId(2L);
+        e2.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        e2.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
+        e2.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+
+        EntenteStage e3 = new EntenteStage();
+        e3.setId(3L);
+        e3.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
+        e3.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
+        e3.setStatut(EntenteStage.StatutEntente.SIGNEE);
+
+        when(ententeStageRepository.findByArchivedFalse()).thenReturn(asList(e1, e2, e3));
+
+        var result = gestionnaireService.getEntentesEnAttente();
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).getId());
+    }
+
+    @Test
+    public void getEntentesEnAttente_accesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getEntentesEnAttente());
+    }
 
 }
