@@ -482,6 +482,7 @@ public class EmployeurService {
         }
 
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
+        entente.setDateSignatureEmployeur(LocalDate.now());
 
         ententeStageRepository.save(entente);
 

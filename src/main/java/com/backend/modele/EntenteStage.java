@@ -51,6 +51,10 @@ public class EntenteStage {
     private LocalDate dateDebut;
     private LocalDate dateFin;
 
+    private LocalDate dateSignatureEtudiant;
+    private LocalDate dateSignatureEmployeur;
+    private LocalDate dateSignatureGestionnaire;
+
     private String horaire;
     private Integer dureeHebdomadaire;
     private String remuneration;

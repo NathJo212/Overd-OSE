@@ -448,22 +448,25 @@ public class GestionnaireService {
         }
 
         entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        entente.setDateSignatureGestionnaire(LocalDate.now());
         ententeStageRepository.save(entente);
 
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(entente.getEtudiant());
-            notifEtudiant.setMessageKey("entente.signed");
-            notifEtudiant.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEtudiant);
+        Etudiant etudiant = entente.getEtudiant();
+        if (etudiant != null) {
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("entente.gestionnaire.signed");
+            notif.setMessageParam(entente.getTitre());
+            notificationRepository.save(notif);
+        }
 
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(entente.getEmployeur());
-            notifEmployeur.setMessageKey("entente.signed");
-            notifEmployeur.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore notification errors
+        Employeur employeur = entente.getEmployeur();
+        if (etudiant != null) {
+            Notification notif = new Notification();
+            notif.setUtilisateur(employeur);
+            notif.setMessageKey("entente.gestionnaire.signed");
+            notif.setMessageParam(entente.getTitre());
+            notificationRepository.save(notif);
         }
     }
 
@@ -485,20 +488,22 @@ public class GestionnaireService {
         ententeStageRepository.save(entente);
 
 
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(entente.getEtudiant());
-            notifEtudiant.setMessageKey("entente.refused");
-            notifEtudiant.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEtudiant);
+        Etudiant etudiant = entente.getEtudiant();
+        if (etudiant != null) {
+            Notification notif = new Notification();
+            notif.setUtilisateur(etudiant);
+            notif.setMessageKey("entente.gestionnaire.refused");
+            notif.setMessageParam(entente.getTitre());
+            notificationRepository.save(notif);
+        }
 
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(entente.getEmployeur());
-            notifEmployeur.setMessageKey("entente.refused");
-            notifEmployeur.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore notification errors
+        Employeur employeur = entente.getEmployeur();
+        if (etudiant != null) {
+            Notification notif = new Notification();
+            notif.setUtilisateur(employeur);
+            notif.setMessageKey("entente.gestionnaire.refused");
+            notif.setMessageParam(entente.getTitre());
+            notificationRepository.save(notif);
         }
     }
 
