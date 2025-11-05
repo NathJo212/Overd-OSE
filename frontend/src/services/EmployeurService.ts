@@ -928,7 +928,7 @@ class EmployeurService {
      * @param evaluationId - ID de l'évaluation
      * @returns Blob du fichier PDF
      */
-    async telechargerPdfEvaluation(evaluationId: number): Promise<Blob> {
+    async getPdfEvaluation(evaluationId: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {

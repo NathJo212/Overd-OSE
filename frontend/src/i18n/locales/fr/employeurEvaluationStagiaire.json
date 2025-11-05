@@ -143,9 +143,12 @@
     "evaluationDate": "Date d'évaluation",
     "studentInfo": "Informations du stagiaire",
     "internshipInfo": "Informations du stage",
-    "downloadPdf": "Télécharger le PDF",
-    "pdfInfo": "Le PDF de cette évaluation est prêt à être téléchargé.",
-    "close": "Fermer"
+    "viewPDF": "Regarder le PDF",
+    "pdfInfo": "Le PDF de cette évaluation est prêt à être regardé.",
+    "close": "Fermer",
+    "previewTitle": "Aperçu du PDF",
+    "noPdfPreview": "Aucun aperçu du PDF disponible.",
+    "downloadPdf": "Télécharger le PDF"
   },
 
   "messages": {

@@ -11,11 +11,10 @@ import {
     Star,
     AlertCircle,
     Briefcase,
-    Download,
     ClipboardCheck,
     Users,
     Lightbulb,
-    TrendingUp
+    TrendingUp, Eye
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar";
@@ -152,6 +151,11 @@ const EmployeurEvaluationStagiaire = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [formErrors, setFormErrors] = useState<string[]>([]);
+    const [showPdfModal, setShowPdfModal] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [pdfFilename, setPdfFilename] = useState<string | null>(null);
+    const [pdfLoading, setPdfLoading] = useState(false);
+
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -358,20 +362,37 @@ const EmployeurEvaluationStagiaire = () => {
         }
     };
 
-    const handleDownloadPDF = async (evaluation: EvaluationDTO) => {
+    const handleGetPDF = async (evaluation: EvaluationDTO) => {
         try {
-            const blob = await employeurService.telechargerPdfEvaluation(evaluation.id!);
+            setPdfLoading(true);
+            // Révoquer l'ancienne URL si présente
+            if (pdfUrl) {
+                URL.revokeObjectURL(pdfUrl);
+                setPdfUrl(null);
+                setPdfFilename(null);
+            }
+
+            const blob = await employeurService.getPdfEvaluation(evaluation.id!);
             const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `evaluation_${evaluation.id}_${new Date().toISOString().split('T')[0]}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            const filename = `evaluation_${evaluation.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+            setPdfUrl(url);
+            setPdfFilename(filename);
+            setShowPdfModal(true);
         } catch (error) {
-            console.error('Erreur lors du téléchargement du PDF:', error);
-            alert(t('errors.pdfDownloadFailed'));
+            console.error('Erreur lors de la récupération du PDF:', error);
+            setFormErrors([t('errors.pdfDownloadFailed')]);
+        } finally {
+            setPdfLoading(false);
+        }
+    };
+
+    const closePdfModal = () => {
+        setShowPdfModal(false);
+        if (pdfUrl) {
+            URL.revokeObjectURL(pdfUrl);
+            setPdfUrl(null);
+            setPdfFilename(null);
         }
     };
 
@@ -1175,13 +1196,6 @@ const EmployeurEvaluationStagiaire = () => {
                             </h2>
                             <div className="flex items-center gap-3">
                                 <button
-                                    onClick={() => handleDownloadPDF(selectedEvaluation)}
-                                    className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                                >
-                                    <Download className="w-4 h-4" />
-                                    {t('detailsModal.downloadPdf')}
-                                </button>
-                                <button
                                     onClick={handleCloseModals}
                                     className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
                                 >
@@ -1223,11 +1237,11 @@ const EmployeurEvaluationStagiaire = () => {
                             <div className="bg-gray-100 rounded-lg p-4 text-center">
                                 <p className="text-gray-700 mb-4">{t('detailsModal.pdfInfo')}</p>
                                 <button
-                                    onClick={() => handleDownloadPDF(selectedEvaluation)}
+                                    onClick={() => handleGetPDF(selectedEvaluation)}
                                     className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
                                 >
-                                    <Download className="w-5 h-5" />
-                                    {t('detailsModal.downloadPdf')}
+                                    <Eye className="w-5 h-5" />
+                                    {t('detailsModal.viewPDF')}
                                 </button>
                             </div>
                         </div>
@@ -1239,6 +1253,66 @@ const EmployeurEvaluationStagiaire = () => {
                             >
                                 {t('detailsModal.close')}
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showPdfModal && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                        <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
+                            <h3 className="text-xl font-semibold">
+                                {t('detailsModal.previewTitle') /* ou texte souhaité */}
+                            </h3>
+                            <div className="flex items-center gap-3">
+                                {pdfLoading ? (
+                                    <RefreshCw className="h-6 w-6 animate-spin text-white" />
+                                ) : (
+                                    <button onClick={closePdfModal} className="cursor-pointer text-white hover:text-gray-200">
+                                        <X className="h-6 w-6" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto max-h-[calc(95vh-80px)]">
+                            {pdfUrl ? (
+                                <iframe
+                                    src={pdfUrl}
+                                    className="w-full h-[600px] border rounded"
+                                    title="PDF Preview"
+                                    allowFullScreen
+                                />
+                            ) : (
+                                <div className="text-center py-12">
+                                    <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                    <p className="text-gray-600">{t('detailsModal.noPdfPreview')}</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-4 border-t flex items-center justify-between gap-4">
+                            <div className="text-sm text-gray-600">
+                                {pdfFilename ?? ''}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                {pdfUrl && pdfFilename && (
+                                    <a
+                                        href={pdfUrl}
+                                        download={pdfFilename}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                                    >
+                                        {t('detailsModal.downloadPdf')}
+                                    </a>
+                                )}
+                                <button
+                                    onClick={closePdfModal}
+                                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
+                                >
+                                    {t('detailsModal.close')}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

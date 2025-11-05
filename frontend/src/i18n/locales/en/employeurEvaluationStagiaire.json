@@ -143,9 +143,12 @@
     "evaluationDate": "Evaluation Date",
     "studentInfo": "Intern Information",
     "internshipInfo": "Internship Information",
-    "downloadPdf": "Download PDF",
-    "pdfInfo": "The PDF for this evaluation is ready to be downloaded.",
-    "close": "Close"
+    "viewPDF": "View the PDF",
+    "pdfInfo": "The PDF for this evaluation is ready to view.",
+    "close": "Close",
+    "previewTitle": "PDF Preview",
+    "noPdfPreview": "No PDF preview available.",
+    "downloadPdf": "Download the PDF"
   },
 
   "messages": {
