@@ -1,0 +1,66 @@
+{
+  "title": "Professor Dashboard",
+  "subtitle": "Manage your students and track their progress",
+  "studentList": {
+    "title": "My Students",
+    "noStudents": "No students assigned at the moment",
+    "student": "Student",
+    "program": "Program",
+    "session": "Session",
+    "contact": "Contact",
+    "cv": {
+      "noCV": "No Resume",
+      "view": "View Resume"
+    },
+    "actions": {
+      "candidatures": "Candidatures",
+      "ententes": "Internship Agreements"
+    }
+  },
+  "candidatures": {
+    "title": "Student Applications",
+    "noCandidatures": "No applications found",
+    "letterMotivation": {
+      "view": "View Cover Letter",
+      "none": "No Cover Letter"
+    },
+    "statusBadge": {
+      "EN_ATTENTE": "Applied for the job",
+      "ACCEPTEE": "Accepted by employer",
+      "REFUSEE": "Rejected by employer",
+      "RETIREE": "Withdrawn from the offer",
+      "ACCEPTEE_PAR_ETUDIANT": "Accepted by student",
+      "REFUSEE_PAR_ETUDIANT": "Rejected by student"
+    },
+    "message": "Message"
+  },
+  "ententes": {
+    "title": "Internship Agreements",
+    "noEntentes": "No agreements found",
+    "labels": {
+      "student": "Student",
+      "employer": "Employer",
+      "period": "Period",
+      "weeklyHours": "Weekly Hours",
+      "location": "Location",
+      "statutStage": "Internship Status"
+    },
+    "signatures": {
+      "SIGNEE": "Signed",
+      "REFUSEE": "Refused",
+      "EN_ATTENTE": "Pending"
+    },
+    "statutStage": {
+      "PAS_COMMENCE": "Not started",
+      "EN_COURS": "In progress",
+      "TERMINE": "Completed"
+    }
+  },
+  "loading": "Loading...",
+  "error": {
+    "authTokenMissing": "Authentication token missing",
+    "downloadCVFailed": "Error downloading CV",
+    "downloadLetterFailed": "Error downloading cover letter",
+    "unknown": "Unknown error"
+  }
+}

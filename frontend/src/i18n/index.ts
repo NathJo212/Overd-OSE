@@ -49,6 +49,8 @@ import gestionnaireAttribueEtudiantFr from './locales/fr/gestionnaireAttribueEtu
 import gestionnaireAttribueEtudiantEn from './locales/en/gestionnaireAttribueEtudiant.json';
 import notificationsFr from './locales/fr/notifications.json';
 import notificationsEn from './locales/en/notifications.json';
+import dashboardProfesseurFr from './locales/fr/dashboardProfesseur.json';
+import dashboardProfesseurEn from './locales/en/dashboardProfesseur.json';
 
 const resources = {
     fr: {
@@ -74,6 +76,7 @@ const resources = {
         ententesemployeurs: ententesemployeursFr,
         gestionnaireAttribueEtudiant: gestionnaireAttribueEtudiantFr,
         evaluationStagiaire: evaluationStagiaireFr,
+        dashboardProfesseur: dashboardProfesseurFr,
         notifications: notificationsFr,
     },
     en: {
@@ -99,6 +102,7 @@ const resources = {
         ententesemployeurs: ententesemployeursEn,
         evaluationStagiaire: evaluationStagiaireEn,
         gestionnaireAttribueEtudiant: gestionnaireAttribueEtudiantEn,
+        dashboardProfesseur: dashboardProfesseurEn,
         notifications: notificationsEn,
     }
 };
