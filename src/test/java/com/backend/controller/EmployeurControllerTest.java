@@ -22,8 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -1170,13 +1169,18 @@ class EmployeurControllerTest {
     }
 
     @Test
-    @DisplayName("POST /OSEemployeur/evaluations retourne 201 sur succès")
+    @DisplayName("POST /OSEemployeur/evaluation retourne 201 sur succès")
     void creerEvaluation_success_returnsCreated() throws Exception {
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(10L);
-        dto.setCommentaires("Bonne performance");
+        dto.setEtudiantId(2L);
+        dto.setNomSuperviseur("Jean Dupont");
+        dto.setDateSignature(LocalDate.of(2025, 10, 1));
 
-        mockMvc.perform(post("/OSEemployeur/evaluations")
+        // s'assurer que le service ne lance pas d'exception
+        doNothing().when(employeurService).creerEvaluation(any(CreerEvaluationDTO.class));
+
+        mockMvc.perform(post("/OSEemployeur/evaluation")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
@@ -1186,11 +1190,11 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/evaluations retourne 403 si non autorisé")
     void creerEvaluation_nonAutorise_returnsForbidden() throws Exception {
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(11L);
-        doThrow(new ActionNonAutoriseeException()).when(employeurService).creerEvaluation(any(EvaluationDTO.class));
+        doThrow(new ActionNonAutoriseeException()).when(employeurService).creerEvaluation(any(CreerEvaluationDTO.class));
 
-        mockMvc.perform(post("/OSEemployeur/evaluations")
+        mockMvc.perform(post("/OSEemployeur/evaluation")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isForbidden())
@@ -1200,11 +1204,11 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/evaluations retourne 404 si entente non trouvée")
     void creerEvaluation_ententeNonTrouvee_returnsNotFound() throws Exception {
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(12L);
-        doThrow(new EntenteNonTrouveException()).when(employeurService).creerEvaluation(any(EvaluationDTO.class));
+        doThrow(new EntenteNonTrouveException()).when(employeurService).creerEvaluation(any(CreerEvaluationDTO.class));
 
-        mockMvc.perform(post("/OSEemployeur/evaluations")
+        mockMvc.perform(post("/OSEemployeur/evaluation")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound())
@@ -1214,11 +1218,11 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/evaluations retourne 409 si evaluation déjà existante")
     void creerEvaluation_dejaExistante_returnsConflict() throws Exception {
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(13L);
-        doThrow(new EvaluationDejaExistanteException()).when(employeurService).creerEvaluation(any(EvaluationDTO.class));
+        doThrow(new EvaluationDejaExistanteException()).when(employeurService).creerEvaluation(any(CreerEvaluationDTO.class));
 
-        mockMvc.perform(post("/OSEemployeur/evaluations")
+        mockMvc.perform(post("/OSEemployeur/evaluation")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict())
@@ -1228,11 +1232,11 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("POST /OSEemployeur/evaluations retourne 500 si erreur interne")
     void creerEvaluation_internalError_returnsInternalServerError() throws Exception {
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(14L);
-        doThrow(new RuntimeException("oops")).when(employeurService).creerEvaluation(any(EvaluationDTO.class));
+        doThrow(new RuntimeException("oops")).when(employeurService).creerEvaluation(any(CreerEvaluationDTO.class));
 
-        mockMvc.perform(post("/OSEemployeur/evaluations")
+        mockMvc.perform(post("/OSEemployeur/evaluation")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isInternalServerError());
@@ -1268,4 +1272,45 @@ class EmployeurControllerTest {
         mockMvc.perform(get("/OSEemployeur/evaluations"))
                 .andExpect(status().isInternalServerError());
     }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/evaluations/{id}/pdf retourne 200 et le pdf")
+    void getEvaluationPdf_success_returnsPdf() throws Exception {
+        byte[] pdfBytes = "PDF-CONTENT".getBytes();
+        when(employeurService.getEvaluationPdf(42L)).thenReturn(pdfBytes);
+
+        mockMvc.perform(get("/OSEemployeur/evaluations/42/pdf"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"evaluation.pdf\""))
+                .andExpect(header().string("Content-Type", "application/pdf"))
+                .andExpect(content().bytes(pdfBytes));
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/evaluations/{id}/pdf retourne 403 si non autorisé")
+    void getEvaluationPdf_nonAutorise_returnsForbidden() throws Exception {
+        doThrow(new ActionNonAutoriseeException()).when(employeurService).getEvaluationPdf(43L);
+
+        mockMvc.perform(get("/OSEemployeur/evaluations/43/pdf"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/evaluations/{id}/pdf retourne 401 si utilisateur pas trouvé")
+    void getEvaluationPdf_utilisateurPasTrouve_returnsUnauthorized() throws Exception {
+        doThrow(new UtilisateurPasTrouveException()).when(employeurService).getEvaluationPdf(44L);
+
+        mockMvc.perform(get("/OSEemployeur/evaluations/44/pdf"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("GET /OSEemployeur/evaluations/{id}/pdf retourne 404 si pdf non trouvé")
+    void getEvaluationPdf_notFound_returnsNotFound() throws Exception {
+        doThrow(new RuntimeException("not found")).when(employeurService).getEvaluationPdf(45L);
+
+        mockMvc.perform(get("/OSEemployeur/evaluations/45/pdf"))
+                .andExpect(status().isNotFound());
+    }
+
 }

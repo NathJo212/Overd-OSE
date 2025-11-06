@@ -3,6 +3,7 @@
   "subtitle": "Évaluez les performances de vos stagiaires",
   "backToDashboard": "Retour au tableau de bord",
   "refresh": "Actualiser",
+  "loading": "Chargement...",
 
   "tabs": {
     "toEvaluate": "À évaluer",
@@ -15,77 +16,152 @@
     "noEntentesDescription": "Vous n'avez actuellement aucune entente de stage signée avec un stagiaire.",
     "count": "{{count}} entente(s) signée(s)",
     "student": "Stagiaire",
-    "internship": "Stage",
-    "period": "Période",
     "to": "au",
-    "evaluate": "Évaluer",
-    "alreadyEvaluated": "Évalué",
-    "viewEvaluation": "Voir l'évaluation"
+    "evaluate": "Évaluer"
   },
 
   "evaluationsList": {
     "title": "Évaluations soumises",
-    "noEvaluations": "Aucune évaluation soumise",
-    "noEvaluationsDescription": "Vous n'avez pas encore soumis d'évaluation pour vos stagiaires.",
+    "noEvaluations": "Aucune évaluation",
+    "noEvaluationsDescription": "Vous n'avez soumis aucune évaluation pour le moment.",
     "count": "{{count}} évaluation(s) soumise(s)",
-    "evaluatedOn": "Évalué le",
-    "viewDetails": "Voir les détails"
+    "evaluatedOn": "Évaluée le",
+    "viewDetails": "Voir l'évaluation"
+  },
+
+  "likertScale": {
+    "totallyAgree": "Totalement en accord",
+    "agree": "Plutôt en accord",
+    "disagree": "Plutôt en désaccord",
+    "totallyDisagree": "Totalement en désaccord",
+    "notApplicable": "N/A"
   },
 
   "modal": {
-    "title": "Évaluer le stagiaire",
+    "title": "Évaluation du stagiaire",
     "studentInfo": "Informations du stagiaire",
-    "name": "Nom",
+    "name": "Nom complet",
     "email": "Courriel",
     "internshipTitle": "Titre du stage",
-    "period": "Période du stage",
+    "period": "Période",
     "to": "au",
 
+    "supervisor": {
+      "title": "Informations du superviseur",
+      "name": "Nom du superviseur",
+      "namePlaceholder": "Ex: Jean Dupont",
+      "function": "Fonction",
+      "functionPlaceholder": "Ex: Directeur des opérations",
+      "phone": "Téléphone",
+      "phonePlaceholder": "Ex: 514-123-4567",
+      "signatureDate": "Date de signature"
+    },
+
     "sections": {
-      "technicalSkills": "Compétences techniques et professionnelles",
-      "timeManagement": "Respect des délais et des objectifs",
-      "attitude": "Attitude et intégration dans l'équipe",
-      "generalComments": "Commentaires généraux"
+      "productivity": "1. PRODUCTIVITÉ",
+      "productivitySubtitle": "Capacité d'optimiser son rendement au travail",
+      "workQuality": "2. QUALITÉ DU TRAVAIL",
+      "workQualitySubtitle": "Capacité de s'acquitter des tâches sous sa responsabilité en s'imposant personnellement des normes de qualité",
+      "interpersonalSkills": "3. QUALITÉS DES RELATIONS INTERPERSONNELLES",
+      "interpersonalSkillsSubtitle": "Capacité d'établir des interrelations harmonieuses dans son milieu de travail",
+      "personalSkills": "4. HABILETÉS PERSONNELLES",
+      "personalSkillsSubtitle": "Capacité de faire preuve d'attitudes ou de comportements matures et responsables"
+    },
+
+    "productivity": {
+      "planOrganize": "Planifier et organiser son travail de façon efficace",
+      "understandDirectives": "Comprendre rapidement les directives relatives à son travail",
+      "sustainedPace": "Maintenir un rythme de travail soutenu",
+      "setPriorities": "Établir ses priorités",
+      "respectDeadlines": "Respecter ses échéanciers"
+    },
+
+    "workQuality": {
+      "respectMandates": "Respecter les mandats qui lui ont été confiés",
+      "attentionToDetail": "Porter attention aux détails dans la réalisation de ses tâches",
+      "verifyWork": "Vérifier son travail, s'assurer que rien n'a été oublié",
+      "seekImprovement": "Rechercher des occasions de se perfectionner",
+      "analyzeProblems": "Faire une bonne analyse des problèmes rencontrés"
+    },
+
+    "interpersonal": {
+      "establishContacts": "Établir facilement des contacts avec les gens",
+      "contributeTeam": "Contribuer activement au travail d'équipe",
+      "adaptCulture": "S'adapter facilement à la culture de l'entreprise",
+      "acceptCriticism": "Accepter les critiques constructives",
+      "beRespectful": "Être respectueux envers les gens",
+      "activeListening": "Faire preuve d'écoute active en essayant de comprendre le point de vue de l'autre"
+    },
+
+    "personalSkills": {
+      "interestMotivation": "Démontrer de l'intérêt et de la motivation au travail",
+      "expressIdeas": "Exprimer clairement ses idées",
+      "showInitiative": "Faire preuve d'initiative",
+      "workSafely": "Travailler de façon sécuritaire",
+      "senseResponsibility": "Démontrer un bon sens des responsabilités ne requérant qu'un minimum de supervision",
+      "punctualDiligent": "Être ponctuel et assidu à son travail"
+    },
+
+    "globalAssessment": {
+      "title": "Appréciation globale du stagiaire",
+      "exceedExpectationsGreatly": "Les habiletés démontrées dépassent de beaucoup les attentes",
+      "exceedExpectations": "Les habiletés démontrées dépassent les attentes",
+      "fullyMeetExpectations": "Les habiletés démontrées répondent pleinement aux attentes",
+      "partiallyMeetExpectations": "Les habiletés démontrées répondent partiellement aux attentes",
+      "doNotMeetExpectations": "Les habiletés démontrées ne répondent pas aux attentes",
+      "specifyAssessment": "Précisez votre appréciation",
+      "specifyAssessmentPlaceholder": "Veuillez préciser votre appréciation globale du stagiaire..."
+    },
+
+    "finalSection": {
+      "title": "Finalisation de l'évaluation",
+      "discussedWithIntern": "Cette évaluation a été discutée avec le stagiaire",
+      "supervisionHours": "Nombre d'heures réel par semaine d'encadrement accordé au stagiaire",
+      "welcomeNextInternship": "L'entreprise aimerait accueillir cet élève pour son prochain stage",
+      "yes": "Oui",
+      "no": "Non",
+      "maybe": "Peut-être",
+      "technicalTraining": "La formation technique du stagiaire était-elle suffisante pour accomplir le mandat de stage ?",
+      "technicalTrainingPlaceholder": "Commentez sur la formation technique du stagiaire..."
     },
 
     "fields": {
-      "technicalSkillsPlaceholder": "Décrivez les compétences techniques du stagiaire, sa maîtrise des outils et technologies utilisés, sa capacité à résoudre des problèmes...",
-      "timeManagementPlaceholder": "Commentez sur la ponctualité du stagiaire, sa capacité à respecter les échéances, son organisation du travail...",
-      "attitudePlaceholder": "Décrivez l'attitude du stagiaire, son esprit d'équipe, sa communication, sa proactivité, son professionnalisme...",
-      "generalCommentsPlaceholder": "Partagez vos commentaires généraux sur le stage, les points forts du stagiaire, les axes d'amélioration, vos recommandations...",
-      "required": "*"
+      "required": "*",
+      "comments": "Commentaires",
+      "commentsPlaceholder": "Ajoutez vos commentaires ici..."
     },
 
     "actions": {
       "cancel": "Annuler",
       "submit": "Soumettre l'évaluation",
-      "submitting": "Envoi en cours..."
+      "submitting": "Soumission en cours..."
     }
   },
 
   "detailsModal": {
     "title": "Détails de l'évaluation",
     "evaluationDate": "Date d'évaluation",
-    "studentInfo": "Stagiaire évalué",
-    "internshipInfo": "Stage concerné",
-    "close": "Fermer"
+    "studentInfo": "Informations du stagiaire",
+    "internshipInfo": "Informations du stage",
+    "viewPDF": "Regarder le PDF",
+    "pdfInfo": "Le PDF de cette évaluation est prêt à être regardé.",
+    "close": "Fermer",
+    "previewTitle": "Aperçu du PDF",
+    "noPdfPreview": "Aucun aperçu du PDF disponible.",
+    "downloadPdf": "Télécharger le PDF"
   },
 
   "messages": {
     "success": "Évaluation soumise avec succès !",
-    "successDescription": "Le stagiaire et le gestionnaire de stage ont été notifiés."
+    "successDescription": "L'évaluation a été enregistrée."
   },
 
   "errors": {
-    "loadEntentes": "Erreur lors du chargement des ententes de stage",
+    "loadEntentes": "Erreur lors du chargement des ententes",
     "loadEvaluations": "Erreur lors du chargement des évaluations",
+    "allFieldsRequired": "Les champs suivants sont requis :",
     "submitFailed": "Erreur lors de la soumission de l'évaluation",
-    "allFieldsRequired": "Tous les champs sont obligatoires",
-    "errorCode": "Erreur ({{code}}): {{message}}",
     "networkError": "Erreur de connexion au serveur",
-    "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action"
-  },
-
-  "loading": "Chargement en cours...",
-  "noData": "Aucune donnée disponible"
+    "pdfDownloadFailed": "Erreur lors du téléchargement du PDF"
+  }
 }

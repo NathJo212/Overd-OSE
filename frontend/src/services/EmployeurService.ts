@@ -95,14 +95,107 @@ export interface EntenteStageDTO {
     lieu: string;
 }
 
+// ========================================
+// TYPES POUR L'ÉVALUATION DES STAGIAIRES
+// ========================================
+
+/**
+ * Échelle de Likert pour l'évaluation (correspond à NiveauAccordDTO.java)
+ */
+export type NiveauAccord =
+    | 'TOTALEMENT_EN_ACCORD'
+    | 'PLUTOT_EN_ACCORD'
+    | 'PLUTOT_EN_DESACCORD'
+    | 'TOTALEMENT_EN_DESACCORD'
+    | 'NON_APPLICABLE';
+
+/**
+ * Appréciation globale du stagiaire (correspond à CreerEvaluationDTO.AppreciationGlobale)
+ */
+export type AppreciationGlobale =
+    | 'HABILETES_DEPASSENT_DE_BEAUCOUP_LES_ATTENTES'
+    | 'HABILETES_DEPASSENT_LES_ATTENTES'
+    | 'HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES'
+    | 'HABILETES_REPONDENT_PARTIELLEMENT_AUX_ATTENTES'
+    | 'HABILETES_NE_REPONDENT_PAS_AUX_ATTENTES';
+
+/**
+ * Choix pour accueillir le stagiaire pour un prochain stage (correspond à CreerEvaluationDTO.entrepriseProchainStageChoix)
+ */
+export type EntrepriseProchainStageChoix =
+    | 'OUI'
+    | 'NON'
+    | 'PEUT_ETRE';
+
+/**
+ * Interface pour créer une évaluation (correspond EXACTEMENT à CreerEvaluationDTO.java)
+ * IMPORTANT: Tous les champs doivent correspondre exactement aux noms Java en camelCase
+ */
+export interface CreerEvaluationDTO {
+    id?: number;
+    ententeId: number;
+    etudiantId?: number;
+
+    // Informations du superviseur
+    nomSuperviseur: string;
+    fonctionSuperviseur: string;
+    telephoneSuperviseur: string;
+    dateSignature: string; // Format: YYYY-MM-DD (LocalDate en Java)
+
+    // 1. PRODUCTIVITÉ (5 questions + commentaires)
+    prodPlanifierOrganiser: NiveauAccord;
+    prodComprendreDirectives: NiveauAccord;
+    prodRythmeSoutenu: NiveauAccord;
+    prodEtablirPriorites: NiveauAccord;
+    prodRespectEcheanciers: NiveauAccord;
+    commentairesProductivite: string;
+
+    // 2. QUALITÉ DU TRAVAIL (5 questions + commentaires)
+    qualRespectMandats: NiveauAccord;
+    qualAttentionDetails: NiveauAccord;
+    qualVerifierTravail: NiveauAccord;
+    qualRechercherPerfectionnement: NiveauAccord;
+    qualAnalyseProblemes: NiveauAccord;
+    commentairesQualiteTravail: string;
+
+    // 3. QUALITÉS DES RELATIONS INTERPERSONNELLES (6 questions + commentaires)
+    relEtablirContacts: NiveauAccord;
+    relContribuerEquipe: NiveauAccord;
+    relAdapterCulture: NiveauAccord;
+    relAccepterCritiques: NiveauAccord;
+    relEtreRespectueux: NiveauAccord;
+    relEcouteActive: NiveauAccord;
+    commentairesRelations: string;
+
+    // 4. HABILETÉS PERSONNELLES (6 questions + commentaires)
+    habInteretMotivation: NiveauAccord;
+    habExprimerIdees: NiveauAccord;
+    habFairePreuveInitiative: NiveauAccord;
+    habTravaillerSecuritaire: NiveauAccord;
+    habSensResponsabilites: NiveauAccord;
+    habPonctuelAssidu: NiveauAccord;
+    commentairesHabiletes: string; // ATTENTION: pas d'accent (comme dans le backend Java)
+
+    // APPRÉCIATION GLOBALE ET FINALISATION
+    appreciationGlobale: AppreciationGlobale;
+    precisionAppreciation: string;
+    discussionAvecStagiaire: boolean;
+    heuresEncadrementSemaine: number;
+    entrepriseAccueillirProchainStage: EntrepriseProchainStageChoix;
+    formationTechniqueSuffisante: string; // String (pas boolean) - pour les commentaires
+}
+
+/**
+ * Interface pour récupérer une évaluation (correspond à EvaluationDTO.java)
+ * Le backend retourne uniquement l'id, ententeId, etudiantId, dateEvaluation
+ * Le PDF est récupéré séparément via un endpoint dédié
+ */
 export interface EvaluationDTO {
     id?: number;
     ententeId: number;
-    etudiantId: number;
-    competencesTechniques: string;
-    respectDelais: string;
-    attitudeIntegration: string;
-    commentaires: string;
+    etudiantId?: number;
+    employeurId?: number;
+    pdfBase64?: string;
     dateEvaluation?: string;
 }
 
@@ -305,6 +398,7 @@ class EmployeurService {
             throw error;
         }
     }
+
     async telechargerCvCandidature(id: number): Promise<Blob> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -337,7 +431,6 @@ class EmployeurService {
                 throw new Error('Vous devez être connecté');
             }
 
-            // ✅ ENDPOINT CORRECT avec trait d'union
             const response = await fetch(`${this.baseUrl}/candidatures/${id}/lettre-motivation`, {
                 method: 'GET',
                 headers: {
@@ -373,7 +466,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors de l\'approbation de la candidature:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors de l\'approbation');
@@ -432,7 +524,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors du refus de la candidature:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
@@ -473,9 +564,6 @@ class EmployeurService {
         }
     }
 
-    /**
-     * Crée une convocation d'entrevue
-     */
     async creerConvocation(candidatureId: number, convocation: { dateHeure: string; lieuOuLien: string; message: string }): Promise<any> {
         try {
             const token = sessionStorage.getItem('authToken');
@@ -627,7 +715,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors de la signature de l\'entente:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors de la signature');
@@ -685,7 +772,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors du refus de l\'entente:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
@@ -754,17 +840,18 @@ class EmployeurService {
 
     /**
      * Crée une évaluation pour un stagiaire
-     * @param evaluationData - Les données de l'évaluation
-     * @returns Promise<MessageRetour>
+     * Le backend génère automatiquement un PDF avec toutes les données du formulaire
+     * @param evaluationData - Données complètes de l'évaluation (CreerEvaluationDTO)
+     * @returns Message de succès ou erreur
      */
-    async creerEvaluation(evaluationData: EvaluationDTO): Promise<MessageRetour> {
+    async creerEvaluation(evaluationData: CreerEvaluationDTO): Promise<MessageRetour> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/evaluations`, {
+            const response = await fetch(`${this.baseUrl}/evaluation`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -775,7 +862,6 @@ class EmployeurService {
 
             const data = await response.json();
 
-            // Vérifier si erreur dans MessageRetourDTO
             if (data?.erreur) {
                 console.error('Erreur lors de la création de l\'évaluation:', data.erreur);
                 const error: any = new Error(data.erreur.message || 'Erreur lors de la création de l\'évaluation');
@@ -818,7 +904,7 @@ class EmployeurService {
 
     /**
      * Récupère toutes les évaluations de l'employeur connecté
-     * @returns Promise<EvaluationDTO[]>
+     * @returns Liste des évaluations (id, ententeId, etudiantId, dateEvaluation)
      */
     async getEvaluations(): Promise<EvaluationDTO[]> {
         try {
@@ -885,6 +971,36 @@ class EmployeurService {
             if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
         } catch (error: any) {
             throw new Error(error?.message || 'Erreur lors de la mise à jour de la notification');
+        }
+    }
+
+    /**
+     * Télécharge le PDF d'une évaluation spécifique
+     * @param evaluationId - ID de l'évaluation
+     * @returns Blob du fichier PDF
+     */
+    async getPdfEvaluation(evaluationId: number): Promise<Blob> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/evaluations/${evaluationId}/pdf`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du téléchargement du PDF d\'évaluation');
+            }
+
+            return await response.blob();
+        } catch (error) {
+            console.error('Erreur telechargerPdfEvaluation:', error);
+            throw error;
         }
     }
 }

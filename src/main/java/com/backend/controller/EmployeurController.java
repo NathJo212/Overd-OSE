@@ -393,11 +393,11 @@ public class EmployeurController {
         }
     }
 
-    @PostMapping("/evaluations")
+    @PostMapping("/evaluation")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> creerEvaluation(@RequestBody EvaluationDTO evaluationDTO) {
+    public ResponseEntity<MessageRetourDTO> creerEvaluation(@RequestBody CreerEvaluationDTO creerEvaluationDTO) {
         try {
-            employeurService.creerEvaluation(evaluationDTO);
+            employeurService.creerEvaluation(creerEvaluationDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(new MessageRetourDTO("Évaluation créée avec succès", null));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -429,4 +429,25 @@ public class EmployeurController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/evaluations/{id}/pdf")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getEvaluationPdf(@PathVariable Long id) {
+        try {
+            byte[] pdf = employeurService.getEvaluationPdf(id);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"evaluation.pdf\"")
+                    .header("Content-Type", "application/pdf")
+                    .body(pdf);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

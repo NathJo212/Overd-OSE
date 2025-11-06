@@ -6,6 +6,7 @@ import com.backend.modele.*;
 import com.backend.persistence.*;
 import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
+import com.backend.util.PdfGenerationEvaluation;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -13,9 +14,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,9 +39,10 @@ public class EmployeurService {
     private final NotificationRepository notificationRepository;
     private final EntenteStageRepository ententeStageRepository;
     private final EvaluationRepository evaluationRepository;
+    private final PdfGenerationEvaluation pdfGenerationEvaluation;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationRepository evaluationRepository) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationRepository evaluationRepository,  PdfGenerationEvaluation pdfGenerationEvaluation) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -50,6 +54,7 @@ public class EmployeurService {
         this.notificationRepository = notificationRepository;
         this.ententeStageRepository = ententeStageRepository;
         this.evaluationRepository = evaluationRepository;
+        this.pdfGenerationEvaluation = pdfGenerationEvaluation;
     }
 
     @Transactional
@@ -450,29 +455,29 @@ public class EmployeurService {
     }
 
     @Transactional
-    public void creerEvaluation(EvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException {
+    public void creerEvaluation(CreerEvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException, IOException {
         Employeur employeur = getEmployeurConnecte();
-
         EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
 
-        if (entente.getEmployeur() == null || !entente.getEmployeur().getId().equals(employeur.getId())) {
-            throw new ActionNonAutoriseeException();
-        }
-
-        Etudiant etudiant = entente.getEtudiant();
-        if (etudiant == null || etudiant.getId() == null) {
-            throw new UtilisateurPasTrouveException();
-        }
-
-        if (entente.getStatut() != EntenteStage.StatutEntente.SIGNEE){
+        if(entente.getStatut() != EntenteStage.StatutEntente.SIGNEE){
             throw new EntenteNonFinaliseeException();
         }
 
-        if (evaluationRepository.existsByEtudiantIdAndEmployeurId(etudiant.getId(), employeur.getId())) {
+        Etudiant etudiant = entente.getEtudiant();
+
+        if (evaluationRepository.existsByEntenteId(entente.getId())) {
             throw new EvaluationDejaExistanteException();
         }
+        String nomEtudiantComplet = etudiant.getPrenom() + " " + etudiant.getNom();
+        String progEtude = etudiant.getProgEtude() != null ? etudiant.getProgEtude().name() : null;
+        String pdfBase64 = pdfGenerationEvaluation.genererEtRemplirEvaluationPdf(dto, nomEtudiantComplet, progEtude, employeur.getNomEntreprise());
 
-        Evaluation eval = new Evaluation(entente, etudiant, employeur, dto.getCompetencesTechniques(), dto.getRespectDelais(), dto.getAttitudeIntegration(), dto.getCommentaires());
+        Evaluation eval = new Evaluation();
+
+        eval.setEntente(entente);
+        eval.setEtudiant(etudiant);
+        eval.setEmployeur(employeur);
+        eval.setPdfBase64(pdfBase64);
         evaluationRepository.save(eval);
 
         new EvaluationDTO().toDTO(eval);
@@ -483,5 +488,28 @@ public class EmployeurService {
         Employeur employeur = getEmployeurConnecte();
         List<Evaluation> evaluations = evaluationRepository.findAllByEmployeurId(employeur.getId());
         return evaluations.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
+    }
+
+    @Transactional
+    public byte[] getEvaluationPdf(Long evaluationId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        Evaluation evaluation = evaluationRepository.findById(evaluationId)
+                .orElseThrow(() -> new RuntimeException("Evaluation not found"));
+
+        if (evaluation.getEmployeur() == null || !evaluation.getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        String base64 = evaluation.getPdfBase64();
+        if (base64 == null || base64.isEmpty()) {
+            throw new RuntimeException("Evaluation PDF not found");
+        }
+
+        try {
+            return Base64.getDecoder().decode(base64);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid base64 PDF data");
+        }
     }
 }
