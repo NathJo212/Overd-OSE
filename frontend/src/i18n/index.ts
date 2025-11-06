@@ -49,6 +49,8 @@ import gestionnaireAttribueEtudiantFr from './locales/fr/gestionnaireAttribueEtu
 import gestionnaireAttribueEtudiantEn from './locales/en/gestionnaireAttribueEtudiant.json';
 import dashboardProfesseurFr from './locales/fr/dashboardProfesseur.json';
 import dashboardProfesseurEn from './locales/en/dashboardProfesseur.json';
+import notificationsFr from './locales/fr/notifications.json';
+import notificationsEn from './locales/en/notifications.json';
 
 const resources = {
     fr: {
@@ -75,6 +77,7 @@ const resources = {
         gestionnaireAttribueEtudiant: gestionnaireAttribueEtudiantFr,
         evaluationStagiaire: evaluationStagiaireFr,
         dashboardProfesseur: dashboardProfesseurFr,
+        notifications: notificationsFr,
     },
     en: {
         registration: registrationEn,
@@ -100,6 +103,7 @@ const resources = {
         evaluationStagiaire: evaluationStagiaireEn,
         gestionnaireAttribueEtudiant: gestionnaireAttribueEtudiantEn,
         dashboardProfesseur: dashboardProfesseurEn,
+        notifications: notificationsEn,
     }
 };
 

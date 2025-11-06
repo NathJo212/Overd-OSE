@@ -102,6 +102,15 @@ export interface EntenteStageDTO {
     lieu: string;
 }
 
+// Notification DTO
+export interface NotificationDTO {
+    id: number;
+    messageKey?: string | null;
+    messageParam?: string | null;
+    lu: boolean;
+    dateCreation: string;
+}
+
 // Configuration de l'API
 const API_BASE_URL = 'http://localhost:8080';
 const ETUDIANT_ENDPOINT = '/OSEetudiant';
@@ -370,6 +379,48 @@ class EtudiantService {
         } catch (error) {
             console.error('Erreur lors de la vérification du CV:', error);
             return false;
+        }
+    }
+
+    // --- Notifications ---
+    async getNotifications(): Promise<NotificationDTO[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const response = await fetch(`${this.baseUrl}/notifications`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+
+            return await response.json();
+        } catch (error: any) {
+            throw new Error(error?.message || 'Erreur lors de la récupération des notifications');
+        }
+    }
+
+    async marquerNotificationLu(id: number, lu: boolean): Promise<void> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const response = await fetch(`${this.baseUrl}/notifications/${id}/lu`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(lu)
+            });
+
+            if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+        } catch (error: any) {
+            throw new Error(error?.message || 'Erreur lors de la mise à jour de la notification');
         }
     }
 
