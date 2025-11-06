@@ -38,11 +38,11 @@ public class EmployeurService {
     private final ConvocationEntrevueRepository convocationEntrevueRepository;
     private final NotificationRepository notificationRepository;
     private final EntenteStageRepository ententeStageRepository;
-    private final EvaluationRepository evaluationRepository;
+    private final EvaluationEtudiantParEmployeurRepository evaluationRepository;
     private final PdfGenerationEvaluation pdfGenerationEvaluation;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationRepository evaluationRepository,  PdfGenerationEvaluation pdfGenerationEvaluation) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationEtudiantParEmployeurRepository evaluationRepository, PdfGenerationEvaluation pdfGenerationEvaluation) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -473,7 +473,7 @@ public class EmployeurService {
         String progEtude = etudiant.getProgEtude() != null ? etudiant.getProgEtude().name() : null;
         String pdfBase64 = pdfGenerationEvaluation.genererEtRemplirEvaluationPdf(dto, nomEtudiantComplet, progEtude, employeur.getNomEntreprise());
 
-        Evaluation eval = new Evaluation();
+        EvaluationEtudiantParEmployeur eval = new EvaluationEtudiantParEmployeur();
 
         eval.setEntente(entente);
         eval.setEtudiant(etudiant);
@@ -487,7 +487,7 @@ public class EmployeurService {
     @Transactional
     public List<EvaluationDTO> getEvaluationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
-        List<Evaluation> evaluations = evaluationRepository.findAllByEmployeurId(employeur.getId());
+        List<EvaluationEtudiantParEmployeur> evaluations = evaluationRepository.findAllByEmployeurId(employeur.getId());
         return evaluations.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
     }
 
@@ -495,7 +495,7 @@ public class EmployeurService {
     public byte[] getEvaluationPdf(Long evaluationId) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
-        Evaluation evaluation = evaluationRepository.findById(evaluationId)
+        EvaluationEtudiantParEmployeur evaluation = evaluationRepository.findById(evaluationId)
                 .orElseThrow(() -> new RuntimeException("Evaluation not found"));
 
         if (evaluation.getEmployeur() == null || !evaluation.getEmployeur().getId().equals(employeur.getId())) {

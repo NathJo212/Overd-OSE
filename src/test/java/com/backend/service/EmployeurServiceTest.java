@@ -77,7 +77,7 @@ public class EmployeurServiceTest {
     private PdfGenerationEvaluation pdfGenerationEvaluation;
 
     @Mock
-    private EvaluationRepository evaluationRepository;
+    private EvaluationEtudiantParEmployeurRepository evaluationRepository;
 
     @Test
     public void testCreationEmployeur() throws MotPasseInvalideException, EmailDejaUtiliseException {
@@ -149,11 +149,9 @@ public class EmployeurServiceTest {
         AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer fakeToken");
         when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(false);
 
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
-                    LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                    ProgrammeDTO.P500_AF, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null, null, "allo");
-        });
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
+                ProgrammeDTO.P500_AF, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null, null, "allo"));
     }
 
     @Test
@@ -187,9 +185,7 @@ public class EmployeurServiceTest {
         when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(false);
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.OffrePourEmployeur(utilisateur);
-        });
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.OffrePourEmployeur(utilisateur));
     }
 
     @Test
@@ -229,9 +225,7 @@ public class EmployeurServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.getEmployeurConnecte();
-        });
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.getEmployeurConnecte());
     }
 
     @Test
@@ -249,9 +243,7 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(UtilisateurPasTrouveException.class, () -> {
-            employeurService.getEmployeurConnecte();
-        });
+        assertThrows(UtilisateurPasTrouveException.class, () -> employeurService.getEmployeurConnecte());
     }
 
     @Test
@@ -368,7 +360,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testGetCandidatureSpecifique_CandidatureNonTrouvee() throws Exception {
+    public void testGetCandidatureSpecifique_CandidatureNonTrouvee() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
@@ -388,9 +380,7 @@ public class EmployeurServiceTest {
                 .thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(CandidatureNonTrouveeException.class, () -> {
-            employeurService.getCandidatureSpecifique(candidatureId);
-        });
+        assertThrows(CandidatureNonTrouveeException.class, () -> employeurService.getCandidatureSpecifique(candidatureId));
     }
 
     @Test
@@ -438,7 +428,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testGetCvPourCandidature_CandidatureNonTrouvee() throws Exception {
+    public void testGetCvPourCandidature_CandidatureNonTrouvee() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
@@ -458,13 +448,11 @@ public class EmployeurServiceTest {
                 .thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(CandidatureNonTrouveeException.class, () -> {
-            employeurService.getCvPourCandidature(candidatureId);
-        });
+        assertThrows(CandidatureNonTrouveeException.class, () -> employeurService.getCvPourCandidature(candidatureId));
     }
 
     @Test
-    public void testGetCvPourCandidature_NonAutorise() throws Exception {
+    public void testGetCvPourCandidature_NonAutorise() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -497,13 +485,11 @@ public class EmployeurServiceTest {
                 .thenReturn(Optional.of(candidature));
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.getCvPourCandidature(candidatureId);
-        });
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.getCvPourCandidature(candidatureId));
     }
 
     @Test
-    public void testGetCvPourCandidature_CvNonExistant() throws Exception {
+    public void testGetCvPourCandidature_CvNonExistant() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -533,9 +519,7 @@ public class EmployeurServiceTest {
                 .thenReturn(Optional.of(candidature));
 
         // Act & Assert
-        assertThrows(CVNonExistantException.class, () -> {
-            employeurService.getCvPourCandidature(candidatureId);
-        });
+        assertThrows(CVNonExistantException.class, () -> employeurService.getCvPourCandidature(candidatureId));
     }
 
     @Test
@@ -583,7 +567,7 @@ public class EmployeurServiceTest {
 
 
     @Test
-    public void testGetLettreMotivationPourCandidature_CandidatureNonTrouvee() throws Exception {
+    public void testGetLettreMotivationPourCandidature_CandidatureNonTrouvee() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
@@ -603,13 +587,11 @@ public class EmployeurServiceTest {
                 .thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(CandidatureNonTrouveeException.class, () -> {
-            employeurService.getLettreMotivationPourCandidature(candidatureId);
-        });
+        assertThrows(CandidatureNonTrouveeException.class, () -> employeurService.getLettreMotivationPourCandidature(candidatureId));
     }
 
     @Test
-    public void testGetLettreMotivationPourCandidature_NonAutorise() throws Exception {
+    public void testGetLettreMotivationPourCandidature_NonAutorise() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -641,13 +623,11 @@ public class EmployeurServiceTest {
                 .thenReturn(Optional.of(candidature));
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.getLettreMotivationPourCandidature(candidatureId);
-        });
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.getLettreMotivationPourCandidature(candidatureId));
     }
 
     @Test
-    public void testGetLettreMotivationPourCandidature_LettreNonExistante() throws Exception {
+    public void testGetLettreMotivationPourCandidature_LettreNonExistante() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -676,9 +656,7 @@ public class EmployeurServiceTest {
                 .thenReturn(Optional.of(candidature));
 
         // Act & Assert
-        assertThrows(CVNonExistantException.class, () -> {
-            employeurService.getLettreMotivationPourCandidature(candidatureId);
-        });
+        assertThrows(CVNonExistantException.class, () -> employeurService.getLettreMotivationPourCandidature(candidatureId));
     }
 
     @Test
@@ -688,21 +666,19 @@ public class EmployeurServiceTest {
         when(jwtTokenProvider.isEmployeur(anyString(), any(JwtTokenProvider.class))).thenReturn(true);
 
         // Act & Assert - Date de fin avant date de début
-        assertThrows(DateInvalideException.class, () -> {
-            employeurService.creerOffreDeStage(
-                    utilisateur,
-                    "titre",
-                    "desc",
-                    LocalDate.of(2024, 6, 1),
-                    LocalDate.of(2024, 1, 1),
-                    ProgrammeDTO.P410_A1,
-                    "lieu",
-                    "rem",
-                    LocalDate.of(2024, 5, 1),
-                    null, null, null, null, null,
-                    "dummyValue"
-            );
-        });
+        assertThrows(DateInvalideException.class, () -> employeurService.creerOffreDeStage(
+                utilisateur,
+                "titre",
+                "desc",
+                LocalDate.of(2024, 6, 1),
+                LocalDate.of(2024, 1, 1),
+                ProgrammeDTO.P410_A1,
+                "lieu",
+                "rem",
+                LocalDate.of(2024, 5, 1),
+                null, null, null, null, null,
+                "dummyValue"
+        ));
     }
 
 
@@ -983,7 +959,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testApprouverCandidature_Succes() throws Exception {
+    public void testApprouverCandidature_Succes() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1014,7 +990,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testApprouverCandidature_CandidatureNonTrouvee() throws Exception {
+    public void testApprouverCandidature_CandidatureNonTrouvee() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1035,7 +1011,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testApprouverCandidature_NonAutorise() throws Exception {
+    public void testApprouverCandidature_NonAutorise() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1067,7 +1043,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testApprouverCandidature_DejaVerifie() throws Exception {
+    public void testApprouverCandidature_DejaVerifie() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1097,7 +1073,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testRefuserCandidature_Succes() throws Exception {
+    public void testRefuserCandidature_Succes() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1129,7 +1105,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testRefuserCandidature_CandidatureNonTrouvee() throws Exception {
+    public void testRefuserCandidature_CandidatureNonTrouvee() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1150,7 +1126,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testRefuserCandidature_NonAutorise() throws Exception {
+    public void testRefuserCandidature_NonAutorise() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1182,7 +1158,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testRefuserCandidature_DejaVerifie() throws Exception {
+    public void testRefuserCandidature_DejaVerifie() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1280,7 +1256,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testMarquerNotificationLu_NonAutorise() throws Exception {
+    public void testMarquerNotificationLu_NonAutorise() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1304,9 +1280,7 @@ public class EmployeurServiceTest {
         when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.marquerNotificationLu(1L, true);
-        });
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.marquerNotificationLu(1L, true));
     }
 
     @Test
@@ -1449,7 +1423,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testGetEntenteSpecifique_NonAutorise() throws Exception {
+    public void testGetEntenteSpecifique_NonAutorise() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1473,9 +1447,7 @@ public class EmployeurServiceTest {
         when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.getEntenteSpecifique(1L);
-        });
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.getEntenteSpecifique(1L));
     }
 
     @Test
@@ -1516,7 +1488,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testSignerEntente_NonAutorise() throws Exception {
+    public void testSignerEntente_NonAutorise() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1540,9 +1512,7 @@ public class EmployeurServiceTest {
         when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.signerEntente(1L);
-        });
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.signerEntente(1L));
     }
 
     @Test
@@ -1583,7 +1553,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testRefuserEntente_NonAutorise() throws Exception {
+    public void testRefuserEntente_NonAutorise() {
         // Arrange
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
@@ -1607,9 +1577,7 @@ public class EmployeurServiceTest {
         when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> {
-            employeurService.refuserEntente(1L);
-        });
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.refuserEntente(1L));
     }
 
     @Test
@@ -1647,7 +1615,7 @@ public class EmployeurServiceTest {
                 any(),
                 anyString()
         )).thenReturn(Base64.getEncoder().encodeToString("pdfcontent".getBytes(StandardCharsets.UTF_8)));
-        when(evaluationRepository.save(any(Evaluation.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(evaluationRepository.save(any(EvaluationEtudiantParEmployeur.class))).thenAnswer(inv -> inv.getArgument(0));
 
         CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(100L);
@@ -1657,11 +1625,11 @@ public class EmployeurServiceTest {
 
         // Act & Assert
         assertDoesNotThrow(() -> employeurService.creerEvaluation(dto));
-        verify(evaluationRepository, times(1)).save(any(Evaluation.class));
+        verify(evaluationRepository, times(1)).save(any(EvaluationEtudiantParEmployeur.class));
     }
 
     @Test
-    public void testCreerEvaluation_EntenteNonTrouvee() throws Exception {
+    public void testCreerEvaluation_EntenteNonTrouvee() {
         // Arrange
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -1685,7 +1653,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testCreerEvaluation_EntenteNonSignee() throws Exception {
+    public void testCreerEvaluation_EntenteNonSignee() {
         // Arrange - mock security context and employeur
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -1700,8 +1668,6 @@ public class EmployeurServiceTest {
         Employeur employeur = mock(Employeur.class);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        // Étudiant mocké
-        Etudiant etudiant = mock(Etudiant.class);
 
         // Entente non signée
         EntenteStage entente = mock(EntenteStage.class);
@@ -1736,8 +1702,8 @@ public class EmployeurServiceTest {
         when(employeur.getId()).thenReturn(1L);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        Evaluation eval1 = new Evaluation();
-        Evaluation eval2 = new Evaluation();
+        EvaluationEtudiantParEmployeur eval1 = new EvaluationEtudiantParEmployeur();
+        EvaluationEtudiantParEmployeur eval2 = new EvaluationEtudiantParEmployeur();
 
         doReturn(List.of(eval1, eval2)).when(evaluationRepository).findAllByEmployeurId(anyLong());
 
@@ -1766,7 +1732,7 @@ public class EmployeurServiceTest {
         when(employeur.getId()).thenReturn(1L);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        Evaluation evaluation = new Evaluation();
+        EvaluationEtudiantParEmployeur evaluation = new EvaluationEtudiantParEmployeur();
         // set employer id on evaluation.employeur
         Employeur evalEmployeur = mock(Employeur.class);
         when(evalEmployeur.getId()).thenReturn(1L);
@@ -1784,7 +1750,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testGetEvaluationPdf_NonAutorise() throws Exception {
+    public void testGetEvaluationPdf_NonAutorise() {
         // Arrange
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -1800,7 +1766,7 @@ public class EmployeurServiceTest {
         when(employeur.getId()).thenReturn(1L);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        Evaluation evaluation = new Evaluation();
+        EvaluationEtudiantParEmployeur evaluation = new EvaluationEtudiantParEmployeur();
         Employeur autre = mock(Employeur.class);
         when(autre.getId()).thenReturn(2L);
         evaluation.setEmployeur(autre);
@@ -1813,7 +1779,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testGetEvaluationPdf_PdfManquant() throws Exception {
+    public void testGetEvaluationPdf_PdfManquant() {
         // Arrange
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -1829,7 +1795,7 @@ public class EmployeurServiceTest {
         when(employeur.getId()).thenReturn(1L);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        Evaluation evaluation = new Evaluation();
+        EvaluationEtudiantParEmployeur evaluation = new EvaluationEtudiantParEmployeur();
         Employeur evalEmployeur = mock(Employeur.class);
         when(evalEmployeur.getId()).thenReturn(1L);
         evaluation.setEmployeur(evalEmployeur);

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Evaluation {
+public class EvaluationEtudiantParEmployeur {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

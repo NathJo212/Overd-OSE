@@ -1,12 +1,11 @@
 package com.backend.service.DTO;
 
-import com.backend.modele.Evaluation;
+import com.backend.modele.EvaluationEtudiantParEmployeur;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -21,7 +20,7 @@ public class EvaluationDTO {
     private String pdfBase64;
     private LocalDateTime dateEvaluation;
 
-    public EvaluationDTO toDTO(Evaluation e) {
+    public EvaluationDTO toDTO(EvaluationEtudiantParEmployeur e) {
         EvaluationDTO dto = new EvaluationDTO();
         dto.setId(e.getId());
         dto.setEntenteId(e.getEntente() != null ? e.getEntente().getId() : null);
