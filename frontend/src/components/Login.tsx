@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 import { useNavigate, NavLink } from 'react-router'
-import { LogIn, Mail, Lock, CheckCircle, AlertCircle } from 'lucide-react'
+import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react'
 import utilisateurService from '../services/UtilisateurService'
 import * as React from "react";
 import { useTranslation } from 'react-i18next';
@@ -21,8 +21,6 @@ const Login = () => {
 
     // Codes d'erreur du backend (se traduisent automatiquement)
     const [backendErrorCodes, setBackendErrorCodes] = useState<string[]>([])
-
-    const [successMessage, setSuccessMessage] = useState<string>('')
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -67,7 +65,6 @@ const Login = () => {
         e.preventDefault()
         setValidationErrors([])
         setBackendErrorCodes([])
-        setSuccessMessage('')
 
         const errors = validateForm()
         if (errors.length > 0) {
@@ -82,7 +79,6 @@ const Login = () => {
             const authResponse = await utilisateurService.authentifier(loginData)
 
             if (authResponse) {
-                setSuccessMessage(t('login:messages.success'))
                 sessionStorage.setItem('fromLogin', 'true');
 
                 setTimeout(() => {
@@ -101,7 +97,7 @@ const Login = () => {
                             navigate('/')
                             break
                     }
-                }, 1500)
+                })
             }
 
         } catch (error: any) {
@@ -132,7 +128,6 @@ const Login = () => {
         setLoading(true)
         setValidationErrors([])
         setBackendErrorCodes([])
-        setSuccessMessage('')
 
         let testCredentials: FormData
         if (userType === 'EMPLOYEUR') {
@@ -148,14 +143,13 @@ const Login = () => {
             const authResponse = await utilisateurService.authentifier(loginData)
 
             if (authResponse) {
-                setSuccessMessage(t('login:messages.success'))
                 sessionStorage.setItem('fromLogin', 'true');
 
                 setTimeout(() => {
                     navigate(userType === 'EMPLOYEUR' ? '/dashboard-employeur' :
                             userType === 'ETUDIANT' ? '/dashboard-etudiant' :
                             '/dashboard-gestionnaire')
-                }, 1500)
+                })
             }
 
         } catch (error: any) {
@@ -223,21 +217,6 @@ const Login = () => {
                                             </li>
                                         ))}
                                     </ul>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Message de succès */}
-                    {successMessage && (
-                        <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
-                            <div className="flex items-start gap-3">
-                                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-green-900">{successMessage}</p>
-                                    <p className="text-xs text-green-700 mt-1">
-                                        {t('login:messages.redirecting')}
-                                    </p>
                                 </div>
                             </div>
                         </div>
