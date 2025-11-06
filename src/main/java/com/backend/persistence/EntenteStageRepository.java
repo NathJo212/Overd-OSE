@@ -19,4 +19,6 @@ public interface EntenteStageRepository extends JpaRepository<EntenteStage, Long
     List<EntenteStage> findByEmployeurAndEmployeurSignatureAndArchivedFalse(Employeur employeur, EntenteStage.SignatureStatus signatureStatus);
 
     List<EntenteStage> findByEmployeurAndArchivedFalse(Employeur employeur);
+
+    List<EntenteStage> findByEtudiantId(Long etudiantId);
 }

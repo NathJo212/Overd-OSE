@@ -1,11 +1,11 @@
 package com.backend.controller;
 
-
-import com.backend.Exceptions.ActionNonAutoriseeException;
-import com.backend.Exceptions.UtilisateurPasTrouveException;
-import com.backend.service.DTO.EtudiantDTO;
+import com.backend.Exceptions.*;
+import com.backend.service.DTO.*;
 import com.backend.service.ProfesseurService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +21,12 @@ public class ProfesseurController {
         this.professeurService = professeurService;
     }
 
-
-    @GetMapping("/{id}/etudiants")
+    @GetMapping("/etudiants")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EtudiantDTO>> getMesEtudiants(@PathVariable("id") Long professeurId) {
+    public ResponseEntity<List<EtudiantDTO>> getMesEtudiants() {
         try {
-            List<EtudiantDTO> etudiants = professeurService.getMesEtudiants(professeurId);
+            ProfesseurDTO professeurConnecte = ProfesseurDTO.toDTO(professeurService.getProfesseurConnecte());
+            List<EtudiantDTO> etudiants = professeurService.getMesEtudiants(professeurConnecte.getId());
             return ResponseEntity.ok(etudiants);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -37,7 +37,77 @@ public class ProfesseurController {
         }
     }
 
+    @GetMapping("/etudiants/{etudiantId}/cv")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getCvEtudiant(@PathVariable Long etudiantId) {
+        try {
+            byte[] cvDechiffre = professeurService.getCvEtudiantPourProfesseur(etudiantId);
 
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"cv.pdf\"")
+                    .header("Content-Type", "application/pdf")
+                    .body(cvDechiffre);
+        } catch (CVNonExistantException | UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
+    @GetMapping("/etudiants/{etudiantId}/ententes")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EntenteStageDTO>> getEntentesPourEtudiant(@PathVariable Long etudiantId) {
+        try {
+            List<EntenteStageDTO> ententes = professeurService.getEntentesPourEtudiant(etudiantId);
+            return ResponseEntity.ok(ententes);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
+    @GetMapping("/etudiants/{etudiantId}/candidatures")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesPourEtudiant(@PathVariable Long etudiantId) {
+        try {
+            List<CandidatureDTO> candidatures = professeurService.getCandidaturesPourEtudiant(etudiantId);
+            return ResponseEntity.ok(candidatures);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/candidatures/{candidatureId}/lettre")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<byte[]> getLettrePresentation(@PathVariable Long candidatureId) {
+        try {
+            byte[] lettreDechiffree = professeurService.getLettrePresentationParCandidature(candidatureId);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=LettrePresentation_" + candidatureId + ".pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(lettreDechiffree.length)
+                    .body(lettreDechiffree);
+        } catch (UtilisateurPasTrouveException | LettreDeMotivationNonDisponibleException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/ententes/{ententeId}/statut")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<StatutStageDTO> getStatutStage(@PathVariable Long ententeId) {
+        try {
+            StatutStageDTO statut = professeurService.getStatutStage(ententeId);
+            return ResponseEntity.ok(statut);
+        } catch (EntenteNonTrouveeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

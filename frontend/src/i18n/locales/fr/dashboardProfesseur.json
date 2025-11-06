@@ -1,0 +1,66 @@
+{
+  "title": "Tableau de bord Professeur",
+  "subtitle": "Gérez vos étudiants et suivez leurs progrès",
+  "studentList": {
+    "title": "Mes Étudiants",
+    "noStudents": "Aucun étudiant assigné pour le moment",
+    "student": "Étudiant",
+    "program": "Programme",
+    "session": "Session",
+    "contact": "Contact",
+    "cv": {
+      "noCV": "Aucun CV",
+      "view": "Regarder le CV"
+    },
+    "actions": {
+      "candidatures": "Candidatures",
+      "ententes": "Ententes de stage"
+    }
+  },
+  "candidatures": {
+    "title": "Candidatures de l'étudiant",
+    "noCandidatures": "Aucune candidature trouvée",
+    "letterMotivation": {
+      "view": "Regarder la lettre de motivation",
+      "none": "Aucune lettre de motivation"
+    },
+    "statusBadge": {
+      "EN_ATTENTE": "Postulé pour l'offre",
+      "ACCEPTEE": "Acceptée par l'employeur",
+      "REFUSEE": "Refusée par l'employeur",
+      "RETIREE": "Retirée de l'offre",
+      "ACCEPTEE_PAR_ETUDIANT": "Acceptée par l'étudiant",
+      "REFUSEE_PAR_ETUDIANT": "Refusée par l'étudiant"
+    },
+    "message": "Message"
+  },
+  "ententes": {
+    "title": "Ententes de stage",
+    "noEntentes": "Aucune entente trouvée",
+    "labels": {
+      "student": "Étudiant",
+      "employer": "Employeur",
+      "period": "Période",
+      "weeklyHours": "Durée hebdomadaire",
+      "location": "Lieu",
+      "statutStage": "Statut du stage"
+    },
+    "signatures": {
+      "SIGNEE": "Signée",
+      "REFUSEE": "Refusée",
+      "EN_ATTENTE": "En attente"
+    },
+    "statutStage": {
+      "PAS_COMMENCE": "Pas commencé",
+      "EN_COURS": "En cours",
+      "TERMINE": "Terminé"
+    }
+  },
+  "loading": "Chargement...",
+  "error": {
+    "authTokenMissing": "Token d'authentification manquant",
+    "downloadCVFailed": "Erreur lors du téléchargement du CV",
+    "downloadLetterFailed": "Erreur lors du téléchargement de la lettre de motivation",
+    "unknown": "Erreur inconnue"
+  }
+}
