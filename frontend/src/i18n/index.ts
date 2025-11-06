@@ -53,8 +53,6 @@ import gestionnaireSigneEntenteFr from './locales/fr/gestionnaireSigneEntente.js
 import gestionnaireSigneEntenteEn from './locales/en/gestionnaireSigneEntente.json';
 import notificationsFr from './locales/fr/notifications.json';
 import notificationsEn from './locales/en/notifications.json';
-import dashboardProfesseurFr from './locales/fr/dashboardProfesseur.json';
-import dashboardProfesseurEn from './locales/en/dashboardProfesseur.json';
 
 const resources = {
     fr: {
