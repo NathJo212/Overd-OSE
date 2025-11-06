@@ -129,7 +129,7 @@ const Login = () => {
         }
     }
 
-    const handleTestLogin = async (userType: 'EMPLOYEUR' | 'ETUDIANT' | 'GESTIONNAIRE') => {
+    const handleTestLogin = async (userType: 'EMPLOYEUR' | 'ETUDIANT' | 'GESTIONNAIRE' | 'PROFESSEUR') => {
         setLoading(true)
         setValidationErrors([])
         setBackendErrorCodes([])
@@ -139,8 +139,10 @@ const Login = () => {
             testCredentials = { email: 'mon@employeur.com', password: 'Employeur123%' }
         } else if (userType === 'ETUDIANT') {
             testCredentials = { email: 'etudiant@example.com', password: 'Etudiant128&' }
-        } else {
+        } else if (userType === 'GESTIONNAIRE') {
             testCredentials = { email: 'gestionnaire@example.com', password: 'Gestion128&' }
+        } else {
+            testCredentials = { email: 'professeur@example.com', password: 'Prof128&' }
         }
 
         try {
@@ -153,7 +155,8 @@ const Login = () => {
                 setTimeout(() => {
                     navigate(userType === 'EMPLOYEUR' ? '/dashboard-employeur' :
                             userType === 'ETUDIANT' ? '/dashboard-etudiant' :
-                            '/dashboard-gestionnaire')
+                            userType === 'GESTIONNAIRE' ? '/dashboard-gestionnaire' :
+                            '/dashboard-professeur')
                 })
             }
 
@@ -289,7 +292,7 @@ const Login = () => {
                     {/* Quick-login buttons (dev only) */}
                     <div className="mt-6">
                         <p className="text-sm text-slate-600 mb-2">Comptes de test — développement seulement :</p>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                             <button
                                 type="button"
                                 disabled={loading}
@@ -314,9 +317,18 @@ const Login = () => {
                             >
                                 Se connecter en tant que Gestionnaire
                             </button>
+                            <button
+                                type="button"
+                                disabled={loading}
+                                onClick={() => handleTestLogin('PROFESSEUR')}
+                                className="cursor-pointer flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
+                            >
+                                Se connecter en tant que Professeur
+                            </button>
                         </div>
                         <p className="text-xs text-rose-600 mt-2">Pour tests seulement — ne pas utiliser en production.</p>
                     </div>
+
 
                     {/* Lien d'inscription */}
                     <div className="mt-6 pt-6 border-t border-gray-200 text-center">
