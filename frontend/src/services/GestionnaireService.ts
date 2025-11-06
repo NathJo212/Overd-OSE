@@ -492,10 +492,8 @@ class GestionnaireService {
 
     /**
      * Signe une entente de stage en tant que gestionnaire
-     * Cette action finalise l'entente et notifie toutes les parties
-     * @param ententeId - L'ID de l'entente à signer
+     * @param ententeId - identifiant de l'entente
      * @param token - Token d'authentification
-     * @returns Promise avec la réponse du serveur
      */
     async signerEntente(ententeId: number, token: string): Promise<void> {
         try {
@@ -503,23 +501,41 @@ class GestionnaireService {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                 },
             });
 
-            const data: MessageRetourDTO = await response.json();
-
-            if (data.erreur) {
-                console.error('Erreur lors de la signature de l\'entente:', data.erreur);
-                const error: any = new Error(data.erreur.message || 'Erreur lors de la signature de l\'entente');
-                error.response = { data };
-                throw error;
+            let data: MessageRetourDTO | null = null;
+            const raw = await response.text();
+            if (raw) {
+                try { data = JSON.parse(raw); } catch { data = null; }
             }
 
             if (!response.ok) {
-                throw new Error('Erreur lors de la signature de l\'entente');
+                if (data?.erreur) {
+                    const error: any = new Error(data.erreur.message || 'Erreur lors de la signature');
+                    error.response = { data };
+                    throw error;
+                }
+                const is401 = response.status === 401;
+                const fallback: MessageRetourDTO = {
+                    message: null,
+                    erreur: {
+                        errorCode: is401 ? 'AUTHORIZATION_001' : 'ERROR_000',
+                        message: is401 ? 'Unauthorized action' : `Erreur HTTP: ${response.status}`
+                    }
+                };
+                const errMsg = fallback.erreur?.message || 'Erreur lors de la signature';
+                const error: any = new Error(errMsg);
+                error.response = { data: fallback };
+                throw error;
             }
 
+            if (data?.erreur) {
+                const error: any = new Error(data.erreur.message || 'Erreur lors de la signature');
+                error.response = { data };
+                throw error;
+            }
         } catch (error: any) {
             if (error.response?.data) {
                 throw error;
@@ -530,10 +546,8 @@ class GestionnaireService {
 
     /**
      * Refuse une entente de stage en tant que gestionnaire
-     * L'entente sera annulée et archivée
-     * @param ententeId - L'ID de l'entente à refuser
+     * @param ententeId - identifiant de l'entente
      * @param token - Token d'authentification
-     * @returns Promise avec la réponse du serveur
      */
     async refuserEntente(ententeId: number, token: string): Promise<void> {
         try {
@@ -541,23 +555,41 @@ class GestionnaireService {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                 },
             });
-
-            const data: MessageRetourDTO = await response.json();
-
-            if (data.erreur) {
-                console.error('Erreur lors du refus de l\'entente:', data.erreur);
-                const error: any = new Error(data.erreur.message || 'Erreur lors du refus de l\'entente');
-                error.response = { data };
-                throw error;
+            
+            let data: MessageRetourDTO | null = null;
+            const raw = await response.text();
+            if (raw) {
+                try { data = JSON.parse(raw); } catch { data = null; }
             }
 
             if (!response.ok) {
-                throw new Error('Erreur lors du refus de l\'entente');
+                if (data?.erreur) {
+                    const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
+                    error.response = { data };
+                    throw error;
+                }
+                const is401 = response.status === 401;
+                const fallback: MessageRetourDTO = {
+                    message: null,
+                    erreur: {
+                        errorCode: is401 ? 'AUTHORIZATION_001' : 'ERROR_000',
+                        message: is401 ? 'Unauthorized action' : `Erreur HTTP: ${response.status}`
+                    }
+                };
+                const errMsg = fallback.erreur?.message || 'Erreur lors du refus';
+                const error: any = new Error(errMsg);
+                error.response = { data: fallback };
+                throw error;
             }
 
+            if (data?.erreur) {
+                const error: any = new Error(data.erreur.message || 'Erreur lors du refus');
+                error.response = { data };
+                throw error;
+            }
         } catch (error: any) {
             if (error.response?.data) {
                 throw error;

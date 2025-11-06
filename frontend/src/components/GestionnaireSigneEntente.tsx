@@ -42,21 +42,27 @@ const GestionnaireSigneEntente = () => {
         }
 
         loadEntentes().then();
-    }, [navigate]);
+    }, [navigate, token]);
 
     const loadEntentes = async () => {
         try {
             setLoading(true);
             setError('');
-            if (!token) {
-                throw new Error(t('errors.unauthorized'));
-            }
+            if (!token) throw new Error(t('errors.unauthorized'));
             const data = await gestionnaireService.getEntentesPretes(token);
             console.log('Ententes prêtes chargées:', data);
             setEntentes(data);
         } catch (err: any) {
             console.error('Erreur lors du chargement des ententes:', err);
-            setError(err.message || t('errors.loadError'));
+            const responseData = err.response?.data;
+            if (responseData?.erreur) {
+                setError(t('errors.errorCode', {
+                    code: responseData.erreur.errorCode,
+                    message: responseData.erreur.message
+                }));
+            } else {
+                setError(err.message || t('errors.loadError'));
+            }
         } finally {
             setLoading(false);
         }
