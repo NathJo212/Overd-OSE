@@ -82,7 +82,9 @@
     "weeklyHours": "Heures hebdomadaires",
     "remuneration": "Rémunération",
     "description": "Description",
-    "responsibilities": "Responsabilités",
+    "responsabilitesEtudiant": "Responsabilités de l'étudiant",
+    "responsabilitesEmployeur": "Responsabilités de l'employeur",
+    "responsabilitesCollege": "Responsabilités du collège",
     "objectives": "Objectifs d'apprentissage",
     "programme": "Programme",
     "location": "Lieu"

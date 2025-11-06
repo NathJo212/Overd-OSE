@@ -84,7 +84,9 @@ export interface EntenteStageDTO {
     horaire: string;
     dureeHebdomadaire: number | null;
     remuneration: string;
-    responsabilites: string;
+    responsabilitesEtudiant: string;
+    responsabilitesEmployeur: string;
+    responsabilitesCollege: string;
     objectifs: string;
     documentPdf: string | null;
 

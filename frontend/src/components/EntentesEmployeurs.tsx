@@ -404,14 +404,26 @@ const EntentesEmployeurs = () => {
                             </div>
 
                             {/* Responsabilités */}
-                            <div>
-                                <h4 className="font-semibold text-gray-900 mb-2">
-                                    {t("ententesemployeurs:modal.responsibilities")}
-                                </h4>
-                                <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">
-                                    {selectedEntente.responsabilites}
-                                </p>
-                            </div>
+                            {(selectedEntente as any).responsabilitesEtudiant && (
+                                <div>
+                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.responsabilitesEtudiant')}</h4>
+                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{(selectedEntente as any).responsabilitesEtudiant}</p>
+                                </div>
+                            )}
+
+                            {(selectedEntente as any).responsabilitesEmployeur && (
+                                <div>
+                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.responsabilitesEmployeur')}</h4>
+                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{(selectedEntente as any).responsabilitesEmployeur}</p>
+                                </div>
+                            )}
+
+                            {(selectedEntente as any).responsabilitesCollege && (
+                                <div>
+                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.responsabilitesCollege')}</h4>
+                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{(selectedEntente as any).responsabilitesCollege}</p>
+                                </div>
+                            )}
 
                             {/* Objectifs */}
                             <div>

@@ -82,7 +82,9 @@
     "weeklyHours": "Hours per week",
     "remuneration": "Remuneration",
     "description": "Description",
-    "responsibilities": "Responsibilities",
+    "responsabilitesEtudiant": "Student responsibilities",
+    "responsabilitesEmployeur": "Employer responsibilities",
+    "responsabilitesCollege": "College responsibilities",
     "objectives": "Learning objectives",
     "programme": "Program",
     "location": "Location"

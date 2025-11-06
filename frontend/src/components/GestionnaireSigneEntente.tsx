@@ -407,10 +407,22 @@ const GestionnaireSigneEntente = () => {
                                             <p className="text-gray-700">{selectedEntente.description}</p>
                                         </div>
                                     )}
-                                    {selectedEntente.responsabilites && (
+                                    {(selectedEntente as any).responsabilitesEtudiant && (
                                         <div>
-                                            <p className="text-sm text-gray-600 mb-1">{t('fields.responsibilities')}</p>
-                                            <p className="text-gray-700">{selectedEntente.responsabilites}</p>
+                                            <p className="text-sm text-gray-600 mb-1">{t('modal.responsabilitesEtudiant')}</p>
+                                            <p className="text-gray-700">{(selectedEntente as any).responsabilitesEtudiant}</p>
+                                        </div>
+                                    )}
+                                    {(selectedEntente as any).responsabilitesEmployeur && (
+                                        <div>
+                                            <p className="text-sm text-gray-600 mb-1">{t('modal.responsabilitesEmployeur')}</p>
+                                            <p className="text-gray-700">{(selectedEntente as any).responsabilitesEmployeur}</p>
+                                        </div>
+                                    )}
+                                    {(selectedEntente as any).responsabilitesCollege && (
+                                        <div>
+                                            <p className="text-sm text-gray-600 mb-1">{t('modal.responsabilitesCollege')}</p>
+                                            <p className="text-gray-700">{(selectedEntente as any).responsabilitesCollege}</p>
                                         </div>
                                     )}
                                     {selectedEntente.objectifs && (
@@ -438,6 +450,13 @@ const GestionnaireSigneEntente = () => {
                             >
                                 <FileSignature className="w-5 h-5" />
                                 {t('buttons.sign')}
+                            </button>
+                            <button
+                                onClick={() => handleRefuseClick(selectedEntente)}
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                            >
+                                <XCircle className="w-4 h-4" />
+                                {t('buttons.refuse')}
                             </button>
                         </div>
                     </div>
