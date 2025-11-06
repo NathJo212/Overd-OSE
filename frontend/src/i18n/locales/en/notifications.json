@@ -6,5 +6,7 @@
   "view": "View",
   "read": "Read",
   "viewAll": "View all notifications",
-  "offre.approuve": "New offer: {{param}}"
+  "offre.approuve": "New offer: {{param}}",
+  "candidature.nouvelle": "{{param, candidature}}",
+  "candidature.acceptee.par.etudiant": "{{param, candidatureAccepted}}"
 }

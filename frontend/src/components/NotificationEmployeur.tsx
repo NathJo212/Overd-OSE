@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Bell, X, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import etudiantService, { type NotificationDTO } from '../services/EtudiantService';
+import employeurService, { type NotificationDTO } from '../services/EmployeurService';
 
-const NotificationEtudiant = () => {
+const NotificationEmployeur = () => {
     const { t } = useTranslation('notifications');
     const [open, setOpen] = useState(false);
     const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
@@ -15,7 +15,7 @@ const NotificationEtudiant = () => {
     const load = async () => {
         setLoading(true);
         try {
-            const notes = await etudiantService.getNotifications();
+            const notes = await employeurService.getNotifications();
             // ne garder que les non lues
             setNotifications((notes || []).filter((n: NotificationDTO) => !n.lu));
         } catch (e: any) {
@@ -41,7 +41,7 @@ const NotificationEtudiant = () => {
         setNotifications(prev => prev.filter(n => n.id !== id));
 
         try {
-            await etudiantService.marquerNotificationLu(id, true);
+            await employeurService.marquerNotificationLu(id, true);
         } catch (e) {
             console.warn('Erreur markAsRead, rechargement des notifications:', e);
             await load();
@@ -68,11 +68,6 @@ const NotificationEtudiant = () => {
                 ? t(key, { ...(params as Record<string, any>), defaultValue: '' })
                 : t(key, { param: params || '', defaultValue: '' });
             if (translation && translation !== '') return translation;
-        }
-
-        // fallback : si le backend a mis messageParam = titre, afficher "Nouvelle offre : {titre}"
-        if (typeof params === 'string' && params.trim() !== '') {
-            return `${t('nouvelleOffre', { defaultValue: 'Nouvelle offre' })} : ${params}`;
         }
 
         return '';
@@ -176,4 +171,4 @@ const NotificationEtudiant = () => {
     );
 };
 
-export default NotificationEtudiant;
+export default NotificationEmployeur;

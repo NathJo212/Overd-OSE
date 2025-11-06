@@ -730,7 +730,7 @@ class EmployeurControllerTest {
                 .andExpect(jsonPath("$.message").doesNotExist())
                 .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.CANDIDATURE_ALREADY_VERIFIED.getCode()));
     }
-/*
+
     @Test
     @DisplayName("GET /OSEemployeur/notifications retourne 200 et liste de notifications")
     void getNotifications_success_returnsOkAndList() throws Exception {
@@ -840,7 +840,7 @@ class EmployeurControllerTest {
                 .andExpect(jsonPath("$.message").doesNotExist())
                 .andExpect(jsonPath("$.erreur.errorCode").value(ErrorCode.UNKNOWN_ERROR.getCode()));
     }
-*/
+
     @Test
     @DisplayName("GET /OSEemployeur/offres-approuvees retourne 200 et liste d'offres")
     void getOffresApprouvees_success_returnsOkAndList() throws Exception {

@@ -100,7 +100,7 @@ public class EtudiantServiceTest {
         n.setLu(false);
         n.setDateCreation(LocalDateTime.now());
 
-        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etu)).thenReturn(List.of(n));
+        when(notificationRepository.findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(etu)).thenReturn(List.of(n));
 
         // Act
         var dtos = etudiantService.getNotificationsPourEtudiantConnecte();
@@ -145,7 +145,7 @@ public class EtudiantServiceTest {
         n.setDateCreation(LocalDateTime.now());
 
         // Le dépôt ne doit pas retourner la notification de l'autre étudiant pour 'etu'
-        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etu)).thenReturn(Collections.emptyList());
+        when(notificationRepository.findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(etu)).thenReturn(Collections.emptyList());
 
         // Act
         var dtos = etudiantService.getNotificationsPourEtudiantConnecte();

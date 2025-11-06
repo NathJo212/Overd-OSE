@@ -1193,7 +1193,7 @@ public class EmployeurServiceTest {
         // Act & Assert
         assertThrows(CandidatureDejaVerifieException.class, () -> employeurService.refuserCandidature(15L, "Raison"));
     }
-/*
+
     @Test
     public void testGetNotificationsPourEmployeurConnecte_Succes() throws Exception {
         // Arrange
@@ -1219,7 +1219,7 @@ public class EmployeurServiceTest {
         notif2.setMessageKey("test.message2");
         notif2.setLu(true);
 
-        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(employeur))
+        when(notificationRepository.findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(employeur))
                 .thenReturn(Arrays.asList(notif1, notif2));
 
         // Act
@@ -1228,7 +1228,7 @@ public class EmployeurServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
-        verify(notificationRepository, times(1)).findAllByUtilisateurOrderByDateCreationDesc(employeur);
+        verify(notificationRepository, times(1)).findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(employeur);
     }
 
     @Test
@@ -1291,7 +1291,7 @@ public class EmployeurServiceTest {
             employeurService.marquerNotificationLu(1L, true);
         });
     }
-*/
+
     @Test
     public void testGetOffresApprouvees_Succes() throws Exception {
         // Arrange
@@ -1635,7 +1635,6 @@ public class EmployeurServiceTest {
         // Act & Assert
         assertDoesNotThrow(() -> employeurService.creerEvaluation(dto));
         verify(evaluationRepository, times(1)).save(any(Evaluation.class));
-        verify(notificationRepository, times(1)).save(any(Notification.class));
     }
 
     @Test

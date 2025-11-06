@@ -154,6 +154,24 @@ public class EtudiantService {
 
         Candidature candidature = new Candidature(etudiant, offre, lettreMotivationChiffree);
         candidature = candidatureRepository.save(candidature);
+        try {
+            if (offre.getEmployeur() != null) {
+                Utilisateur employeur = offre.getEmployeur();
+                Notification notif = new Notification(employeur);
+                notif.setMessageKey("candidature.nouvelle");
+                String nomEtudiant = (etudiant.getPrenom() != null ? etudiant.getPrenom() : "");
+                if (etudiant.getNom() != null && !etudiant.getNom().isEmpty()) {
+                    nomEtudiant += " " + etudiant.getNom();
+                }
+                String messageParam = nomEtudiant + "||" + (offre.getTitre() != null ? offre.getTitre() : "Offre");
+                notif.setMessageParam(messageParam);
+                notif.setLu(false);
+                notif.setDateCreation(LocalDateTime.now());
+                notificationRepository.save(notif);
+            }
+        } catch (Exception ex) {
+            System.err.println("Erreur lors de la création de la notification employeur: " + ex.getMessage());
+        }
 
         return new CandidatureDTO().toDTO(candidature);
     }
@@ -271,18 +289,18 @@ public class EtudiantService {
     @Transactional
     public List<NotificationDTO> getNotificationsPourEtudiantConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Etudiant etudiant = getEtudiantConnecte();
-        List<Notification> notes = notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(etudiant);
+        List<Notification> notes = notificationRepository.findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(etudiant);
         return notes.stream()
                     .map(n -> new NotificationDTO(n.getId(), n.getMessageKey(), n.getMessageParam(), n.isLu(), n.getDateCreation()))
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public NotificationDTO marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public NotificationDTO marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, NotificationPasTrouveException {
         Etudiant etudiant = getEtudiantConnecte();
         Notification notif;
         try {
-            notif = notificationRepository.findById(notificationId).orElseThrow(() -> new Exception("Notification non trouvée"));
+            notif = notificationRepository.findById(notificationId).orElseThrow(NotificationPasTrouveException::new);
         } catch (Exception e) {
             throw new ActionNonAutoriseeException();
         }
@@ -313,6 +331,26 @@ public class EtudiantService {
 
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT);
         candidatureRepository.save(candidature);
+
+        try {
+            Offre offre = candidature.getOffre();
+            if (offre != null && offre.getEmployeur() != null) {
+                Utilisateur employeur = offre.getEmployeur();
+                Notification notif = new Notification(employeur);
+                notif.setMessageKey("candidature.acceptee.par.etudiant");
+                String nomEtudiant = (etudiant.getPrenom() != null ? etudiant.getPrenom() : "");
+                if (etudiant.getNom() != null && !etudiant.getNom().isEmpty()) {
+                    nomEtudiant += " " + etudiant.getNom();
+                }
+                String messageParam = nomEtudiant + "||" + (offre.getTitre() != null ? offre.getTitre() : "Offre");
+                notif.setMessageParam(messageParam);
+                notif.setLu(false);
+                notif.setDateCreation(LocalDateTime.now());
+                notificationRepository.save(notif);
+            }
+        } catch (Exception ex) {
+            System.err.println("Erreur lors de la création de la notification employeur: " + ex.getMessage());
+        }
     }
 
     @Transactional

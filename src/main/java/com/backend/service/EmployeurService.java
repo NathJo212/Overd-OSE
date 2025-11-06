@@ -18,6 +18,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import com.backend.modele.Etudiant;
 
 @Service
@@ -328,41 +330,34 @@ public class EmployeurService {
         candidatureRepository.save(candidature);
     }
 
-    /*
     @Transactional
     public List<NotificationDTO> getNotificationsPourEmployeurConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
-
-        List<Notification> notifications = notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(employeur);
-
-        List<NotificationDTO> notificationDTOs = new ArrayList<>();
-        for (Notification notification : notifications) {
-            notificationDTOs.add(new NotificationDTO(
-                notification.getId(),
-                notification.getMessageKey(),
-                notification.getMessageParam(),
-                notification.isLu(),
-                notification.getDateCreation()
-            ));
-        }
-        return notificationDTOs;
+        List<Notification> notes = notificationRepository.findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(employeur);
+        return notes.stream()
+                .map(n -> new NotificationDTO(n.getId(), n.getMessageKey(), n.getMessageParam(), n.isLu(), n.getDateCreation()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public void marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public NotificationDTO marquerNotificationLu(Long notificationId, boolean lu) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, NotificationPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
-
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("Notification not found"));
-
-        if (!notification.getUtilisateur().getId().equals(employeur.getId())) {
+        Notification notif;
+        try {
+            notif = notificationRepository.findById(notificationId).orElseThrow(NotificationPasTrouveException::new);
+        } catch (Exception e) {
             throw new ActionNonAutoriseeException();
         }
+        if (notif.getUtilisateur() == null || !notif.getUtilisateur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+        notif.setLu(lu);
+        notificationRepository.save(notif);
 
-        notification.setLu(lu);
-        notificationRepository.save(notification);
+        return new NotificationDTO(notif.getId(), notif.getMessageKey(), notif.getMessageParam(), notif.isLu(), notif.getDateCreation());
     }
-*/
+
+
     @Transactional
     public List<OffreDTO> getOffresApprouvees() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
