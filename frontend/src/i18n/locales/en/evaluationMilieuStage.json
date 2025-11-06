@@ -1,0 +1,64 @@
+{
+  "title": "Internship Workplace Evaluation",
+  "createEvaluation": "Create Evaluation",
+  "myEvaluations": "My Evaluations",
+  "noEvaluations": "No evaluations available",
+  "createNew": "Create a new evaluation",
+
+  "form": {
+    "title": "New Internship Workplace Evaluation",
+    "selectEntente": "Select an internship agreement",
+    "selectPlaceholder": "Choose an agreement...",
+    "qualiteEncadrement": "Quality of supervision",
+    "qualiteEncadrementPlaceholder": "Describe the quality of supervision provided by the company supervisor...",
+    "pertinenceMissions": "Relevance of missions and tasks assigned",
+    "pertinenceMissionsPlaceholder": "Evaluate the relevance of missions assigned to the student in relation to their study program...",
+    "respectHoraires": "Respect of schedules and agreed conditions",
+    "respectHorairesPlaceholder": "Comment on the respect of work schedules and conditions agreed upon in the agreement...",
+    "communication": "Communication and supervisor availability",
+    "communicationPlaceholder": "Evaluate the communication and availability of the company supervisor...",
+    "commentaires": "Comments and suggestions for improvement",
+    "commentairesPlaceholder": "Provide constructive comments and suggestions to improve the internship experience...",
+    "submit": "Submit evaluation",
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "required": "This field is required"
+  },
+
+  "list": {
+    "title": "Evaluations List",
+    "student": "Student",
+    "company": "Company",
+    "date": "Evaluation date",
+    "actions": "Actions",
+    "view": "View",
+    "downloadPdf": "Download PDF",
+    "noData": "No evaluations found"
+  },
+
+  "details": {
+    "title": "Evaluation Details",
+    "studentInfo": "Student information",
+    "companyInfo": "Company information",
+    "evaluationInfo": "Evaluation information",
+    "evaluatedBy": "Evaluated by",
+    "evaluationDate": "Evaluation date",
+    "close": "Close"
+  },
+
+  "messages": {
+    "success": "Evaluation created successfully",
+    "error": "Error creating evaluation",
+    "loadError": "Error loading evaluations",
+    "pdfError": "Error downloading PDF",
+    "noEntentes": "No signed internship agreements available",
+    "alreadyEvaluated": "This agreement has already been evaluated",
+    "unauthorized": "You are not authorized to perform this action",
+    "ententeNotFinalized": "The agreement must be signed before it can be evaluated"
+  },
+
+  "status": {
+    "loading": "Loading...",
+    "noEntente": "No agreement selected"
+  }
+}

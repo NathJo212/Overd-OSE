@@ -8,5 +8,6 @@
   "viewAll": "Voir toutes les notifications",
   "offre.approuve": "Nouvelle offre : {{param}}",
   "candidature.nouvelle": "{{param, candidature}}",
-  "candidature.acceptee.par.etudiant": "{{param, candidatureAccepted}}"
+  "candidature.acceptee.par.etudiant": "{{param, candidatureAccepted}}",
+  "evaluation.milieu.stage.creee": "Nouvelle évaluation du milieu de stage pour {{param}}"
 }

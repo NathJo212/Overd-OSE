@@ -69,6 +69,35 @@ export interface EntenteStageDTO {
 
 export type StatutStageDTO = 'PAS_COMMENCE' | 'EN_COURS' | 'TERMINE';
 
+export interface EvaluationMilieuStageDTO {
+    id: number;
+    ententeId: number;
+    professeurId: number;
+    employeurId: number;
+    etudiantId: number;
+    nomProfesseur: string;
+    prenomProfesseur: string;
+    nomEntreprise: string;
+    nomEtudiant: string;
+    prenomEtudiant: string;
+    qualiteEncadrement: string;
+    pertinenceMissions: string;
+    respectHorairesConditions: string;
+    communicationDisponibilite: string;
+    commentairesAmelioration: string;
+    pdfBase64?: string;
+    dateEvaluation: string;
+}
+
+export interface CreerEvaluationMilieuStageDTO {
+    ententeId: number;
+    qualiteEncadrement: string;
+    pertinenceMissions: string;
+    respectHorairesConditions: string;
+    communicationDisponibilite: string;
+    commentairesAmelioration: string;
+}
+
 class ProfesseurService {
     private readonly baseUrl: string;
 
@@ -272,6 +301,115 @@ class ProfesseurService {
 
         } catch (error: any) {
             console.error('Erreur lors de la récupération du statut:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Crée une évaluation du milieu de stage
+     * @param data - Les données de l'évaluation
+     * @returns Promise void
+     */
+    async creerEvaluationMilieuStage(data: CreerEvaluationMilieuStageDTO): Promise<void> {
+        try {
+            const token = this.getToken();
+            const response = await fetch(`${this.baseUrl}/evaluation-milieu-stage`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                if (errorData.error) {
+                    throw new Error(errorData.error.message || 'Erreur lors de la création de l\'évaluation');
+                }
+                throw new Error('Erreur lors de la création de l\'évaluation');
+            }
+        } catch (error: any) {
+            console.error('Erreur lors de la création de l\'évaluation:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Récupère toutes les évaluations du milieu de stage du professeur
+     * @returns Promise avec la liste des évaluations
+     */
+    async getEvaluationsMilieuStage(): Promise<EvaluationMilieuStageDTO[]> {
+        try {
+            const token = this.getToken();
+            const response = await fetch(`${this.baseUrl}/evaluations-milieu-stage`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des évaluations');
+            }
+
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération des évaluations:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Récupère une évaluation spécifique
+     * @param evaluationId - L'ID de l'évaluation
+     * @returns Promise avec l'évaluation
+     */
+    async getEvaluationMilieuStage(evaluationId: number): Promise<EvaluationMilieuStageDTO> {
+        try {
+            const token = this.getToken();
+            const response = await fetch(`${this.baseUrl}/evaluations-milieu-stage/${evaluationId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération de l\'évaluation');
+            }
+
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération de l\'évaluation:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Télécharge le PDF d'une évaluation
+     * @param evaluationId - L'ID de l'évaluation
+     * @returns Promise avec le Blob du PDF
+     */
+    async getEvaluationMilieuStagePdf(evaluationId: number): Promise<Blob> {
+        try {
+            const token = this.getToken();
+            const response = await fetch(`${this.baseUrl}/evaluations-milieu-stage/${evaluationId}/pdf`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du téléchargement du PDF');
+            }
+
+            return await response.blob();
+        } catch (error: any) {
+            console.error('Erreur lors du téléchargement du PDF:', error);
             throw error;
         }
     }

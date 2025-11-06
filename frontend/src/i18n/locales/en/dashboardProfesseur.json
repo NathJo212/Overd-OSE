@@ -1,6 +1,12 @@
 {
   "title": "Professor Dashboard",
   "subtitle": "Manage your students and track their progress",
+  "managementButton": {
+    "accessTo": "Access to",
+    "title": "Complete Management",
+    "subtitle": "Evaluations • CVs • Actions",
+    "clickHere": "Click here"
+  },
   "studentList": {
     "title": "My Students",
     "noStudents": "No students assigned at the moment",
@@ -11,10 +17,6 @@
     "cv": {
       "noCV": "No Resume",
       "view": "View Resume"
-    },
-    "actions": {
-      "candidatures": "Candidatures",
-      "ententes": "Internship Agreements"
     }
   },
   "candidatures": {

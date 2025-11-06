@@ -6,6 +6,7 @@ import {
     Briefcase,
     Calendar,
     CheckCircle,
+    ClipboardList,
     Clock,
     FileText,
     FileX,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import {
     type CandidatureDTO,
+    type CreerEvaluationMilieuStageDTO,
     type EntenteStageDTO,
     type EtudiantDTO,
     professeurService,
@@ -25,6 +27,7 @@ import {
 } from "../services/ProfesseurService";
 import NavBar from "./NavBar.tsx";
 import {useTranslation} from "react-i18next";
+import * as React from "react";
 
 const DashboardProfesseur = () => {
     const { t} = useTranslation(["dashboardProfesseur", "programmes"]);
@@ -33,18 +36,31 @@ const DashboardProfesseur = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
     const [professorName, setProfessorName] = useState("");
-    const [downloadingCV, setDownloadingCV] = useState<number | null>(null);
     const [downloadingLettre, setDownloadingLettre] = useState<number | null>(null);
     const [, setSelectedStudent] = useState<number | null>(null);
     const [candidatures, setCandidatures] = useState<CandidatureDTO[]>([]);
     const [ententes, setEntentes] = useState<EntenteStageDTO[]>([]);
-    const [loadingCandidatures, setLoadingCandidatures] = useState(false);
-    const [loadingEntentes, setLoadingEntentes] = useState(false);
-    const [viewMode, setViewMode] = useState<'candidatures' | 'ententes' | null>(null);
+    const [loadingCandidatures] = useState(false);
+    const [loadingEntentes] = useState(false);
+    const [viewMode, setViewMode] = useState<'candidatures' | 'ententes' | 'evaluation' | null>(null);
     const [statutsStage, setStatutsStage] = useState<Record<number, StatutStageDTO>>({});
     const token = sessionStorage.getItem("authToken") || "";
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const [pdfTitle, setPdfTitle] = useState<string>("");
+
+    // Evaluation states
+    const [selectedEtudiant, setSelectedEtudiant] = useState<EtudiantDTO | null>(null);
+    const [ententesDisponibles, setEntentesDisponibles] = useState<EntenteStageDTO[]>([]);
+    const [loadingEntentesDisponibles] = useState(false);
+    const [submittingEvaluation, setSubmittingEvaluation] = useState(false);
+    const [evaluationForm, setEvaluationForm] = useState<CreerEvaluationMilieuStageDTO>({
+        ententeId: 0,
+        qualiteEncadrement: "",
+        pertinenceMissions: "",
+        respectHorairesConditions: "",
+        communicationDisponibilite: "",
+        commentairesAmelioration: ""
+    });
 
     const chargerEtudiants = async () => {
         try {
@@ -85,78 +101,8 @@ const DashboardProfesseur = () => {
             return;
         }
 
-        chargerEtudiants();
+        chargerEtudiants().then();
     }, [navigate, token, t]);
-
-    const handleViewCV = async (etudiant: EtudiantDTO) => {
-        if (!etudiant.id) return;
-
-        try {
-            setDownloadingCV(etudiant.id);
-            const blob = await professeurService.getCV(etudiant.id, token);
-            const url = window.URL.createObjectURL(blob);
-            setPdfUrl(url);
-            setPdfTitle(`CV de ${etudiant.prenom} ${etudiant.nom}`);
-        } catch (error) {
-            console.error("Erreur lors du chargement du CV:", error);
-            alert(t("dashboardProfesseur:error.downloadCVFailed"));
-        } finally {
-            setDownloadingCV(null);
-        }
-    };
-
-
-    const handleViewCandidatures = async (etudiantId: number) => {
-        setSelectedStudent(etudiantId);
-        setViewMode('candidatures');
-        setLoadingCandidatures(true);
-        try {
-            const data = await professeurService.getCandidaturesPourEtudiant(etudiantId, token);
-            console.log('Candidatures reçues:', data);
-            data.forEach(c => {
-                console.log(`Candidature ${c.id}: alettreMotivation =`, c.alettreMotivation);
-            });
-            setCandidatures(data);
-        } catch (error) {
-            console.error('Erreur lors du chargement des candidatures:', error);
-            alert(t('dashboardProfesseur:error.unknown'));
-        } finally {
-            setLoadingCandidatures(false);
-        }
-    };
-
-    const handleViewEntentes = async (etudiantId: number) => {
-        setSelectedStudent(etudiantId);
-        setViewMode('ententes');
-        setLoadingEntentes(true);
-        try {
-            const data = await professeurService.getEntentesPourEtudiant(etudiantId, token);
-            setEntentes(data);
-
-            const signedEntentes = data.filter((e: EntenteStageDTO) =>
-                e.etudiantSignature === 'SIGNEE' && e.employeurSignature === 'SIGNEE'
-            );
-
-            const statuts: Record<number, StatutStageDTO> = {};
-            for (const entente of signedEntentes) {
-                try {
-                    const statut = await professeurService.getStatutStage(entente.id, token);
-                    console.log('Statut reçu pour entente', entente.id, ':', statut);
-                    statuts[entente.id] = statut;
-                } catch (err) {
-                    console.error(`Erreur chargement statut entente ${entente.id}:`, err);
-                }
-            }
-            console.log('Tous les statuts:', statuts);
-            setStatutsStage(statuts);
-        } catch (error) {
-            console.error('Erreur lors du chargement des ententes:', error);
-            alert(t('dashboardProfesseur:error.unknown'));
-        } finally {
-            setLoadingEntentes(false);
-        }
-    };
-
     const handleViewLettre = async (candidatureId: number) => {
         try {
             setDownloadingLettre(candidatureId);
@@ -179,6 +125,42 @@ const DashboardProfesseur = () => {
         setCandidatures([]);
         setEntentes([]);
         setStatutsStage({});
+        setSelectedEtudiant(null);
+        setEntentesDisponibles([]);
+        setEvaluationForm({
+            ententeId: 0,
+            qualiteEncadrement: "",
+            pertinenceMissions: "",
+            respectHorairesConditions: "",
+            communicationDisponibilite: "",
+            commentairesAmelioration: ""
+        });
+    };
+    const handleEvaluationFormChange = (field: keyof CreerEvaluationMilieuStageDTO, value: string | number) => {
+        setEvaluationForm(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSubmitEvaluation = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (evaluationForm.ententeId === 0) {
+            alert("Veuillez sélectionner une entente de stage");
+            return;
+        }
+
+        try {
+            setSubmittingEvaluation(true);
+            await professeurService.creerEvaluationMilieuStage(evaluationForm);
+
+            alert("Évaluation créée avec succès!");
+            closeModal();
+
+        } catch (error: any) {
+            console.error('Erreur lors de la création de l\'évaluation:', error);
+            alert(error.message || "Erreur lors de la création de l'évaluation");
+        } finally {
+            setSubmittingEvaluation(false);
+        }
     };
 
     const getStatutBadge = (statut: string) => {
@@ -219,30 +201,6 @@ const DashboardProfesseur = () => {
         // Try to get translation from programmes namespace
         return t(`programmes:${programCode}`, {defaultValue: programCode});
     };
-
-    const renderCVColumn = (etudiant: EtudiantDTO) => {
-        if (!etudiant.cv || etudiant.cv.length === 0) {
-            return (
-                <div className="flex items-center gap-2 text-gray-400">
-                    <FileX className="w-4 h-4" />
-                    <span className="text-sm">{t('dashboardProfesseur:studentList.cv.noCV')}</span>
-                </div>
-            );
-        }
-
-        return (
-            <button
-                onClick={() => handleViewCV(etudiant)}
-                disabled={downloadingCV === etudiant.id}
-                className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium hover:shadow-md hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                <FileText className="w-4 h-4" />
-                <span className="text-sm">{t('dashboardProfesseur:studentList.cv.view')}</span>
-            </button>
-
-        );
-    };
-
     return (
         <div className="bg-gray-50 min-h-screen">
             <NavBar />
@@ -267,6 +225,32 @@ const DashboardProfesseur = () => {
                     </div>
                 )}
 
+                {/* Bouton de gestion centré */}
+                <div className="mb-8 flex justify-center">
+                    <button
+                        onClick={() => navigate('/evaluation-milieu-stage')}
+                        className="relative bg-gradient-to-br from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 rounded-xl shadow-lg hover:shadow-2xl p-8 text-white transition-all hover:scale-105 group overflow-hidden max-w-md w-full"
+                    >
+                        {/* Effet de brillance animé */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                        <div className="relative flex flex-col items-center justify-center gap-3">
+                            <div className="bg-white/30 p-4 rounded-full group-hover:bg-white/40 transition-colors">
+                                <ClipboardList className="w-10 h-10" />
+                            </div>
+                            <div className="text-center">
+                                <p className="text-sm font-medium text-indigo-100">📋 {t('dashboardProfesseur:managementButton.accessTo')}</p>
+                                <p className="text-xl font-bold mt-1">{t('dashboardProfesseur:managementButton.title')}</p>
+                                <p className="text-xs text-indigo-200 mt-1">{t('dashboardProfesseur:managementButton.subtitle')}</p>
+                            </div>
+                            <div className="flex items-center gap-2 mt-2 text-sm font-medium">
+                                <span>{t('dashboardProfesseur:managementButton.clickHere')}</span>
+                                <span className="animate-pulse">→</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
                 <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl border border-slate-200 overflow-hidden">
                     <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                         <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -286,88 +270,61 @@ const DashboardProfesseur = () => {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full">
+                            <table className="w-full min-w-max">
                                 <thead className="bg-gradient-to-r from-blue-50 to-slate-50">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                                    <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[200px]">
                                         {t('dashboardProfesseur:studentList.student')}
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                                    <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[140px]">
                                         {t('dashboardProfesseur:studentList.program')}
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                                    <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[120px]">
                                         {t('dashboardProfesseur:studentList.session')}
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                                    <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[160px]">
                                         {t('dashboardProfesseur:studentList.contact')}
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        CV
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                                        {t('dashboardProfesseur:studentList.actions.title', 'Actions')}
                                     </th>
                                 </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                 {etudiants.map((etudiant) => (
                                     <tr key={etudiant.id} className="hover:shadow-sm hover:bg-blue-50/60 transition-all duration-200">
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-4 min-w-[200px]">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                                                     <GraduationCap className="w-5 h-5 text-blue-600" />
                                                 </div>
-                                                <div>
-                                                    <div className="font-medium text-gray-900">
+                                                <div className="min-w-0">
+                                                    <div className="font-medium text-gray-900 truncate">
                                                         {etudiant.prenom} {etudiant.nom}
                                                     </div>
-                                                    <div className="text-sm text-gray-500">{etudiant.email}</div>
+                                                    <div className="text-sm text-gray-500 truncate">{etudiant.email}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                                                    <BookOpen className="w-3 h-3" />
-                                                    {getProgramName(etudiant.progEtude)}
-                                                </span>
+                                        <td className="px-4 py-4 min-w-[140px]">
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                                <BookOpen className="w-3 h-3 flex-shrink-0" />
+                                                <span className="truncate">{getProgramName(etudiant.progEtude)}</span>
+                                            </span>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-4 min-w-[120px]">
                                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                <Calendar className="w-4 h-4" />
-                                                <span>{etudiant.session} {etudiant.annee}</span>
+                                                <Calendar className="w-4 h-4 flex-shrink-0" />
+                                                <span className="truncate">{etudiant.session} {etudiant.annee}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-4 min-w-[160px]">
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <Mail className="w-3 h-3" />
-                                                    <span className="text-xs">{etudiant.email}</span>
+                                                    <Mail className="w-3 h-3 flex-shrink-0" />
+                                                    <span className="text-xs truncate">{etudiant.email}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <Phone className="w-3 h-3" />
-                                                    <span className="text-xs">{etudiant.telephone}</span>
+                                                    <Phone className="w-3 h-3 flex-shrink-0" />
+                                                    <span className="text-xs truncate">{etudiant.telephone}</span>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {renderCVColumn(etudiant)}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => etudiant.id && handleViewCandidatures(etudiant.id)}
-                                                    className="flex items-center gap-1 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
-                                                >
-                                                    <FileText className="w-4 h-4" />
-                                                    {t('dashboardProfesseur:studentList.actions.candidatures')}
-                                                </button>
-                                                <button
-                                                    onClick={() => etudiant.id && handleViewEntentes(etudiant.id)}
-                                                    className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                                                >
-                                                    <Briefcase className="w-4 h-4" />
-                                                    {t('dashboardProfesseur:studentList.actions.ententes')}
-                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -547,6 +504,168 @@ const DashboardProfesseur = () => {
                     </div>
                 </div>
             )}
+            {/* Modal d'évaluation */}
+            {viewMode === 'evaluation' && selectedEtudiant && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex justify-between items-center">
+                            <div>
+                                <h3 className="text-2xl font-bold flex items-center gap-2">
+                                    <ClipboardList className="w-6 h-6" />
+                                    Évaluation du Milieu de Stage
+                                </h3>
+                                <p className="text-indigo-100 mt-1">
+                                    Étudiant: {selectedEtudiant.prenom} {selectedEtudiant.nom}
+                                </p>
+                            </div>
+                            <button onClick={closeModal} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto flex-1">
+                            {loadingEntentesDisponibles ? (
+                                <div className="flex justify-center items-center py-12">
+                                    <div className="h-16 w-16 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-600" />
+                                </div>
+                            ) : ententesDisponibles.length === 0 ? (
+                                <div className="text-center py-12">
+                                    <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                                    <p className="text-gray-600 text-lg">Aucune entente de stage signée disponible pour évaluation</p>
+                                    <p className="text-gray-500 mt-2">L'étudiant doit avoir une entente signée qui n'a pas encore été évaluée</p>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleSubmitEvaluation} className="space-y-6">
+                                    {/* Sélection de l'entente */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Entente de stage *
+                                        </label>
+                                        <select
+                                            value={evaluationForm.ententeId}
+                                            onChange={(e) => handleEvaluationFormChange("ententeId", Number(e.target.value))}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                            required
+                                        >
+                                            <option value={0}>Sélectionnez une entente...</option>
+                                            {ententesDisponibles.map((entente) => (
+                                                <option key={entente.id} value={entente.id}>
+                                                    {entente.titre} - {entente.employeurContact} ({entente.dateDebut} au {entente.dateFin})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Qualité de l'encadrement */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Qualité de l'encadrement *
+                                        </label>
+                                        <textarea
+                                            value={evaluationForm.qualiteEncadrement}
+                                            onChange={(e) => handleEvaluationFormChange("qualiteEncadrement", e.target.value)}
+                                            placeholder="Décrivez la qualité de l'encadrement fourni par le superviseur de l'entreprise..."
+                                            rows={4}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Pertinence des missions */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Pertinence des missions et tâches confiées *
+                                        </label>
+                                        <textarea
+                                            value={evaluationForm.pertinenceMissions}
+                                            onChange={(e) => handleEvaluationFormChange("pertinenceMissions", e.target.value)}
+                                            placeholder="Évaluez la pertinence des missions confiées à l'étudiant par rapport à son programme d'études..."
+                                            rows={4}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Respect des horaires */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Respect des horaires et conditions convenues *
+                                        </label>
+                                        <textarea
+                                            value={evaluationForm.respectHorairesConditions}
+                                            onChange={(e) => handleEvaluationFormChange("respectHorairesConditions", e.target.value)}
+                                            placeholder="Commentez sur le respect des horaires de travail et des conditions convenues dans l'entente..."
+                                            rows={4}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Communication */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Communication et disponibilité du superviseur *
+                                        </label>
+                                        <textarea
+                                            value={evaluationForm.communicationDisponibilite}
+                                            onChange={(e) => handleEvaluationFormChange("communicationDisponibilite", e.target.value)}
+                                            placeholder="Évaluez la communication et la disponibilité du superviseur de l'entreprise..."
+                                            rows={4}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Commentaires */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Commentaires et suggestions pour amélioration *
+                                        </label>
+                                        <textarea
+                                            value={evaluationForm.commentairesAmelioration}
+                                            onChange={(e) => handleEvaluationFormChange("commentairesAmelioration", e.target.value)}
+                                            placeholder="Fournissez des commentaires constructifs et des suggestions pour améliorer l'expérience de stage..."
+                                            rows={4}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Boutons */}
+                                    <div className="flex gap-4 pt-4 border-t">
+                                        <button
+                                            type="submit"
+                                            disabled={submittingEvaluation}
+                                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                                        >
+                                            {submittingEvaluation ? (
+                                                <>
+                                                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                                    Soumission en cours...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <CheckCircle className="w-5 h-5" />
+                                                    Soumettre l'évaluation
+                                                </>
+                                            )}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={closeModal}
+                                            disabled={submittingEvaluation}
+                                            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                        >
+                                            Annuler
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {pdfUrl && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
                     <div className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-gray-200">

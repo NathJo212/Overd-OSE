@@ -8,5 +8,6 @@
   "viewAll": "View all notifications",
   "offre.approuve": "New offer: {{param}}",
   "candidature.nouvelle": "{{param, candidature}}",
-  "candidature.acceptee.par.etudiant": "{{param, candidatureAccepted}}"
+  "candidature.acceptee.par.etudiant": "{{param, candidatureAccepted}}",
+  "evaluation.milieu.stage.creee": "New internship workplace evaluation for {{param}}"
 }

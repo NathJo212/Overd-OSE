@@ -1,6 +1,12 @@
 {
   "title": "Tableau de bord Professeur",
   "subtitle": "Gérez vos étudiants et suivez leurs progrès",
+  "managementButton": {
+    "accessTo": "Accéder à la",
+    "title": "Gestion Complète",
+    "subtitle": "Évaluations • CVs • Actions",
+    "clickHere": "Cliquez ici"
+  },
   "studentList": {
     "title": "Mes Étudiants",
     "noStudents": "Aucun étudiant assigné pour le moment",
@@ -11,10 +17,6 @@
     "cv": {
       "noCV": "Aucun CV",
       "view": "Regarder le CV"
-    },
-    "actions": {
-      "candidatures": "Candidatures",
-      "ententes": "Ententes de stage"
     }
   },
   "candidatures": {

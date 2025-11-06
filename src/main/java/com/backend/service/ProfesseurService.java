@@ -27,9 +27,11 @@ public class ProfesseurService {
     private final EntenteStageRepository ententeStageRepository;
     private final CandidatureRepository candidatureRepository;
     private final EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository;
+    private final NotificationRepository notificationRepository;
+    private final GestionnaireRepository gestionnaireRepository;
 
 
-    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository, EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository) {
+    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository, EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository, NotificationRepository notificationRepository, GestionnaireRepository gestionnaireRepository) {
         this.professeurRepository = professeurRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
@@ -38,6 +40,8 @@ public class ProfesseurService {
         this.ententeStageRepository = ententeStageRepository;
         this.candidatureRepository = candidatureRepository;
         this.evaluationMilieuStageParProfesseurRepository = evaluationMilieuStageParProfesseurRepository;
+        this.notificationRepository = notificationRepository;
+        this.gestionnaireRepository = gestionnaireRepository;
     }
 
     @Transactional
@@ -203,6 +207,35 @@ public class ProfesseurService {
         evaluation.setCommentairesAmelioration(dto.getCommentairesAmelioration());
 
         evaluationMilieuStageParProfesseurRepository.save(evaluation);
+
+        // Envoyer des notifications au gestionnaire et à l'employeur
+        try {
+            // Notification pour l'employeur
+            if (entente.getEmployeur() != null) {
+                Notification notifEmployeur = new Notification();
+                notifEmployeur.setUtilisateur(entente.getEmployeur());
+                notifEmployeur.setMessageKey("evaluation.milieu.stage.creee");
+                String nomEtudiant = (entente.getEtudiant().getPrenom() != null ? entente.getEtudiant().getPrenom() : "")
+                        + " " + (entente.getEtudiant().getNom() != null ? entente.getEtudiant().getNom() : "");
+                notifEmployeur.setMessageParam(nomEtudiant.trim());
+                notificationRepository.save(notifEmployeur);
+            }
+
+            // Notifications pour tous les gestionnaires
+            List<GestionnaireStage> gestionnaires = (List<GestionnaireStage>) gestionnaireRepository.findAll();
+            for (GestionnaireStage gestionnaire : gestionnaires) {
+                Notification notifGestionnaire = new Notification();
+                notifGestionnaire.setUtilisateur(gestionnaire);
+                notifGestionnaire.setMessageKey("evaluation.milieu.stage.creee");
+                String nomEtudiant = (entente.getEtudiant().getPrenom() != null ? entente.getEtudiant().getPrenom() : "")
+                        + " " + (entente.getEtudiant().getNom() != null ? entente.getEtudiant().getNom() : "");
+                notifGestionnaire.setMessageParam(nomEtudiant.trim());
+                notificationRepository.save(notifGestionnaire);
+            }
+        } catch (Exception e) {
+            // Log l'erreur mais ne pas empêcher la création de l'évaluation
+            System.err.println("Erreur lors de l'envoi des notifications pour l'évaluation: " + e.getMessage());
+        }
     }
 
     @Transactional
