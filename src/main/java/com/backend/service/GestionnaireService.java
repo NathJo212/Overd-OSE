@@ -239,6 +239,7 @@ public class GestionnaireService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void creerEntente(EntenteStageDTO dto) throws ActionNonAutoriseeException, OffreNonExistantException, UtilisateurPasTrouveException, CandidatureNonTrouveeException, com.backend.Exceptions.EntenteDejaExistanteException, StatutCandidatureInvalideException {
         verifierGestionnaireConnecte();
 
