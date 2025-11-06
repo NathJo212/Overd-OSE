@@ -391,6 +391,8 @@ public class EtudiantService {
 
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
 
+        entente.setDateSignatureEtudiant(LocalDate.now());
+
         ententeStageRepository.save(entente);
     }
 

@@ -6,6 +6,7 @@ import com.backend.modele.*;
 import com.backend.persistence.*;
 import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
+import com.backend.util.CreateEntenteForm;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +18,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -268,19 +271,14 @@ public class GestionnaireService {
         }
 
 
-        EntenteStage entente = new EntenteStage(etudiant, employeur, offre);
+      EntenteStage entente = new EntenteStage(
+                etudiant,
+                employeur,
+                offre
+        );
 
         entente.setDateCreation(LocalDateTime.now());
         ententeStageRepository.save(entente);
-
-        // PDF
-        try {
-            byte[] pdfBytes = EntentePdfGenerator.generatePdfBytes(entente);
-            entente.setDocumentPdf(pdfBytes);
-            ententeStageRepository.save(entente);
-        } catch (IOException ioe) {
-            System.out.println("Erreur");
-        }
 
         try {
             Notification notifEtudiant = new Notification();
@@ -317,24 +315,23 @@ public class GestionnaireService {
         entente.setHoraire(dto.getHoraire());
         entente.setDureeHebdomadaire(dto.getDureeHebdomadaire());
         entente.setRemuneration(dto.getRemuneration());
-        entente.setResponsabilites(dto.getResponsabilites());
+        entente.setResponsabilitesEtudiant(dto.getResponsabilitesEtudiant());
+        entente.setResponsabilitesEmployeur(dto.getResponsabilitesEmployeur());
+        entente.setResponsabilitesCollege(dto.getResponsabilitesCollege());
         entente.setObjectifs(dto.getObjectifs());
 
         // reset signatures if modification before final signature
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+        // clear signature dates and previously generated document
+        entente.setDateSignatureEtudiant(null);
+        entente.setDateSignatureEmployeur(null);
+        entente.setDateSignatureGestionnaire(null);
+        entente.setPdfBase64(null);
+        entente.setDateModification(LocalDateTime.now());
 
         ententeStageRepository.save(entente);
-
-        // PDF et save
-        try {
-            byte[] pdfBytes = EntentePdfGenerator.generatePdfBytes(entente);
-            entente.setDocumentPdf(pdfBytes);
-            ententeStageRepository.save(entente);
-        } catch (IOException ioe) {
-            System.out.println("Erreur");
-        }
 
         // notifications
         try {
@@ -383,10 +380,13 @@ public class GestionnaireService {
         verifierGestionnaireConnecte();
         EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
 
-        if (entente.getDocumentPdf() != null && entente.getDocumentPdf().length > 0) {
-            return entente.getDocumentPdf();
+        if (entente.getPdfBase64() != null && !entente.getPdfBase64().isEmpty()) {
+            try {
+                return Base64.getDecoder().decode(entente.getPdfBase64());
+            } catch (IllegalArgumentException e) {
+                // invalid base64
+            }
         }
-
         throw new EntenteDocumentNonTrouveeException();
     }
 
@@ -422,6 +422,85 @@ public class GestionnaireService {
         List<Professeur> profs = professeurRepository.findAll();
         return profs.stream()
                 .map(ProfesseurDTO::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    public void signerEntente(Long ententeId)
+            throws ActionNonAutoriseeException, EntenteNonTrouveException, StatutEntenteInvalideException {
+        verifierGestionnaireConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(EntenteNonTrouveException::new);
+
+        if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.SIGNEE
+                || entente.getEmployeurSignature() != EntenteStage.SignatureStatus.SIGNEE) {
+            throw new StatutEntenteInvalideException();
+        }
+
+        if (entente.getStatut() == EntenteStage.StatutEntente.SIGNEE
+                || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
+            throw new StatutEntenteInvalideException();
+        }
+
+        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        entente.setDateSignatureGestionnaire(LocalDate.now());
+
+        // Generate and store the final PDF upon final signature
+        try {
+            generateAndStoreEntentePdf(entente);
+        } catch (IOException ioe) {
+            // Keep entente signed even if PDF generation fails; log or handle as needed
+        }
+        ententeStageRepository.save(entente);
+    }
+
+    private void generateAndStoreEntentePdf(EntenteStage entente) throws IOException {
+        String gestionnaireNom = null;
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                String email = auth.getName();
+                Optional<Utilisateur> opt = utilisateurRepository.findByEmail(email);
+                if (opt.isPresent() && opt.get() instanceof GestionnaireStage g) {
+                    gestionnaireNom = g.getPrenom() + " " + g.getNom();
+                }
+            }
+        } catch (Exception ignored) {}
+
+        // Use utils CreateEntenteForm to build the final PDF bytes
+        byte[] pdfBytes = CreateEntenteForm.generatePdfBytes(entente, gestionnaireNom);
+        entente.setPdfBase64(Base64.getEncoder().encodeToString(pdfBytes));
+    }
+
+    @Transactional
+    public void refuserEntente(Long ententeId)
+            throws ActionNonAutoriseeException, EntenteNonTrouveException, StatutEntenteInvalideException {
+        verifierGestionnaireConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(EntenteNonTrouveException::new);
+
+        if (entente.getStatut() == EntenteStage.StatutEntente.SIGNEE
+                || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
+            throw new StatutEntenteInvalideException();
+        }
+
+        entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
+        entente.setArchived(true);
+        ententeStageRepository.save(entente);
+    }
+
+    @Transactional
+    public List<EntenteStageDTO> getEntentesEnAttente() throws ActionNonAutoriseeException {
+        verifierGestionnaireConnecte();
+        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+        return ententes.stream()
+                .filter(e -> e.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE
+                        && e.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE
+                        && e.getStatut() == EntenteStage.StatutEntente.EN_ATTENTE)
+                .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
 

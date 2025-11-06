@@ -24,6 +24,7 @@ import EntentesEmployeurs from "./components/EntentesEmployeurs.tsx";
 import EmployeurEvaluationStagiaire from "./components/EmployeurEvaluationStagiaire.tsx";
 import GestionnaireAttribueEtudiant from "./components/GestionnaireAttribueEtudiant.tsx";
 import ProfesseurDashboard from './components/DashboardProfesseur.tsx'
+import GestionnaireSigneEntente from "./components/GestionnaireSigneEntente.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -46,6 +47,7 @@ const router = createBrowserRouter(
             <Route path="mes-ententes" element={<EntentesEmployeurs/>}/>
             <Route path="evaluation-stagiaire" element={<EmployeurEvaluationStagiaire/>}/>
             <Route path="assigner-professeurs" element={<GestionnaireAttribueEtudiant/>}/>
+            <Route path="gestionnaire-signe-ententes" element={<GestionnaireSigneEntente/>}/>
             <Route path="dashboard-professeur" element={<ProfesseurDashboard/>}/>
         </Route>
     )

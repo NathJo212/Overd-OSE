@@ -318,8 +318,60 @@ public class GestionnaireControlleur {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
+    @PutMapping("/ententes/{id}/signer")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> signerEntente(@PathVariable Long id) {
+        try {
+            gestionnaireService.signerEntente(id);
+            return ResponseEntity.ok(new MessageRetourDTO("Entente signée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (EntenteNonTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (StatutEntenteInvalideException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_000", e.getMessage())));
+        }
+    }
 
+    @PutMapping("/ententes/{id}/refuser")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<MessageRetourDTO> refuserEntente(@PathVariable Long id) {
+        try {
+            gestionnaireService.refuserEntente(id);
+            return ResponseEntity.ok(new MessageRetourDTO("Entente refusée avec succès", null));
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (EntenteNonTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (StatutEntenteInvalideException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_000", e.getMessage())));
+        }
+    }
 
-
+    @GetMapping("/ententes/pretes")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EntenteStageDTO>> getEntentesPretesPourSignature() {
+        try {
+            List<EntenteStageDTO> ententes = gestionnaireService.getEntentesEnAttente();
+            return ResponseEntity.ok(ententes);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }

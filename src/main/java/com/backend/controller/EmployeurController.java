@@ -41,10 +41,23 @@ public class EmployeurController {
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> creerOffre(@RequestBody OffreDTO offreDTO) {
         try{
-            employeurService.creerOffreDeStage(offreDTO.getAuthResponseDTO(), offreDTO.getTitre(),
-                    offreDTO.getDescription(), offreDTO.getDate_debut(), offreDTO.getDate_fin(),
-                    offreDTO.getProgEtude(), offreDTO.getLieuStage(), offreDTO.getRemuneration(),
-                    offreDTO.getDateLimite(), offreDTO.getHoraire(), offreDTO.getDureeHebdomadaire(), offreDTO.getResponsabilites(), offreDTO.getObjectifs());
+            employeurService.creerOffreDeStage(
+                    offreDTO.getAuthResponseDTO(),
+                    offreDTO.getTitre(),
+                    offreDTO.getDescription(),
+                    offreDTO.getDate_debut(),
+                    offreDTO.getDate_fin(),
+                    offreDTO.getProgEtude(),
+                    offreDTO.getLieuStage(),
+                    offreDTO.getRemuneration(),
+                    offreDTO.getDateLimite(),
+                    offreDTO.getHoraire(),
+                    offreDTO.getDureeHebdomadaire(),
+                    offreDTO.getResponsabilitesEtudiant(),
+                    offreDTO.getResponsabilitesEmployeur(),
+                    offreDTO.getResponsabiliteCollege(),
+                    offreDTO.getObjectifs()
+            );
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Offre de stage créée avec succès", null));
         } catch (ActionNonAutoriseeException e){
@@ -407,9 +420,9 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (EvaluationDejaExistanteException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (EntenteNonFinaliseeException e) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

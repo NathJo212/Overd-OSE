@@ -22,7 +22,9 @@ public class OffreDTO {
     private String remuneration;
     private String horaire;
     private Integer dureeHebdomadaire;
-    private String responsabilites;
+    private String responsabilitesEtudiant;
+    private String responsabilitesEmployeur;
+    private String responsabiliteCollege;
     private String objectifs;
     private LocalDate dateLimite;
     private String messageRefus;
@@ -42,7 +44,9 @@ public class OffreDTO {
         dto.setRemuneration(offre.getRemuneration());
         dto.setHoraire(offre.getHoraire());
         dto.setDureeHebdomadaire(offre.getDureeHebdomadaire());
-        dto.setResponsabilites(offre.getResponsabilites());
+        dto.setResponsabilitesEtudiant(offre.getResponsabilitesEtudiant());
+        dto.setResponsabilitesEmployeur(offre.getResponsabilitesEmployeur());
+        dto.setResponsabiliteCollege(offre.getResponsabilitesCollege());
         dto.setObjectifs(offre.getObjectifs());
         dto.setDateLimite(offre.getDateLimite());
         dto.setMessageRefus(offre.getMessageRefus());

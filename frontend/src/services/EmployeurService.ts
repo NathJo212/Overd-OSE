@@ -20,6 +20,13 @@ export interface OffreStageDTO {
     lieuStage: string;
     remuneration: string;
     dateLimite: string;
+    // Optional extended fields supported by backend
+    horaire?: string;
+    dureeHebdomadaire?: number | string;
+    responsabilitesEtudiant?: string;
+    responsabilitesEmployeur?: string;
+    responsabilitesCollege?: string;
+    objectifs?: string;
     utilisateur: { token: string };
 }
 
@@ -291,7 +298,14 @@ class EmployeurService {
     }
 
     async creerOffreDeStage(offre: OffreStageDTO): Promise<MessageRetour> {
-        const offreDTO = {
+        const parsedHeures =
+            offre.dureeHebdomadaire === undefined || offre.dureeHebdomadaire === null || offre.dureeHebdomadaire === ""
+                ? undefined
+                : typeof offre.dureeHebdomadaire === "string"
+                    ? parseInt(offre.dureeHebdomadaire, 10)
+                    : offre.dureeHebdomadaire;
+
+        const offreDTO: any = {
             authResponseDTO: { token: offre.utilisateur.token },
             titre: offre.titre,
             description: offre.description,
@@ -302,6 +316,14 @@ class EmployeurService {
             remuneration: offre.remuneration,
             dateLimite: offre.dateLimite,
         };
+
+        // Include optional fields only if provided
+        if (offre.horaire) offreDTO.horaire = offre.horaire;
+        if (parsedHeures !== undefined && !Number.isNaN(parsedHeures)) offreDTO.dureeHebdomadaire = parsedHeures;
+        if (offre.responsabilitesEtudiant) offreDTO.responsabilitesEtudiant = offre.responsabilitesEtudiant;
+        if (offre.responsabilitesEmployeur) offreDTO.responsabilitesEmployeur = offre.responsabilitesEmployeur;
+        if (offre.responsabilitesCollege) offreDTO.responsabiliteCollege = offre.responsabilitesCollege;
+        if (offre.objectifs) offreDTO.objectifs = offre.objectifs;
 
         try {
             const response = await fetch(`${this.baseUrl}/creerOffre`, {
@@ -1007,3 +1029,4 @@ class EmployeurService {
 
 export const employeurService = new EmployeurService();
 export default employeurService;
+
