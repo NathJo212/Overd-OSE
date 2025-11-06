@@ -180,7 +180,6 @@ const EmployeurEvaluationStagiaire = () => {
             const ententesSignees = data.filter(
                 e => e.etudiantSignature === 'SIGNEE'
                     && e.employeurSignature === 'SIGNEE'
-                    && e.gestionnaireSignature === 'SIGNEE'
                     && e.statut === 'SIGNEE'
             );
             setEntentes(ententesSignees);

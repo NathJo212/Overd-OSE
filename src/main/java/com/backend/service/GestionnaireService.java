@@ -279,22 +279,6 @@ public class GestionnaireService {
 
         entente.setDateCreation(LocalDateTime.now());
         ententeStageRepository.save(entente);
-
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(etudiant);
-            notifEtudiant.setMessageKey("entente.created");
-            notifEtudiant.setMessageParam(offre.getTitre());
-            notificationRepository.save(notifEtudiant);
-
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(employeur);
-            notifEmployeur.setMessageKey("entente.created");
-            notifEmployeur.setMessageParam(offre.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore notification errors
-        }
     }
 
     @Transactional
