@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
@@ -430,5 +430,264 @@ class ProfesseurControllerTest {
                 .andExpect(status().isInternalServerError());
 
         verify(professeurService).getStatutStage(ententeId);
+    }
+
+    // ========== Tests pour creerEvaluationMilieuStage ==========
+
+    @Test
+    @DisplayName("POST /OSEProfesseur/evaluation-milieu-stage retourne 201 lors de la création")
+    void creerEvaluationMilieuStage_success() throws Exception {
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(100L);
+        dto.setQualiteEncadrement("Excellent encadrement");
+        dto.setPertinenceMissions("Missions très pertinentes");
+        dto.setRespectHorairesConditions("Horaires respectés");
+        dto.setCommunicationDisponibilite("Communication fluide");
+        dto.setCommentairesAmelioration("Rien à améliorer");
+
+        doNothing().when(professeurService).creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+
+        mockMvc.perform(post("/OSEProfesseur/evaluation-milieu-stage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Évaluation du milieu de stage créée avec succès"));
+
+        verify(professeurService).creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+    }
+
+    @Test
+    @DisplayName("POST /OSEProfesseur/evaluation-milieu-stage retourne 403 si non autorisé")
+    void creerEvaluationMilieuStage_nonAutorise() throws Exception {
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(100L);
+
+        doThrow(new ActionNonAutoriseeException()).when(professeurService)
+                .creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+
+        mockMvc.perform(post("/OSEProfesseur/evaluation-milieu-stage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isForbidden());
+        verify(professeurService).creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+    }
+
+    @Test
+    @DisplayName("POST /OSEProfesseur/evaluation-milieu-stage retourne 404 si entente non trouvée")
+    void creerEvaluationMilieuStage_ententeNonTrouvee() throws Exception {
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(999L);
+
+        doThrow(new EntenteNonTrouveException()).when(professeurService)
+                .creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+
+        mockMvc.perform(post("/OSEProfesseur/evaluation-milieu-stage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isNotFound());
+        verify(professeurService).creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+    }
+
+    @Test
+    @DisplayName("POST /OSEProfesseur/evaluation-milieu-stage retourne 409 si évaluation déjà existante")
+    void creerEvaluationMilieuStage_evaluationDejaExistante() throws Exception {
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(100L);
+
+        doThrow(new EvaluationDejaExistanteException()).when(professeurService)
+                .creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+
+        mockMvc.perform(post("/OSEProfesseur/evaluation-milieu-stage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isConflict());
+
+        verify(professeurService).creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+    }
+
+    @Test
+    @DisplayName("POST /OSEProfesseur/evaluation-milieu-stage retourne 400 si entente non finalisée")
+    void creerEvaluationMilieuStage_ententeNonFinalisee() throws Exception {
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(100L);
+
+        doThrow(new EntenteNonFinaliseeException()).when(professeurService)
+                .creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+
+        mockMvc.perform(post("/OSEProfesseur/evaluation-milieu-stage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+
+        verify(professeurService).creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+    }
+
+    @Test
+    @DisplayName("POST /OSEProfesseur/evaluation-milieu-stage retourne 401 si utilisateur non trouvé")
+    void creerEvaluationMilieuStage_utilisateurNonTrouve() throws Exception {
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(100L);
+
+        doThrow(new UtilisateurPasTrouveException()).when(professeurService)
+                .creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+
+        mockMvc.perform(post("/OSEProfesseur/evaluation-milieu-stage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isUnauthorized());
+        verify(professeurService).creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
+    }
+
+    // ========== Tests pour getEvaluationsMilieuStage ==========
+
+    @Test
+    @DisplayName("GET /OSEProfesseur/evaluations-milieu-stage retourne 200 et liste des évaluations")
+    void getEvaluationsMilieuStage_success() throws Exception {
+        EvaluationMilieuStageDTO eval1 = new EvaluationMilieuStageDTO();
+        eval1.setId(1L);
+        eval1.setNomEntreprise("Entreprise ABC");
+
+        EvaluationMilieuStageDTO eval2 = new EvaluationMilieuStageDTO();
+        eval2.setId(2L);
+        eval2.setNomEntreprise("Entreprise XYZ");
+
+        when(professeurService.getEvaluationsMilieuStagePourProfesseur())
+                .thenReturn(Arrays.asList(eval1, eval2));
+
+        mockMvc.perform(get("/OSEProfesseur/evaluations-milieu-stage"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].id").value(2));
+
+        verify(professeurService).getEvaluationsMilieuStagePourProfesseur();
+    }
+
+    @Test
+    @DisplayName("GET /OSEProfesseur/evaluations-milieu-stage retourne 200 avec liste vide")
+    void getEvaluationsMilieuStage_listeVide() throws Exception {
+        when(professeurService.getEvaluationsMilieuStagePourProfesseur())
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/OSEProfesseur/evaluations-milieu-stage"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(professeurService).getEvaluationsMilieuStagePourProfesseur();
+    }
+
+    @Test
+    @DisplayName("GET /OSEProfesseur/evaluations-milieu-stage retourne 403 si non autorisé")
+    void getEvaluationsMilieuStage_nonAutorise() throws Exception {
+        when(professeurService.getEvaluationsMilieuStagePourProfesseur())
+                .thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEProfesseur/evaluations-milieu-stage"))
+                .andExpect(status().isForbidden());
+
+        verify(professeurService).getEvaluationsMilieuStagePourProfesseur();
+    }
+
+    // ========== Tests pour getEvaluationMilieuStageSpecifique ==========
+
+    @Test
+    @DisplayName("GET /OSEProfesseur/evaluations-milieu-stage/{id} retourne 200 et l'évaluation")
+    void getEvaluationMilieuStageSpecifique_success() throws Exception {
+        Long evaluationId = 1L;
+
+        EvaluationMilieuStageDTO evaluation = new EvaluationMilieuStageDTO();
+        evaluation.setId(evaluationId);
+        evaluation.setNomEntreprise("Entreprise ABC");
+        evaluation.setQualiteEncadrement("Excellent");
+
+        when(professeurService.getEvaluationMilieuStageSpecifique(evaluationId))
+                .thenReturn(evaluation);
+
+        mockMvc.perform(get("/OSEProfesseur/evaluations-milieu-stage/{id}", evaluationId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nomEntreprise").value("Entreprise ABC"))
+                .andExpect(jsonPath("$.qualiteEncadrement").value("Excellent"));
+
+        verify(professeurService).getEvaluationMilieuStageSpecifique(evaluationId);
+    }
+
+    @Test
+    @DisplayName("GET /OSEProfesseur/evaluations-milieu-stage/{id} retourne 403 si non autorisé")
+    void getEvaluationMilieuStageSpecifique_nonAutorise() throws Exception {
+        Long evaluationId = 1L;
+
+        when(professeurService.getEvaluationMilieuStageSpecifique(evaluationId))
+                .thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEProfesseur/evaluations-milieu-stage/{id}", evaluationId))
+                .andExpect(status().isForbidden());
+
+        verify(professeurService).getEvaluationMilieuStageSpecifique(evaluationId);
+    }
+
+    @Test
+    @DisplayName("GET /OSEProfesseur/evaluations-milieu-stage/{id} retourne 404 si évaluation non trouvée")
+    void getEvaluationMilieuStageSpecifique_nonTrouvee() throws Exception {
+        Long evaluationId = 999L;
+
+        when(professeurService.getEvaluationMilieuStageSpecifique(evaluationId))
+                .thenThrow(new RuntimeException("Évaluation non trouvée"));
+
+        mockMvc.perform(get("/OSEProfesseur/evaluations-milieu-stage/{id}", evaluationId))
+                .andExpect(status().isNotFound());
+
+        verify(professeurService).getEvaluationMilieuStageSpecifique(evaluationId);
+    }
+
+    // ========== Tests pour getEvaluationMilieuStagePdf ==========
+
+    @Test
+    @DisplayName("GET /OSEProfesseur/evaluations-milieu-stage/{id}/pdf retourne 200 et le PDF")
+    void getEvaluationMilieuStagePdf_success() throws Exception {
+        Long evaluationId = 1L;
+        byte[] pdfData = "PDF content".getBytes();
+
+        when(professeurService.getEvaluationMilieuStagePdf(evaluationId))
+                .thenReturn(pdfData);
+
+        mockMvc.perform(get("/OSEProfesseur/evaluations-milieu-stage/{id}/pdf", evaluationId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"evaluation-milieu-stage.pdf\""))
+                .andExpect(content().bytes(pdfData));
+
+        verify(professeurService).getEvaluationMilieuStagePdf(evaluationId);
+    }
+
+    @Test
+    @DisplayName("GET /OSEProfesseur/evaluations-milieu-stage/{id}/pdf retourne 403 si non autorisé")
+    void getEvaluationMilieuStagePdf_nonAutorise() throws Exception {
+        Long evaluationId = 1L;
+
+        when(professeurService.getEvaluationMilieuStagePdf(evaluationId))
+                .thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEProfesseur/evaluations-milieu-stage/{id}/pdf", evaluationId))
+                .andExpect(status().isForbidden());
+
+        verify(professeurService).getEvaluationMilieuStagePdf(evaluationId);
+    }
+
+    @Test
+    @DisplayName("GET /OSEProfesseur/evaluations-milieu-stage/{id}/pdf retourne 404 si PDF non disponible")
+    void getEvaluationMilieuStagePdf_nonDisponible() throws Exception {
+        Long evaluationId = 1L;
+
+        when(professeurService.getEvaluationMilieuStagePdf(evaluationId))
+                .thenThrow(new RuntimeException("PDF non disponible"));
+
+        mockMvc.perform(get("/OSEProfesseur/evaluations-milieu-stage/{id}/pdf", evaluationId))
+                .andExpect(status().isNotFound());
+
+        verify(professeurService).getEvaluationMilieuStagePdf(evaluationId);
     }
 }

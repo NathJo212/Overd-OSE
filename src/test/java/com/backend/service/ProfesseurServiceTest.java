@@ -3,10 +3,7 @@ package com.backend.service;
 import com.backend.Exceptions.*;
 import com.backend.modele.*;
 import com.backend.persistence.*;
-import com.backend.service.DTO.CandidatureDTO;
-import com.backend.service.DTO.EntenteStageDTO;
-import com.backend.service.DTO.EtudiantDTO;
-import com.backend.service.DTO.StatutStageDTO;
+import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +48,12 @@ public class ProfesseurServiceTest {
 
     @Mock
     private CandidatureRepository candidatureRepository;
+
+    @Mock
+    private EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository;
+
+    @Mock
+    private EmployeurRepository employeurRepository;
 
     @InjectMocks
     private ProfesseurService professeurService;
@@ -320,7 +323,6 @@ public class ProfesseurServiceTest {
 
     @Test
     public void getEntentesPourEtudiant_listeVide() throws Exception {
-        Etudiant etudiant = mock(Etudiant.class);
         when(etudiantRepository.existsById(1L)).thenReturn(true);
         when(ententeStageRepository.findByEtudiantId(1L)).thenReturn(Collections.emptyList());
 
@@ -373,7 +375,6 @@ public class ProfesseurServiceTest {
 
     @Test
     public void getCandidaturesPourEtudiant_listeVide() throws Exception {
-        Etudiant etudiant = mock(Etudiant.class);
         when(etudiantRepository.existsById(1L)).thenReturn(true);
         when(candidatureRepository.findByEtudiantId(1L)).thenReturn(Collections.emptyList());
 
@@ -537,6 +538,292 @@ public class ProfesseurServiceTest {
 
         assertThrows(EntenteNonTrouveeException.class, () ->
                 professeurService.getStatutStage(99L)
+        );
+    }
+
+    // ========== Tests pour creerEvaluationMilieuStage ==========
+
+    @Test
+    public void creerEvaluationMilieuStage_ententeNonTrouvee_lance() {
+        Professeur professeur = new Professeur("prof@test.com", "hashedPass", "514-123-4567", "Dupont", "Pierre");
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        when(ententeStageRepository.findById(999L)).thenReturn(Optional.empty());
+
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(999L);
+
+        assertThrows(EntenteNonTrouveException.class, () ->
+                professeurService.creerEvaluationMilieuStage(dto)
+        );
+
+        verify(evaluationMilieuStageParProfesseurRepository, never()).save(any());
+    }
+
+    @Test
+    public void creerEvaluationMilieuStage_ententeNonSignee_lance() {
+        Professeur professeur = new Professeur("prof@test.com", "hashedPass", "514-123-4567", "Dupont", "Pierre");
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setId(100L);
+        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+
+        when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
+
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(100L);
+
+        assertThrows(EntenteNonFinaliseeException.class, () ->
+                professeurService.creerEvaluationMilieuStage(dto)
+        );
+
+        verify(evaluationMilieuStageParProfesseurRepository, never()).save(any());
+    }
+
+    @Test
+    public void creerEvaluationMilieuStage_evaluationDejaExistante_lance() {
+        Professeur professeur = new Professeur("prof@test.com", "hashedPass", "514-123-4567", "Dupont", "Pierre");
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        EntenteStage entente = new EntenteStage();
+        entente.setId(100L);
+        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+
+        when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
+        when(evaluationMilieuStageParProfesseurRepository.existsByEntenteId(100L)).thenReturn(true);
+
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(100L);
+
+        assertThrows(EvaluationDejaExistanteException.class, () ->
+                professeurService.creerEvaluationMilieuStage(dto)
+        );
+
+        verify(evaluationMilieuStageParProfesseurRepository, never()).save(any());
+    }
+
+    @Test
+    public void creerEvaluationMilieuStage_professeurNonSuperviseur_lance() {
+        Professeur professeur = mock(Professeur.class);
+        when(professeur.getId()).thenReturn(1L);
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        // Autre professeur assigné à l'étudiant
+        Professeur autreProfesseur = mock(Professeur.class);
+        when(autreProfesseur.getId()).thenReturn(999L);
+
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getProfesseur()).thenReturn(autreProfesseur);
+
+        EntenteStage entente = mock(EntenteStage.class);
+        when(entente.getEtudiant()).thenReturn(etudiant);
+        when(entente.getStatut()).thenReturn(EntenteStage.StatutEntente.SIGNEE);
+
+        when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
+        when(evaluationMilieuStageParProfesseurRepository.existsByEntenteId(100L)).thenReturn(false);
+
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(100L);
+
+        assertThrows(ActionNonAutoriseeException.class, () ->
+                professeurService.creerEvaluationMilieuStage(dto)
+        );
+
+        verify(evaluationMilieuStageParProfesseurRepository, never()).save(any());
+    }
+
+    @Test
+    public void creerEvaluationMilieuStage_etudiantSansProfesseur_lance() {
+        Professeur professeur = mock(Professeur.class);
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getProfesseur()).thenReturn(null); // Pas de professeur assigné
+
+        EntenteStage entente = mock(EntenteStage.class);
+        when(entente.getEtudiant()).thenReturn(etudiant);
+        when(entente.getStatut()).thenReturn(EntenteStage.StatutEntente.SIGNEE);
+
+        when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
+        when(evaluationMilieuStageParProfesseurRepository.existsByEntenteId(100L)).thenReturn(false);
+
+        CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
+        dto.setEntenteId(100L);
+
+        assertThrows(ActionNonAutoriseeException.class, () ->
+                professeurService.creerEvaluationMilieuStage(dto)
+        );
+
+        verify(evaluationMilieuStageParProfesseurRepository, never()).save(any());
+    }
+
+    // ========== Tests pour getEvaluationsMilieuStagePourProfesseur ==========
+
+    @Test
+    public void getEvaluationsMilieuStagePourProfesseur_retourneListe() throws Exception {
+        Professeur professeur = mock(Professeur.class);
+        when(professeur.getId()).thenReturn(1L);
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getNom()).thenReturn("Martin");
+        when(etudiant.getPrenom()).thenReturn("Sophie");
+
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getNomEntreprise()).thenReturn("Entreprise ABC");
+
+        EvaluationMilieuStageParProfesseur eval1 = new EvaluationMilieuStageParProfesseur();
+        eval1.setProfesseur(professeur);
+        eval1.setEtudiant(etudiant);
+        eval1.setEmployeur(employeur);
+
+        EvaluationMilieuStageParProfesseur eval2 = new EvaluationMilieuStageParProfesseur();
+        eval2.setProfesseur(professeur);
+        eval2.setEtudiant(etudiant);
+        eval2.setEmployeur(employeur);
+
+        when(evaluationMilieuStageParProfesseurRepository.findAllByProfesseurId(1L))
+                .thenReturn(asList(eval1, eval2));
+
+        List<EvaluationMilieuStageDTO> result = professeurService.getEvaluationsMilieuStagePourProfesseur();
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void getEvaluationsMilieuStagePourProfesseur_listeVide() throws Exception {
+        Professeur professeur = mock(Professeur.class);
+        when(professeur.getId()).thenReturn(1L);
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        when(evaluationMilieuStageParProfesseurRepository.findAllByProfesseurId(1L))
+                .thenReturn(Collections.emptyList());
+
+        List<EvaluationMilieuStageDTO> result = professeurService.getEvaluationsMilieuStagePourProfesseur();
+
+        assertTrue(result.isEmpty());
+    }
+
+    // ========== Tests pour getEvaluationMilieuStageSpecifique ==========
+
+    @Test
+    public void getEvaluationMilieuStageSpecifique_retourneEvaluation() throws Exception {
+        Professeur professeur = mock(Professeur.class);
+        when(professeur.getId()).thenReturn(1L);
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        Etudiant etudiant = mock(Etudiant.class);
+        when(etudiant.getNom()).thenReturn("Martin");
+        when(etudiant.getPrenom()).thenReturn("Sophie");
+
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getNomEntreprise()).thenReturn("Entreprise ABC");
+
+        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        evaluation.setProfesseur(professeur);
+        evaluation.setEtudiant(etudiant);
+        evaluation.setEmployeur(employeur);
+        evaluation.setQualiteEncadrement("Excellent");
+
+        when(evaluationMilieuStageParProfesseurRepository.findById(1L))
+                .thenReturn(Optional.of(evaluation));
+
+        EvaluationMilieuStageDTO result = professeurService.getEvaluationMilieuStageSpecifique(1L);
+
+        assertNotNull(result);
+        assertEquals("Excellent", result.getQualiteEncadrement());
+    }
+
+    @Test
+    public void getEvaluationMilieuStageSpecifique_evaluationNonTrouvee_lance() {
+        Professeur professeur = new Professeur("prof@test.com", "hashedPass", "514-123-4567", "Dupont", "Pierre");
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        when(evaluationMilieuStageParProfesseurRepository.findById(999L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () ->
+                professeurService.getEvaluationMilieuStageSpecifique(999L)
+        );
+    }
+
+    @Test
+    public void getEvaluationMilieuStageSpecifique_professeurNonProprietaire_lance() {
+        Professeur professeur = mock(Professeur.class);
+        when(professeur.getId()).thenReturn(1L);
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        Professeur autreProfesseur = mock(Professeur.class);
+        when(autreProfesseur.getId()).thenReturn(999L);
+
+        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        evaluation.setProfesseur(autreProfesseur); // Évaluation d'un autre professeur
+
+        when(evaluationMilieuStageParProfesseurRepository.findById(1L))
+                .thenReturn(Optional.of(evaluation));
+
+        assertThrows(ActionNonAutoriseeException.class, () ->
+                professeurService.getEvaluationMilieuStageSpecifique(1L)
+        );
+    }
+
+    // ========== Tests pour getEvaluationMilieuStagePdf ==========
+
+    @Test
+    public void getEvaluationMilieuStagePdf_retournePdf() throws Exception {
+        Professeur professeur = mock(Professeur.class);
+        when(professeur.getId()).thenReturn(1L);
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        String pdfBase64 = Base64.getEncoder().encodeToString("PDF content".getBytes());
+
+        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        evaluation.setProfesseur(professeur);
+        evaluation.setPdfBase64(pdfBase64);
+
+        when(evaluationMilieuStageParProfesseurRepository.findById(1L))
+                .thenReturn(Optional.of(evaluation));
+
+        byte[] result = professeurService.getEvaluationMilieuStagePdf(1L);
+
+        assertNotNull(result);
+        assertArrayEquals("PDF content".getBytes(), result);
+    }
+
+    @Test
+    public void getEvaluationMilieuStagePdf_professeurNonProprietaire_lance() {
+        Professeur professeur = mock(Professeur.class);
+        when(professeur.getId()).thenReturn(1L);
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        Professeur professeur2 = mock(Professeur.class);
+        when(professeur.getId()).thenReturn(1L);
+        when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
+        when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
+
+        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        evaluation.setId(1L);
+        evaluation.setProfesseur(professeur2);
+        evaluation.setPdfBase64("base64string");
+
+        when(evaluationMilieuStageParProfesseurRepository.findById(1L))
+                .thenReturn(Optional.of(evaluation));
+
+        assertThrows(ActionNonAutoriseeException.class, () ->
+                professeurService.getEvaluationMilieuStagePdf(1L)
         );
     }
 }

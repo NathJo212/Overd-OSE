@@ -2,15 +2,9 @@ package com.backend.service;
 
 
 import com.backend.Exceptions.*;
-import com.backend.modele.Candidature;
-import com.backend.modele.EntenteStage;
-import com.backend.modele.Etudiant;
-import com.backend.modele.Professeur;
+import com.backend.modele.*;
 import com.backend.persistence.*;
-import com.backend.service.DTO.CandidatureDTO;
-import com.backend.service.DTO.EntenteStageDTO;
-import com.backend.service.DTO.EtudiantDTO;
-import com.backend.service.DTO.StatutStageDTO;
+import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
@@ -32,9 +26,10 @@ public class ProfesseurService {
     private final EncryptageCV encryptageCV;
     private final EntenteStageRepository ententeStageRepository;
     private final CandidatureRepository candidatureRepository;
+    private final EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository;
 
 
-    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository) {
+    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository, EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository) {
         this.professeurRepository = professeurRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
@@ -42,6 +37,7 @@ public class ProfesseurService {
         this.encryptageCV = encryptageCV;
         this.ententeStageRepository = ententeStageRepository;
         this.candidatureRepository = candidatureRepository;
+        this.evaluationMilieuStageParProfesseurRepository = evaluationMilieuStageParProfesseurRepository;
     }
 
     @Transactional
@@ -167,5 +163,99 @@ public class ProfesseurService {
         } else {
             return StatutStageDTO.TERMINE;
         }
+    }
+
+    @Transactional
+    public void creerEvaluationMilieuStage(CreerEvaluationMilieuStageDTO dto)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException,
+            EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException {
+
+        Professeur professeur = getProfesseurConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId())
+                .orElseThrow(EntenteNonTrouveException::new);
+
+        // Vérifier que l'entente est bien signée (finalisée)
+        if (entente.getStatut() != EntenteStage.StatutEntente.SIGNEE) {
+            throw new EntenteNonFinaliseeException();
+        }
+
+        // Vérifier qu'une évaluation n'existe pas déjà pour cette entente
+        if (evaluationMilieuStageParProfesseurRepository.existsByEntenteId(dto.getEntenteId())) {
+            throw new EvaluationDejaExistanteException();
+        }
+
+        // Vérifier que le professeur est bien le professeur superviseur de l'étudiant
+        if (entente.getEtudiant().getProfesseur() == null ||
+                !entente.getEtudiant().getProfesseur().getId().equals(professeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        evaluation.setEntente(entente);
+        evaluation.setProfesseur(professeur);
+        evaluation.setEmployeur(entente.getEmployeur());
+        evaluation.setEtudiant(entente.getEtudiant());
+        evaluation.setQualiteEncadrement(dto.getQualiteEncadrement());
+        evaluation.setPertinenceMissions(dto.getPertinenceMissions());
+        evaluation.setRespectHorairesConditions(dto.getRespectHorairesConditions());
+        evaluation.setCommunicationDisponibilite(dto.getCommunicationDisponibilite());
+        evaluation.setCommentairesAmelioration(dto.getCommentairesAmelioration());
+
+        evaluationMilieuStageParProfesseurRepository.save(evaluation);
+    }
+
+    @Transactional
+    public List<EvaluationMilieuStageDTO> getEvaluationsMilieuStagePourProfesseur()
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+
+        Professeur professeur = getProfesseurConnecte();
+
+        List<EvaluationMilieuStageParProfesseur> evaluations =
+                evaluationMilieuStageParProfesseurRepository.findAllByProfesseurId(professeur.getId());
+
+        return evaluations.stream()
+                .map(e -> new EvaluationMilieuStageDTO().toDTO(e))
+                .toList();
+    }
+
+    @Transactional
+    public EvaluationMilieuStageDTO getEvaluationMilieuStageSpecifique(Long evaluationId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+
+        Professeur professeur = getProfesseurConnecte();
+
+        EvaluationMilieuStageParProfesseur evaluation = evaluationMilieuStageParProfesseurRepository
+                .findById(evaluationId)
+                .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
+
+        // Vérifier que c'est bien l'évaluation du professeur connecté
+        if (!evaluation.getProfesseur().getId().equals(professeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        return new EvaluationMilieuStageDTO().toDTO(evaluation);
+    }
+
+    @Transactional
+    public byte[] getEvaluationMilieuStagePdf(Long evaluationId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+
+        Professeur professeur = getProfesseurConnecte();
+
+        EvaluationMilieuStageParProfesseur evaluation = evaluationMilieuStageParProfesseurRepository
+                .findById(evaluationId)
+                .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
+
+        // Vérifier que c'est bien l'évaluation du professeur connecté
+        if (!evaluation.getProfesseur().getId().equals(professeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        if (evaluation.getPdfBase64() == null || evaluation.getPdfBase64().isEmpty()) {
+            throw new RuntimeException("PDF non disponible");
+        }
+
+        return java.util.Base64.getDecoder().decode(evaluation.getPdfBase64());
     }
 }
