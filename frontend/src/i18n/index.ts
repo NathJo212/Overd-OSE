@@ -47,6 +47,8 @@ import evaluationStagiaireFr from './locales/fr/employeurEvaluationStagiaire.jso
 import evaluationStagiaireEn from './locales/en/employeurEvaluationStagiaire.json';
 import gestionnaireAttribueEtudiantFr from './locales/fr/gestionnaireAttribueEtudiant.json';
 import gestionnaireAttribueEtudiantEn from './locales/en/gestionnaireAttribueEtudiant.json';
+import dashboardProfesseurFr from './locales/fr/dashboardProfesseur.json';
+import dashboardProfesseurEn from './locales/en/dashboardProfesseur.json';
 import notificationsFr from './locales/fr/notifications.json';
 import notificationsEn from './locales/en/notifications.json';
 import dashboardProfesseurFr from './locales/fr/dashboardProfesseur.json';
