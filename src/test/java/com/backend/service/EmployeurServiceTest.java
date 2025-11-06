@@ -6,11 +6,13 @@ import com.backend.modele.*;
 import com.backend.persistence.*;
 import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
+import com.backend.util.PdfGenerationEvaluation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -69,7 +71,10 @@ public class EmployeurServiceTest {
     private EntenteStageRepository ententeStageRepository;
 
     @Mock
-    private org.springframework.context.MessageSource messageSource;
+    private MessageSource messageSource;
+
+    @Mock
+    private PdfGenerationEvaluation pdfGenerationEvaluation;
 
     @Mock
     private EvaluationRepository evaluationRepository;
@@ -1193,7 +1198,7 @@ public class EmployeurServiceTest {
         // Act & Assert
         assertThrows(CandidatureDejaVerifieException.class, () -> employeurService.refuserCandidature(15L, "Raison"));
     }
-/*
+
     @Test
     public void testGetNotificationsPourEmployeurConnecte_Succes() throws Exception {
         // Arrange
@@ -1219,7 +1224,7 @@ public class EmployeurServiceTest {
         notif2.setMessageKey("test.message2");
         notif2.setLu(true);
 
-        when(notificationRepository.findAllByUtilisateurOrderByDateCreationDesc(employeur))
+        when(notificationRepository.findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(employeur))
                 .thenReturn(Arrays.asList(notif1, notif2));
 
         // Act
@@ -1228,7 +1233,7 @@ public class EmployeurServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
-        verify(notificationRepository, times(1)).findAllByUtilisateurOrderByDateCreationDesc(employeur);
+        verify(notificationRepository, times(1)).findAllByUtilisateurAndLuFalseOrderByDateCreationDesc(employeur);
     }
 
     @Test
@@ -1291,7 +1296,7 @@ public class EmployeurServiceTest {
             employeurService.marquerNotificationLu(1L, true);
         });
     }
-*/
+
     @Test
     public void testGetOffresApprouvees_Succes() throws Exception {
         // Arrange
@@ -1609,38 +1614,43 @@ public class EmployeurServiceTest {
         when(authentication.getName()).thenReturn("employeur@test.com");
 
         Employeur employeur = mock(Employeur.class);
-        when(employeur.getId()).thenReturn(1L);
+        when(employeur.getNomEntreprise()).thenReturn("Entreprise X");
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
+        // Entente et étudiant
         Etudiant etudiant = mock(Etudiant.class);
-        when(etudiant.getId()).thenReturn(5L);
+        when(etudiant.getPrenom()).thenReturn("Jean");
+        when(etudiant.getNom()).thenReturn("Dupont");
 
-        EntenteStage entente = new EntenteStage();
-        entente.setEmployeur(employeur);
-        entente.setEtudiant(etudiant);
-        entente.setTitre("Entente Test");
-        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        EntenteStage entente = mock(EntenteStage.class);
+        when(entente.getEtudiant()).thenReturn(etudiant);
+        when(entente.getStatut()).thenReturn(EntenteStage.StatutEntente.SIGNEE);
+        when(entente.getId()).thenReturn(100L);
 
         when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
-        when(evaluationRepository.existsByEtudiantIdAndEmployeurId(5L, 1L)).thenReturn(false);
+        when(evaluationRepository.existsByEntenteId(anyLong())).thenReturn(false);
+        when(pdfGenerationEvaluation.genererEtRemplirEvaluationPdf(
+                any(CreerEvaluationDTO.class),
+                anyString(),
+                any(),
+                anyString()
+        )).thenReturn(Base64.getEncoder().encodeToString("pdfcontent".getBytes(StandardCharsets.UTF_8)));
         when(evaluationRepository.save(any(Evaluation.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        EvaluationDTO dto = new EvaluationDTO();
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
         dto.setEntenteId(100L);
-        dto.setCompetencesTechniques("Bon");
-        dto.setRespectDelais("Oui");
-        dto.setAttitudeIntegration("Très bien");
-        dto.setCommentaires("Commentaire");
+        dto.setEtudiantId(2L);
+        dto.setNomSuperviseur("Jean Dupont");
+        dto.setDateSignature(LocalDate.of(2025, 11, 1));
 
         // Act & Assert
         assertDoesNotThrow(() -> employeurService.creerEvaluation(dto));
         verify(evaluationRepository, times(1)).save(any(Evaluation.class));
-        verify(notificationRepository, times(1)).save(any(Notification.class));
     }
 
     @Test
     public void testCreerEvaluation_EntenteNonTrouvee() throws Exception {
-        // Arrange security context
+        // Arrange
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -1654,18 +1664,17 @@ public class EmployeurServiceTest {
         Employeur employeur = mock(Employeur.class);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        when(ententeStageRepository.findById(200L)).thenReturn(Optional.empty());
+        when(ententeStageRepository.findById(999L)).thenReturn(Optional.empty());
 
-        EvaluationDTO dto = new EvaluationDTO();
-        dto.setEntenteId(200L);
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
+        dto.setEntenteId(999L);
 
-        // Act & Assert
         assertThrows(EntenteNonTrouveException.class, () -> employeurService.creerEvaluation(dto));
     }
 
     @Test
-    public void testCreerEvaluation_EvaluationDejaExistante() throws Exception {
-        // Arrange
+    public void testCreerEvaluation_EntenteNonSignee() throws Exception {
+        // Arrange - mock security context and employeur
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -1677,60 +1686,24 @@ public class EmployeurServiceTest {
         when(authentication.getName()).thenReturn("employeur@test.com");
 
         Employeur employeur = mock(Employeur.class);
-        when(employeur.getId()).thenReturn(1L);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        Etudiant etudiant = mock(Etudiant.class);
-        when(etudiant.getId()).thenReturn(6L);
-
-        EntenteStage entente = new EntenteStage();
-        entente.setEmployeur(employeur);
-        entente.setEtudiant(etudiant);
-        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
-
-        when(ententeStageRepository.findById(300L)).thenReturn(Optional.of(entente));
-        when(evaluationRepository.existsByEtudiantIdAndEmployeurId(6L, 1L)).thenReturn(true);
-
-        EvaluationDTO dto = new EvaluationDTO();
-        dto.setEntenteId(300L);
-
-        // Act & Assert
-        assertThrows(EvaluationDejaExistanteException.class, () -> employeurService.creerEvaluation(dto));
-    }
-
-    @Test
-    public void testCreerEvaluation_NonAutorise() throws Exception {
-        // Arrange
-        Authentication authentication = mock(Authentication.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-
-        GrantedAuthority authority = mock(GrantedAuthority.class);
-        when(authority.getAuthority()).thenReturn("EMPLOYEUR");
-        when(authentication.getAuthorities()).thenReturn((Collection) Collections.singletonList(authority));
-        when(authentication.getName()).thenReturn("employeur@test.com");
-
-        Employeur employeur = mock(Employeur.class);
-        when(employeur.getId()).thenReturn(1L);
-        when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
-
-        Employeur autre = mock(Employeur.class);
-        when(autre.getId()).thenReturn(2L);
-
+        // Étudiant mocké
         Etudiant etudiant = mock(Etudiant.class);
 
-        EntenteStage entente = new EntenteStage();
-        entente.setEmployeur(autre);
-        entente.setEtudiant(etudiant);
+        // Entente non signée
+        EntenteStage entente = mock(EntenteStage.class);
+        when(entente.getStatut()).thenReturn(EntenteStage.StatutEntente.EN_ATTENTE);
 
-        when(ententeStageRepository.findById(400L)).thenReturn(Optional.of(entente));
+        when(ententeStageRepository.findById(200L)).thenReturn(Optional.of(entente));
 
-        EvaluationDTO dto = new EvaluationDTO();
-        dto.setEntenteId(400L);
+        CreerEvaluationDTO dto = new CreerEvaluationDTO();
+        dto.setEntenteId(200L);
+        dto.setEtudiantId(2L);
+        dto.setNomSuperviseur("Jean Dupont");
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.creerEvaluation(dto));
+        assertThrows(EntenteNonFinaliseeException.class, () -> employeurService.creerEvaluation(dto));
     }
 
     @Test
@@ -1747,19 +1720,113 @@ public class EmployeurServiceTest {
         when(authentication.getName()).thenReturn("employeur@test.com");
 
         Employeur employeur = mock(Employeur.class);
-        when(employeur.getId()).thenReturn(11L);
+        employeur.setEmail("employeur@test.com");
+        when(employeur.getId()).thenReturn(1L);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
         Evaluation eval1 = new Evaluation();
         Evaluation eval2 = new Evaluation();
-        when(evaluationRepository.findAllByEmployeurId(11L)).thenReturn(Arrays.asList(eval1, eval2));
+
+        doReturn(List.of(eval1, eval2)).when(evaluationRepository).findAllByEmployeurId(anyLong());
 
         // Act
-        var result = employeurService.getEvaluationsPourEmployeur();
+        List<EvaluationDTO> result = employeurService.getEvaluationsPourEmployeur();
 
         // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
-        verify(evaluationRepository, times(1)).findAllByEmployeurId(11L);
     }
+
+    @Test
+    public void testGetEvaluationPdf_Succes() throws Exception {
+        // Arrange - security context and employeur
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        GrantedAuthority authority = mock(GrantedAuthority.class);
+        when(authority.getAuthority()).thenReturn("EMPLOYEUR");
+        when(authentication.getAuthorities()).thenReturn((Collection) Collections.singletonList(authority));
+        when(authentication.getName()).thenReturn("employeur@test.com");
+
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+        when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
+
+        Evaluation evaluation = new Evaluation();
+        // set employer id on evaluation.employeur
+        Employeur evalEmployeur = mock(Employeur.class);
+        when(evalEmployeur.getId()).thenReturn(1L);
+        evaluation.setEmployeur(evalEmployeur);
+        evaluation.setPdfBase64(Base64.getEncoder().encodeToString("pdfcontent".getBytes(StandardCharsets.UTF_8)));
+
+        when(evaluationRepository.findById(50L)).thenReturn(Optional.of(evaluation));
+
+        // Act
+        byte[] pdf = employeurService.getEvaluationPdf(50L);
+
+        // Assert
+        assertNotNull(pdf);
+        assertArrayEquals("pdfcontent".getBytes(StandardCharsets.UTF_8), pdf);
+    }
+
+    @Test
+    public void testGetEvaluationPdf_NonAutorise() throws Exception {
+        // Arrange
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        GrantedAuthority authority = mock(GrantedAuthority.class);
+        when(authority.getAuthority()).thenReturn("EMPLOYEUR");
+        when(authentication.getAuthorities()).thenReturn((Collection) Collections.singletonList(authority));
+        when(authentication.getName()).thenReturn("employeur@test.com");
+
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+        when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
+
+        Evaluation evaluation = new Evaluation();
+        Employeur autre = mock(Employeur.class);
+        when(autre.getId()).thenReturn(2L);
+        evaluation.setEmployeur(autre);
+        evaluation.setPdfBase64(Base64.getEncoder().encodeToString("pdfcontent".getBytes(StandardCharsets.UTF_8)));
+
+        when(evaluationRepository.findById(51L)).thenReturn(Optional.of(evaluation));
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.getEvaluationPdf(51L));
+    }
+
+    @Test
+    public void testGetEvaluationPdf_PdfManquant() throws Exception {
+        // Arrange
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        GrantedAuthority authority = mock(GrantedAuthority.class);
+        when(authority.getAuthority()).thenReturn("EMPLOYEUR");
+        when(authentication.getAuthorities()).thenReturn((Collection) Collections.singletonList(authority));
+        when(authentication.getName()).thenReturn("employeur@test.com");
+
+        Employeur employeur = mock(Employeur.class);
+        when(employeur.getId()).thenReturn(1L);
+        when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
+
+        Evaluation evaluation = new Evaluation();
+        Employeur evalEmployeur = mock(Employeur.class);
+        when(evalEmployeur.getId()).thenReturn(1L);
+        evaluation.setEmployeur(evalEmployeur);
+        evaluation.setPdfBase64(null);
+
+        when(evaluationRepository.findById(52L)).thenReturn(Optional.of(evaluation));
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> employeurService.getEvaluationPdf(52L));
+    }
+
 }

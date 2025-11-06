@@ -1,8 +1,9 @@
 {
   "title": "Intern Evaluation",
   "subtitle": "Evaluate your interns' performance",
-  "backToDashboard": "Back to dashboard",
+  "backToDashboard": "Back to Dashboard",
   "refresh": "Refresh",
+  "loading": "Loading...",
 
   "tabs": {
     "toEvaluate": "To Evaluate",
@@ -15,45 +16,119 @@
     "noEntentesDescription": "You currently have no signed internship agreements with an intern.",
     "count": "{{count}} signed agreement(s)",
     "student": "Intern",
-    "internship": "Internship",
-    "period": "Period",
     "to": "to",
-    "evaluate": "Evaluate",
-    "alreadyEvaluated": "Evaluated",
-    "viewEvaluation": "View evaluation"
+    "evaluate": "Evaluate"
   },
 
   "evaluationsList": {
     "title": "Submitted evaluations",
-    "noEvaluations": "No submitted evaluations",
-    "noEvaluationsDescription": "You have not yet submitted any evaluations for your interns.",
+    "noEvaluations": "No evaluations",
+    "noEvaluationsDescription": "You have not submitted any evaluations yet.",
     "count": "{{count}} submitted evaluation(s)",
     "evaluatedOn": "Evaluated on",
-    "viewDetails": "View details"
+    "viewDetails": "View Evaluation"
+  },
+
+  "likertScale": {
+    "totallyAgree": "Strongly agree",
+    "agree": "Agree",
+    "disagree": "Disagree",
+    "totallyDisagree": "Strongly disagree",
+    "notApplicable": "N/A"
   },
 
   "modal": {
-    "title": "Evaluate Intern",
+    "title": "Intern Evaluation",
     "studentInfo": "Intern Information",
-    "name": "Name",
+    "name": "Full Name",
     "email": "Email",
     "internshipTitle": "Internship Title",
-    "period": "Internship Period",
+    "period": "Period",
     "to": "to",
 
+    "supervisor": {
+      "title": "Supervisor Information",
+      "name": "Supervisor Name",
+      "namePlaceholder": "e.g., John Smith",
+      "function": "Position",
+      "functionPlaceholder": "e.g., Operations Director",
+      "phone": "Phone",
+      "phonePlaceholder": "e.g., 514-123-4567",
+      "signatureDate": "Signature Date"
+    },
+
     "sections": {
-      "technicalSkills": "Technical and Professional Skills",
-      "timeManagement": "Meeting Deadlines and Objectives",
-      "attitude": "Attitude and Team Integration",
-      "generalComments": "General Comments"
+      "productivity": "1. PRODUCTIVITY",
+      "productivitySubtitle": "Ability to optimize work performance",
+      "workQuality": "2. WORK QUALITY",
+      "workQualitySubtitle": "Ability to carry out tasks under their responsibility by imposing personal quality standards",
+      "interpersonalSkills": "3. INTERPERSONAL SKILLS",
+      "interpersonalSkillsSubtitle": "Ability to establish harmonious relationships in the workplace",
+      "personalSkills": "4. PERSONAL SKILLS",
+      "personalSkillsSubtitle": "Ability to demonstrate mature and responsible attitudes or behaviors"
+    },
+
+    "productivity": {
+      "planOrganize": "Plan and organize their work effectively",
+      "understandDirectives": "Quickly understand work-related directives",
+      "sustainedPace": "Maintain a sustained work pace",
+      "setPriorities": "Establish their priorities",
+      "respectDeadlines": "Meet their deadlines"
+    },
+
+    "workQuality": {
+      "respectMandates": "Respect the mandates assigned to them",
+      "attentionToDetail": "Pay attention to details when performing their tasks",
+      "verifyWork": "Verify their work, ensure nothing has been forgotten",
+      "seekImprovement": "Seek opportunities for self-improvement",
+      "analyzeProblems": "Provide good analysis of problems encountered"
+    },
+
+    "interpersonal": {
+      "establishContacts": "Easily establish contacts with people",
+      "contributeTeam": "Actively contribute to teamwork",
+      "adaptCulture": "Easily adapt to the company culture",
+      "acceptCriticism": "Accept constructive criticism",
+      "beRespectful": "Be respectful towards people",
+      "activeListening": "Demonstrate active listening by trying to understand others' point of view"
+    },
+
+    "personalSkills": {
+      "interestMotivation": "Demonstrate interest and motivation at work",
+      "expressIdeas": "Express their ideas clearly",
+      "showInitiative": "Show initiative",
+      "workSafely": "Work safely",
+      "senseResponsibility": "Demonstrate good sense of responsibility requiring minimal supervision",
+      "punctualDiligent": "Be punctual and diligent at work"
+    },
+
+    "globalAssessment": {
+      "title": "Overall Assessment of the Intern",
+      "exceedExpectationsGreatly": "The demonstrated skills greatly exceed expectations",
+      "exceedExpectations": "The demonstrated skills exceed expectations",
+      "fullyMeetExpectations": "The demonstrated skills fully meet expectations",
+      "partiallyMeetExpectations": "The demonstrated skills partially meet expectations",
+      "doNotMeetExpectations": "The demonstrated skills do not meet expectations",
+      "specifyAssessment": "Specify your assessment",
+      "specifyAssessmentPlaceholder": "Please specify your overall assessment of the intern..."
+    },
+
+    "finalSection": {
+      "title": "Evaluation Finalization",
+      "discussedWithIntern": "This evaluation was discussed with the intern",
+      "supervisionHours": "Actual number of supervision hours per week allocated to the intern",
+      "welcomeNextInternship": "The company would like to welcome this student for their next internship",
+      "yes": "Yes",
+      "no": "No",
+      "maybe": "Maybe",
+      "technicalTraining": "Was the intern's technical training sufficient to accomplish the internship mandate?",
+      "technicalTrainingPlaceholder": "Comment on the intern's technical training..."
     },
 
     "fields": {
-      "technicalSkillsPlaceholder": "Describe the intern's technical skills, mastery of tools and technologies used, problem-solving abilities...",
-      "timeManagementPlaceholder": "Comment on the intern's punctuality, ability to meet deadlines, work organization...",
-      "attitudePlaceholder": "Describe the intern's attitude, teamwork, communication, proactivity, professionalism...",
-      "generalCommentsPlaceholder": "Share your general comments about the internship, the intern's strengths, areas for improvement, your recommendations...",
-      "required": "*"
+      "required": "*",
+      "comments": "Comments",
+      "commentsPlaceholder": "Add your comments here..."
     },
 
     "actions": {
@@ -66,26 +141,27 @@
   "detailsModal": {
     "title": "Evaluation Details",
     "evaluationDate": "Evaluation Date",
-    "studentInfo": "Evaluated Intern",
-    "internshipInfo": "Related Internship",
-    "close": "Close"
+    "studentInfo": "Intern Information",
+    "internshipInfo": "Internship Information",
+    "viewPDF": "View the PDF",
+    "pdfInfo": "The PDF for this evaluation is ready to view.",
+    "close": "Close",
+    "previewTitle": "PDF Preview",
+    "noPdfPreview": "No PDF preview available.",
+    "downloadPdf": "Download the PDF"
   },
 
   "messages": {
     "success": "Evaluation submitted successfully!",
-    "successDescription": "The intern and internship manager have been notified."
+    "successDescription": "The evaluation has been saved."
   },
 
   "errors": {
-    "loadEntentes": "Error loading internship agreements",
+    "loadEntentes": "Error loading agreements",
     "loadEvaluations": "Error loading evaluations",
+    "allFieldsRequired": "The following fields are required:",
     "submitFailed": "Error submitting evaluation",
-    "allFieldsRequired": "All fields are required",
-    "errorCode": "Error ({{code}}): {{message}}",
     "networkError": "Server connection error",
-    "unauthorized": "You are not authorized to perform this action"
-  },
-
-  "loading": "Loading...",
-  "noData": "No data available"
+    "pdfDownloadFailed": "Error downloading PDF"
+  }
 }

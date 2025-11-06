@@ -122,6 +122,48 @@ i18n
 
         interpolation: {
             escapeValue: false,
+            // Ajout d'un formatter 'candidature' pour formater les notifications de candidature
+            format: ((value: any, format?: string, lng?: string) => {
+                if (format === 'candidature' || format === 'candidatureAccepted') {
+                    const currentLng = typeof lng === 'string' ? lng : (i18n.language || 'fr');
+                    const isAccepted = format === 'candidatureAccepted';
+
+                    const buildFr = (nomComplet: string, offre: string) => {
+                        if (isAccepted) return `Candidature acceptée par ${nomComplet} pour l'offre ${offre}`.trim();
+                        return `Nouvelle candidature de ${nomComplet} pour l'offre ${offre}`.trim();
+                    };
+
+                    const buildEn = (nomComplet: string, offre: string) => {
+                        if (isAccepted) return `Application accepted by ${nomComplet} for the offer ${offre}`.trim();
+                        return `${nomComplet} has applied for the offer ${offre}`.trim();
+                    };
+
+                    // Si la valeur est un objet, tenter d'utiliser des champs connus
+                    if (typeof value === 'object' && value !== null) {
+                        const prenom = (value as any).etudiantPrenom || (value as any).prenom || '';
+                        const nom = (value as any).etudiantNom || (value as any).nom || '';
+                        const offre = (value as any).offreTitre || (value as any).titre || (value as any).offre || '';
+                        const nomComplet = `${prenom} ${nom}`.trim();
+                        return currentLng.startsWith('fr') ? buildFr(nomComplet, offre) : buildEn(nomComplet, offre);
+                    }
+
+                    // Si la valeur est une chaîne, on essaie de splitter par '||'
+                    if (typeof value === 'string') {
+                        if (value.includes('||')) {
+                            const parts = value.split('||').map((s) => s.trim());
+                            const nomComplet = parts[0] || '';
+                            const offre = parts[1] || '';
+                            return currentLng.startsWith('fr') ? buildFr(nomComplet, offre) : buildEn(nomComplet, offre);
+                        }
+
+                        // fallback: juste renvoyer la valeur
+                        return value;
+                    }
+                }
+
+                // fallback par défaut
+                return value;
+            }) as any
         },
 
         resources,

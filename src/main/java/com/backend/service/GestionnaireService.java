@@ -6,7 +6,6 @@ import com.backend.modele.*;
 import com.backend.persistence.*;
 import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
-import com.backend.util.EntentePdfGenerator;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -282,6 +281,22 @@ public class GestionnaireService {
         } catch (IOException ioe) {
             System.out.println("Erreur");
         }
+
+        try {
+            Notification notifEtudiant = new Notification();
+            notifEtudiant.setUtilisateur(etudiant);
+            notifEtudiant.setMessageKey("entente.created");
+            notifEtudiant.setMessageParam(offre.getTitre());
+            notificationRepository.save(notifEtudiant);
+
+            Notification notifEmployeur = new Notification();
+            notifEmployeur.setUtilisateur(employeur);
+            notifEmployeur.setMessageKey("entente.created");
+            notifEmployeur.setMessageParam(offre.getTitre());
+            notificationRepository.save(notifEmployeur);
+        } catch (Exception e) {
+            // ignore notification errors
+        }
     }
 
     @Transactional
@@ -319,6 +334,23 @@ public class GestionnaireService {
             ententeStageRepository.save(entente);
         } catch (IOException ioe) {
             System.out.println("Erreur");
+        }
+
+        // notifications
+        try {
+            Notification notifEtudiant = new Notification();
+            notifEtudiant.setUtilisateur(entente.getEtudiant());
+            notifEtudiant.setMessageKey("entente.modified");
+            notifEtudiant.setMessageParam(entente.getTitre());
+            notificationRepository.save(notifEtudiant);
+
+            Notification notifEmployeur = new Notification();
+            notifEmployeur.setUtilisateur(entente.getEmployeur());
+            notifEmployeur.setMessageKey("entente.modified");
+            notifEmployeur.setMessageParam(entente.getTitre());
+            notificationRepository.save(notifEmployeur);
+        } catch (Exception e) {
+            // ignore notification errors
         }
     }
 

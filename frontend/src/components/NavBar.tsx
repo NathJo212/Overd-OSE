@@ -5,6 +5,7 @@ import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
 import NotificationEtudiant from './NotificationEtudiant.tsx';
 import { useTranslation } from "react-i18next";
+import NotificationEmployeur from "./NotificationEmployeur.tsx";
 
 const NavBar = () => {
     const navigate = useNavigate();
@@ -128,9 +129,12 @@ const NavBar = () => {
 
                             <LanguageSelector />
 
-                            {/* Show notification bell for students */}
                             {isConnected && role === 'ETUDIANT' && (
                                 <NotificationEtudiant />
+                            )}
+
+                            {isConnected && role === 'EMPLOYEUR' && (
+                                <NotificationEmployeur />
                             )}
 
                             {isConnected && (
