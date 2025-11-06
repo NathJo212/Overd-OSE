@@ -69,6 +69,14 @@ public class BackendApplication {
                     "Poirier"
             );
 
+            professeurService.creerProfesseur(
+                    "professeur2@example.com",
+                    "Prof456&",
+                    "438-555-0123",
+                    "Claire",
+                    "Beaulieu"
+            );
+
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");
             System.out.println("Employeur contact: " + utilisateurTest.getUtilisateurDTO().getContact());
 

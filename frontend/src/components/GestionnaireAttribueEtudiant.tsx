@@ -95,9 +95,6 @@ export default function GestionnaireAttribueEtudiant() {
             // Refresh the students list
             const updatedEtudiants = await gestionnaireService.getAllEtudiants(token);
             setEtudiants(updatedEtudiants);
-
-            // Clear alert after 3 seconds
-            setTimeout(() => setAlert(null), 3000);
         } catch (error: any) {
             console.error("Assignment error:", error);
 
@@ -334,11 +331,11 @@ export default function GestionnaireAttribueEtudiant() {
 
                                                 {/* Teacher select dropdown */}
                                                 <select
-                                                    value={selectedProf[etudiant.id!] || ""}
+                                                    value={selectedProf[etudiant.id!] ? String(selectedProf[etudiant.id!]) : ""}
                                                     onChange={(e) =>
                                                         setSelectedProf({
                                                             ...selectedProf,
-                                                            [etudiant.id!]: parseInt(e.target.value)
+                                                            [etudiant.id!]: parseInt(e.target.value, 10)
                                                         })
                                                     }
                                                     className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -348,7 +345,7 @@ export default function GestionnaireAttribueEtudiant() {
                                                         {t("selectOption") || "-- Sélectionner --"}
                                                     </option>
                                                     {getFilteredProfesseurs(etudiant.id!).map((prof) => (
-                                                        <option key={prof.id} value={prof.id}>
+                                                        <option key={prof.id} value={String(prof.id)}>
                                                             {prof.prenom} {prof.nom} ({prof.email})
                                                         </option>
                                                     ))}
