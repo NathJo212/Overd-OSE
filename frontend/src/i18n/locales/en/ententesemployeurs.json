@@ -8,6 +8,9 @@
   "hourShort": "h",
   "ententeCount": "agreement(s)",
   "viewDetails": "View details",
+  "fields": {
+    "createdOn": "Created on"
+  },
   "noEntentes": {
     "title": "No internship agreements",
     "subtitle": "You currently have no signed internship agreements. Agreements will appear here once created by the manager."

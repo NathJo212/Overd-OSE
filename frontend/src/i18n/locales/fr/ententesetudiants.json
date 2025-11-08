@@ -19,6 +19,7 @@
     "description": "Description",
     "startDate": "Date de début",
     "endDate": "Date de fin",
+    "createdOn": "Date de création",
     "schedule": "Horaire",
     "hoursPerWeek": "Heures par semaine",
     "hours": "heures",
