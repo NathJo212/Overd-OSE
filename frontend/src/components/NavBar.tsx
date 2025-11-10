@@ -1,5 +1,5 @@
-import { useNavigate, NavLink } from "react-router-dom";
-import { LogOut, Menu, X, FileText, Briefcase, User, FileSignature, UserCog, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Menu, X, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
