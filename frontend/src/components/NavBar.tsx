@@ -16,23 +16,44 @@ const NavBar = () => {
     const [userFullName, setUserFullName] = useState('');
 
     useEffect(() => {
-        if (isConnected) {
+        if (isConnected && role) {
             try {
                 const userData = sessionStorage.getItem('userData');
                 if (userData) {
                     const user = JSON.parse(userData);
-                    const prenom = user.prenom || '';
-                    const nom = user.nom || '';
-                    const fullName = `${prenom} ${nom}`.trim();
-                    if (fullName) {
-                        setUserFullName(fullName);
+
+                    // Fonction pour formater le nom du rôle en français
+                    const getRoleLabel = (role: string) => {
+                        switch (role) {
+                            case 'ETUDIANT': return 'Étudiant';
+                            case 'PROFESSEUR': return 'Professeur';
+                            case 'GESTIONNAIRE': return 'Gestionnaire';
+                            case 'EMPLOYEUR': return 'Employeur';
+                            default: return role;
+                        }
+                    };
+
+                    // Pour les employeurs, afficher seulement le rôle
+                    if (role === 'EMPLOYEUR') {
+                        setUserFullName(getRoleLabel(role));
+                    } else {
+                        // Pour les autres rôles (Étudiant, Professeur, Gestionnaire), afficher "Prénom Nom - Rôle"
+                        const prenom = user.prenom || '';
+                        const nom = user.nom || '';
+                        const fullName = `${prenom} ${nom}`.trim();
+                        if (fullName) {
+                            setUserFullName(`${fullName} - ${getRoleLabel(role)}`);
+                        } else {
+                            // Fallback si pas de nom/prénom
+                            setUserFullName(getRoleLabel(role));
+                        }
                     }
                 }
             } catch (e) {
                 console.warn('Unable to parse userData', e);
             }
         }
-    }, [isConnected]);
+    }, [isConnected, role]);
 
     const handleLogout = async () => {
         await utilisateurService.deconnexion();
@@ -68,78 +89,6 @@ const NavBar = () => {
 
                         {/* Desktop menu */}
                         <div className="hidden md:flex items-center space-x-2">
-                            {/* Liens pour GESTIONNAIRE */}
-                            {isConnected && role === "GESTIONNAIRE" && (
-                                <>
-                                    <NavLink
-                                        to="/dashboard-gestionnaire"
-                                        className={({ isActive }) =>
-                                            `px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2.5 text-sm font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600 shadow-lg shadow-white/25 scale-[1.02]"
-                                                    : "text-white/90 hover:bg-white/15 hover:text-white hover:shadow-md hover:shadow-white/10"
-                                            }`
-                                        }
-                                    >
-                                        <Briefcase className="w-4 h-4" />
-                                        <span>{t('navbar:internshipOffers')}</span>
-                                    </NavLink>
-                                    <NavLink
-                                        to="/cvs-etudiants-gestionnaire"
-                                        className={({ isActive }) =>
-                                            `px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2.5 text-sm font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600 shadow-lg shadow-white/25 scale-[1.02]"
-                                                    : "text-white/90 hover:bg-white/15 hover:text-white hover:shadow-md hover:shadow-white/10"
-                                            }`
-                                        }
-                                    >
-                                        <FileText className="w-4 h-4" />
-                                        <span>{t('navbar:studentResumes')}</span>
-                                    </NavLink>
-                                    <NavLink
-                                        to="/ententes-stage-gestionnaire"
-                                        className={({ isActive }) =>
-                                            `px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2.5 text-sm font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600 shadow-lg shadow-white/25 scale-[1.02]"
-                                                    : "text-white/90 hover:bg-white/15 hover:text-white hover:shadow-md hover:shadow-white/10"
-                                            }`
-                                        }
-                                    >
-                                        <FileSignature className="w-4 h-4" />
-                                        <span>{t('navbar:internshipAgreements')}</span>
-                                    </NavLink>
-                                    <NavLink
-                                        to="/gestionnaire-signe-ententes"
-                                        className={({ isActive }) =>
-                                            `px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600 shadow-md"
-                                                    : "text-white hover:bg-white/10 border border-white/20"
-                                            }`
-                                        }
-                                    >
-                                        <CheckCircle className="w-4 h-4" />
-                                        {t('navbar:signAgreements')}
-                                    </NavLink>
-                                    <NavLink
-                                        to="/assigner-professeurs"
-                                        className={({ isActive }) =>
-                                            `px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2.5 text-sm font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600 shadow-lg shadow-white/25 scale-[1.02]"
-                                                    : "text-white/90 hover:bg-white/15 hover:text-white hover:shadow-md hover:shadow-white/10"
-                                            }`
-                                        }
-                                    >
-                                        <UserCog className="w-4 h-4" />
-                                        <span>{t('navbar:assignTeachers')}</span>
-                                    </NavLink>
-
-                                </>
-                            )}
-
                             <LanguageSelector />
 
                             {isConnected && role === 'ETUDIANT' && (
@@ -189,82 +138,6 @@ const NavBar = () => {
                                         {userFullName}
                                     </span>
                                 </div>
-                            )}
-
-                            {/* Liens pour GESTIONNAIRE (Mobile) */}
-                            {isConnected && role === "GESTIONNAIRE" && (
-                                <>
-                                    <NavLink
-                                        to="/dashboard-gestionnaire"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className={({ isActive }) =>
-                                            `w-full px-4 py-3 rounded-xl transition-all duration-300 flex items-center gap-3 font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600 shadow-lg"
-                                                    : "text-white bg-white/10 hover:bg-white/20"
-                                            }`
-                                        }
-                                    >
-                                        <Briefcase className="w-5 h-5" />
-                                        <span>{t('navbar:internshipOffers')}</span>
-                                    </NavLink>
-                                    <NavLink
-                                        to="/cvs-etudiants-gestionnaire"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className={({ isActive }) =>
-                                            `w-full px-4 py-3 rounded-xl transition-all duration-300 flex items-center gap-3 font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600 shadow-lg"
-                                                    : "text-white bg-white/10 hover:bg-white/20"
-                                            }`
-                                        }
-                                    >
-                                        <FileText className="w-5 h-5" />
-                                        <span>{t('navbar:studentResumes')}</span>
-                                    </NavLink>
-                                    <NavLink
-                                        to="/ententes-stage-gestionnaire"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className={({ isActive }) =>
-                                            `w-full px-4 py-3 rounded-xl transition-all duration-300 flex items-center gap-3 font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600 shadow-lg"
-                                                    : "text-white bg-white/10 hover:bg-white/20"
-                                            }`
-                                        }
-                                    >
-                                        <FileSignature className="w-5 h-5" />
-                                        <span>{t('navbar:internshipAgreements')}</span>
-                                    </NavLink>
-                                    <NavLink
-                                        to="/gestionnaire-signe-ententes"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className={({ isActive }) =>
-                                            `w-full px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600"
-                                                    : "text-white bg-white/10 hover:bg-white/20"
-                                            }`
-                                        }
-                                    >
-                                        <CheckCircle className="w-4 h-4" />
-                                        {t('navbar:signAgreements')}
-                                    </NavLink>
-                                    <NavLink
-                                        to="/assigner-professeurs"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className={({ isActive }) =>
-                                            `w-full px-4 py-3 rounded-xl transition-all duration-300 flex items-center gap-3 font-medium ${
-                                                isActive
-                                                    ? "bg-white text-blue-600 shadow-lg"
-                                                    : "text-white bg-white/10 hover:bg-white/20"
-                                            }`
-                                        }
-                                    >
-                                        <UserCog className="w-5 h-5" />
-                                        <span>{t('navbar:assignTeachers') || 'Assigner Professeurs'}</span>
-                                    </NavLink>
-                                </>
                             )}
 
                             <div className="flex justify-center">

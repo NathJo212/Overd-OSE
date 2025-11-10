@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router";
-import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, Eye } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, Eye, FileText, FileSignature, UserCog } from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -131,23 +131,101 @@ const DashboardGestionnaire = () => {
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                {/* En-tête avec bouton "Voir toutes les offres" */}
-                <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                            {t('internshipmanager:page.title')}
-                        </h1>
-                        <p className="text-gray-600">
-                            {t('internshipmanager:page.manageOffers')}
-                        </p>
-                    </div>
+                {/* En-tête */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        {t('internshipmanager:page.title')}
+                    </h1>
+                    <p className="text-gray-600">
+                        {t('internshipmanager:page.manageOffers')}
+                    </p>
+                </div>
+
+                {/* Navigation en cartes */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    {/* CVs des étudiants */}
+                    <NavLink
+                        to="/cvs-etudiants-gestionnaire"
+                        className="group bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-green-400/50 transition-all duration-300 transform hover:scale-105 p-6"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <FileText className="w-10 h-10" />
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
+                            </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">{t('navbar:studentResumes')}</h3>
+                        <p className="text-green-100 text-sm">Valider les CVs des étudiants</p>
+                    </NavLink>
+
+                    {/* Ententes de stage */}
+                    <NavLink
+                        to="/ententes-stage-gestionnaire"
+                        className="group bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-purple-400/50 transition-all duration-300 transform hover:scale-105 p-6"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <FileSignature className="w-10 h-10" />
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
+                            </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">{t('navbar:internshipAgreements')}</h3>
+                        <p className="text-purple-100 text-sm">Créer et gérer les ententes</p>
+                    </NavLink>
+
+                    {/* Signer les ententes */}
+                    <NavLink
+                        to="/gestionnaire-signe-ententes"
+                        className="group bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-orange-400/50 transition-all duration-300 transform hover:scale-105 p-6"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <CheckCircle className="w-10 h-10" />
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
+                            </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">{t('navbar:signAgreements')}</h3>
+                        <p className="text-orange-100 text-sm">Signer les ententes finalisées</p>
+                    </NavLink>
+
+                    {/* Assigner professeurs */}
+                    <NavLink
+                        to="/assigner-professeurs"
+                        className="group bg-gradient-to-br from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-indigo-400/50 transition-all duration-300 transform hover:scale-105 p-6"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <UserCog className="w-10 h-10" />
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
+                            </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">{t('navbar:assignTeachers')}</h3>
+                        <p className="text-indigo-100 text-sm">Associer les professeurs aux étudiants</p>
+                    </NavLink>
+
+                    {/* Voir toutes les offres */}
                     <NavLink
                         to="/visualiser-offres"
-                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl hover:shadow-blue-400"
+                        className="group bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-teal-400/50 transition-all duration-300 transform hover:scale-105 p-6"
                     >
-                        <Eye className="w-5 h-5" />
-                        {t("internshipmanager:page.buttonVisualize")}
+                        <div className="flex items-center justify-between mb-4">
+                            <Eye className="w-10 h-10" />
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
+                            </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">{t("internshipmanager:page.buttonVisualize")}</h3>
+                        <p className="text-teal-100 text-sm">Consulter toutes les offres approuvées</p>
                     </NavLink>
+                </div>
+
+                {/* Séparateur */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px bg-gray-300 flex-1"></div>
+                        <h2 className="text-xl font-bold text-gray-900">Offres en attente d'approbation</h2>
+                        <div className="h-px bg-gray-300 flex-1"></div>
+                    </div>
                 </div>
 
                 {/* Messages */}
