@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class EvaluationMilieuStageParProfesseur {
+public class EvaluationMilieuStage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,23 +33,7 @@ public class EvaluationMilieuStageParProfesseur {
     @JoinColumn(name = "etudiant_id")
     private Etudiant etudiant;
 
-    // Critères d'évaluation (texte libre pour commentaires détaillés)
-    @Column(length = 4000)
-    private String qualiteEncadrement;
-
-    @Column(length = 4000)
-    private String pertinenceMissions;
-
-    @Column(length = 4000)
-    private String respectHorairesConditions;
-
-    @Column(length = 4000)
-    private String communicationDisponibilite;
-
-    @Column(length = 4000)
-    private String commentairesAmelioration;
-
-    @Column(length = 1000000) // PDF généré à partir des données (optionnel)
+    @Column(length = 1000000)
     private String pdfBase64;
 
     private LocalDateTime dateEvaluation = LocalDateTime.now();

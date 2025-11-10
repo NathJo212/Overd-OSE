@@ -6,6 +6,7 @@ import com.backend.modele.*;
 import com.backend.persistence.*;
 import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
+import com.backend.util.PdfGenerationMilieuStage;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,9 +30,10 @@ public class ProfesseurService {
     private final EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository;
     private final NotificationRepository notificationRepository;
     private final GestionnaireRepository gestionnaireRepository;
+    private final PdfGenerationMilieuStage pdfGenerationMilieuStage;
 
 
-    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository, EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository, NotificationRepository notificationRepository, GestionnaireRepository gestionnaireRepository) {
+    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository, EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository, NotificationRepository notificationRepository, GestionnaireRepository gestionnaireRepository, PdfGenerationMilieuStage pdfGenerationMilieuStage) {
         this.professeurRepository = professeurRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
@@ -42,6 +44,7 @@ public class ProfesseurService {
         this.evaluationMilieuStageParProfesseurRepository = evaluationMilieuStageParProfesseurRepository;
         this.notificationRepository = notificationRepository;
         this.gestionnaireRepository = gestionnaireRepository;
+        this.pdfGenerationMilieuStage = pdfGenerationMilieuStage;
     }
 
     @Transactional
@@ -195,47 +198,21 @@ public class ProfesseurService {
             throw new ActionNonAutoriseeException();
         }
 
-        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        EvaluationMilieuStage evaluation = new EvaluationMilieuStage();
         evaluation.setEntente(entente);
         evaluation.setProfesseur(professeur);
         evaluation.setEmployeur(entente.getEmployeur());
         evaluation.setEtudiant(entente.getEtudiant());
-        evaluation.setQualiteEncadrement(dto.getQualiteEncadrement());
-        evaluation.setPertinenceMissions(dto.getPertinenceMissions());
-        evaluation.setRespectHorairesConditions(dto.getRespectHorairesConditions());
-        evaluation.setCommunicationDisponibilite(dto.getCommunicationDisponibilite());
-        evaluation.setCommentairesAmelioration(dto.getCommentairesAmelioration());
+
+        // Générer le PDF à partir du DTO et sauvegarder le Base64 dans l'entité
+        try {
+            String pdfBase64 = pdfGenerationMilieuStage.genererEtRemplirMilieuStagePdf(dto);
+            evaluation.setPdfBase64(pdfBase64);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Erreur lors de la génération du PDF", e);
+        }
 
         evaluationMilieuStageParProfesseurRepository.save(evaluation);
-
-        // Envoyer des notifications au gestionnaire et à l'employeur
-        try {
-            // Notification pour l'employeur
-            if (entente.getEmployeur() != null) {
-                Notification notifEmployeur = new Notification();
-                notifEmployeur.setUtilisateur(entente.getEmployeur());
-                notifEmployeur.setMessageKey("evaluation.milieu.stage.creee");
-                String nomEtudiant = (entente.getEtudiant().getPrenom() != null ? entente.getEtudiant().getPrenom() : "")
-                        + " " + (entente.getEtudiant().getNom() != null ? entente.getEtudiant().getNom() : "");
-                notifEmployeur.setMessageParam(nomEtudiant.trim());
-                notificationRepository.save(notifEmployeur);
-            }
-
-            // Notifications pour tous les gestionnaires
-            List<GestionnaireStage> gestionnaires = (List<GestionnaireStage>) gestionnaireRepository.findAll();
-            for (GestionnaireStage gestionnaire : gestionnaires) {
-                Notification notifGestionnaire = new Notification();
-                notifGestionnaire.setUtilisateur(gestionnaire);
-                notifGestionnaire.setMessageKey("evaluation.milieu.stage.creee");
-                String nomEtudiant = (entente.getEtudiant().getPrenom() != null ? entente.getEtudiant().getPrenom() : "")
-                        + " " + (entente.getEtudiant().getNom() != null ? entente.getEtudiant().getNom() : "");
-                notifGestionnaire.setMessageParam(nomEtudiant.trim());
-                notificationRepository.save(notifGestionnaire);
-            }
-        } catch (Exception e) {
-            // Log l'erreur mais ne pas empêcher la création de l'évaluation
-            System.err.println("Erreur lors de l'envoi des notifications pour l'évaluation: " + e.getMessage());
-        }
     }
 
     @Transactional
@@ -244,7 +221,7 @@ public class ProfesseurService {
 
         Professeur professeur = getProfesseurConnecte();
 
-        List<EvaluationMilieuStageParProfesseur> evaluations =
+        List<EvaluationMilieuStage> evaluations =
                 evaluationMilieuStageParProfesseurRepository.findAllByProfesseurId(professeur.getId());
 
         return evaluations.stream()
@@ -258,7 +235,7 @@ public class ProfesseurService {
 
         Professeur professeur = getProfesseurConnecte();
 
-        EvaluationMilieuStageParProfesseur evaluation = evaluationMilieuStageParProfesseurRepository
+        EvaluationMilieuStage evaluation = evaluationMilieuStageParProfesseurRepository
                 .findById(evaluationId)
                 .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
 
@@ -276,7 +253,7 @@ public class ProfesseurService {
 
         Professeur professeur = getProfesseurConnecte();
 
-        EvaluationMilieuStageParProfesseur evaluation = evaluationMilieuStageParProfesseurRepository
+        EvaluationMilieuStage evaluation = evaluationMilieuStageParProfesseurRepository
                 .findById(evaluationId)
                 .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
 
