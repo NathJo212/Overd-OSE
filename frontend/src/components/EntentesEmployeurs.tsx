@@ -242,7 +242,7 @@ const EntentesEmployeurs = () => {
                                     <div className="flex items-center justify-between mb-4">
                                         {getSignatureStatusBadge(entente.employeurSignature)}
                                         <span className="text-xs text-gray-500">
-                                            {entente?.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}
+                                            {t('fields.createdOn')}: {entente?.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}
                                         </span>
                                     </div>
 
