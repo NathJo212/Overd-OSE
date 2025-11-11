@@ -1,68 +1,64 @@
 {
-  "title": "Professor Dashboard",
-  "subtitle": "Manage your students and track their progress",
-  "managementButton": {
-    "accessTo": "Access to",
-    "title": "Complete Management",
-    "subtitle": "Evaluations • CVs • Actions",
-    "clickHere": "Click here"
+  "title": "Welcome to your teacher portal",
+  "createEvaluation": "Create Evaluation",
+  "myEvaluations": "My Evaluations",
+  "noEvaluations": "No evaluations available",
+  "createNew": "Create a new evaluation",
+
+  "form": {
+    "title": "New Internship Workplace Evaluation",
+    "selectEntente": "Select an internship agreement",
+    "selectPlaceholder": "Choose an agreement...",
+    "qualiteEncadrement": "Quality of supervision",
+    "qualiteEncadrementPlaceholder": "Describe the quality of supervision provided by the company supervisor...",
+    "pertinenceMissions": "Relevance of missions and tasks assigned",
+    "pertinenceMissionsPlaceholder": "Evaluate the relevance of missions assigned to the student in relation to their study program...",
+    "respectHoraires": "Respect of schedules and agreed conditions",
+    "respectHorairesPlaceholder": "Comment on the respect of work schedules and conditions agreed upon in the agreement...",
+    "communication": "Communication and supervisor availability",
+    "communicationPlaceholder": "Evaluate the communication and availability of the company supervisor...",
+    "commentaires": "Comments and suggestions for improvement",
+    "commentairesPlaceholder": "Provide constructive comments and suggestions to improve the internship experience...",
+    "submit": "Submit evaluation",
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "required": "This field is required"
   },
-  "studentList": {
-    "title": "My Students",
-    "noStudents": "No students assigned at the moment",
+
+  "list": {
+    "title": "Evaluations List",
     "student": "Student",
-    "program": "Program",
-    "session": "Session",
-    "contact": "Contact",
-    "cv": {
-      "noCV": "No Resume",
-      "view": "View Resume"
-    }
+    "company": "Company",
+    "date": "Evaluation date",
+    "actions": "Actions",
+    "view": "View",
+    "downloadPdf": "Download PDF",
+    "noData": "No evaluations found"
   },
-  "candidatures": {
-    "title": "Student Applications",
-    "noCandidatures": "No applications found",
-    "letterMotivation": {
-      "view": "View Cover Letter",
-      "none": "No Cover Letter"
-    },
-    "statusBadge": {
-      "EN_ATTENTE": "Applied for the job",
-      "ACCEPTEE": "Accepted by employer",
-      "REFUSEE": "Rejected by employer",
-      "RETIREE": "Withdrawn from the offer",
-      "ACCEPTEE_PAR_ETUDIANT": "Accepted by student",
-      "REFUSEE_PAR_ETUDIANT": "Rejected by student"
-    },
-    "message": "Message"
+
+  "details": {
+    "title": "Evaluation Details",
+    "studentInfo": "Student information",
+    "companyInfo": "Company information",
+    "evaluationInfo": "Evaluation information",
+    "evaluatedBy": "Evaluated by",
+    "evaluationDate": "Evaluation date",
+    "close": "Close"
   },
-  "ententes": {
-    "title": "Internship Agreements",
-    "noEntentes": "No agreements found",
-    "labels": {
-      "student": "Student",
-      "employer": "Employer",
-      "period": "Period",
-      "weeklyHours": "Weekly Hours",
-      "location": "Location",
-      "statutStage": "Internship Status"
-    },
-    "signatures": {
-      "SIGNEE": "Signed",
-      "REFUSEE": "Refused",
-      "EN_ATTENTE": "Pending"
-    },
-    "statutStage": {
-      "PAS_COMMENCE": "Not started",
-      "EN_COURS": "In progress",
-      "TERMINE": "Completed"
-    }
+
+  "messages": {
+    "success": "Evaluation created successfully",
+    "error": "Error creating evaluation",
+    "loadError": "Error loading evaluations",
+    "pdfError": "Error downloading PDF",
+    "noEntentes": "No signed internship agreements available",
+    "alreadyEvaluated": "This agreement has already been evaluated",
+    "unauthorized": "You are not authorized to perform this action",
+    "ententeNotFinalized": "The agreement must be signed before it can be evaluated"
   },
-  "loading": "Loading...",
-  "error": {
-    "authTokenMissing": "Authentication token missing",
-    "downloadCVFailed": "Error downloading CV",
-    "downloadLetterFailed": "Error downloading cover letter",
-    "unknown": "Unknown error"
+
+  "status": {
+    "loading": "Loading...",
+    "noEntente": "No agreement selected"
   }
 }

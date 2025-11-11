@@ -90,12 +90,54 @@ export interface EvaluationMilieuStageDTO {
 }
 
 export interface CreerEvaluationMilieuStageDTO {
-    ententeId: number;
-    qualiteEncadrement: string;
-    pertinenceMissions: string;
-    respectHorairesConditions: string;
-    communicationDisponibilite: string;
-    commentairesAmelioration: string;
+    ententeId?: number;
+    employeurId?: number;
+
+    // --- IDENTIFICATION DE L'ENTREPRISE (Page 1)
+    nomEntreprise?: string;
+    personneContact?: string;
+    adresse?: string;
+    ville?: string;
+    codePostal?: string;
+    telephone?: string;
+    telecopieur?: string;
+
+    // --- IDENTIFICATION DU STAGIAIRE (Page 1)
+    nomStagiaire?: string;
+    dateDuStage?: string; // ISO date
+    stageNumero?: string; // enum represented as string
+
+    // --- ÉVALUATION (Page 1 & 2)
+    tachesConformes?: string;
+    mesuresAccueil?: string;
+    tempsEncadrementSuffisant?: string;
+    heuresPremierMois?: string;
+    heuresDeuxiemeMois?: string;
+    heuresTroisiemeMois?: string;
+    environnementSecurite?: string;
+    climatTravail?: string;
+    milieuAccessible?: string;
+    salaireInteressant?: string;
+    salaireMontantHeure?: string;
+    communicationSuperviseur?: string;
+    equipementAdequat?: string;
+    volumeTravailAcceptable?: string;
+
+    // --- COMMENTAIRES (Zone de texte Page 2)
+    commentaires?: string;
+
+    // --- OBSERVATIONS GÉNÉRALES (Page 2)
+    milieuAPrivilegier?: string;
+    accueillirStagiairesNb?: string;
+    desireAccueillirMemeStagiaire?: string;
+    offreQuartsVariables?: string;
+    quartsADe?: string;
+    quartsAFin?: string;
+    quartsBDe?: string;
+    quartsBFin?: string;
+    quartsCDe?: string;
+    quartsCFin?: string;
+    dateSignature?: string; // ISO date
 }
 
 class ProfesseurService {

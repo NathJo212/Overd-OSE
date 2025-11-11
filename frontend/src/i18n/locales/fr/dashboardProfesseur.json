@@ -1,68 +1,63 @@
 {
-  "title": "Tableau de bord Professeur",
-  "subtitle": "Gérez vos étudiants et suivez leurs progrès",
-  "managementButton": {
-    "accessTo": "Accéder à la",
-    "title": "Gestion Complète",
-    "subtitle": "Évaluations • CVs • Actions",
-    "clickHere": "Cliquez ici"
+  "title": "Bienvenue sur votre espace professeur",
+  "createEvaluation": "Créer une Évaluation",
+  "noEvaluations": "Aucune évaluation disponible",
+  "createNew": "Créer une nouvelle évaluation",
+
+  "form": {
+    "title": "Nouvelle Évaluation du Milieu de Stage",
+    "selectEntente": "Sélectionner une entente de stage",
+    "selectPlaceholder": "Choisissez une entente...",
+    "qualiteEncadrement": "Qualité de l'encadrement",
+    "qualiteEncadrementPlaceholder": "Décrivez la qualité de l'encadrement fourni par le superviseur de l'entreprise...",
+    "pertinenceMissions": "Pertinence des missions et tâches confiées",
+    "pertinenceMissionsPlaceholder": "Évaluez la pertinence des missions confiées à l'étudiant par rapport à son programme d'études...",
+    "respectHoraires": "Respect des horaires et conditions convenues",
+    "respectHorairesPlaceholder": "Commentez sur le respect des horaires de travail et des conditions convenues dans l'entente...",
+    "communication": "Communication et disponibilité du superviseur",
+    "communicationPlaceholder": "Évaluez la communication et la disponibilité du superviseur de l'entreprise...",
+    "commentaires": "Commentaires et suggestions pour amélioration",
+    "commentairesPlaceholder": "Fournissez des commentaires constructifs et des suggestions pour améliorer l'expérience de stage...",
+    "submit": "Soumettre l'évaluation",
+    "cancel": "Annuler",
+    "submitting": "Soumission en cours...",
+    "required": "Ce champ est requis"
   },
-  "studentList": {
-    "title": "Mes Étudiants",
-    "noStudents": "Aucun étudiant assigné pour le moment",
+
+  "list": {
+    "title": "Liste des Évaluations",
     "student": "Étudiant",
-    "program": "Programme",
-    "session": "Session",
-    "contact": "Contact",
-    "cv": {
-      "noCV": "Aucun CV",
-      "view": "Regarder le CV"
-    }
+    "company": "Entreprise",
+    "date": "Date d'évaluation",
+    "actions": "Actions",
+    "view": "Voir",
+    "downloadPdf": "Télécharger PDF",
+    "noData": "Aucune évaluation trouvée"
   },
-  "candidatures": {
-    "title": "Candidatures de l'étudiant",
-    "noCandidatures": "Aucune candidature trouvée",
-    "letterMotivation": {
-      "view": "Regarder la lettre de motivation",
-      "none": "Aucune lettre de motivation"
-    },
-    "statusBadge": {
-      "EN_ATTENTE": "Postulé pour l'offre",
-      "ACCEPTEE": "Acceptée par l'employeur",
-      "REFUSEE": "Refusée par l'employeur",
-      "RETIREE": "Retirée de l'offre",
-      "ACCEPTEE_PAR_ETUDIANT": "Acceptée par l'étudiant",
-      "REFUSEE_PAR_ETUDIANT": "Refusée par l'étudiant"
-    },
-    "message": "Message"
+
+  "details": {
+    "title": "Détails de l'Évaluation",
+    "studentInfo": "Informations sur l'étudiant",
+    "companyInfo": "Informations sur l'entreprise",
+    "evaluationInfo": "Informations sur l'évaluation",
+    "evaluatedBy": "Évalué par",
+    "evaluationDate": "Date d'évaluation",
+    "close": "Fermer"
   },
-  "ententes": {
-    "title": "Ententes de stage",
-    "noEntentes": "Aucune entente trouvée",
-    "labels": {
-      "student": "Étudiant",
-      "employer": "Employeur",
-      "period": "Période",
-      "weeklyHours": "Durée hebdomadaire",
-      "location": "Lieu",
-      "statutStage": "Statut du stage"
-    },
-    "signatures": {
-      "SIGNEE": "Signée",
-      "REFUSEE": "Refusée",
-      "EN_ATTENTE": "En attente"
-    },
-    "statutStage": {
-      "PAS_COMMENCE": "Pas commencé",
-      "EN_COURS": "En cours",
-      "TERMINE": "Terminé"
-    }
+
+  "messages": {
+    "success": "Évaluation créée avec succès",
+    "error": "Erreur lors de la création de l'évaluation",
+    "loadError": "Erreur lors du chargement des évaluations",
+    "pdfError": "Erreur lors du téléchargement du PDF",
+    "noEntentes": "Aucune entente de stage signée disponible",
+    "alreadyEvaluated": "Cette entente a déjà été évaluée",
+    "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action",
+    "ententeNotFinalized": "L'entente doit être signée avant de pouvoir être évaluée"
   },
-  "loading": "Chargement...",
-  "error": {
-    "authTokenMissing": "Token d'authentification manquant",
-    "downloadCVFailed": "Erreur lors du téléchargement du CV",
-    "downloadLetterFailed": "Erreur lors du téléchargement de la lettre de motivation",
-    "unknown": "Erreur inconnue"
+
+  "status": {
+    "loading": "Chargement...",
+    "noEntente": "Aucune entente sélectionnée"
   }
 }
