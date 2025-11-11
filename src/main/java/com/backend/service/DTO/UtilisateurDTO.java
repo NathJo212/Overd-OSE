@@ -2,6 +2,8 @@ package com.backend.service.DTO;
 
 import com.backend.modele.Employeur;
 import com.backend.modele.Etudiant;
+import com.backend.modele.GestionnaireStage;
+import com.backend.modele.Professeur;
 import com.backend.modele.Utilisateur;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,6 +46,14 @@ public class UtilisateurDTO {
                 dto.setProgEtude(ProgrammeDTO.toDTO(etudiant.getProgEtude()));
                 dto.setSession(etudiant.getSession());
                 dto.setAnnee(etudiant.getAnnee());
+            }
+            case Professeur professeur -> {
+                dto.setNom(professeur.getNom());
+                dto.setPrenom(professeur.getPrenom());
+            }
+            case GestionnaireStage gestionnaire -> {
+                dto.setNom(gestionnaire.getNom());
+                dto.setPrenom(gestionnaire.getPrenom());
             }
             default -> {
             }
