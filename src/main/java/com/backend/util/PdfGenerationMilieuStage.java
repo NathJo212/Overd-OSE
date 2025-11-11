@@ -256,8 +256,8 @@ public class PdfGenerationMilieuStage {
         if (dto.getOffreQuartsVariables() == OuiNonChoix.OUI) {
             drawCheckMark(page, font, xOui, yQuarts);
             float yQuartsA = 137f;
-            float yQuartsB = 137f;
-            float yQuartsC = 137f;
+            float yQuartsB = 123f;
+            float yQuartsC = 110f;
 
             addText(page, font, dto.getQuartsADe(), 78f, yQuartsA);
             addText(page, font, dto.getQuartsAFin(), 146f, yQuartsA);
