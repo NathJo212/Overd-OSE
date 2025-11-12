@@ -388,4 +388,101 @@ public class EtudiantController {
         }
     }
 
+    // ==================== SEARCH EMPLOYEURS ====================
+    @GetMapping("/search/employeurs")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EmployeurDTO>> searchEmployeurs(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<EmployeurDTO> employeurs = etudiantService.searchEmployeurs(searchTerm);
+            return ResponseEntity.ok(employeurs);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/employeurs/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<EmployeurDTO> getEmployeurProfile(@PathVariable Long id) {
+        try {
+            EmployeurDTO employeur = etudiantService.getEmployeurPublicInfo(id);
+            return ResponseEntity.ok(employeur);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== SEARCH PROFESSEURS ====================
+    @GetMapping("/search/professeurs")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<ProfesseurDTO>> searchProfesseurs(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<ProfesseurDTO> professeurs = etudiantService.searchProfesseurs(searchTerm);
+            return ResponseEntity.ok(professeurs);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/professeurs/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<ProfesseurDTO> getProfesseurProfile(@PathVariable Long id) {
+        try {
+            ProfesseurDTO professeur = etudiantService.getProfesseurPublicInfo(id);
+            return ResponseEntity.ok(professeur);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== SEARCH GESTIONNAIRES ====================
+    @GetMapping("/search/gestionnaires")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<GestionnaireDTO>> searchGestionnaires(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<GestionnaireDTO> gestionnaires = etudiantService.searchGestionnaires(searchTerm);
+            return ResponseEntity.ok(gestionnaires);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/gestionnaires/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<GestionnaireDTO> getGestionnaireProfile(@PathVariable Long id) {
+        try {
+            GestionnaireDTO gestionnaire = etudiantService.getGestionnaireInfo(id);
+            return ResponseEntity.ok(gestionnaire);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }

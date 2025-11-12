@@ -1,0 +1,283 @@
+import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { User, Building2, GraduationCap, UserCog, Search as SearchIcon } from "lucide-react";
+import NavBar from "./NavBar";
+import etudiantService from "../services/EtudiantService";
+
+type UserCategory = "ALL" | "EMPLOYEUR" | "PROFESSEUR" | "GESTIONNAIRE";
+
+interface SearchResult {
+    id: number;
+    type: "EMPLOYEUR" | "PROFESSEUR" | "GESTIONNAIRE";
+    nom?: string;
+    prenom?: string;
+    email: string;
+    telephone?: string;
+    nomEntreprise?: string;
+    contact?: string;
+}
+
+const SearchResults = () => {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const query = searchParams.get("q") || "";
+
+    const [searchTerm, setSearchTerm] = useState(query);
+    const [category, setCategory] = useState<UserCategory>("ALL");
+    const [results, setResults] = useState<SearchResult[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
+
+    const performSearch = async (term: string, cat: UserCategory) => {
+        setLoading(true);
+        setHasSearched(true);
+        try {
+            let allResults: SearchResult[] = [];
+
+            if (cat === "ALL" || cat === "EMPLOYEUR") {
+                const employeurs = await etudiantService.searchEmployeurs(term);
+                allResults = [
+                    ...allResults,
+                    ...employeurs.map(e => ({ ...e, type: "EMPLOYEUR" as const }))
+                ];
+            }
+
+            if (cat === "ALL" || cat === "PROFESSEUR") {
+                const professeurs = await etudiantService.searchProfesseurs(term);
+                allResults = [
+                    ...allResults,
+                    ...professeurs.map(p => ({ ...p, type: "PROFESSEUR" as const }))
+                ];
+            }
+
+            if (cat === "ALL" || cat === "GESTIONNAIRE") {
+                const gestionnaires = await etudiantService.searchGestionnaires(term);
+                allResults = [
+                    ...allResults,
+                    ...gestionnaires.map(g => ({ ...g, type: "GESTIONNAIRE" as const }))
+                ];
+            }
+
+            setResults(allResults);
+        } catch (error) {
+            console.error("Search error:", error);
+            setResults([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (query) {
+            performSearch(query, category);
+        }
+    }, [query]);
+
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchTerm.trim()) {
+            navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+            performSearch(searchTerm.trim(), category);
+        }
+    };
+
+    const handleCategoryChange = (newCategory: UserCategory) => {
+        setCategory(newCategory);
+        if (searchTerm.trim()) {
+            performSearch(searchTerm.trim(), newCategory);
+        }
+    };
+
+    const getUserIcon = (type: string) => {
+        switch (type) {
+            case "EMPLOYEUR":
+                return <Building2 className="w-5 h-5 text-blue-600" />;
+            case "PROFESSEUR":
+                return <GraduationCap className="w-5 h-5 text-purple-600" />;
+            case "GESTIONNAIRE":
+                return <UserCog className="w-5 h-5 text-green-600" />;
+            default:
+                return <User className="w-5 h-5 text-gray-600" />;
+        }
+    };
+
+    const getUserBadgeColor = (type: string) => {
+        switch (type) {
+            case "EMPLOYEUR":
+                return "bg-blue-100 text-blue-800";
+            case "PROFESSEUR":
+                return "bg-purple-100 text-purple-800";
+            case "GESTIONNAIRE":
+                return "bg-green-100 text-green-800";
+            default:
+                return "bg-gray-100 text-gray-800";
+        }
+    };
+
+    const getDisplayName = (result: SearchResult) => {
+        if (result.type === "EMPLOYEUR") {
+            return result.nomEntreprise || result.contact || "Employeur";
+        }
+        return `${result.prenom || ""} ${result.nom || ""}`.trim() || "Utilisateur";
+    };
+
+    const handleViewProfile = (result: SearchResult) => {
+        navigate(`/profile/${result.type.toLowerCase()}/${result.id}`);
+    };
+
+    return (
+        <div className="bg-gray-50 min-h-screen">
+            <NavBar />
+
+            <div className="container mx-auto px-4 py-8 max-w-7xl">
+                {/* Search Header */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                        Recherche d'utilisateurs
+                    </h1>
+
+                    {/* Search Bar */}
+                    <form onSubmit={handleSearchSubmit} className="mb-6">
+                        <div className="flex gap-3">
+                            <div className="flex-1 relative">
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Rechercher par nom, email ou entreprise..."
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                                <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            </div>
+                            <button
+                                type="submit"
+                                className="cursor-pointer px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                            >
+                                Rechercher
+                            </button>
+                        </div>
+                    </form>
+
+                    {/* Category Filters */}
+                    <div className="flex gap-2 flex-wrap">
+                        <button
+                            onClick={() => handleCategoryChange("ALL")}
+                            className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all ${
+                                category === "ALL"
+                                    ? "bg-blue-600 text-white shadow-md"
+                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                            }`}
+                        >
+                            Tous
+                        </button>
+                        <button
+                            onClick={() => handleCategoryChange("EMPLOYEUR")}
+                            className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                                category === "EMPLOYEUR"
+                                    ? "bg-blue-600 text-white shadow-md"
+                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                            }`}
+                        >
+                            <Building2 className="w-4 h-4" />
+                            Employeurs
+                        </button>
+                        <button
+                            onClick={() => handleCategoryChange("PROFESSEUR")}
+                            className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                                category === "PROFESSEUR"
+                                    ? "bg-blue-600 text-white shadow-md"
+                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                            }`}
+                        >
+                            <GraduationCap className="w-4 h-4" />
+                            Professeurs
+                        </button>
+                        <button
+                            onClick={() => handleCategoryChange("GESTIONNAIRE")}
+                            className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                                category === "GESTIONNAIRE"
+                                    ? "bg-blue-600 text-white shadow-md"
+                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                            }`}
+                        >
+                            <UserCog className="w-4 h-4" />
+                            Gestionnaires
+                        </button>
+                    </div>
+                </div>
+
+                {/* Results */}
+                {loading ? (
+                    <div className="text-center py-12">
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <p className="text-gray-600 mt-4">Recherche en cours...</p>
+                    </div>
+                ) : !hasSearched ? (
+                    <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
+                        <SearchIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-600">Effectuez une recherche pour voir les résultats</p>
+                    </div>
+                ) : results.length === 0 ? (
+                    <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
+                        <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-600">Aucun résultat trouvé</p>
+                        <p className="text-gray-500 text-sm mt-2">Essayez avec d'autres termes de recherche</p>
+                    </div>
+                ) : (
+                    <>
+                        <p className="text-gray-600 mb-4">
+                            {results.length} résultat{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''}
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {results.map((result) => (
+                                <div
+                                    key={`${result.type}-${result.id}`}
+                                    className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:shadow-blue-100 transition-all duration-200 transform hover:-translate-y-1"
+                                >
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-3 rounded-xl ${
+                                                result.type === "EMPLOYEUR" ? "bg-blue-50" :
+                                                    result.type === "PROFESSEUR" ? "bg-purple-50" :
+                                                        "bg-green-50"
+                                            }`}>
+                                                {getUserIcon(result.type)}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-gray-900">
+                                                    {getDisplayName(result)}
+                                                </h3>
+                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getUserBadgeColor(result.type)}`}>
+                                                    {result.type}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 mb-4 text-sm text-gray-600">
+                                        <p className="truncate">{result.email}</p>
+                                        {result.telephone && (
+                                            <p className="truncate">{result.telephone}</p>
+                                        )}
+                                        {result.type === "EMPLOYEUR" && result.contact && (
+                                            <p className="truncate">Contact: {result.contact}</p>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        onClick={() => handleViewProfile(result)}
+                                        className="cursor-pointer w-full px-4 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                                    >
+                                        Voir le profil
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default SearchResults;

@@ -1049,6 +1049,152 @@ class EtudiantService {
             throw error;
         }
     }
+
+    /**
+     * Search methods for users
+     */
+    async searchEmployeurs(searchTerm?: string): Promise<any[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const url = searchTerm
+                ? `${this.baseUrl}/search/employeurs?searchTerm=${encodeURIComponent(searchTerm)}`
+                : `${this.baseUrl}/search/employeurs`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur searchEmployeurs:', error);
+            throw error;
+        }
+    }
+
+    async searchProfesseurs(searchTerm?: string): Promise<any[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const url = searchTerm
+                ? `${this.baseUrl}/search/professeurs?searchTerm=${encodeURIComponent(searchTerm)}`
+                : `${this.baseUrl}/search/professeurs`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur searchProfesseurs:', error);
+            throw error;
+        }
+    }
+
+    async searchGestionnaires(searchTerm?: string): Promise<any[]> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const url = searchTerm
+                ? `${this.baseUrl}/search/gestionnaires?searchTerm=${encodeURIComponent(searchTerm)}`
+                : `${this.baseUrl}/search/gestionnaires`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur searchGestionnaires:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get profile methods
+     */
+    async getEmployeurProfile(id: number): Promise<any> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const response = await fetch(`${this.baseUrl}/employeurs/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur getEmployeurProfile:', error);
+            throw error;
+        }
+    }
+
+    async getProfesseurProfile(id: number): Promise<any> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const response = await fetch(`${this.baseUrl}/professeurs/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur getProfesseurProfile:', error);
+            throw error;
+        }
+    }
+
+    async getGestionnaireProfile(id: number): Promise<any> {
+        try {
+            const token = this.getAuthToken();
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const response = await fetch(`${this.baseUrl}/gestionnaires/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erreur getGestionnaireProfile:', error);
+            throw error;
+        }
+    }
+
+
 }
 
 export const etudiantService = new EtudiantService();
