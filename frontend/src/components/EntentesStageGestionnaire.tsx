@@ -5,16 +5,18 @@ import {
     Building2,
     AlertCircle,
     Briefcase,
-    X,
+    X, ArrowLeft,
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from "react-router-dom";
 import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO, type OffreDTO } from "../services/GestionnaireService";
 
 const EntentesStageGestionnaire = () => {
     const { t } = useTranslation(['ententesStageGestionnaire' , 'programmes']);
     const [loading, setLoading] = useState(true);
     const [candidatures, setCandidatures] = useState<CandidatureEligibleDTO[]>([]);
+    const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
     const [selectedCandidature, setSelectedCandidature] = useState<CandidatureEligibleDTO | null>(null);
     const [offerDetails, setOfferDetails] = useState<OffreDTO | null>(null);
@@ -142,9 +144,15 @@ const EntentesStageGestionnaire = () => {
     return (
         <div className="bg-gray-50 min-h-screen">
             <NavBar />
-
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* En-tête */}
+                <button
+                    onClick={() => navigate('/dashboard-gestionnaire')}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                    {t('backToDashboard')}
+                </button>
                 <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -193,7 +201,7 @@ const EntentesStageGestionnaire = () => {
                         </div>
                     </div>
                 ) : candidatures.length === 0 ? (
-                    /* Message: Aucune candidature éligible */
+                    /* Message : Aucune candidature éligible */
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
                         <div className="flex justify-center mb-4">
                             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">

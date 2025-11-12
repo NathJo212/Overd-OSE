@@ -1,4 +1,5 @@
 {
+  "backToDashboard": "Retout au tableau de bord",
   "title": "Assigner des Professeurs aux Étudiants",
   "subtitle": "Assignez un professeur superviseur à chaque étudiant",
   "error": "Erreur de connexion",

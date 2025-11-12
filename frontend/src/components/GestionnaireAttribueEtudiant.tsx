@@ -4,7 +4,7 @@ import { gestionnaireService } from '../services/GestionnaireService.ts';
 import type { EtudiantDTO, ProfesseurDTO } from '../services/GestionnaireService.ts';
 import { useTranslation } from "react-i18next";
 import UtilisateurService from "../services/UtilisateurService.ts";
-import { UserCheck, Users, GraduationCap, Search, X, CheckCircle, AlertCircle, UserCog } from "lucide-react";
+import {UserCheck, Users, GraduationCap, Search, X, CheckCircle, AlertCircle, UserCog, ArrowLeft} from "lucide-react";
 import NavBar from "./NavBar.tsx";
 
 export default function GestionnaireAttribueEtudiant() {
@@ -170,9 +170,15 @@ export default function GestionnaireAttribueEtudiant() {
     return (
         <div className="bg-gray-50 min-h-screen">
             <NavBar />
-
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* Header */}
+                <button
+                    onClick={() => navigate('/dashboard-gestionnaire')}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                    {t('backToDashboard')}
+                </button>
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
                         <Users className="w-10 h-10 text-blue-600" />
