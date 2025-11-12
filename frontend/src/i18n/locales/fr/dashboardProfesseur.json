@@ -31,6 +31,7 @@
     "candidatures": "Candidatures",
     "ententes": "Ententes",
     "evaluate": "Évaluer",
+    "viewEvaluation": "Voir l'évaluation",
     "noLetter": "Aucune lettre de motivation"
   },
 
@@ -46,7 +47,19 @@
     "location": "Lieu",
     "period": "Période",
     "weeklyHours": "Durée hebdomadaire",
-    "statusLabel": "Statut du stage"
+    "statusLabel": "Statut du stage",
+    "studentSignature": "Signature étudiant",
+    "employerSignature": "Signature employeur",
+    "signature": {
+      "SIGNEE": "Signée",
+      "NON_SIGNEE": "Non signée",
+      "EN_ATTENTE": "En attente"
+    },
+    "status": {
+      "PAS_COMMENCE": "Pas commencé",
+      "EN_COURS": "En cours",
+      "TERMINE": "Terminé"
+    }
   },
 
   "form": {
@@ -229,6 +242,6 @@
   "pdf": {
     "cvTitle": "CV de {{name}}",
     "letterTitle": "Lettre de motivation #{{id}}",
-    "evaluationTitle": "Évaluation - {{name}}"
+    "evaluationTitle": "Évaluation du milieu de stage"
   }
 }

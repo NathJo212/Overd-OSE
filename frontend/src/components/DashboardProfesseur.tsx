@@ -11,7 +11,6 @@ import {
     CheckCircle,
     ClipboardList,
     Clock,
-    Eye,
     FileText,
     FileX,
     GraduationCap,
@@ -315,18 +314,32 @@ const DashboardProfesseur = () => {
     };
 
     // Télécharger / ouvrir le PDF d'une évaluation et l'afficher dans le viewer
-    const handleViewEvaluationPdf = async (evaluationId: number, evaluation?: EvaluationMilieuStageDTO) => {
+    const handleViewEvaluationPdf = async (evaluationId: number) => {
         if (!evaluationId) return;
         try {
             const blob = await professeurService.getEvaluationMilieuStagePdf(evaluationId);
             const url = window.URL.createObjectURL(blob);
             setPdfUrl(url);
-            const title = evaluation ? t('pdf.evaluationTitle', { name: `${evaluation.prenomEtudiant} ${evaluation.nomEtudiant}` }) : `Évaluation #${evaluationId}`;
-            setPdfTitle(title);
+            setPdfTitle(t('pdf.evaluationTitle'));
         } catch (err) {
             console.error('Erreur téléchargement PDF évaluation', err);
             setError(t('errors.evaluationPdfDownload'));
         }
+    };
+
+    // Nouvelle utilitaire : retourne la dernière évaluation pour un étudiant (ou null)
+    const getLatestEvaluationForStudent = (studentId?: number | null): EvaluationMilieuStageDTO | null => {
+        if (!studentId) return null;
+        const evs = evaluations.filter(ev => ev.etudiantId === studentId);
+        if (!evs || evs.length === 0) return null;
+        // retourner l'évaluation la plus récente selon dateEvaluation
+        return evs.reduce((latest, cur) => {
+            try {
+                return new Date(cur.dateEvaluation) > new Date(latest.dateEvaluation) ? cur : latest;
+            } catch (e) {
+                return latest;
+            }
+        }, evs[0]);
     };
 
     const handleViewCandidatures = async (etudiantId: number) => {
@@ -576,96 +589,32 @@ const DashboardProfesseur = () => {
                                                             <Briefcase className="w-4 h-4 flex-shrink-0" />
                                                             <span>{t("actions.ententes")}</span>
                                                         </button>
-                                                        <button
-                                                            onClick={() => openFormForStudent(etudiant)}
-                                                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-xs font-medium"
-                                                            title="Évaluer"
-                                                        >
-                                                            <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                                                            <span>{t("actions.evaluate")}</span>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
+                                                        {(() => {
+                                                            const studentEval = getLatestEvaluationForStudent(etudiant.id);
+                                                            if (studentEval) {
+                                                                return (
+                                                                    <button
+                                                                        onClick={() => handleViewEvaluationPdf(studentEval.id)}
+                                                                        className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-gray-100 text-indigo-600 rounded-lg hover:bg-gray-200 transition-colors text-xs font-medium"
+                                                                        title={t('actions.viewEvaluation')}
+                                                                    >
+                                                                        <FileText className="w-4 h-4 flex-shrink-0" />
+                                                                        <span>{t('actions.viewEvaluation')}</span>
+                                                                    </button>
+                                                                );
+                                                            }
 
-                    {/* Evaluations List */}
-                    <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-                        <div className="p-6 bg-gradient-to-r from-indigo-600 to-indigo-700">
-                            <h2 className="text-2xl font-bold text-white">{t("list.title")}</h2>
-                        </div>
-
-                        {evaluations.length === 0 ? (
-                            <div className="p-12 text-center">
-                                <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                <p className="text-gray-500 text-lg">{t("noEvaluations")}</p>
-                                <p className="text-gray-400 mt-2">{t("createNew")}</p>
-                            </div>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full">
-                                    <thead className="bg-gray-50 border-b border-gray-200">
-                                        <tr>
-                                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                {t("list.student")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                {t("list.company")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                {t("list.date")}
-                                            </th>
-                                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                {t("list.actions")}
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-200">
-                                        {evaluations.map((evaluation) => (
-                                            <tr key={evaluation.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <GraduationCap className="w-5 h-5 text-indigo-600" />
-                                                        <div>
-                                                            <div className="font-medium text-gray-900">
-                                                                {evaluation.prenomEtudiant} {evaluation.nomEtudiant}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <Building2 className="w-5 h-5 text-gray-400" />
-                                                        <span className="text-gray-900">{evaluation.nomEntreprise}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-2 text-gray-600">
-                                                        <Calendar className="w-4 h-4" />
-                                                        <span>{formatDate(evaluation.dateEvaluation)}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button
-                                                            onClick={() => setSelectedEvaluation(evaluation)}
-                                                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                                                            title={t("list.view")}
-                                                        >
-                                                            <Eye className="w-5 h-5" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleViewEvaluationPdf(evaluation.id, evaluation)}
-                                                            className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-                                                            title={t("list.downloadPdf")}
-                                                        >
-                                                            <FileText className="w-5 h-5" />
-                                                        </button>
+                                                            return (
+                                                                <button
+                                                                    onClick={() => openFormForStudent(etudiant)}
+                                                                    className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-xs font-medium"
+                                                                    title="Évaluer"
+                                                                >
+                                                                    <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                                                                    <span>{t("actions.evaluate")}</span>
+                                                                </button>
+                                                            );
+                                                        })()}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -896,26 +845,29 @@ const DashboardProfesseur = () => {
                                                             ) : (
                                                                 <Clock className="w-5 h-5 text-yellow-600" />
                                                             )}
-                                                            <span className="text-sm text-gray-600">
-                                                                {t("ententes.employer")}: {entente.etudiantSignature}
-                                                            </span>
+                                                            <div className="text-sm text-gray-600">
+                                                                <div className="font-medium">{t('ententes.studentSignature')}</div>
+                                                                <div className="text-sm text-gray-500">{t(`ententes.signature.${entente.etudiantSignature}`) || entente.etudiantSignature}</div>
+                                                            </div>
                                                         </div>
+
                                                         <div className="flex items-center gap-2">
                                                             {entente.employeurSignature === 'SIGNEE' ? (
                                                                 <CheckCircle className="w-5 h-5 text-green-600" />
                                                             ) : (
                                                                 <Clock className="w-5 h-5 text-yellow-600" />
                                                             )}
-                                                            <span className="text-sm text-gray-600">
-                                                                {t("ententes.employer")}: {entente.employeurSignature}
-                                                            </span>
+                                                            <div className="text-sm text-gray-600">
+                                                                <div className="font-medium">{t('ententes.employerSignature')}</div>
+                                                                <div className="text-sm text-gray-500">{t(`ententes.signature.${entente.employeurSignature}`) || entente.employeurSignature}</div>
+                                                            </div>
                                                         </div>
                                                     </div>
 
                                                     {statut && (
                                                         <div className="px-4 py-2 bg-blue-50 rounded-lg">
                                                             <div className="text-sm font-semibold text-gray-700">{t("ententes.statusLabel")}</div>
-                                                            <div className="mt-1">{statut}</div>
+                                                            <div className="mt-1">{t(`ententes.status.${statut}`) || statut}</div>
                                                         </div>
                                                     )}
                                                 </div>

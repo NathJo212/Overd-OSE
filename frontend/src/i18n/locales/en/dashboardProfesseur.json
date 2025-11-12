@@ -32,6 +32,7 @@
     "candidatures": "Applications",
     "ententes": "Agreements",
     "evaluate": "Evaluate",
+    "viewEvaluation": "View evaluation",
     "noLetter": "No cover letter"
   },
 
@@ -47,7 +48,19 @@
     "location": "Location",
     "period": "Period",
     "weeklyHours": "Weekly hours",
-    "statusLabel": "Internship status"
+    "statusLabel": "Internship status",
+    "studentSignature": "Student signature",
+    "employerSignature": "Employer signature",
+    "signature": {
+      "SIGNEE": "Signed",
+      "NON_SIGNEE": "Not signed",
+      "EN_ATTENTE": "Pending"
+    },
+    "status": {
+      "PAS_COMMENCE": "Not started",
+      "EN_COURS": "In progress",
+      "TERMINE": "Completed"
+    }
   },
 
   "form": {
@@ -227,6 +240,6 @@
   "pdf": {
     "cvTitle": "CV of {{name}}",
     "letterTitle": "Cover letter #{{id}}",
-    "evaluationTitle": "Evaluation - {{name}}"
+    "evaluationTitle": "Evaluation of the internship environment"
   }
 }
