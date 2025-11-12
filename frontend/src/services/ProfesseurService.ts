@@ -45,6 +45,7 @@ export interface EntenteStageDTO {
     etudiantId: number;
     etudiantNomComplet: string;
     etudiantEmail: string;
+    nomEntreprise: string;
     employeurContact: string;
     employeurEmail: string;
     offreId?: number;

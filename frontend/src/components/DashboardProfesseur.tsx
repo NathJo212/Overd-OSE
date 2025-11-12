@@ -40,6 +40,7 @@ const DashboardProfesseur = () => {
     // States
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
+    const [success, setSuccess] = useState<string>("");
     const [evaluations, setEvaluations] = useState<EvaluationMilieuStageDTO[]>([]);
     const [ententesDisponibles, setEntentesDisponibles] = useState<EntenteStageDTO[]>([]);
     const [loadingEntentesDisponibles, setLoadingEntentesDisponibles] = useState(false);
@@ -73,30 +74,30 @@ const DashboardProfesseur = () => {
     const [downloadingLettre, setDownloadingLettre] = useState<number | null>(null);
     const [selectedEtudiant, setSelectedEtudiant] = useState<EtudiantDTO | null>(null);
 
-    // Options pour enums (cohérents avec EvaluationEnumsDTO.java)
+    // Options pour enums (cohérents avec EvaluationEnumsDTO.java) - libellés traduits
     const stageNumeroOptions = [
-        { value: 'STAGE_1', label: 'Stage 1' },
-        { value: 'STAGE_2', label: 'Stage 2' },
+        { value: 'STAGE_1', label: t('options.stageNumero.STAGE_1') },
+        { value: 'STAGE_2', label: t('options.stageNumero.STAGE_2') },
     ];
 
     const niveauAccordOptions = [
-        { value: 'TOTALEMENT_EN_ACCORD', label: 'Totalement en accord' },
-        { value: 'PLUTOT_EN_ACCORD', label: 'Plutôt en accord' },
-        { value: 'PLUTOT_DESACCORD', label: 'Plutôt en désaccord' },
-        { value: 'TOTALEMENT_DESACCORD', label: 'Totalement en désaccord' },
-        { value: 'IMPOSSIBLE_DE_SE_PRONONCER', label: 'Impossible de se prononcer' },
+        { value: 'TOTALEMENT_EN_ACCORD', label: t('options.niveauAccord.TOTALEMENT_EN_ACCORD') },
+        { value: 'PLUTOT_EN_ACCORD', label: t('options.niveauAccord.PLUTOT_EN_ACCORD') },
+        { value: 'PLUTOT_DESACCORD', label: t('options.niveauAccord.PLUTOT_DESACCORD') },
+        { value: 'TOTALEMENT_DESACCORD', label: t('options.niveauAccord.TOTALEMENT_DESACCORD') },
+        { value: 'IMPOSSIBLE_DE_SE_PRONONCER', label: t('options.niveauAccord.IMPOSSIBLE_DE_SE_PRONONCER') },
     ];
 
     const ouiNonOptions = [
-        { value: 'OUI', label: 'Oui' },
-        { value: 'NON', label: 'Non' },
+        { value: 'OUI', label: t('options.ouiNon.OUI') },
+        { value: 'NON', label: t('options.ouiNon.NON') },
     ];
 
     const stagiairesNbOptions = [
-        { value: 'UN_STAGIAIRE', label: '1' },
-        { value: 'DEUX_STAGIAIRES', label: '2' },
-        { value: 'TROIS_STAGIAIRES', label: '3' },
-        { value: 'PLUS_DE_TROIS', label: '>3' },
+        { value: 'UN_STAGIAIRE', label: t('options.stagiairesNb.UN_STAGIAIRE') },
+        { value: 'DEUX_STAGIAIRES', label: t('options.stagiairesNb.DEUX_STAGIAIRES') },
+        { value: 'TROIS_STAGIAIRES', label: t('options.stagiairesNb.TROIS_STAGIAIRES') },
+        { value: 'PLUS_DE_TROIS', label: t('options.stagiairesNb.PLUS_DE_TROIS') },
     ];
 
     // Détermine si le champ 'commentaires' est requis (au moins une réponse négative)
@@ -222,22 +223,22 @@ const DashboardProfesseur = () => {
 
     const validateForm = (): boolean => {
         if (!evaluationForm.ententeId || evaluationForm.ententeId === 0) {
-            setError(t("form.selectPlaceholder") || "Veuillez sélectionner une entente");
+            setError(t('errors.selectEntente'));
             return false;
         }
         // Exiger quelques champs clés : stageNumero et au moins un champ d'évaluation sélectionné
         if (!evaluationForm.stageNumero || evaluationForm.stageNumero === '') {
-            setError("Veuillez choisir le numéro de stage");
+            setError(t('errors.selectStageNumber'));
             return false;
         }
         if (!evaluationForm.tachesConformes || evaluationForm.tachesConformes === '') {
-            setError("Veuillez répondre aux questions d'évaluation");
+            setError(t('errors.answerEvaluationQuestions'));
             return false;
         }
         // Si une réponse négative a été choisie quelque part, commentaires obligatoires
         if (commentaireRequired) {
             if (!evaluationForm.commentaires || (evaluationForm.commentaires || '').trim() === '') {
-                setError("Un commentaire est requis si vous répondez (plutôt en désaccord / totalement en désaccord)");
+                setError(t('errors.commentRequired'));
                 return false;
             }
         }
@@ -273,9 +274,8 @@ const DashboardProfesseur = () => {
             setEntentesDisponibles([]);
             await loadData();
 
-            // Show success message briefly
             setError("");
-            alert(t("messages.success"));
+            setSuccess(t("messages.success"));
 
         } catch (e: any) {
             if (e.message.includes("déjà été évaluée") || e.message.includes("already been evaluated")) {
@@ -305,10 +305,10 @@ const DashboardProfesseur = () => {
             const blob = await professeurService.getCV(etudiant.id, token);
             const url = window.URL.createObjectURL(blob);
             setPdfUrl(url);
-            setPdfTitle(`CV de ${etudiant.prenom} ${etudiant.nom}`);
+            setPdfTitle(t('pdf.cvTitle', { name: `${etudiant.prenom} ${etudiant.nom}` }));
         } catch (error) {
             console.error("Erreur lors du chargement du CV:", error);
-            setError("Erreur lors du téléchargement du CV");
+            setError(t('errors.cvDownload'));
         } finally {
             setDownloadingCV(null);
         }
@@ -321,11 +321,11 @@ const DashboardProfesseur = () => {
             const blob = await professeurService.getEvaluationMilieuStagePdf(evaluationId);
             const url = window.URL.createObjectURL(blob);
             setPdfUrl(url);
-            const title = evaluation ? `Évaluation - ${evaluation.prenomEtudiant} ${evaluation.nomEtudiant}` : `Évaluation #${evaluationId}`;
+            const title = evaluation ? t('pdf.evaluationTitle', { name: `${evaluation.prenomEtudiant} ${evaluation.nomEtudiant}` }) : `Évaluation #${evaluationId}`;
             setPdfTitle(title);
         } catch (err) {
             console.error('Erreur téléchargement PDF évaluation', err);
-            setError('Erreur lors du téléchargement du PDF de l\'évaluation');
+            setError(t('errors.evaluationPdfDownload'));
         }
     };
 
@@ -337,7 +337,7 @@ const DashboardProfesseur = () => {
             setCandidatures(data);
         } catch (error) {
             console.error('Erreur lors du chargement des candidatures:', error);
-            setError("Erreur lors du chargement des candidatures");
+            setError(t('errors.candidaturesLoad'));
         } finally {
             setLoadingCandidatures(false);
         }
@@ -365,7 +365,7 @@ const DashboardProfesseur = () => {
             setStatutsStage(statuts);
         } catch (error) {
             console.error('Erreur lors du chargement des ententes:', error);
-            setError("Erreur lors du chargement des ententes");
+            setError(t('errors.ententesLoad'));
         } finally {
             setLoadingEntentes(false);
         }
@@ -377,10 +377,10 @@ const DashboardProfesseur = () => {
             const blob = await professeurService.getLettreMotivation(candidatureId, token);
             const url = window.URL.createObjectURL(blob);
             setPdfUrl(url);
-            setPdfTitle(`Lettre de motivation #${candidatureId}`);
+            setPdfTitle(t('pdf.letterTitle', { id: candidatureId }));
         } catch (error) {
             console.error("Erreur lors du chargement de la lettre:", error);
-            setError("Erreur lors du téléchargement de la lettre de motivation");
+            setError(t('errors.letterDownload'));
         } finally {
             setDownloadingLettre(null);
         }
@@ -398,7 +398,7 @@ const DashboardProfesseur = () => {
             return (
                 <div className="flex items-center gap-2 text-gray-400">
                     <FileX className="w-4 h-4" />
-                    <span className="text-sm">Aucun CV</span>
+                    <span className="text-sm">{t("students.noCV")}</span>
                 </div>
             );
         }
@@ -410,18 +410,29 @@ const DashboardProfesseur = () => {
                 className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium hover:shadow-md hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <FileText className="w-4 h-4" />
-                <span className="text-sm">Regarder le CV</span>
+                <span className="text-sm">{t("actions.viewCV")}</span>
             </button>
         );
     };
 
     const getProgramName = (programCode: string | undefined) => {
-        if (!programCode) return 'N/A';
+        if (!programCode) return t('misc.na');
         return t(`programmes:${programCode}`, {defaultValue: programCode});
     };
 
     // entente présélectionnée pour affichage dans le modal
     const selectedEntente = ententesDisponibles.find(e => e.id === evaluationForm.ententeId) || null;
+
+    useEffect(() => {
+        if (selectedEntente) {
+            setEvaluationForm(prev => ({
+                ...prev,
+                nomEntreprise: (selectedEntente.nomEntreprise ?? prev.nomEntreprise) || '',
+                personneContact: (selectedEntente.employeurContact ?? prev.personneContact) || '',
+                nomStagiaire: selectedEtudiant ? `${selectedEtudiant.prenom} ${selectedEtudiant.nom}` : (prev.nomStagiaire || '')
+            }));
+        }
+    }, [selectedEntente, selectedEtudiant]);
 
     if (loading) {
         return (
@@ -453,7 +464,21 @@ const DashboardProfesseur = () => {
                         </div>
                     </div>
 
-                    {/* Error Display */}
+                    {success && (
+                        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+                            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-green-800 font-medium">{success}</p>
+                            </div>
+                            <button
+                                onClick={() => setSuccess("")}
+                                className="text-green-400 hover:text-green-600 transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                    )}
+
                     {error && (
                         <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
@@ -474,23 +499,23 @@ const DashboardProfesseur = () => {
                         <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600">
                             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                                 <Users className="w-6 h-6" />
-                                Mes Étudiants
+                                {t("header.myStudents")}
                             </h2>
                         </div>
 
                         {etudiants.length === 0 ? (
                             <div className="p-12 text-center">
                                 <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                <p className="text-gray-500 text-lg">Aucun étudiant assigné pour le moment</p>
+                                <p className="text-gray-500 text-lg">{t("status.noStudents")}</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full min-w-max">
                                     <thead className="bg-gradient-to-r from-blue-50 to-slate-50">
                                         <tr>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[200px]">Étudiant</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[200px]">{t("list.student")}</th>
                                             <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[120px]">CV</th>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[180px]">Actions</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[180px]">{t("list.actions")}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
@@ -541,7 +566,7 @@ const DashboardProfesseur = () => {
                                                             title="Candidatures"
                                                         >
                                                             <FileText className="w-4 h-4 flex-shrink-0" />
-                                                            <span className="hidden xl:inline">Candidatures</span>
+                                                            <span>{t("actions.candidatures")}</span>
                                                         </button>
                                                         <button
                                                             onClick={() => etudiant.id && handleViewEntentes(etudiant.id)}
@@ -549,7 +574,7 @@ const DashboardProfesseur = () => {
                                                             title="Ententes"
                                                         >
                                                             <Briefcase className="w-4 h-4 flex-shrink-0" />
-                                                            <span className="hidden xl:inline">Ententes</span>
+                                                            <span>{t("actions.ententes")}</span>
                                                         </button>
                                                         <button
                                                             onClick={() => openFormForStudent(etudiant)}
@@ -557,7 +582,7 @@ const DashboardProfesseur = () => {
                                                             title="Évaluer"
                                                         >
                                                             <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                                                            <span className="hidden xl:inline">Évaluer</span>
+                                                            <span>{t("actions.evaluate")}</span>
                                                         </button>
                                                     </div>
                                                 </td>
@@ -637,7 +662,7 @@ const DashboardProfesseur = () => {
                                                         <button
                                                             onClick={() => handleViewEvaluationPdf(evaluation.id, evaluation)}
                                                             className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-                                                            title="Voir PDF"
+                                                            title={t("list.downloadPdf")}
                                                         >
                                                             <FileText className="w-5 h-5" />
                                                         </button>
@@ -753,7 +778,7 @@ const DashboardProfesseur = () => {
                         <div className="p-6 border-b border-slate-200 flex justify-between items-center">
                             <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                 <FileText className="w-6 h-6 text-purple-600" />
-                                Candidatures de l'étudiant
+                                {t("candidatures.title")}
                             </h3>
                             <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                                 <X className="w-6 h-6" />
@@ -765,7 +790,7 @@ const DashboardProfesseur = () => {
                                     <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-purple-600" />
                                 </div>
                             ) : candidatures.length === 0 ? (
-                                <p className="text-center text-gray-600 py-12">Aucune candidature trouvée</p>
+                                <p className="text-center text-gray-600 py-12">{t("candidatures.noData")}</p>
                             ) : (
                                 <div className="space-y-4">
                                     {candidatures.map((candidature) => (
@@ -773,7 +798,7 @@ const DashboardProfesseur = () => {
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
                                                     <h4 className="text-lg font-semibold text-gray-900">{candidature.offreTitre}</h4>
-                                                    <p className="text-sm text-gray-600">Employeur: {candidature.employeurNom}</p>
+                                                    <p className="text-sm text-gray-600">{t("ententes.employer")}: {candidature.employeurNom}</p>
                                                     <p className="text-sm text-gray-500">
                                                         Date: {new Date(candidature.dateCandidature).toLocaleDateString()}
                                                     </p>
@@ -789,12 +814,12 @@ const DashboardProfesseur = () => {
                                                             className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm"
                                                         >
                                                             <FileText className="w-4 h-4" />
-                                                            <span>Regarder la lettre de motivation</span>
+                                                            <span>{t("actions.viewLetter")}</span>
                                                         </button>
                                                     ) : (
                                                         <div className="flex items-center gap-2 text-gray-400">
                                                             <FileX className="w-4 h-4" />
-                                                            <span className="text-sm">Aucune lettre de motivation</span>
+                                                            <span className="text-sm">{t("actions.noLetter")}</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -815,7 +840,7 @@ const DashboardProfesseur = () => {
                         <div className="p-6 border-b border-slate-200 flex justify-between items-center">
                             <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                 <Briefcase className="w-6 h-6 text-green-600" />
-                                Ententes de stage
+                                {t("actions.ententes")}
                             </h3>
                             <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                                 <X className="w-6 h-6" />
@@ -827,7 +852,7 @@ const DashboardProfesseur = () => {
                                     <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-green-600" />
                                 </div>
                             ) : ententesStudent.length === 0 ? (
-                                <p className="text-center text-gray-600 py-12">Aucune entente trouvée</p>
+                                <p className="text-center text-gray-600 py-12">{t("messages.noEntentes")}</p>
                             ) : (
                                 <div className="space-y-4">
                                     {ententesStudent.map((entente) => {
@@ -842,21 +867,21 @@ const DashboardProfesseur = () => {
                                                         <p className="text-sm text-gray-600 mt-1">{entente.description}</p>
                                                         <div className="mt-3 grid grid-cols-2 gap-3">
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Employeur</p>
+                                                                <p className="text-sm text-gray-500">{t("ententes.employer")}</p>
                                                                 <p className="text-sm font-medium text-gray-900">{entente.employeurContact}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Lieu</p>
+                                                                <p className="text-sm text-gray-500">{t("ententes.location")}</p>
                                                                 <p className="text-sm font-medium text-gray-900">{entente.lieu}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Période</p>
+                                                                <p className="text-sm text-gray-500">{t("ententes.period")}</p>
                                                                 <p className="text-sm font-medium text-gray-900">
                                                                     {new Date(entente.dateDebut).toLocaleDateString()} - {new Date(entente.dateFin).toLocaleDateString()}
                                                                 </p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Durée hebdomadaire</p>
+                                                                <p className="text-sm text-gray-500">{t("ententes.weeklyHours")}</p>
                                                                 <p className="text-sm font-medium text-gray-900">{entente.dureeHebdomadaire}h</p>
                                                             </div>
                                                         </div>
@@ -872,7 +897,7 @@ const DashboardProfesseur = () => {
                                                                 <Clock className="w-5 h-5 text-yellow-600" />
                                                             )}
                                                             <span className="text-sm text-gray-600">
-                                                                Étudiant: {entente.etudiantSignature}
+                                                                {t("ententes.employer")}: {entente.etudiantSignature}
                                                             </span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
@@ -882,14 +907,14 @@ const DashboardProfesseur = () => {
                                                                 <Clock className="w-5 h-5 text-yellow-600" />
                                                             )}
                                                             <span className="text-sm text-gray-600">
-                                                                Employeur: {entente.employeurSignature}
+                                                                {t("ententes.employer")}: {entente.employeurSignature}
                                                             </span>
                                                         </div>
                                                     </div>
 
                                                     {statut && (
                                                         <div className="px-4 py-2 bg-blue-50 rounded-lg">
-                                                            <div className="text-sm font-semibold text-gray-700">Statut du stage:</div>
+                                                            <div className="text-sm font-semibold text-gray-700">{t("ententes.statusLabel")}</div>
                                                             <div className="mt-1">{statut}</div>
                                                         </div>
                                                     )}
@@ -904,24 +929,28 @@ const DashboardProfesseur = () => {
                 </div>
             )}
 
-            {/* Evaluation Modal (per-student) */}
+            {/* Evaluation Modal */}
             {viewMode === 'evaluation' && selectedEtudiant && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                    <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
                         <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex justify-between items-center">
                             <div>
                                 <h3 className="text-2xl font-bold flex items-center gap-2">
                                     <ClipboardList className="w-6 h-6" />
-                                    Évaluation du Milieu de Stage
+                                    {t("form.header")}
                                 </h3>
-                                <p className="text-indigo-100 mt-1">Étudiant: {selectedEtudiant.prenom} {selectedEtudiant.nom}</p>
+                                <p className="text-indigo-100 mt-1 text-sm">{t("form.headerStudent")} {selectedEtudiant.prenom} {selectedEtudiant.nom}</p>
                             </div>
-                            <button onClick={() => { setSelectedEtudiant(null); setViewMode(null); setEntentesDisponibles([]); }} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                            <button
+                                onClick={() => { setSelectedEtudiant(null); setViewMode(null); setEntentesDisponibles([]); }}
+                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                aria-label="Fermer"
+                            >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
 
-                        <div className="p-6 overflow-y-auto flex-1">
+                        <div className="p-6 overflow-y-auto flex-1 space-y-6">
                             {loadingEntentesDisponibles ? (
                                 <div className="flex justify-center items-center py-12">
                                     <div className="h-16 w-16 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-600" />
@@ -929,218 +958,282 @@ const DashboardProfesseur = () => {
                             ) : ententesDisponibles.length === 0 ? (
                                 <div className="text-center py-12">
                                     <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-                                    <p className="text-gray-600 text-lg">Aucune entente de stage signée disponible pour évaluation</p>
-                                    <p className="text-gray-500 mt-2">L'étudiant doit avoir une entente signée qui n'a pas encore été évaluée</p>
+                                    <p className="text-gray-600 text-lg">{t("messages.noEntentes")}</p>
+                                    <p className="text-gray-500 mt-2">{t("messages.ententeNotFinalized")}</p>
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-6">
-                                    {/* Affichage entente présélectionnée */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Entante de stage</label>
-                                        {selectedEntente ? (
-                                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <div className="font-semibold text-gray-900">{selectedEntente.titre}</div>
-                                                        <div className="text-sm text-gray-600 mt-1">{selectedEntente.employeurContact}</div>
-                                                    </div>
-                                                    <div className="text-sm text-gray-600 text-right">
-                                                        <div>{new Date(selectedEntente.dateDebut).toLocaleDateString()} — {new Date(selectedEntente.dateFin).toLocaleDateString()}</div>
-                                                        {selectedEntente.lieu && <div className="mt-1">{selectedEntente.lieu}</div>}
-                                                    </div>
+                                    {/* Entente sélectionnée */}
+                                    <section className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                        <h4 className="text-sm font-semibold text-gray-700 mb-2">{t("form.section.entente")}</h4>
+                                         {selectedEntente ? (
+                                             <div className="flex items-center justify-between gap-4">
+                                                 <div className="min-w-0">
+                                                     <div className="text-lg font-semibold text-gray-900 truncate">{selectedEntente.titre}</div>
+                                                     <div className="text-sm text-indigo-700 font-medium truncate">{selectedEntente.nomEntreprise}</div>
+                                                     <div className="text-sm text-gray-500 mt-1 flex items-center gap-2 truncate">
+                                                         <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                                         <span className="truncate">{selectedEntente.employeurContact}</span>
+                                                     </div>
+                                                 </div>
+                                                 <div className="text-sm text-gray-600 text-right">
+                                                     <div>{new Date(selectedEntente.dateDebut).toLocaleDateString()} — {new Date(selectedEntente.dateFin).toLocaleDateString()}</div>
+                                                     {selectedEntente.lieu && <div className="mt-1">{selectedEntente.lieu}</div>}
+                                                 </div>
+                                             </div>
+                                         ) : (
+                                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-800">{t("status.noEntente")}</div>
+                                         )}
+                                     </section>
+
+                                     {/* Entreprise */}
+                                     <section className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                                                <Building2 className="w-4 h-4 text-indigo-600" /> {t("form.company.title")}
+                                            </h4>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">{t("form.company.name")}</label>
+                                                <input value={evaluationForm.nomEntreprise || ''} onChange={(e) => handleFormChange('nomEntreprise', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">{t("form.company.contact")}</label>
+                                                <input value={evaluationForm.personneContact || ''} onChange={(e) => handleFormChange('personneContact', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">{t("form.company.address")}</label>
+                                                <input value={evaluationForm.adresse || ''} onChange={(e) => handleFormChange('adresse', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">{t("form.company.city")}</label>
+                                                <input value={evaluationForm.ville || ''} onChange={(e) => handleFormChange('ville', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">{t("form.company.postal")}</label>
+                                                <input value={evaluationForm.codePostal || ''} onChange={(e) => handleFormChange('codePostal', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">{t("form.company.phone")}</label>
+                                                <input value={evaluationForm.telephone || ''} onChange={(e) => handleFormChange('telephone', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">{t("form.company.fax")}</label>
+                                                <input value={evaluationForm.telecopieur || ''} onChange={(e) => handleFormChange('telecopieur', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                     {/* Stagiaire */}
+                                     <section className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+                                        <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2"><GraduationCap className="w-4 h-4 text-indigo-600" /> {t("form.section.student")}</h4>
+                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                             <div>
+                                                <label className="block text-sm font-medium text-gray-700">{t("form.student.name")}</label>
+                                                <input value={evaluationForm.nomStagiaire || ''} onChange={(e) => handleFormChange('nomStagiaire', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                             </div>
+                                             <div>
+                                                <label className="block text-sm font-medium text-gray-700">{t("form.student.date")}</label>
+                                                <input type="date" value={evaluationForm.dateDuStage || ''} onChange={(e) => handleFormChange('dateDuStage', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                             </div>
+                                             <div>
+                                                {renderRadioGroup('stageNumero', stageNumeroOptions, t("form.student.stageNumberLabel"))}
+                                             </div>
+                                         </div>
+                                     </section>
+
+                                     {/* Évaluation */}
+                                     <section className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+                                         <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2"><ClipboardList className="w-4 h-4 text-indigo-600" /> Évaluation</h4>
+                                         <div className="space-y-4">
+                                             <div className="grid grid-cols-1 gap-4">
+                                                <div>{renderRadioGroup('tachesConformes', niveauAccordOptions, t("form.questions.tachesConformes"))}</div>
+                                                <div>{renderRadioGroup('mesuresAccueil', niveauAccordOptions, t("form.questions.mesuresAccueil"))}</div>
+                                                    <div>{renderRadioGroup('tempsEncadrementSuffisant', niveauAccordOptions, t("form.questions.tempsEncadrementSuffisant"))}</div>
+
+                                                 <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t("form.hours.label")}</label>
+                                                     <div className="grid grid-cols-1 gap-2">
+                                                         <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                                                             <div>
+                                                                <label className="block text-sm font-medium text-gray-700">{t("form.hours.month1")}</label>
+                                                                <input value={evaluationForm.heuresPremierMois || ''} onChange={(e) => handleFormChange('heuresPremierMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                                             </div>
+                                                             <div>
+                                                                <label className="block text-sm font-medium text-gray-700">{t("form.hours.month2")}</label>
+                                                                <input value={evaluationForm.heuresDeuxiemeMois || ''} onChange={(e) => handleFormChange('heuresDeuxiemeMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                                             </div>
+                                                             <div>
+                                                                <label className="block text-sm font-medium text-gray-700">{t("form.hours.month3")}</label>
+                                                                <input value={evaluationForm.heuresTroisiemeMois || ''} onChange={(e) => handleFormChange('heuresTroisiemeMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                                             </div>
+                                                         </div>
+                                                     </div>
+                                                 </div>
+
+                                        <div>{renderRadioGroup('environnementSecurite', niveauAccordOptions, t("form.questions.environnementSecurite"))}</div>
+                                        <div>{renderRadioGroup('climatTravail', niveauAccordOptions, t("form.questions.climatTravail"))}</div>
+                                        <div>{renderRadioGroup('milieuAccessible', niveauAccordOptions, t("form.questions.milieuAccessible"))}</div>
+                                        <div>{renderRadioGroup('salaireInteressant', niveauAccordOptions, t("form.questions.salaireInteressant"))}</div>
+
+                                         <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">{t("form.salary.label")}</label>
+                                            <input value={evaluationForm.salaireMontantHeure || ''} onChange={(e) => handleFormChange('salaireMontantHeure', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                         </div>
+
+                                        <div>{renderRadioGroup('communicationSuperviseur', niveauAccordOptions, t("form.questions.communicationSuperviseur"))}</div>
+                                        <div>{renderRadioGroup('equipementAdequat', niveauAccordOptions, t("form.questions.equipementAdequat"))}</div>
+                                        <div>{renderRadioGroup('volumeTravailAcceptable', niveauAccordOptions, t("form.questions.volumeTravailAcceptable"))}</div>
+                                     </div>
+                                 </div>
+                                 </section>
+
+                                 {/* Commentaires */}
+                                 <section className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        {t("form.comments.label")}
+                                        {commentaireRequired && (<span className="text-red-600 ml-2">*</span>)}
+                                    </label>
+                                    <textarea value={evaluationForm.commentaires || ''} onChange={(e) => handleFormChange('commentaires', e.target.value)} rows={4} className={`w-full px-3 py-2 border rounded-lg ${commentaireRequired && !(evaluationForm.commentaires || '').trim() ? 'border-red-300 bg-red-50' : ''}`} />
+                                    {commentaireRequired && (
+                                        <p className="text-sm text-red-600 mt-1">{t("form.comments.requiredMsg")}</p>
+                                    )}
+                                 </section>
+                                     {/* Observations & Quarts */}
+                                <section className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+                                    {/* --- Partie haute : observations générales --- */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                        <div>
+                                            {renderRadioGroup('milieuAPrivilegier', stageNumeroOptions, t("form.observations.milieuAPrivilegier"))}
+                                        </div>
+                                        <div>
+                                            {renderRadioGroup('accueillirStagiairesNb', stagiairesNbOptions, t("form.observations.accueillirStagiairesNb"))}
+                                        </div>
+                                        <div>
+                                            {renderRadioGroup('desireAccueillirMemeStagiaire', ouiNonOptions, t("form.observations.desireAccueillirMemeStagiaire"))}
+                                        </div>
+                                    </div>
+
+                                    {/* --- Offre de quarts variables --- */}
+                                    <div className="mb-4">
+                                        {renderRadioGroup('offreQuartsVariables', ouiNonOptions, t("form.observations.offreQuartsVariables"))}
+                                    </div>
+
+                                    {/* --- Si "OUI" : affichage des quarts A, B, C sur des lignes distinctes --- */}
+                                    {evaluationForm.offreQuartsVariables === 'OUI' && (
+                                        <div className="space-y-4">
+                                            {/* Quart A */}
+                                            <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
+                                                <div className="md:col-span-1">
+                                                    <label className="block text-sm font-semibold text-gray-800">{t("form.observations.quart.A")}</label>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm text-gray-600">{t("form.observations.quart.from")}</label>
+                                                    <input
+                                                        type="time"
+                                                        value={evaluationForm.quartsADe || ''}
+                                                        onChange={(e) => handleFormChange('quartsADe', e.target.value)}
+                                                        className="w-full px-3 py-2 border rounded-lg bg-white border-gray-200 focus:ring-2 focus:ring-indigo-200"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm text-gray-600">{t("form.observations.quart.to")}</label>
+                                                    <input
+                                                        type="time"
+                                                        value={evaluationForm.quartsAFin || ''}
+                                                        onChange={(e) => handleFormChange('quartsAFin', e.target.value)}
+                                                        className="w-full px-3 py-2 border rounded-lg bg-white border-gray-200 focus:ring-2 focus:ring-indigo-200"
+                                                    />
                                                 </div>
                                             </div>
-                                        ) : (
-                                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
-                                                Aucune entente sélectionnée
-                                            </div>
-                                        )}
-                                    </div>
 
-                                    {/* --- IDENTIFICATION DE L'ENTREPRISE (Page 1) --- */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Nom de l'entreprise</label>
-                                            <input value={evaluationForm.nomEntreprise || ''} onChange={(e) => handleFormChange('nomEntreprise', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Personne contact</label>
-                                            <input value={evaluationForm.personneContact || ''} onChange={(e) => handleFormChange('personneContact', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Adresse</label>
-                                            <input value={evaluationForm.adresse || ''} onChange={(e) => handleFormChange('adresse', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Ville</label>
-                                            <input value={evaluationForm.ville || ''} onChange={(e) => handleFormChange('ville', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Code postal</label>
-                                            <input value={evaluationForm.codePostal || ''} onChange={(e) => handleFormChange('codePostal', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Téléphone</label>
-                                            <input value={evaluationForm.telephone || ''} onChange={(e) => handleFormChange('telephone', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div className="md:col-span-2">
-                                            <label className="block text-sm font-medium text-gray-700">Télécopieur</label>
-                                            <input value={evaluationForm.telecopieur || ''} onChange={(e) => handleFormChange('telecopieur', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                    </div>
-
-                                    {/* --- IDENTIFICATION DU STAGIAIRE (Page 1) --- */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Nom du stagiaire</label>
-                                            <input value={evaluationForm.nomStagiaire || ''} onChange={(e) => handleFormChange('nomStagiaire', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Date du stage</label>
-                                            <input type="date" value={evaluationForm.dateDuStage || ''} onChange={(e) => handleFormChange('dateDuStage', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Numéro de stage (choix)</label>
-                                            {renderRadioGroup('stageNumero', stageNumeroOptions, 'Numéro de stage')}
-                                        </div>
-                                    </div>
-
-                                    {/* --- ÉVALUATION (Page 1 & 2) --- */}
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-1 gap-4">
-                                            <div>
-                                                {renderRadioGroup('tachesConformes', niveauAccordOptions, 'Tâches conformes')}
-                                            </div>
-                                            <div>
-                                                {renderRadioGroup('mesuresAccueil', niveauAccordOptions, "Mesures d'accueil")}
-                                            </div>
-                                            <div>
-                                                {renderRadioGroup('tempsEncadrementSuffisant', niveauAccordOptions, "Temps encadrement suffisant")}
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Heures par mois</label>
-                                                <div className="grid grid-cols-1 gap-2">
-                                                    <input value={evaluationForm.heuresPremierMois || ''} onChange={(e) => handleFormChange('heuresPremierMois', e.target.value)} placeholder="1er mois" className="w-full px-3 py-2 border rounded-lg" />
-                                                    <input value={evaluationForm.heuresDeuxiemeMois || ''} onChange={(e) => handleFormChange('heuresDeuxiemeMois', e.target.value)} placeholder="2e mois" className="w-full px-3 py-2 border rounded-lg" />
-                                                    <input value={evaluationForm.heuresTroisiemeMois || ''} onChange={(e) => handleFormChange('heuresTroisiemeMois', e.target.value)} placeholder="3e mois" className="w-full px-3 py-2 border rounded-lg" />
+                                            {/* Quart B */}
+                                            <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
+                                                <div className="md:col-span-1">
+                                                    <label className="block text-sm font-semibold text-gray-800">{t("form.observations.quart.B")}</label>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm text-gray-600">{t("form.observations.quart.from")}</label>
+                                                    <input
+                                                        type="time"
+                                                        value={evaluationForm.quartsBDe || ''}
+                                                        onChange={(e) => handleFormChange('quartsBDe', e.target.value)}
+                                                        className="w-full px-3 py-2 border rounded-lg bg-white border-gray-200 focus:ring-2 focus:ring-indigo-200"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm text-gray-600">{t("form.observations.quart.to")}</label>
+                                                    <input
+                                                        type="time"
+                                                        value={evaluationForm.quartsBFin || ''}
+                                                        onChange={(e) => handleFormChange('quartsBFin', e.target.value)}
+                                                        className="w-full px-3 py-2 border rounded-lg bg-white border-gray-200 focus:ring-2 focus:ring-indigo-200"
+                                                    />
                                                 </div>
                                             </div>
-                                            <div>
-                                                {renderRadioGroup('environnementSecurite', niveauAccordOptions, 'Environnement & sécurité')}
-                                            </div>
-                                            <div>
-                                                {renderRadioGroup('climatTravail', niveauAccordOptions, 'Climat de travail')}
-                                            </div>
-                                            <div>
-                                                {renderRadioGroup('milieuAccessible', niveauAccordOptions, 'Milieu accessible')}
-                                            </div>
-                                            <div>
-                                                {renderRadioGroup('salaireInteressant', niveauAccordOptions, 'Salaire intéressant')}
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Montant salaire / heure</label>
-                                                <input value={evaluationForm.salaireMontantHeure || ''} onChange={(e) => handleFormChange('salaireMontantHeure', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                            </div>
-                                            <div>
-                                                {renderRadioGroup('communicationSuperviseur', niveauAccordOptions, 'Communication du superviseur')}
-                                            </div>
-                                            <div>
-                                                {renderRadioGroup('equipementAdequat', niveauAccordOptions, 'Équipement adéquat')}
-                                            </div>
-                                            <div>
-                                                {renderRadioGroup('volumeTravailAcceptable', niveauAccordOptions, 'Volume de travail acceptable')}
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    {/* --- COMMENTAIRES (Page 2) --- */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Commentaires
-                                            {commentaireRequired && (<span className="text-red-600 ml-2">*</span>)}
-                                        </label>
-                                        <textarea value={evaluationForm.commentaires || ''} onChange={(e) => handleFormChange('commentaires', e.target.value)} rows={4} className={`w-full px-3 py-2 border rounded-lg ${commentaireRequired && !(evaluationForm.commentaires || '').trim() ? 'border-red-300 bg-red-50' : ''}`} />
-                                        {commentaireRequired && (
-                                            <p className="text-sm text-red-600 mt-1">Un commentaire est requis si vous avez répondu "Plutôt en désaccord" ou "Totalement en désaccord" à une question.</p>
-                                        )}
-                                    </div>
+                                            {/* Quart C */}
+                                            <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
+                                                <div className="md:col-span-1">
+                                                    <label className="block text-sm font-semibold text-gray-800">{t("form.observations.quart.C")}</label>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm text-gray-600">{t("form.observations.quart.from")}</label>
+                                                    <input
+                                                        type="time"
+                                                        value={evaluationForm.quartsCDe || ''}
+                                                        onChange={(e) => handleFormChange('quartsCDe', e.target.value)}
+                                                        className="w-full px-3 py-2 border rounded-lg bg-white border-gray-200 focus:ring-2 focus:ring-indigo-200"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm text-gray-600">{t("form.observations.quart.to")}</label>
+                                                    <input
+                                                        type="time"
+                                                        value={evaluationForm.quartsCFin || ''}
+                                                        onChange={(e) => handleFormChange('quartsCFin', e.target.value)}
+                                                        className="w-full px-3 py-2 border rounded-lg bg-white border-gray-200 focus:ring-2 focus:ring-indigo-200"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
-                                    {/* --- OBSERVATIONS GÉNÉRALES (Page 2) --- */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {/* --- Date de signature (toujours visible) --- */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700">Milieu à privilégier</label>
-                                            {renderRadioGroup('milieuAPrivilegier', stageNumeroOptions, 'Milieu à privilégier')}
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Nombre de stagiaires à accueillir</label>
-                                            {renderRadioGroup('accueillirStagiairesNb', stagiairesNbOptions, 'Nombre de stagiaires')}
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Désire accueillir même stagiaire ?</label>
-                                            {renderRadioGroup('desireAccueillirMemeStagiaire', ouiNonOptions, 'Accueillir même stagiaire')}
+                                            <label className="block text-sm font-medium text-gray-700">{t("form.observations.dateSignature")}</label>
+                                            <input
+                                                type="date"
+                                                value={evaluationForm.dateSignature || ''}
+                                                onChange={(e) => handleFormChange('dateSignature', e.target.value)}
+                                                className="w-full px-3 py-2 border rounded-lg bg-white border-gray-200 focus:ring-2 focus:ring-indigo-200"
+                                            />
                                         </div>
                                     </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Offre quarts variables ?</label>
-                                            {renderRadioGroup('offreQuartsVariables', ouiNonOptions, 'Quarts variables')}
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Quarts A (de)</label>
-                                            <input value={evaluationForm.quartsADe || ''} onChange={(e) => handleFormChange('quartsADe', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Quarts A (à)</label>
-                                            <input value={evaluationForm.quartsAFin || ''} onChange={(e) => handleFormChange('quartsAFin', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Quarts B (de)</label>
-                                            <input value={evaluationForm.quartsBDe || ''} onChange={(e) => handleFormChange('quartsBDe', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Quarts B (à)</label>
-                                            <input value={evaluationForm.quartsBFin || ''} onChange={(e) => handleFormChange('quartsBFin', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Quarts C (de)</label>
-                                            <input value={evaluationForm.quartsCDe || ''} onChange={(e) => handleFormChange('quartsCDe', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Quarts C (à)</label>
-                                            <input value={evaluationForm.quartsCFin || ''} onChange={(e) => handleFormChange('quartsCFin', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Date de signature</label>
-                                            <input type="date" value={evaluationForm.dateSignature || ''} onChange={(e) => handleFormChange('dateSignature', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                        </div>
-                                    </div>
+                                </section>
 
                                     <div className="flex gap-4 pt-2">
-                                        <button
-                                            type="submit"
-                                            disabled={submittingEvaluation}
-                                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg"
-                                        >
-                                            {submittingEvaluation ? (
-                                                <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> Soumission...</span>
-                                            ) : (
-                                                'Créer l\'évaluation'
-                                            )}
-                                        </button>
-                                        <button type="button" onClick={() => { setSelectedEtudiant(null); setViewMode(null); setEntentesDisponibles([]); }} className="px-6 py-2 border rounded-lg">Annuler</button>
-                                    </div>
-                                </form>
-                            )}
-                        </div>
-                    </div>
+                                <button
+                                    type="submit"
+                                    disabled={submittingEvaluation}
+                                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg"
+                                >
+                                    {submittingEvaluation ? (
+                                        <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> {t("form.submitting")}</span>
+                                    ) : (
+                                        t("form.submit")
+                                    )}
+                                </button>
+                                <button type="button" onClick={() => { setSelectedEtudiant(null); setViewMode(null); setEntentesDisponibles([]); }} className="px-6 py-3 border rounded-lg">{t("form.cancel")}</button>
+                            </div>
+                                 </form>
+                         )}
+                     </div>
+                 </div>
                 </div>
-            )}
+                 )}
 
             {/* PDF Viewer Modal (pour CV / lettre) */}
             {pdfUrl && (
@@ -1148,17 +1241,17 @@ const DashboardProfesseur = () => {
                     <div className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-gray-200">
                         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                             <h2 className="text-lg font-semibold text-gray-800">{pdfTitle}</h2>
-                            <button
-                                onClick={() => {
-                                    window.URL.revokeObjectURL(pdfUrl);
-                                    setPdfUrl(null);
-                                    setPdfTitle("");
-                                }}
-                                className="p-2 hover:bg-gray-200 rounded-lg"
-                            >
-                                <X className="w-5 h-5 text-gray-700" />
-                            </button>
-                        </div>
+                             <button
+                                 onClick={() => {
+                                     window.URL.revokeObjectURL(pdfUrl);
+                                     setPdfUrl(null);
+                                     setPdfTitle("");
+                                 }}
+                                 className="p-2 hover:bg-gray-200 rounded-lg"
+                             >
+                                 <X className="w-5 h-5 text-gray-700" />
+                             </button>
+                         </div>
                         <iframe
                             src={pdfUrl}
                             title={pdfTitle}

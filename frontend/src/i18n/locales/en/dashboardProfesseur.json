@@ -5,39 +5,160 @@
   "noEvaluations": "No evaluations available",
   "createNew": "Create a new evaluation",
 
+  "header": {
+    "myStudents": "My Students"
+  },
+
+  "list": {
+    "title": "Evaluations list",
+    "student": "Student",
+    "company": "Company",
+    "date": "Evaluation date",
+    "actions": "Actions",
+    "view": "View",
+    "downloadPdf": "View PDF",
+    "cv": "CV",
+    "noData": "No evaluations found"
+  },
+
+  "students": {
+    "noStudents": "No students assigned at the moment",
+    "noCV": "No CV"
+  },
+
+  "actions": {
+    "viewCV": "View CV",
+    "viewLetter": "View letter",
+    "candidatures": "Applications",
+    "ententes": "Agreements",
+    "evaluate": "Evaluate",
+    "noLetter": "No cover letter"
+  },
+
+  "candidatures": {
+    "title": "Student applications",
+    "noData": "No applications found"
+  },
+
+  "ententes": {
+    "title": "Internship agreements",
+    "ententeCardTitle": "Internship agreement",
+    "employer": "Employer",
+    "location": "Location",
+    "period": "Period",
+    "weeklyHours": "Weekly hours",
+    "statusLabel": "Internship status"
+  },
+
   "form": {
-    "title": "New Internship Workplace Evaluation",
+    "title": "New internship workplace evaluation",
     "selectEntente": "Select an internship agreement",
     "selectPlaceholder": "Choose an agreement...",
-    "qualiteEncadrement": "Quality of supervision",
-    "qualiteEncadrementPlaceholder": "Describe the quality of supervision provided by the company supervisor...",
-    "pertinenceMissions": "Relevance of missions and tasks assigned",
-    "pertinenceMissionsPlaceholder": "Evaluate the relevance of missions assigned to the student in relation to their study program...",
-    "respectHoraires": "Respect of schedules and agreed conditions",
-    "respectHorairesPlaceholder": "Comment on the respect of work schedules and conditions agreed upon in the agreement...",
-    "communication": "Communication and supervisor availability",
-    "communicationPlaceholder": "Evaluate the communication and availability of the company supervisor...",
-    "commentaires": "Comments and suggestions for improvement",
-    "commentairesPlaceholder": "Provide constructive comments and suggestions to improve the internship experience...",
+
+    "section": {
+      "entente": "Agreement",
+      "company": "Company information",
+      "student": "Student information",
+      "evaluation": "Evaluation",
+      "comments": "Comments",
+      "observations": "General observations",
+      "shifts": "Shifts"
+    },
+
+    "company": {
+      "name": "Company name",
+      "contact": "Contact person",
+      "address": "Address",
+      "city": "City",
+      "postal": "Postal code",
+      "phone": "Phone",
+      "fax": "Fax",
+      "title": "Company information"
+    },
+
+    "student": {
+      "name": "Student name",
+      "date": "Internship date",
+      "stageNumberLabel": "Stage number"
+    },
+
+    "stageNumber": {
+      "stage1": "Stage 1",
+      "stage2": "Stage 2"
+    },
+
+    "niveau": {
+      "TOTALEMENT_EN_ACCORD": "Totally agree",
+      "PLUTOT_EN_ACCORD": "Rather agree",
+      "PLUTOT_DESACCORD": "Rather disagree",
+      "TOTALEMENT_DESACCORD": "Totally disagree",
+      "IMPOSSIBLE_DE_SE_PRONONCER": "Unable to say"
+    },
+
+    "ouiNon": {
+      "OUI": "Yes",
+      "NON": "No"
+    },
+
+    "stagiairesNb": {
+      "UN_STAGIAIRE": "1",
+      "DEUX_STAGIAIRES": "2",
+      "TROIS_STAGIAIRES": "3",
+      "PLUS_DE_TROIS": ">3"
+    },
+
+    "questions": {
+      "tachesConformes": "The tasks assigned to the trainee match those announced in the internship agreement.",
+      "mesuresAccueil": "Onboarding measures ease the integration of the new trainee.",
+      "tempsEncadrementSuffisant": "The actual time spent supervising the trainee is sufficient.",
+      "environnementSecurite": "The working environment complies with hygiene and safety standards.",
+      "climatTravail": "The work climate is pleasant.",
+      "milieuAccessible": "The internship site is accessible by public transit.",
+      "salaireInteressant": "The offered salary is interesting for the trainee.",
+      "communicationSuperviseur": "Communication with the supervisor facilitates the internship.",
+      "equipementAdequat": "The equipment provided is adequate to perform the assigned tasks.",
+      "volumeTravailAcceptable": "The workload is acceptable."
+    },
+
+    "hours": {
+      "label": "Specify number of hours/week:",
+      "month1": "1st month",
+      "month2": "2nd month",
+      "month3": "3rd month"
+    },
+
+    "salary": {
+      "label": "Specify (salary): /hour"
+    },
+
+    "comments": {
+      "label": "Comments",
+      "requiredMsg": "A comment is required if you answered \"Rather disagree\" or \"Totally disagree\" to a question."
+    },
+
+    "observations": {
+      "milieuAPrivilegier": "Preferred site",
+      "accueillirStagiairesNb": "Number of trainees to host",
+      "desireAccueillirMemeStagiaire": "Would host the same trainee again?",
+      "offreQuartsVariables": "Does the site offer variable shifts?",
+      "quart": {
+        "A": "Shift A",
+        "B": "Shift B",
+        "C": "Shift C",
+        "from": "From",
+        "to": "To"
+      },
+      "dateSignature": "Signature date"
+    },
+
     "submit": "Submit evaluation",
     "cancel": "Cancel",
     "submitting": "Submitting...",
     "required": "This field is required"
   },
 
-  "list": {
-    "title": "Evaluations List",
-    "student": "Student",
-    "company": "Company",
-    "date": "Evaluation date",
-    "actions": "Actions",
-    "view": "View",
-    "downloadPdf": "Download PDF",
-    "noData": "No evaluations found"
-  },
-
   "details": {
-    "title": "Evaluation Details",
+    "title": "Evaluation details",
     "studentInfo": "Student information",
     "companyInfo": "Company information",
     "evaluationInfo": "Evaluation information",
@@ -59,6 +180,53 @@
 
   "status": {
     "loading": "Loading...",
-    "noEntente": "No agreement selected"
+    "noEntente": "No agreement selected",
+    "noStudents": "No students assigned at the moment"
+  },
+
+  "options": {
+    "stageNumero": {
+      "STAGE_1": "Stage 1",
+      "STAGE_2": "Stage 2"
+    },
+    "niveauAccord": {
+      "TOTALEMENT_EN_ACCORD": "Totally agree",
+      "PLUTOT_EN_ACCORD": "Rather agree",
+      "PLUTOT_DESACCORD": "Rather disagree",
+      "TOTALEMENT_DESACCORD": "Totally disagree",
+      "IMPOSSIBLE_DE_SE_PRONONCER": "Unable to say"
+    },
+    "ouiNon": {
+      "OUI": "Yes",
+      "NON": "No"
+    },
+    "stagiairesNb": {
+      "UN_STAGIAIRE": "1",
+      "DEUX_STAGIAIRES": "2",
+      "TROIS_STAGIAIRES": "3",
+      "PLUS_DE_TROIS": ">3"
+    }
+  },
+
+  "misc": {
+    "na": "N/A"
+  },
+
+  "errors": {
+    "selectEntente": "Please select an agreement",
+    "selectStageNumber": "Please choose a stage number",
+    "answerEvaluationQuestions": "Please answer the evaluation questions",
+    "commentRequired": "A comment is required if you answered (Rather disagree / Totally disagree)",
+    "cvDownload": "Error downloading the CV",
+    "evaluationPdfDownload": "Error downloading the evaluation PDF",
+    "candidaturesLoad": "Error loading applications",
+    "ententesLoad": "Error loading agreements",
+    "letterDownload": "Error downloading the cover letter"
+  },
+
+  "pdf": {
+    "cvTitle": "CV of {{name}}",
+    "letterTitle": "Cover letter #{{id}}",
+    "evaluationTitle": "Evaluation - {{name}}"
   }
 }

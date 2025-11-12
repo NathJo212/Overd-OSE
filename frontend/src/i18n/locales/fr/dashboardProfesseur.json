@@ -4,39 +4,162 @@
   "noEvaluations": "Aucune évaluation disponible",
   "createNew": "Créer une nouvelle évaluation",
 
+  "header": {
+    "myStudents": "Mes étudiants"
+  },
+
+  "list": {
+    "title": "Liste des évaluations",
+    "student": "Étudiant",
+    "company": "Entreprise",
+    "date": "Date d'évaluation",
+    "actions": "Actions",
+    "view": "Voir",
+    "downloadPdf": "Voir le PDF",
+    "cv": "CV",
+    "noData": "Aucune évaluation trouvée"
+  },
+
+  "students": {
+    "noStudents": "Aucun étudiant assigné pour le moment",
+    "noCV": "Aucun CV"
+  },
+
+  "actions": {
+    "viewCV": "Regarder le CV",
+    "viewLetter": "Regarder la lettre",
+    "candidatures": "Candidatures",
+    "ententes": "Ententes",
+    "evaluate": "Évaluer",
+    "noLetter": "Aucune lettre de motivation"
+  },
+
+  "candidatures": {
+    "title": "Candidatures de l'étudiant",
+    "noData": "Aucune candidature trouvée"
+  },
+
+  "ententes": {
+    "title": "Ententes de stage",
+    "ententeCardTitle": "Entente de stage",
+    "employer": "Employeur",
+    "location": "Lieu",
+    "period": "Période",
+    "weeklyHours": "Durée hebdomadaire",
+    "statusLabel": "Statut du stage"
+  },
+
   "form": {
-    "title": "Nouvelle Évaluation du Milieu de Stage",
+    "header": "Évaluation du Milieu de Stage",
+    "headerStudent": "Étudiant:",
+    "title": "Nouvelle évaluation du milieu de stage",
     "selectEntente": "Sélectionner une entente de stage",
     "selectPlaceholder": "Choisissez une entente...",
-    "qualiteEncadrement": "Qualité de l'encadrement",
-    "qualiteEncadrementPlaceholder": "Décrivez la qualité de l'encadrement fourni par le superviseur de l'entreprise...",
-    "pertinenceMissions": "Pertinence des missions et tâches confiées",
-    "pertinenceMissionsPlaceholder": "Évaluez la pertinence des missions confiées à l'étudiant par rapport à son programme d'études...",
-    "respectHoraires": "Respect des horaires et conditions convenues",
-    "respectHorairesPlaceholder": "Commentez sur le respect des horaires de travail et des conditions convenues dans l'entente...",
-    "communication": "Communication et disponibilité du superviseur",
-    "communicationPlaceholder": "Évaluez la communication et la disponibilité du superviseur de l'entreprise...",
-    "commentaires": "Commentaires et suggestions pour amélioration",
-    "commentairesPlaceholder": "Fournissez des commentaires constructifs et des suggestions pour améliorer l'expérience de stage...",
+
+    "section": {
+      "entente": "Entente de stage",
+      "company": "Identification de l'entreprise",
+      "student": "Identification du stagiaire",
+      "evaluation": "Évaluation",
+      "comments": "Commentaires",
+      "observations": "Observations générales",
+      "shifts": "Quarts"
+    },
+
+    "company": {
+      "name": "Nom de l'entreprise",
+      "contact": "Personne contact",
+      "address": "Adresse",
+      "city": "Ville",
+      "postal": "Code postal",
+      "phone": "Téléphone",
+      "fax": "Télécopieur",
+      "title": "Identification de l'entreprise"
+    },
+
+    "student": {
+      "name": "Nom du stagiaire",
+      "date": "Date du stage",
+      "stageNumberLabel": "Numéro de stage"
+    },
+
+    "stageNumber": {
+      "stage1": "Stage 1",
+      "stage2": "Stage 2"
+    },
+
+    "niveau": {
+      "TOTALEMENT_EN_ACCORD": "Totalement en accord",
+      "PLUTOT_EN_ACCORD": "Plutôt en accord",
+      "PLUTOT_DESACCORD": "Plutôt en désaccord",
+      "TOTALEMENT_DESACCORD": "Totalement en désaccord",
+      "IMPOSSIBLE_DE_SE_PRONONCER": "Impossible de se prononcer"
+    },
+
+    "ouiNon": {
+      "OUI": "Oui",
+      "NON": "Non"
+    },
+
+    "stagiairesNb": {
+      "UN_STAGIAIRE": "1",
+      "DEUX_STAGIAIRES": "2",
+      "TROIS_STAGIAIRES": "3",
+      "PLUS_DE_TROIS": ">3"
+    },
+
+    "questions": {
+      "tachesConformes": "Les tâches confiées au stagiaire sont conformes aux tâches annoncées dans l'entente de stage.",
+      "mesuresAccueil": "Des mesures d'accueil facilitent l'intégration du nouveau stagiaire.",
+      "tempsEncadrementSuffisant": "Le temps réel consacré à l'encadrement du stagiaire est suffisant.",
+      "environnementSecurite": "L'environnement de travail respecte les normes d'hygiène et de sécurité au travail.",
+      "climatTravail": "Le climat de travail est agréable.",
+      "milieuAccessible": "Le milieu de stage est accessible par transport en commun.",
+      "salaireInteressant": "Le salaire offert est intéressant pour le stagiaire.",
+      "communicationSuperviseur": "La communication avec le superviseur de stage facilite le déroulement du stage.",
+      "equipementAdequat": "L'équipement fourni est adéquat pour réaliser les tâches confiées.",
+      "volumeTravailAcceptable": "Le volume de travail est acceptable."
+    },
+
+    "hours": {
+      "label": "Préciser le nombre d'heures/semaine :",
+      "month1": "1er mois",
+      "month2": "2e mois",
+      "month3": "3e mois"
+    },
+
+    "salary": {
+      "label": "Préciser (salaire) : /l'heure."
+    },
+
+    "comments": {
+      "label": "Commentaires",
+      "requiredMsg": "Un commentaire est requis si vous avez répondu \"Plutôt en désaccord\" ou \"Totalement en désaccord\" à une question."
+    },
+
+    "observations": {
+      "milieuAPrivilegier": "Milieu à privilégier",
+      "accueillirStagiairesNb": "Nombre de stagiaires à accueillir",
+      "desireAccueillirMemeStagiaire": "Désire accueillir même stagiaire ?",
+      "offreQuartsVariables": "Offre quarts variables ?",
+      "quart": {
+        "A": "Quart A",
+        "B": "Quart B",
+        "C": "Quart C",
+        "from": "De",
+        "to": "À"
+      },
+      "dateSignature": "Date de signature"
+    },
+
     "submit": "Soumettre l'évaluation",
     "cancel": "Annuler",
     "submitting": "Soumission en cours...",
     "required": "Ce champ est requis"
   },
 
-  "list": {
-    "title": "Liste des Évaluations",
-    "student": "Étudiant",
-    "company": "Entreprise",
-    "date": "Date d'évaluation",
-    "actions": "Actions",
-    "view": "Voir",
-    "downloadPdf": "Télécharger PDF",
-    "noData": "Aucune évaluation trouvée"
-  },
-
   "details": {
-    "title": "Détails de l'Évaluation",
+    "title": "Détails de l'évaluation",
     "studentInfo": "Informations sur l'étudiant",
     "companyInfo": "Informations sur l'entreprise",
     "evaluationInfo": "Informations sur l'évaluation",
@@ -45,19 +168,67 @@
     "close": "Fermer"
   },
 
+
   "messages": {
     "success": "Évaluation créée avec succès",
     "error": "Erreur lors de la création de l'évaluation",
     "loadError": "Erreur lors du chargement des évaluations",
     "pdfError": "Erreur lors du téléchargement du PDF",
     "noEntentes": "Aucune entente de stage signée disponible",
-    "alreadyEvaluated": "Cette entente a déjà été évaluée",
+    "alreadyEvaluated": "Cette entante a déjà été évaluée",
     "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action",
-    "ententeNotFinalized": "L'entente doit être signée avant de pouvoir être évaluée"
+    "ententeNotFinalized": "L'entente doit être signée avant d'être évaluée"
   },
 
   "status": {
     "loading": "Chargement...",
-    "noEntente": "Aucune entente sélectionnée"
+    "noEntente": "Aucune entente sélectionnée",
+    "noStudents": "Aucun étudiant assigné pour le moment"
+  },
+
+  "options": {
+    "stageNumero": {
+      "STAGE_1": "Stage 1",
+      "STAGE_2": "Stage 2"
+    },
+    "niveauAccord": {
+      "TOTALEMENT_EN_ACCORD": "Totalement en accord",
+      "PLUTOT_EN_ACCORD": "Plutôt en accord",
+      "PLUTOT_DESACCORD": "Plutôt en désaccord",
+      "TOTALEMENT_DESACCORD": "Totalement en désaccord",
+      "IMPOSSIBLE_DE_SE_PRONONCER": "Impossible de se prononcer"
+    },
+    "ouiNon": {
+      "OUI": "Oui",
+      "NON": "Non"
+    },
+    "stagiairesNb": {
+      "UN_STAGIAIRE": "1",
+      "DEUX_STAGIAIRES": "2",
+      "TROIS_STAGIAIRES": "3",
+      "PLUS_DE_TROIS": ">3"
+    }
+  },
+
+  "misc": {
+    "na": "N/A"
+  },
+
+  "errors": {
+    "selectEntente": "Veuillez sélectionner une entente",
+    "selectStageNumber": "Veuillez choisir le numéro de stage",
+    "answerEvaluationQuestions": "Veuillez répondre aux questions d'évaluation",
+    "commentRequired": "Un commentaire est requis si vous répondez (plutôt en désaccord / totalement en désaccord)",
+    "cvDownload": "Erreur lors du téléchargement du CV",
+    "evaluationPdfDownload": "Erreur lors du téléchargement du PDF de l'évaluation",
+    "candidaturesLoad": "Erreur lors du chargement des candidatures",
+    "ententesLoad": "Erreur lors du chargement des ententes",
+    "letterDownload": "Erreur lors du téléchargement de la lettre de motivation"
+  },
+
+  "pdf": {
+    "cvTitle": "CV de {{name}}",
+    "letterTitle": "Lettre de motivation #{{id}}",
+    "evaluationTitle": "Évaluation - {{name}}"
   }
 }
