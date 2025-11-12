@@ -24,7 +24,6 @@ export default function GestionnaireAttribueEtudiant() {
 
     // Search states
     const [studentSearch, setStudentSearch] = useState("");
-    const [teacherSearch, setTeacherSearch] = useState<Record<number, string>>({});
 
     const token = UtilisateurService.getToken();
 
@@ -126,18 +125,6 @@ export default function GestionnaireAttribueEtudiant() {
             email.includes(searchLower) ||
             prog.includes(searchLower);
     });
-
-    // Filter teachers for a specific row
-    const getFilteredProfesseurs = (etudiantId: number) => {
-        const search = teacherSearch[etudiantId]?.toLowerCase() || "";
-        if (!search) return professeurs;
-
-        return professeurs.filter(prof => {
-            const fullName = `${prof.prenom} ${prof.nom}`.toLowerCase();
-            const email = prof.email.toLowerCase();
-            return fullName.includes(search) || email.includes(search);
-        });
-    };
 
     // Get current teacher name for a student
     const getCurrentTeacher = (etudiant: EtudiantDTO) => {
@@ -316,53 +303,27 @@ export default function GestionnaireAttribueEtudiant() {
                                                 </span>
                                         </td>
                                         <td className="p-4">
-                                            <div className="space-y-2">
-                                                {/* Teacher search for this row */}
-                                                <div className="relative">
-                                                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                    <input
-                                                        type="text"
-                                                        placeholder={t("searchTeacher") || "Rechercher un professeur..."}
-                                                        value={teacherSearch[etudiant.id!] || ""}
-                                                        onChange={(e) =>
-                                                            setTeacherSearch({
-                                                                ...teacherSearch,
-                                                                [etudiant.id!]: e.target.value
-                                                            })
-                                                        }
-                                                        className="w-full pl-8 pr-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent"
-                                                        disabled={assigning === etudiant.id}
-                                                    />
-                                                </div>
-
-                                                {/* Teacher select dropdown */}
-                                                <select
-                                                    value={selectedProf[etudiant.id!] ? String(selectedProf[etudiant.id!]) : ""}
-                                                    onChange={(e) =>
-                                                        setSelectedProf({
-                                                            ...selectedProf,
-                                                            [etudiant.id!]: parseInt(e.target.value, 10)
-                                                        })
-                                                    }
-                                                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                    disabled={assigning === etudiant.id}
-                                                >
-                                                    <option value="">
-                                                        {t("selectOption") || "-- Sélectionner --"}
+                                            {/* Teacher select dropdown */}
+                                            <select
+                                                value={selectedProf[etudiant.id!] ? String(selectedProf[etudiant.id!]) : ""}
+                                                onChange={(e) =>
+                                                    setSelectedProf({
+                                                        ...selectedProf,
+                                                        [etudiant.id!]: parseInt(e.target.value, 10)
+                                                    })
+                                                }
+                                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                disabled={assigning === etudiant.id}
+                                            >
+                                                <option value="">
+                                                    {t("selectOption") || "-- Sélectionner --"}
+                                                </option>
+                                                {professeurs.map((prof) => (
+                                                    <option key={prof.id} value={String(prof.id)}>
+                                                        {prof.prenom} {prof.nom} ({prof.email})
                                                     </option>
-                                                    {getFilteredProfesseurs(etudiant.id!).map((prof) => (
-                                                        <option key={prof.id} value={String(prof.id)}>
-                                                            {prof.prenom} {prof.nom} ({prof.email})
-                                                        </option>
-                                                    ))}
-                                                </select>
-
-                                                {teacherSearch[etudiant.id!] && getFilteredProfesseurs(etudiant.id!).length === 0 && (
-                                                    <p className="text-xs text-red-500">
-                                                        {t("noTeacherFound") || "Aucun professeur trouvé"}
-                                                    </p>
-                                                )}
-                                            </div>
+                                                ))}
+                                            </select>
                                         </td>
                                         <td className="p-4 text-center">
                                             <button
