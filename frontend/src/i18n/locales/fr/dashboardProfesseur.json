@@ -236,7 +236,22 @@
     "evaluationPdfDownload": "Erreur lors du téléchargement du PDF de l'évaluation",
     "candidaturesLoad": "Erreur lors du chargement des candidatures",
     "ententesLoad": "Erreur lors du chargement des ententes",
-    "letterDownload": "Erreur lors du téléchargement de la lettre de motivation"
+    "letterDownload": "Erreur lors du téléchargement de la lettre de motivation",
+    "nomEntrepriseRequired": "Le nom de l'entreprise est requis",
+    "nomStagiaireRequired": "Le nom du stagiaire est requis",
+    "dateDuStageRequired": "La date du stage est requise",
+    "telephoneInvalid": "Le numéro de téléphone est invalide",
+    "codePostalInvalid": "Le code postal est invalide",
+    "heuresPremierMoisRequired": "Les heures du premier mois sont requises",
+    "heuresDeuxiemeMoisRequired": "Les heures du deuxième mois sont requises",
+    "heuresTroisiemeMoisRequired": "Les heures du troisième mois sont requises",
+    "salaireMontantHeureRequired": "Le montant du salaire par heure est requis",
+    "telecopieurRequired": "Le numéro de télécopieur est requis",
+    "telecopieurInvalid": "Le numéro de télécopieur est invalide",
+    "dateSignatureRequired": "La date de signature est requise",
+    "quartsARequired": "Les heures de début et de fin pour le quart A sont requises",
+    "quartsBRequired": "Les heures de début et de fin pour le quart B sont requises",
+    "quartsCRequired": "Les heures de début et de fin pour le quart C sont requises"
   },
 
   "pdf": {

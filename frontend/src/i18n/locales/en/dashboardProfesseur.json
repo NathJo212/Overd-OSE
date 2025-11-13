@@ -234,7 +234,22 @@
     "evaluationPdfDownload": "Error downloading the evaluation PDF",
     "candidaturesLoad": "Error loading applications",
     "ententesLoad": "Error loading agreements",
-    "letterDownload": "Error downloading the cover letter"
+    "letterDownload": "Error downloading the cover letter",
+    "nomEntrepriseRequired": "The company name is required",
+    "nomStagiaireRequired": "The intern's name is required",
+    "dateDuStageRequired": "The internship date is required",
+    "telephoneInvalid": "The phone number is invalid",
+    "codePostalInvalid": "The postal code is invalid",
+    "heuresPremierMoisRequired": "The hours for the first month are required",
+    "heuresDeuxiemeMoisRequired": "The hours for the second month are required",
+    "heuresTroisiemeMoisRequired": "The hours for the third month are required",
+    "salaireMontantHeureRequired": "The hourly salary amount is required",
+    "telecopieurRequired": "The fax number is required",
+    "telecopieurInvalid": "The fax number is invalid",
+    "dateSignatureRequired": "The signature date is required",
+    "quartsARequired": "The start and end times for shift A are required",
+    "quartsBRequired": "The start and end times for shift B are required",
+    "quartsCRequired": "The start and end times for shift C are required"
   },
 
   "pdf": {

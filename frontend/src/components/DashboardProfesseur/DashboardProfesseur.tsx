@@ -39,6 +39,7 @@ const DashboardProfesseur = () => {
     // States
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
+    const [errorModal, setErrorModal] = useState<string>("");
     const [success, setSuccess] = useState<string>("");
     const [evaluations, setEvaluations] = useState<EvaluationMilieuStageDTO[]>([]);
     const [ententesDisponibles, setEntentesDisponibles] = useState<EntenteStageDTO[]>([]);
@@ -120,7 +121,7 @@ const DashboardProfesseur = () => {
                                 type="button"
                                 key={opt.value}
                                 onClick={() => handleFormChange(field, opt.value)}
-                                className={`flex-1 text-center px-4 py-2 text-sm font-medium rounded-md border transition-colors focus:outline-none ${selected ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
+                                className={`cursor-pointer flex-1 text-center px-4 py-2 text-sm font-medium rounded-md border transition-colors focus:outline-none ${selected ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
                             >
                                 {opt.label}
                             </button>
@@ -221,32 +222,129 @@ const DashboardProfesseur = () => {
     };
 
     const validateForm = (): boolean => {
+        setErrorModal("");
+        const missing: Record<string, string> = {};
+
+        // Vérification des champs obligatoires
         if (!evaluationForm.ententeId || evaluationForm.ententeId === 0) {
-            setError(t('errors.selectEntente'));
-            return false;
+            missing['entente'] = t('errors.selectEntente');
         }
-        // Exiger quelques champs clés : stageNumero et au moins un champ d'évaluation sélectionné
+
         if (!evaluationForm.stageNumero || evaluationForm.stageNumero === '') {
-            setError(t('errors.selectStageNumber'));
-            return false;
+            missing['stageNumero'] = t('errors.selectStageNumber');
         }
-        if (!evaluationForm.tachesConformes || evaluationForm.tachesConformes === '') {
-            setError(t('errors.answerEvaluationQuestions'));
-            return false;
+
+        const evaluationFields: (keyof CreerEvaluationMilieuStageDTO)[] = [
+            'tachesConformes', 'mesuresAccueil', 'tempsEncadrementSuffisant',
+            'environnementSecurite', 'climatTravail', 'milieuAccessible',
+            'salaireInteressant', 'communicationSuperviseur', 'equipementAdequat', 'volumeTravailAcceptable'
+        ];
+
+        const hasAnyEvaluation = evaluationFields.some(f => !!((evaluationForm as any)[f]));
+        if (!hasAnyEvaluation) {
+            missing['evaluation'] = t('errors.answerEvaluationQuestions');
         }
-        // Si une réponse négative a été choisie quelque part, commentaires obligatoires
+
         if (commentaireRequired) {
             if (!evaluationForm.commentaires || (evaluationForm.commentaires || '').trim() === '') {
-                setError(t('errors.commentRequired'));
+                missing['commentaires'] = t('errors.commentRequired');
+            }
+        }
+
+        // Vérification des champs spécifiques supplémentaires
+        if (!evaluationForm.nomEntreprise || evaluationForm.nomEntreprise.trim() === '') {
+            missing['nomEntreprise'] = t('errors.nomEntrepriseRequired');
+        }
+
+        if (!evaluationForm.nomStagiaire || evaluationForm.nomStagiaire.trim() === '') {
+            missing['nomStagiaire'] = t('errors.nomStagiaireRequired');
+        }
+
+        if (!evaluationForm.dateDuStage || evaluationForm.dateDuStage.trim() === '') {
+            missing['dateDuStage'] = t('errors.dateDuStageRequired');
+        }
+
+        // Ajout de vérifications supplémentaires pour les champs obligatoires
+        if (!evaluationForm.personneContact || evaluationForm.personneContact.trim() === '') {
+            missing['personneContact'] = t('errors.personneContactRequired');
+        }
+
+        if (!evaluationForm.adresse || evaluationForm.adresse.trim() === '') {
+            missing['adresse'] = t('errors.adresseRequired');
+        }
+
+        if (!evaluationForm.ville || evaluationForm.ville.trim() === '') {
+            missing['ville'] = t('errors.villeRequired');
+        }
+
+
+        // Ajout de vérifications pour les heures et le salaire
+        if (!evaluationForm.heuresPremierMois || isNaN(Number(evaluationForm.heuresPremierMois))) {
+            missing['heuresPremierMois'] = t('errors.heuresPremierMoisRequired');
+        }
+
+        if (!evaluationForm.heuresDeuxiemeMois || isNaN(Number(evaluationForm.heuresDeuxiemeMois))) {
+            missing['heuresDeuxiemeMois'] = t('errors.heuresDeuxiemeMoisRequired');
+        }
+
+        if (!evaluationForm.heuresTroisiemeMois || isNaN(Number(evaluationForm.heuresTroisiemeMois))) {
+            missing['heuresTroisiemeMois'] = t('errors.heuresTroisiemeMoisRequired');
+        }
+
+        if (!evaluationForm.salaireMontantHeure || isNaN(Number(evaluationForm.salaireMontantHeure))) {
+            missing['salaireMontantHeure'] = t('errors.salaireMontantHeureRequired');
+        }
+
+        // Ajout de vérifications pour les champs obligatoires supplémentaires
+        if (!evaluationForm.telecopieur || evaluationForm.telecopieur.trim() === '') {
+            missing['telecopieur'] = t('errors.telecopieurRequired');
+        }
+
+        if (!evaluationForm.dateSignature || evaluationForm.dateSignature.trim() === '') {
+            missing['dateSignature'] = t('errors.dateSignatureRequired');
+        }
+
+        // Ajout de vérifications pour les champs de quarts de travail
+        if (evaluationForm.offreQuartsVariables === 'OUI') {
+            if (!evaluationForm.quartsADe || !evaluationForm.quartsAFin) {
+                missing['quartsA'] = t('errors.quartsARequired');
+            }
+
+            if (!evaluationForm.quartsBDe || !evaluationForm.quartsBFin) {
+                missing['quartsB'] = t('errors.quartsBRequired');
+            }
+
+            if (!evaluationForm.quartsCDe || !evaluationForm.quartsCFin) {
+                missing['quartsC'] = t('errors.quartsCRequired');
+            }
+        }
+
+        const priority = ['stageNumero', 'evaluation', 'entente', 'commentaires', 'nomEntreprise', 'nomStagiaire', 'dateDuStage'];
+        for (const key of priority) {
+            if (missing[key]) {
+                setErrorModal(missing[key]);
                 return false;
             }
         }
+
+        // Validation des champs NiveauAccordMilieuStage
+        evaluationFields.forEach(field => {
+            if (!evaluationForm[field] || evaluationForm[field] === '') {
+                missing[field] = t('errors.answerEvaluationQuestions');
+            }
+        });
+
         return true;
+    };
+
+    // Ajout d'une fonction de validation pour les groupes de boutons radio afin de définir une valeur par défaut si aucun choix n'est fait
+    const validateRadioGroup = (value: string | undefined, defaultValue: string): string => {
+        return value && value.trim() !== "" ? value : defaultValue;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError("");
+        setErrorModal("");
 
         if (!validateForm()) {
             return;
@@ -254,7 +352,23 @@ const DashboardProfesseur = () => {
 
         try {
             setSubmittingEvaluation(true);
-            await professeurService.creerEvaluationMilieuStage(evaluationForm);
+
+            // Validation des groupes de boutons radio avant l'envoi
+            const validatedEvaluationForm = {
+                ...evaluationForm,
+                tachesConformes: validateRadioGroup(evaluationForm.tachesConformes, "TOTALEMENT_EN_ACCORD"),
+                mesuresAccueil: validateRadioGroup(evaluationForm.mesuresAccueil, "TOTALEMENT_EN_ACCORD"),
+                tempsEncadrementSuffisant: validateRadioGroup(evaluationForm.tempsEncadrementSuffisant, "TOTALEMENT_EN_ACCORD"),
+                environnementSecurite: validateRadioGroup(evaluationForm.environnementSecurite, "TOTALEMENT_EN_ACCORD"),
+                climatTravail: validateRadioGroup(evaluationForm.climatTravail, "TOTALEMENT_EN_ACCORD"),
+                milieuAccessible: validateRadioGroup(evaluationForm.milieuAccessible, "TOTALEMENT_EN_ACCORD"),
+                salaireInteressant: validateRadioGroup(evaluationForm.salaireInteressant, "TOTALEMENT_EN_ACCORD"),
+                communicationSuperviseur: validateRadioGroup(evaluationForm.communicationSuperviseur, "TOTALEMENT_EN_ACCORD"),
+                equipementAdequat: validateRadioGroup(evaluationForm.equipementAdequat, "TOTALEMENT_EN_ACCORD"),
+                volumeTravailAcceptable: validateRadioGroup(evaluationForm.volumeTravailAcceptable, "TOTALEMENT_EN_ACCORD"),
+            };
+
+            await professeurService.creerEvaluationMilieuStage(validatedEvaluationForm);
 
             // Reset form and reload data
             setEvaluationForm({
@@ -274,17 +388,18 @@ const DashboardProfesseur = () => {
             await loadData();
 
             setError("");
+            setErrorModal("");
             setSuccess(t("messages.success"));
 
         } catch (e: any) {
             if (e.message.includes("déjà été évaluée") || e.message.includes("already been evaluated")) {
-                setError(t("messages.alreadyEvaluated"));
+                setErrorModal(t("messages.alreadyEvaluated"));
             } else if (e.message.includes("non autorisée") || e.message.includes("not authorized")) {
-                setError(t("messages.unauthorized"));
+                setErrorModal(t("messages.unauthorized"));
             } else if (e.message.includes("signée") || e.message.includes("signed")) {
-                setError(t("messages.ententeNotFinalized"));
+                setErrorModal(t("messages.ententeNotFinalized"));
             } else {
-                setError(e.message || t("messages.error"));
+                setErrorModal(e.message || t("messages.error"));
             }
         } finally {
             setSubmittingEvaluation(false);
@@ -420,7 +535,7 @@ const DashboardProfesseur = () => {
             <button
                 onClick={() => handleViewCV(etudiant)}
                 disabled={downloadingCV === etudiant.id}
-                className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium hover:shadow-md hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium hover:shadow-md hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <FileText className="w-4 h-4" />
                 <span className="text-sm">{t("actions.viewCV")}</span>
@@ -485,7 +600,7 @@ const DashboardProfesseur = () => {
                             </div>
                             <button
                                 onClick={() => setSuccess("")}
-                                className="text-green-400 hover:text-green-600 transition-colors"
+                                className="cursor-pointer text-green-400 hover:text-green-600 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -500,7 +615,7 @@ const DashboardProfesseur = () => {
                             </div>
                             <button
                                 onClick={() => setError("")}
-                                className="text-red-400 hover:text-red-600 transition-colors"
+                                className="cursor-pointer text-red-400 hover:text-red-600 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -575,7 +690,7 @@ const DashboardProfesseur = () => {
                                                     <div className="flex gap-2">
                                                         <button
                                                             onClick={() => etudiant.id && handleViewCandidatures(etudiant.id)}
-                                                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs font-medium"
+                                                            className="cursor-pointer flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs font-medium"
                                                             title="Candidatures"
                                                         >
                                                             <FileText className="w-4 h-4 flex-shrink-0" />
@@ -583,7 +698,7 @@ const DashboardProfesseur = () => {
                                                         </button>
                                                         <button
                                                             onClick={() => etudiant.id && handleViewEntentes(etudiant.id)}
-                                                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium"
+                                                            className="cursor-pointer flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium"
                                                             title="Ententes"
                                                         >
                                                             <Briefcase className="w-4 h-4 flex-shrink-0" />
@@ -595,7 +710,7 @@ const DashboardProfesseur = () => {
                                                                 return (
                                                                     <button
                                                                         onClick={() => handleViewEvaluationPdf(studentEval.id)}
-                                                                        className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-gray-100 text-indigo-600 rounded-lg hover:bg-gray-200 transition-colors text-xs font-medium"
+                                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-gray-100 text-indigo-600 rounded-lg hover:bg-gray-200 transition-colors text-xs font-medium"
                                                                         title={t('actions.viewEvaluation')}
                                                                     >
                                                                         <FileText className="w-4 h-4 flex-shrink-0" />
@@ -607,7 +722,7 @@ const DashboardProfesseur = () => {
                                                             return (
                                                                 <button
                                                                     onClick={() => openFormForStudent(etudiant)}
-                                                                    className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-xs font-medium"
+                                                                    className="cursor-pointer flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-xs font-medium"
                                                                     title="Évaluer"
                                                                 >
                                                                     <CheckCircle className="w-4 h-4 flex-shrink-0" />
@@ -635,7 +750,7 @@ const DashboardProfesseur = () => {
                             <h3 className="text-2xl font-bold text-white">{t("details.title")}</h3>
                             <button
                                 onClick={() => setSelectedEvaluation(null)}
-                                className="text-white/80 hover:text-white transition-colors"
+                                className="cursor-pointer text-white/80 hover:text-white transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -710,7 +825,7 @@ const DashboardProfesseur = () => {
                             <div className="pt-4 flex justify-end">
                                 <button
                                     onClick={() => setSelectedEvaluation(null)}
-                                    className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors"
+                                    className="cursor-pointer px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors"
                                 >
                                     {t("details.close")}
                                 </button>
@@ -729,7 +844,7 @@ const DashboardProfesseur = () => {
                                 <FileText className="w-6 h-6 text-purple-600" />
                                 {t("candidatures.title")}
                             </h3>
-                            <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <button onClick={closeModal} className="cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors">
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
@@ -760,7 +875,7 @@ const DashboardProfesseur = () => {
                                                         <button
                                                             onClick={() => handleViewLettre(candidature.id)}
                                                             disabled={downloadingLettre === candidature.id}
-                                                            className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm"
+                                                            className="cursor-pointer flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm"
                                                         >
                                                             <FileText className="w-4 h-4" />
                                                             <span>{t("actions.viewLetter")}</span>
@@ -791,7 +906,7 @@ const DashboardProfesseur = () => {
                                 <Briefcase className="w-6 h-6 text-green-600" />
                                 {t("actions.ententes")}
                             </h3>
-                            <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <button onClick={closeModal} className="cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors">
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
@@ -886,6 +1001,7 @@ const DashboardProfesseur = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
                         <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex justify-between items-center">
+
                             <div>
                                 <h3 className="text-2xl font-bold flex items-center gap-2">
                                     <ClipboardList className="w-6 h-6" />
@@ -895,7 +1011,7 @@ const DashboardProfesseur = () => {
                             </div>
                             <button
                                 onClick={() => { setSelectedEtudiant(null); setViewMode(null); setEntentesDisponibles([]); }}
-                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                className="cursor-pointer p-2 hover:bg-white/20 rounded-lg transition-colors"
                                 aria-label="Fermer"
                             >
                                 <X className="w-6 h-6" />
@@ -903,6 +1019,20 @@ const DashboardProfesseur = () => {
                         </div>
 
                         <div className="p-6 overflow-y-auto flex-1 space-y-6">
+                            {errorModal && (
+                                <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1">
+                                        <p className="text-red-800 font-medium">{errorModal}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setErrorModal("")}
+                                        className="cursor-pointer text-red-400 hover:text-red-600 transition-colors"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            )}
                             {loadingEntentesDisponibles ? (
                                 <div className="flex justify-center items-center py-12">
                                     <div className="h-16 w-16 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-600" />
@@ -915,6 +1045,7 @@ const DashboardProfesseur = () => {
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-6">
+
                                     {/* Entente sélectionnée */}
                                     <section className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                                         <h4 className="text-sm font-semibold text-gray-700 mb-2">{t("form.section.entente")}</h4>
@@ -1010,15 +1141,15 @@ const DashboardProfesseur = () => {
                                                          <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
                                                              <div>
                                                                 <label className="block text-sm font-medium text-gray-700">{t("form.hours.month1")}</label>
-                                                                <input value={evaluationForm.heuresPremierMois || ''} onChange={(e) => handleFormChange('heuresPremierMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                                                <input type="number" value={evaluationForm.heuresPremierMois || ''} onChange={(e) => handleFormChange('heuresPremierMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
                                                              </div>
                                                              <div>
                                                                 <label className="block text-sm font-medium text-gray-700">{t("form.hours.month2")}</label>
-                                                                <input value={evaluationForm.heuresDeuxiemeMois || ''} onChange={(e) => handleFormChange('heuresDeuxiemeMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                                                <input type="number" value={evaluationForm.heuresDeuxiemeMois || ''} onChange={(e) => handleFormChange('heuresDeuxiemeMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
                                                              </div>
                                                              <div>
                                                                 <label className="block text-sm font-medium text-gray-700">{t("form.hours.month3")}</label>
-                                                                <input value={evaluationForm.heuresTroisiemeMois || ''} onChange={(e) => handleFormChange('heuresTroisiemeMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                                                <input type="number" value={evaluationForm.heuresTroisiemeMois || ''} onChange={(e) => handleFormChange('heuresTroisiemeMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
                                                              </div>
                                                          </div>
                                                      </div>
@@ -1031,7 +1162,7 @@ const DashboardProfesseur = () => {
 
                                          <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">{t("form.salary.label")}</label>
-                                            <input value={evaluationForm.salaireMontantHeure || ''} onChange={(e) => handleFormChange('salaireMontantHeure', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                                            <input type="number" value={evaluationForm.salaireMontantHeure || ''} onChange={(e) => handleFormChange('salaireMontantHeure', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
                                          </div>
 
                                         <div>{renderRadioGroup('communicationSuperviseur', niveauAccordOptions, t("form.questions.communicationSuperviseur"))}</div>
@@ -1170,7 +1301,7 @@ const DashboardProfesseur = () => {
                                 <button
                                     type="submit"
                                     disabled={submittingEvaluation}
-                                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg"
+                                    className="cursor-pointer  flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg"
                                 >
                                     {submittingEvaluation ? (
                                         <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> {t("form.submitting")}</span>
@@ -1178,7 +1309,7 @@ const DashboardProfesseur = () => {
                                         t("form.submit")
                                     )}
                                 </button>
-                                <button type="button" onClick={() => { setSelectedEtudiant(null); setViewMode(null); setEntentesDisponibles([]); }} className="px-6 py-3 border rounded-lg">{t("form.cancel")}</button>
+                                <button type="button" onClick={() => { setSelectedEtudiant(null); setViewMode(null); setEntentesDisponibles([]); }} className="cursor-pointer px-6 py-3 border rounded-lg">{t("form.cancel")}</button>
                             </div>
                                  </form>
                          )}
@@ -1199,7 +1330,7 @@ const DashboardProfesseur = () => {
                                      setPdfUrl(null);
                                      setPdfTitle("");
                                  }}
-                                 className="p-2 hover:bg-gray-200 rounded-lg"
+                                 className="cursor-pointer p-2 hover:bg-gray-200 rounded-lg"
                              >
                                  <X className="w-5 h-5 text-gray-700" />
                              </button>
