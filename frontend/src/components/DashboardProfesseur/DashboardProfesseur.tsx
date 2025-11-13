@@ -20,7 +20,7 @@ import {
     Users,
     X
 } from "lucide-react";
-import NavBar from "./NavBar.tsx";
+import NavBar from "../NavBar.tsx";
 import {
     type CandidatureDTO,
     type CreerEvaluationMilieuStageDTO,
@@ -29,7 +29,7 @@ import {
     type EvaluationMilieuStageDTO,
     professeurService,
     type StatutStageDTO
-} from "../services/ProfesseurService";
+} from "../../services/ProfesseurService.ts";
 
 const DashboardProfesseur = () => {
     const { t } = useTranslation(["dashboardProfesseur"]);
