@@ -231,6 +231,107 @@ class UtilisateurService {
             throw genericError;
         }
     }
+
+    /**
+     * Gets the base endpoint based on user role
+     */
+    private getSearchBaseEndpoint(): string {
+        const role = sessionStorage.getItem('userType');
+        switch (role) {
+            case 'ETUDIANT':
+                return '/OSEetudiant';
+            case 'GESTIONNAIRE':
+                return '/OSEGestionnaire';
+            case 'PROFESSEUR':
+                return '/OSEProfesseur';
+            case 'EMPLOYEUR':
+                return '/OSEemployeur';
+            default:
+                return '/OSEetudiant';
+        }
+    }
+
+    /**
+     * Search all users based on category and search term
+     */
+    async searchUsers(searchTerm: string, category: string): Promise<any> {
+        const token = this.getToken();
+        if (!token) throw new Error('Non authentifié');
+
+        const baseUrl = `${API_BASE_URL}${this.getSearchBaseEndpoint()}`;
+        const results: any = {
+            etudiants: [],
+            employeurs: [],
+            professeurs: [],
+            gestionnaires: []
+        };
+
+        try {
+            if (category === 'ALL' || category === 'ETUDIANT') {
+                const url = searchTerm
+                    ? `${baseUrl}/search/etudiants?searchTerm=${encodeURIComponent(searchTerm)}`
+                    : `${baseUrl}/search/etudiants`;
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) results.etudiants = await res.json();
+            }
+
+            if (category === 'ALL' || category === 'EMPLOYEUR') {
+                const url = searchTerm
+                    ? `${baseUrl}/search/employeurs?searchTerm=${encodeURIComponent(searchTerm)}`
+                    : `${baseUrl}/search/employeurs`;
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) results.employeurs = await res.json();
+            }
+
+            if (category === 'ALL' || category === 'PROFESSEUR') {
+                const url = searchTerm
+                    ? `${baseUrl}/search/professeurs?searchTerm=${encodeURIComponent(searchTerm)}`
+                    : `${baseUrl}/search/professeurs`;
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) results.professeurs = await res.json();
+            }
+
+            if (category === 'ALL' || category === 'GESTIONNAIRE') {
+                const url = searchTerm
+                    ? `${baseUrl}/search/gestionnaires?searchTerm=${encodeURIComponent(searchTerm)}`
+                    : `${baseUrl}/search/gestionnaires`;
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) results.gestionnaires = await res.json();
+            }
+
+            return results;
+        } catch (error) {
+            console.error('Search error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get a specific user profile by type and ID
+     */
+    async getUserProfile(type: string, id: number): Promise<any> {
+        const token = this.getToken();
+        if (!token) throw new Error('Non authentifié');
+
+        const baseUrl = `${API_BASE_URL}${this.getSearchBaseEndpoint()}`;
+        const endpoint = `${baseUrl}/${type}s/${id}`;
+
+        const response = await fetch(endpoint, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+        return await response.json();
+    }
+
 }
 
 export const utilisateurService = new UtilisateurService();

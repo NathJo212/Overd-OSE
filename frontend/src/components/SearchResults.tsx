@@ -1,26 +1,28 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { User, Building2, GraduationCap, UserCog, Search as SearchIcon } from "lucide-react";
+import { User, Building2, GraduationCap, UserCog, Search as SearchIcon, Users } from "lucide-react";
 import NavBar from "./NavBar";
-import etudiantService from "../services/EtudiantService";
+import searchService from "../services/UtilisateurService.ts";
 
-type UserCategory = "ALL" | "EMPLOYEUR" | "PROFESSEUR" | "GESTIONNAIRE";
+type UserCategory = "ALL" | "ETUDIANT" | "EMPLOYEUR" | "PROFESSEUR" | "GESTIONNAIRE";
 
 interface SearchResult {
     id: number;
-    type: "EMPLOYEUR" | "PROFESSEUR" | "GESTIONNAIRE";
+    type: "ETUDIANT" | "EMPLOYEUR" | "PROFESSEUR" | "GESTIONNAIRE";
     nom?: string;
     prenom?: string;
     email: string;
     telephone?: string;
     nomEntreprise?: string;
     contact?: string;
+    progEtude?: string;
 }
 
 const SearchResults = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const query = searchParams.get("q") || "";
+    const userRole = sessionStorage.getItem('userType');
 
     const [searchTerm, setSearchTerm] = useState(query);
     const [category, setCategory] = useState<UserCategory>("ALL");
@@ -28,34 +30,35 @@ const SearchResults = () => {
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
+    // Determine which categories to show based on user role
+    const getAvailableCategories = () => {
+        if (userRole === 'ETUDIANT') {
+            return ['ALL', 'EMPLOYEUR', 'PROFESSEUR', 'GESTIONNAIRE'];
+        }
+        return ['ALL', 'ETUDIANT', 'EMPLOYEUR', 'PROFESSEUR', 'GESTIONNAIRE'];
+    };
+
+    const availableCategories = getAvailableCategories();
+
     const performSearch = async (term: string, cat: UserCategory) => {
         setLoading(true);
         setHasSearched(true);
         try {
+            const data = await searchService.searchUsers(term, cat);
+
             let allResults: SearchResult[] = [];
 
-            if (cat === "ALL" || cat === "EMPLOYEUR") {
-                const employeurs = await etudiantService.searchEmployeurs(term);
-                allResults = [
-                    ...allResults,
-                    ...employeurs.map(e => ({ ...e, type: "EMPLOYEUR" as const }))
-                ];
+            if (data.etudiants && availableCategories.includes('ETUDIANT')) {
+                allResults = [...allResults, ...data.etudiants.map((e: any) => ({ ...e, type: "ETUDIANT" as const }))];
             }
-
-            if (cat === "ALL" || cat === "PROFESSEUR") {
-                const professeurs = await etudiantService.searchProfesseurs(term);
-                allResults = [
-                    ...allResults,
-                    ...professeurs.map(p => ({ ...p, type: "PROFESSEUR" as const }))
-                ];
+            if (data.employeurs) {
+                allResults = [...allResults, ...data.employeurs.map((e: any) => ({ ...e, type: "EMPLOYEUR" as const }))];
             }
-
-            if (cat === "ALL" || cat === "GESTIONNAIRE") {
-                const gestionnaires = await etudiantService.searchGestionnaires(term);
-                allResults = [
-                    ...allResults,
-                    ...gestionnaires.map(g => ({ ...g, type: "GESTIONNAIRE" as const }))
-                ];
+            if (data.professeurs) {
+                allResults = [...allResults, ...data.professeurs.map((p: any) => ({ ...p, type: "PROFESSEUR" as const }))];
+            }
+            if (data.gestionnaires) {
+                allResults = [...allResults, ...data.gestionnaires.map((g: any) => ({ ...g, type: "GESTIONNAIRE" as const }))];
             }
 
             setResults(allResults);
@@ -90,6 +93,8 @@ const SearchResults = () => {
 
     const getUserIcon = (type: string) => {
         switch (type) {
+            case "ETUDIANT":
+                return <Users className="w-5 h-5 text-indigo-600" />;
             case "EMPLOYEUR":
                 return <Building2 className="w-5 h-5 text-blue-600" />;
             case "PROFESSEUR":
@@ -103,6 +108,8 @@ const SearchResults = () => {
 
     const getUserBadgeColor = (type: string) => {
         switch (type) {
+            case "ETUDIANT":
+                return "bg-indigo-100 text-indigo-800";
             case "EMPLOYEUR":
                 return "bg-blue-100 text-blue-800";
             case "PROFESSEUR":
@@ -130,13 +137,11 @@ const SearchResults = () => {
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                {/* Search Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-4">
                         Recherche d'utilisateurs
                     </h1>
 
-                    {/* Search Bar */}
                     <form onSubmit={handleSearchSubmit} className="mb-6">
                         <div className="flex gap-3">
                             <div className="flex-1 relative">
@@ -158,7 +163,6 @@ const SearchResults = () => {
                         </div>
                     </form>
 
-                    {/* Category Filters */}
                     <div className="flex gap-2 flex-wrap">
                         <button
                             onClick={() => handleCategoryChange("ALL")}
@@ -170,6 +174,19 @@ const SearchResults = () => {
                         >
                             Tous
                         </button>
+                        {availableCategories.includes('ETUDIANT') && (
+                            <button
+                                onClick={() => handleCategoryChange("ETUDIANT")}
+                                className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                                    category === "ETUDIANT"
+                                        ? "bg-blue-600 text-white shadow-md"
+                                        : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                                }`}
+                            >
+                                <Users className="w-4 h-4" />
+                                Étudiants
+                            </button>
+                        )}
                         <button
                             onClick={() => handleCategoryChange("EMPLOYEUR")}
                             className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${
@@ -206,7 +223,6 @@ const SearchResults = () => {
                     </div>
                 </div>
 
-                {/* Results */}
                 {loading ? (
                     <div className="text-center py-12">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -237,18 +253,19 @@ const SearchResults = () => {
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="flex items-center gap-3">
                                             <div className={`p-3 rounded-xl ${
-                                                result.type === "EMPLOYEUR" ? "bg-blue-50" :
-                                                    result.type === "PROFESSEUR" ? "bg-purple-50" :
-                                                        "bg-green-50"
+                                                result.type === "ETUDIANT" ? "bg-indigo-50" :
+                                                    result.type === "EMPLOYEUR" ? "bg-blue-50" :
+                                                        result.type === "PROFESSEUR" ? "bg-purple-50" :
+                                                            "bg-green-50"
                                             }`}>
                                                 {getUserIcon(result.type)}
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-gray-900">
+                                                <h3 className="font-bold text-gray-900 line-clamp-1">
                                                     {getDisplayName(result)}
                                                 </h3>
                                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getUserBadgeColor(result.type)}`}>
-                                                    {result.type}
+                                                    {result.type === 'ETUDIANT' ? 'Étudiant' : result.type.charAt(0) + result.type.slice(1).toLowerCase()}
                                                 </span>
                                             </div>
                                         </div>
@@ -261,6 +278,9 @@ const SearchResults = () => {
                                         )}
                                         {result.type === "EMPLOYEUR" && result.contact && (
                                             <p className="truncate">Contact: {result.contact}</p>
+                                        )}
+                                        {result.type === "ETUDIANT" && result.progEtude && (
+                                            <p className="truncate">Programme: {result.progEtude}</p>
                                         )}
                                     </div>
 

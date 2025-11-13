@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EmployeurDTO {
+    private Long id;
     private String email;
     private String password;
     private String telephone;
@@ -19,6 +20,7 @@ public class EmployeurDTO {
 
     public EmployeurDTO toDTO(Employeur employeur) {
         EmployeurDTO dto = new EmployeurDTO();
+        dto.setId(employeur.getId());
         dto.setEmail(employeur.getEmail());
         dto.setTelephone(employeur.getTelephone());
         dto.setNomEntreprise(employeur.getNomEntreprise());

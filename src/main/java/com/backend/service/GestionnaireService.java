@@ -37,9 +37,10 @@ public class GestionnaireService {
     private final NotificationRepository notificationRepository;
     private final CandidatureRepository candidatureRepository;
     private final ProfesseurRepository professeurRepository;
+    private final EmployeurRepository employeurRepository;
 
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, EmployeurRepository employeurRepository) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
@@ -50,6 +51,7 @@ public class GestionnaireService {
         this.notificationRepository = notificationRepository;
         this.candidatureRepository = candidatureRepository;
         this.professeurRepository = professeurRepository;
+        this.employeurRepository = employeurRepository;
     }
 
     @Transactional
@@ -486,6 +488,140 @@ public class GestionnaireService {
                         && e.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE
                         && e.getStatut() == EntenteStage.StatutEntente.EN_ATTENTE)
                 .map(e -> new EntenteStageDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
+
+// ==================== SEARCH METHODS ====================
+
+    @Transactional
+    public EtudiantDTO getEtudiantInfo(Long etudiantId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        verifierGestionnaireConnecte();
+
+        Etudiant etudiant = etudiantRepository.findById(etudiantId)
+                .orElseThrow(UtilisateurPasTrouveException::new);
+
+        return new EtudiantDTO().toDTO(etudiant);
+    }
+
+    @Transactional
+    public List<EtudiantDTO> searchEtudiants(String searchTerm)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        verifierGestionnaireConnecte();
+
+        List<Etudiant> etudiants;
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            etudiants = (List<Etudiant>) etudiantRepository.findAll();  // ← ADD CAST
+        } else {
+            String search = searchTerm.toLowerCase();
+            etudiants = ((List<Etudiant>) etudiantRepository.findAll()).stream()  // ← ADD CAST
+                    .filter(e -> (e.getNom() != null && e.getNom().toLowerCase().contains(search)) ||
+                            (e.getPrenom() != null && e.getPrenom().toLowerCase().contains(search)) ||
+                            (e.getEmail() != null && e.getEmail().toLowerCase().contains(search)))
+                    .collect(Collectors.toList());
+        }
+
+        return etudiants.stream()
+                .map(e -> new EtudiantDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public EmployeurDTO getEmployeurInfo(Long employeurId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        verifierGestionnaireConnecte();
+
+        Employeur employeur = employeurRepository.findById(employeurId)
+                .orElseThrow(UtilisateurPasTrouveException::new);
+
+        return new EmployeurDTO().toDTO(employeur);
+    }
+
+    @Transactional
+    public List<EmployeurDTO> searchEmployeurs(String searchTerm)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        verifierGestionnaireConnecte();
+
+        List<Employeur> employeurs;
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            employeurs = (List<Employeur>) employeurRepository.findAll();
+        } else {
+            String search = searchTerm.toLowerCase();
+            employeurs = ((List<Employeur>) employeurRepository.findAll()).stream()
+                    .filter(e -> (e.getNomEntreprise() != null && e.getNomEntreprise().toLowerCase().contains(search)) ||
+                            (e.getEmail() != null && e.getEmail().toLowerCase().contains(search)) ||
+                            (e.getContact() != null && e.getContact().toLowerCase().contains(search)))
+                    .collect(Collectors.toList());
+        }
+
+        return employeurs.stream()
+                .map(e -> new EmployeurDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ProfesseurDTO getProfesseurInfo(Long professeurId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        verifierGestionnaireConnecte();
+
+        Professeur professeur = professeurRepository.findById(professeurId)
+                .orElseThrow(UtilisateurPasTrouveException::new);
+
+        return ProfesseurDTO.toDTO(professeur);
+    }
+
+    @Transactional
+    public List<ProfesseurDTO> searchProfesseursList(String searchTerm)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        verifierGestionnaireConnecte();
+
+        List<Professeur> professeurs;
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            professeurs = professeurRepository.findAll();
+        } else {
+            String search = searchTerm.toLowerCase();
+            professeurs = professeurRepository.findAll().stream()
+                    .filter(p -> (p.getNom() != null && p.getNom().toLowerCase().contains(search)) ||
+                            (p.getPrenom() != null && p.getPrenom().toLowerCase().contains(search)) ||
+                            (p.getEmail() != null && p.getEmail().toLowerCase().contains(search)))
+                    .collect(Collectors.toList());
+        }
+
+        return professeurs.stream()
+                .map(ProfesseurDTO::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public GestionnaireDTO getGestionnaireInfo(Long gestionnaireId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        verifierGestionnaireConnecte();
+
+        GestionnaireStage gestionnaire = gestionnaireRepository.findById(gestionnaireId)
+                .orElseThrow(UtilisateurPasTrouveException::new);
+
+        return GestionnaireDTO.toDTO(gestionnaire);
+    }
+
+    @Transactional
+    public List<GestionnaireDTO> searchGestionnaires(String searchTerm)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        verifierGestionnaireConnecte();
+
+        List<GestionnaireStage> gestionnaires;
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            gestionnaires = (List<GestionnaireStage>) gestionnaireRepository.findAll();
+        } else {
+            String search = searchTerm.toLowerCase();
+            gestionnaires = ((List<GestionnaireStage>) gestionnaireRepository.findAll()).stream()
+                    .filter(g -> (g.getNom() != null && g.getNom().toLowerCase().contains(search)) ||
+                            (g.getPrenom() != null && g.getPrenom().toLowerCase().contains(search)) ||
+                            (g.getEmail() != null && g.getEmail().toLowerCase().contains(search)))
+                    .collect(Collectors.toList());
+        }
+
+        return gestionnaires.stream()
+                .map(GestionnaireDTO::toDTO)
                 .collect(Collectors.toList());
     }
 
