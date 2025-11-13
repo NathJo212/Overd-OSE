@@ -180,8 +180,7 @@ const EmployeurEvaluationStagiaire = () => {
     ];
 
     // Form data
-    // @ts-ignore
-    const [formData, setFormData] = useState<Omit<CreerEvaluationDTO, 'ententeId'>>({
+    const [formData, setFormData] = useState<any>({
         nomSuperviseur: '',
         fonctionSuperviseur: '',
         telephoneSuperviseur: '',
