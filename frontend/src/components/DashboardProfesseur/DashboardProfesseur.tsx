@@ -143,7 +143,7 @@ const DashboardProfesseur = () => {
             const data = await professeurService.getEntentesPourEtudiant(etudiant.id, token);
             // garder seulement les ententes signées et qui ne sont pas encore évaluées
             const signed = data.filter((entente: any) =>
-                (entente.etudiantSignature === 'SIGNEE' && entente.employeurSignature === 'SIGNEE')
+                (entente.etudiantSignature === 'SIGNEE' && entente.employeurSignature === 'SIGNEE' && entente.statut === 'SIGNEE')
             );
             const available = signed.filter((entente: any) => !evaluations.some((ev: any) => ev.ententeId === entente.id))
                 .map((entente: any) => ({ ...entente, etudiantNomComplet: `${etudiant.prenom} ${etudiant.nom}` }));
@@ -479,7 +479,7 @@ const DashboardProfesseur = () => {
             setEntentesStudent(data);
 
             const signedEntentes = data.filter((e: EntenteStageDTO) =>
-                e.etudiantSignature === 'SIGNEE' && e.employeurSignature === 'SIGNEE'
+                e.etudiantSignature === 'SIGNEE' && e.employeurSignature === 'SIGNEE' && e.statut === 'SIGNEE'
             );
 
             const statuts: Record<number, StatutStageDTO> = {};
@@ -920,7 +920,7 @@ const DashboardProfesseur = () => {
                             ) : (
                                 <div className="space-y-4">
                                     {ententesStudent.map((entente) => {
-                                        const isSigned = entente.etudiantSignature === 'SIGNEE' && entente.employeurSignature === 'SIGNEE';
+                                        const isSigned = entente.etudiantSignature === 'SIGNEE' && entente.employeurSignature === 'SIGNEE' && entente.statut === 'SIGNEE';
                                         const statut = isSigned ? statutsStage[entente.id] : null;
 
                                         return (
