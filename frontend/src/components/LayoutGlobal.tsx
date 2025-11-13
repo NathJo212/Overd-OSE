@@ -1,6 +1,7 @@
 // src/components/Layout.tsx - Version avec sélecteur flottant
 import { Outlet, useLocation } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
+import ThemeSelector from './ThemeSelector';
 
 const LayoutGlobal = () => {
     const location = useLocation();
@@ -17,10 +18,11 @@ const LayoutGlobal = () => {
 
     return (
         <div className="min-h-screen">
-            {/* Sélecteur de langue flottant pour pages sans NavBar */}
+            {/* Sélecteur de langue et thème flottants pour pages sans NavBar */}
             {showFloatingLanguageSelector && (
-                <div className="fixed top-4 right-4 z-50">
+                <div className="fixed top-4 right-4 z-50 flex gap-2">
                     <LanguageSelector />
+                    <ThemeSelector />
                 </div>
             )}
 

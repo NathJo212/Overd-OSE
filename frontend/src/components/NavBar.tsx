@@ -3,6 +3,7 @@ import { LogOut, Menu, X, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
+import ThemeSelector from "./ThemeSelector.tsx";
 import NotificationEtudiant from './NotificationEtudiant.tsx';
 import { useTranslation } from "react-i18next";
 import NotificationEmployeur from "./NotificationEmployeur.tsx";
@@ -105,7 +106,7 @@ const NavBar = () => {
                                     className="cursor-pointer bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm text-white px-4 py-2.5 rounded-xl flex items-center gap-2.5 transition-all duration-300 border border-red-400/30 hover:border-red-400/50 shadow-sm hover:shadow-red-500/20 ml-2"
                                 >
                                     <LogOut className="w-4 h-4" />
-                                    <span className="font-medium text-sm">{t('navbar:logout')}</span>
+                                    <span className="font-medium">{t('navbar:logout')}</span>
                                 </button>
                             )}
                         </div>
@@ -140,8 +141,39 @@ const NavBar = () => {
                                 </div>
                             )}
 
-                            <div className="flex justify-center">
+                            {/* Liens pour GESTIONNAIRE (Mobile) */}
+                            {isConnected && role === 'GESTIONNAIRE' && (
+                                <div className="flex flex-col space-y-2">
+                                    <NavLink
+                                        to="/gestionnaire/tableau-de-bord"
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200
+                                            ${isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/10'}`
+                                        }
+                                    >
+                                        <Briefcase className="w-5 h-5" />
+                                        <span className="font-medium">{t('navbar:dashboard')}</span>
+                                    </NavLink>
+
+                                    <NavLink
+                                        to="/gestionnaire/utilisateurs"
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200
+                                            ${isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/10'}`
+                                        }
+                                    >
+                                        <UserCog className="w-5 h-5" />
+                                        <span className="font-medium">{t('navbar:users')}</span>
+                                    </NavLink>
+                                </div>
+                            )}
+
+                            <div className="flex flex-col items-center gap-2">
                                 <LanguageSelector />
+                            </div>
+
+                            <div className="flex flex-col items-center gap-2">
+                                <ThemeSelector />
                             </div>
 
                             {/* Notification bell for mobile students */}
@@ -154,9 +186,9 @@ const NavBar = () => {
                             {isConnected && (
                                 <button
                                     onClick={handleLogout}
-                                    className="cursor-pointer w-full bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm text-white px-4 py-3 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 border border-red-400/30 hover:border-red-400/50"
+                                    className="cursor-pointer w-full bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 border border-white/20"
                                 >
-                                    <LogOut className="w-5 h-5" />
+                                    <LogOut className="w-4 h-4" />
                                     <span className="font-medium">{t('navbar:logout')}</span>
                                 </button>
                             )}
