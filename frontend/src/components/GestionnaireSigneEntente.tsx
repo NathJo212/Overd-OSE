@@ -176,7 +176,7 @@ const GestionnaireSigneEntente = () => {
     return (
         <>
             <NavBar />
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+            <div className="min-h-screen py-8 px-4">
                 <div className="max-w-7xl mx-auto">
                     {/* Header */}
                     <div className="mb-8">
@@ -327,7 +327,7 @@ const GestionnaireSigneEntente = () => {
 
             {/* Modal Détails */}
             {showDetailsModal && selectedEntente && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl">
                             <h2 className="text-2xl font-bold">{t('modals.details.title')}</h2>
@@ -465,7 +465,7 @@ const GestionnaireSigneEntente = () => {
 
             {/* Modal Signature */}
             {showSignModal && selectedEntente && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-4">
