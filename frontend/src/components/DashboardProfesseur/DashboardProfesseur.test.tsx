@@ -100,7 +100,7 @@ describe('DashboardProfesseur - comportements principaux', () => {
         expect(screen.getByTitle('pdf.cvTitle')).toHaveAttribute('src', 'blob:fake');
     });
 
-    it('ouvre la modal d’évaluation et valide la soumission', async () => {
+    it('ouvre la modal d’évaluation et vérifie tout les boutons', async () => {
         const entente = {
             id: 10,
             titre: 'Entente X',
