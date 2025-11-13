@@ -920,7 +920,7 @@ const DashboardProfesseur = () => {
                             ) : (
                                 <div className="space-y-4">
                                     {ententesStudent.map((entente) => {
-                                        const isSigned = entente.etudiantSignature === 'SIGNEE' && entente.employeurSignature === 'SIGNEE' && entente.statut === 'SIGNEE';
+                                        const isSigned = entente.etudiantSignature === 'SIGNEE' && entente.employeurSignature === 'SIGNEE';
                                         const statut = isSigned ? statutsStage[entente.id] : null;
 
                                         return (
@@ -979,10 +979,15 @@ const DashboardProfesseur = () => {
                                                         </div>
                                                     </div>
 
-                                                    {statut && (
+                                                    {isSigned && (
                                                         <div className="px-4 py-2 bg-blue-50 rounded-lg">
                                                             <div className="text-sm font-semibold text-gray-700">{t("ententes.statusLabel")}</div>
-                                                            <div className="mt-1">{t(`ententes.status.${statut}`) || statut}</div>
+                                                            <div className="mt-1">
+                                                                {statut
+                                                                    ? (t(`ententes.status.${statut}`) || String(statut))
+                                                                    : t("ententes.status.unknown")
+                                                                }
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
