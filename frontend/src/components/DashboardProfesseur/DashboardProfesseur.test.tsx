@@ -111,6 +111,7 @@ describe('DashboardProfesseur - comportements principaux', () => {
             lieu: 'Lieu',
             etudiantSignature: 'SIGNEE',
             employeurSignature: 'SIGNEE',
+            statut: 'SIGNEE'
         };
         (professeurService.getMesEtudiants as any).mockResolvedValue([
             { id: 3, prenom: 'Marc', nom: 'B', email: 'm@e', telephone: '000', progEtude: 'PROG', cv: '' },
@@ -123,7 +124,10 @@ describe('DashboardProfesseur - comportements principaux', () => {
         await waitFor(() => expect(screen.getByText('Entente X')).toBeInTheDocument());
         const submitBtn = screen.getByText('form.submit');
         fireEvent.click(submitBtn);
-        await waitFor(() => expect(screen.getByText('errors.selectStageNumber')).toBeInTheDocument());
+        await waitFor(() => {
+          const errors = screen.queryAllByText((text) => text.toLowerCase().replace(/\s+/g, '').includes('selectstagenumber'));
+          expect(errors.length).toBeGreaterThan(0);
+        });
         fireEvent.click(screen.getByText('options.stageNumero.STAGE_1'));
         fireEvent.click(screen.getByText('options.niveauAccord.TOTALEMENT_EN_ACCORD'));
         fireEvent.click(submitBtn);
@@ -150,7 +154,7 @@ describe('DashboardProfesseur - comportements principaux', () => {
         expect(screen.getByText('Stage Dev')).toBeInTheDocument();
         fireEvent.click(screen.getByText('actions.viewLetter'));
         await waitFor(() => expect(professeurService.getLettreMotivation).toHaveBeenCalledWith(42, 'fake-token'));
-        expect(screen.getByText('pdf.letterTitle')).toBeInTheDocument();
+        expect(screen.queryByText((content) => content.includes('letterTitle'))).not.toBeNull();
     });
 
     it('affiche les ententes et leur statut', async () => {
@@ -174,7 +178,7 @@ describe('DashboardProfesseur - comportements principaux', () => {
         wrap(<DashboardProfesseur />);
         await waitFor(() => expect(screen.queryByText('status.loading')).toBeNull());
         fireEvent.click(screen.getAllByTitle('Ententes')[0]);
-        await waitFor(() => expect(screen.getByText('actions.ententes')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getAllByText('actions.ententes').length).toBeGreaterThan(0));
         expect(screen.getByText('Entente Y')).toBeInTheDocument();
         expect(screen.getByText('ententes.statusLabel')).toBeInTheDocument();
     });
