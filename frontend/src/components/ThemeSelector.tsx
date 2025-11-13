@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Moon, Sun, Monitor } from "lucide-react";
-
-// Inline theme selector (Light | Dark | System)
-// - Persists selection in localStorage (key: theme)
-// - Applies theme by toggling html.dark and setting data-theme
-// - Listens to system changes when choice === 'system'
+import { Moon, Sun} from "lucide-react";
 
 export type ThemeChoice = "light" | "dark" | "system";
 
@@ -20,12 +15,12 @@ function getSystemTheme(): Exclude<ThemeChoice, "system"> {
 function applyTheme(choice: ThemeChoice) {
   const effective = choice === "system" ? getSystemTheme() : choice;
   const root = document.documentElement;
-  if (effective === "dark") root.classList.add("dark"); else root.classList.remove("dark");
-  root.dataset.theme = effective;
+ root.dataset.theme = effective;
 }
 
 const ThemeSelector = ({ className = "" }: { className?: string }) => {
   const [choice, setChoice] = useState<ThemeChoice>("system");
+  const [systemTick, setSystemTick] = useState(0);
   const mountedRef = useRef(false);
 
   // Initialize from storage and apply
@@ -36,18 +31,16 @@ const ThemeSelector = ({ className = "" }: { className?: string }) => {
     mountedRef.current = true;
   }, []);
 
-  // Watch system changes when in system mode
+  // Watch system changes when in system mode; trigger re-render to refresh highlight
   useEffect(() => {
     if (choice !== "system") return;
     const mql = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => applyTheme("system");
+    const onChange = () => { applyTheme("system"); setSystemTick((v) => v + 1); };
     if (typeof mql.addEventListener === "function") mql.addEventListener("change", onChange);
-    else // @ts-ignore older Safari
-      mql.addListener(onChange);
+    else mql.addListener(onChange);
     return () => {
       if (typeof mql.removeEventListener === "function") mql.removeEventListener("change", onChange);
-      else // @ts-ignore
-        mql.removeListener(onChange);
+      else mql.removeListener(onChange);
     };
   }, [choice]);
 
@@ -57,23 +50,17 @@ const ThemeSelector = ({ className = "" }: { className?: string }) => {
     applyTheme(value);
   };
 
-  // Container mirrors LanguageSelector styling
-  return (
-    <div className={`flex items-center gap-2 bg-white/95 backdrop-blur-md rounded-lg px-3 py-2 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 ${className}`}>
-      {/* Lead icon reflects current effective theme choice (not system-resolved) */}
-      {choice === "dark" ? (
-        <Moon className="w-4 h-4 text-gray-500" />
-      ) : choice === "light" ? (
-        <Sun className="w-4 h-4 text-gray-500" />
-      ) : (
-        <Monitor className="w-4 h-4 text-gray-500" />
-      )}
+  const effective = choice === "system" ? getSystemTheme() : choice;
+  void systemTick; // used to trigger re-render on system changes
 
+  return (
+    <div className={`flex items-center gap-2 bg-white/95 dark:bg-slate-800/80 backdrop-blur-md rounded-lg px-3 py-2 shadow-lg border border-gray-200/50 dark:border-slate-700 hover:shadow-xl transition-all duration-300 ${className}`}>
       <div className="flex gap-1">
         <button
           onClick={() => setTheme("light")}
+          aria-pressed={effective === "light"}
           className={`cursor-pointer px-3 py-1 text-sm rounded-md font-medium transition-all duration-200 ${
-            choice === "light" ? "bg-blue-600 text-white shadow-sm" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            effective === "light" ? "bg-blue-600 text-white shadow-sm" : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
           }`}
           title="Light"
           aria-label="Light theme"
@@ -82,23 +69,14 @@ const ThemeSelector = ({ className = "" }: { className?: string }) => {
         </button>
         <button
           onClick={() => setTheme("dark")}
+          aria-pressed={effective === "dark"}
           className={`cursor-pointer px-3 py-1 text-sm rounded-md font-medium transition-all duration-200 ${
-            choice === "dark" ? "bg-blue-600 text-white shadow-sm" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            effective === "dark" ? "bg-blue-600 text-white shadow-sm" : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
           }`}
           title="Dark"
           aria-label="Dark theme"
         >
           <Moon className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => setTheme("system")}
-          className={`cursor-pointer px-3 py-1 text-sm rounded-md font-medium transition-all duration-200 ${
-            choice === "system" ? "bg-blue-600 text-white shadow-sm" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-          title="System"
-          aria-label="System theme"
-        >
-          <Monitor className="w-4 h-4" />
         </button>
       </div>
     </div>

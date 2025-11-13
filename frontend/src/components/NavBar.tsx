@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
-import { LogOut, Menu, X, User } from "lucide-react";
+import { useNavigate, NavLink } from "react-router-dom";
+import { LogOut, Menu, X, User, Briefcase, UserCog } from "lucide-react";
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
-import ThemeSelector from "./ThemeSelector.tsx";
+import ThemeSelector from './ThemeSelector';
 import NotificationEtudiant from './NotificationEtudiant.tsx';
 import { useTranslation } from "react-i18next";
 import NotificationEmployeur from "./NotificationEmployeur.tsx";
@@ -91,6 +91,7 @@ const NavBar = () => {
                         {/* Desktop menu */}
                         <div className="hidden md:flex items-center space-x-2">
                             <LanguageSelector />
+                            <ThemeSelector />
 
                             {isConnected && role === 'ETUDIANT' && (
                                 <NotificationEtudiant />
