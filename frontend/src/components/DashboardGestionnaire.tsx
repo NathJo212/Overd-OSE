@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router";
-import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, Eye, FileText, FileSignature, UserCog } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, FileText, FileSignature, UserCog } from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -127,16 +127,16 @@ const DashboardGestionnaire = () => {
     }, [showRefuseModal]);
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* En-tête */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                         {t('internshipmanager:page.title')}
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-slate-300">
                         {t('internshipmanager:page.manageOffers')}
                     </p>
                 </div>
@@ -202,39 +202,24 @@ const DashboardGestionnaire = () => {
                         <h3 className="text-xl font-bold mb-2">{t('navbar:assignTeachers')}</h3>
                         <p className="text-indigo-100 text-sm">Associer les professeurs aux étudiants</p>
                     </NavLink>
-
-                    {/* Voir toutes les offres */}
-                    <NavLink
-                        to="/visualiser-offres"
-                        className="group bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-teal-400/50 transition-all duration-300 transform hover:scale-105 p-6"
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <Eye className="w-10 h-10" />
-                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <span className="text-xs font-bold">→</span>
-                            </div>
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">{t("internshipmanager:page.buttonVisualize")}</h3>
-                        <p className="text-teal-100 text-sm">Consulter toutes les offres approuvées</p>
-                    </NavLink>
                 </div>
 
                 {/* Séparateur */}
                 <div className="mb-8">
                     <div className="flex items-center gap-4">
-                        <div className="h-px bg-gray-300 flex-1"></div>
-                        <h2 className="text-xl font-bold text-gray-900">Offres en attente d'approbation</h2>
-                        <div className="h-px bg-gray-300 flex-1"></div>
+                        <div className="h-px bg-gray-300 dark:bg-slate-700 flex-1"></div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Offres en attente d'approbation</h2>
+                        <div className="h-px bg-gray-300 dark:bg-slate-700 flex-1"></div>
                     </div>
                 </div>
 
                 {/* Messages */}
                 {actionMessage && (
-                    <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                    <div className="mb-6 bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-900/30 rounded-xl p-4">
                         <div className="flex items-start gap-3">
                             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                            <p className="text-sm font-medium text-green-900">{t(actionMessage)}</p>
-                            <button onClick={() => setActionMessage("")} className="cursor-pointer ml-auto text-green-600 hover:text-green-800">
+                            <p className="text-sm font-medium text-green-900 dark:text-green-200">{t(actionMessage)}</p>
+                            <button onClick={() => setActionMessage("")} className="cursor-pointer ml-auto text-green-600 hover:text-green-800 dark:text-green-300 dark:hover:text-green-200">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -242,11 +227,11 @@ const DashboardGestionnaire = () => {
                 )}
 
                 {error && (
-                    <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                    <div className="mb-6 bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-900/30 rounded-xl p-4">
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                            <p className="text-sm font-medium text-red-900">{t(error)}</p>
-                            <button onClick={() => setError("")} className="cursor-pointer ml-auto text-red-600 hover:text-red-800">
+                            <p className="text-sm font-medium text-red-900 dark:text-red-200">{t(error)}</p>
+                            <button onClick={() => setError("")} className="cursor-pointer ml-auto text-red-600 hover:text-red-800 dark:text-red-300 dark:hover:text-red-200">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -261,84 +246,84 @@ const DashboardGestionnaire = () => {
                         </div>
                     </div>
                 ) : offres.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center">
                         <AlertCircle className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                        <p className="text-gray-600">{t('internshipmanager:messages.noOffers')}</p>
+                        <p className="text-gray-600 dark:text-slate-300">{t('internshipmanager:messages.noOffers')}</p>
                     </div>
                 ) : (
                     <div className="grid gap-6 md:grid-cols-2">
                         {offres.map(offre => (
                             <div
                                 key={offre.id}
-                                className="bg-white rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-6 border border-slate-200"
+                                className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-6 border border-slate-200 dark:border-slate-700"
                             >
                                 {/* En-tête de la carte */}
                                 <div className="flex items-start justify-between mb-4">
-                                    <h2 className="text-xl font-bold text-gray-900 pr-4">{offre.titre}</h2>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100 pr-4">{offre.titre}</h2>
                                     <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium flex-shrink-0">
                                         {t('internshipmanager:messages.pending')}
                                     </span>
                                 </div>
 
                                 {/* Info employeur */}
-                                <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div className="mb-4 p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-200 dark:border-slate-700">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <Building2 className="w-4 h-4 text-slate-600" />
-                                        <span className="font-semibold text-gray-900">{offre.employeurDTO?.nomEntreprise}</span>
+                                        <Building2 className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                                        <span className="font-semibold text-gray-900 dark:text-slate-100">{offre.employeurDTO?.nomEntreprise}</span>
                                     </div>
-                                    <div className="space-y-1 text-sm text-gray-600">
+                                    <div className="space-y-1 text-sm text-gray-600 dark:text-slate-300">
                                         {offre.employeurDTO?.contact && (
                                             <div className="flex items-center gap-2">
-                                                <span className="text-slate-500">Contact:</span>
+                                                <span className="text-slate-500 dark:text-slate-400">Contact:</span>
                                                 <span>{offre.employeurDTO?.contact}</span>
                                             </div>
                                         )}
                                         {offre.employeurDTO?.email && (
                                             <div className="flex items-center gap-2">
-                                                <Mail className="w-3 h-3 text-slate-500" />
-                                                <span className="text-xs">{offre.employeurDTO?.email}</span>
+                                                <Mail className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+                                                <span className="text-xs text-gray-700 dark:text-slate-300">{offre.employeurDTO?.email}</span>
                                             </div>
                                         )}
                                         {offre.employeurDTO?.telephone && (
                                             <div className="flex items-center gap-2">
-                                                <Phone className="w-3 h-3 text-slate-500" />
-                                                <span className="text-xs">{offre.employeurDTO?.telephone}</span>
+                                                <Phone className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+                                                <span className="text-xs text-gray-700 dark:text-slate-300">{offre.employeurDTO?.telephone}</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Description */}
-                                <p className="text-sm text-gray-700 mb-4 leading-relaxed line-clamp-3">
+                                <p className="text-sm text-gray-700 dark:text-slate-300 mb-4 leading-relaxed line-clamp-3">
                                     {offre.description}
                                 </p>
 
                                 {/* Détails */}
                                 <div className="space-y-2 mb-4 text-sm">
                                     {offre.progEtude && (
-                                        <div className="flex items-center gap-2 text-gray-600">
+                                        <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
                                             <GraduationCap className="w-4 h-4 text-blue-600" />
                                             <span>{tProgrammes(offre.progEtude)}</span>
                                         </div>
                                     )}
                                     {offre.lieuStage && (
-                                        <div className="flex items-center gap-2 text-gray-600">
+                                        <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
                                             <MapPin className="w-4 h-4 text-blue-600" />
                                             <span>{offre.lieuStage}</span>
                                         </div>
                                     )}
-                                    <div className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
                                         <Calendar className="w-4 h-4 text-blue-600" />
                                         <span>{offre.date_debut} → {offre.date_fin}</span>
                                     </div>
                                     {offre.remuneration && (
-                                        <div className="flex items-center gap-2 text-gray-600">
+                                        <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
                                             <DollarSign className="w-4 h-4 text-blue-600" />
                                             <span>{offre.remuneration}</span>
                                         </div>
                                     )}
                                     {offre.dateLimite && (
-                                        <div className="flex items-center gap-2 text-gray-600">
+                                        <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
                                             <Calendar className="w-4 h-4 text-red-600" />
                                             <span className="text-red-600">Limite: {offre.dateLimite}</span>
                                         </div>
@@ -346,7 +331,7 @@ const DashboardGestionnaire = () => {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex gap-3 pt-4 border-t border-slate-200">
+                                <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                                     <button
                                         onClick={() => handleApprove(offre.id)}
                                         disabled={processingId === offre.id}
@@ -378,24 +363,24 @@ const DashboardGestionnaire = () => {
                         if (e.target === e.currentTarget) cancelRefuse();
                     }}
                 >
-                    <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 animate-fade-in">
+                    <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 animate-fade-in border border-slate-200 dark:border-slate-700">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-bold text-gray-900">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
                                 {t('internshipmanager:refuseModal.refuseOffer')}
                             </h2>
                             <button
                                 onClick={cancelRefuse}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <p className="text-sm text-gray-600 mb-4">
+                        <p className="text-sm text-gray-600 dark:text-slate-300 mb-4">
                             {t('internshipmanager:refuseModal.refuseReason')}
                         </p>
 
-                        <label htmlFor="refuse-reason" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="refuse-reason" className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                             {t('internshipmanager:refuseModal.reasonLabel')}
                         </label>
                         <textarea
@@ -406,12 +391,12 @@ const DashboardGestionnaire = () => {
                                 if (refuseError) setRefuseError('');
                             }}
                             rows={4}
-                            className="w-full resize-none rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent px-4 py-3 text-sm transition-all"
+                            className="w-full resize-none rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-red-500 focus:border-transparent px-4 py-3 text-sm transition-all"
                             placeholder={t('internshipmanager:refuseModal.reasonPlaceholder')}
                             autoFocus
                         />
                         {refuseError && (
-                            <div className="mt-2 flex items-center gap-2 text-sm text-red-600">
+                            <div className="mt-2 flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
                                 <AlertCircle className="w-4 h-4" />
                                 <span>{t('internshipmanager:refuseModal.reasonRequired')}</span>
                             </div>
@@ -428,7 +413,7 @@ const DashboardGestionnaire = () => {
                             <button
                                 onClick={cancelRefuse}
                                 disabled={processingId !== null}
-                                className="flex-1 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-200 text-gray-800 font-medium py-3 rounded-xl transition-all duration-200"
+                                className="flex-1 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-200 text-gray-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-medium py-3 rounded-xl transition-all duration-200"
                             >
                                 {t('internshipmanager:actions.cancel')}
                             </button>
@@ -441,3 +426,4 @@ const DashboardGestionnaire = () => {
 };
 
 export default DashboardGestionnaire;
+

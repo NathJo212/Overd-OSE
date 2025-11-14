@@ -228,7 +228,7 @@ const InscriptionEtudiant = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-950 py-8 px-4">
             <div className="max-w-2xl mx-auto">
                 <div className="mb-6">
                     <NavLink
@@ -238,20 +238,20 @@ const InscriptionEtudiant = () => {
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         {t('registration:studentRegistration.backToHome')}
                     </NavLink>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                         {t('registration:studentRegistration.title')}
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-slate-300">
                         {t('registration:studentRegistration.subtitle')}
                     </p>
                 </div>
 
                 {/* Erreurs de validation côté client */}
                 {validationErrors.length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-lg p-4 mb-6">
                         <ul className="list-disc list-inside space-y-1">
                             {validationErrors.map((error, idx) => (
-                                <li key={idx} className="text-red-700 text-sm">{error}</li>
+                                <li key={idx} className="text-red-700 dark:text-red-200 text-sm">{error}</li>
                             ))}
                         </ul>
                     </div>
@@ -259,10 +259,10 @@ const InscriptionEtudiant = () => {
 
                 {/* Erreurs du backend (se traduisent automatiquement) */}
                 {backendErrorCodes.length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-lg p-4 mb-6">
                         <ul className="list-disc list-inside space-y-1">
                             {backendErrorCodes.map((errorCode, idx) => (
-                                <li key={idx} className="text-red-700 text-sm">
+                                <li key={idx} className="text-red-700 dark:text-red-200 text-sm">
                                     {t(`errors:${errorCode}`, { defaultValue: 'Une erreur est survenue' })}
                                 </li>
                             ))}
@@ -271,22 +271,22 @@ const InscriptionEtudiant = () => {
                 )}
 
                 {successMessage && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-green-800 font-medium text-center">
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/40 rounded-lg p-4 mb-6 text-green-800 dark:text-green-200 font-medium text-center">
                         {successMessage}
-                        <p className="text-green-600 text-sm mt-1">{t('registration:studentRegistration.redirecting')}</p>
+                        <p className="text-green-600 dark:text-green-300 text-sm mt-1">{t('registration:studentRegistration.redirecting')}</p>
                     </div>
                 )}
 
-                <div className="bg-white rounded-xl shadow-lg p-8">
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8 border border-slate-200 dark:border-slate-700">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center">
                                 <User className="w-4 h-4 mr-2 text-blue-600" />
                                 {t('registration:studentRegistration.sections.personalInfo')}
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                         {t('registration:studentRegistration.fields.firstName')} *
                                     </label>
                                     <input
@@ -294,13 +294,13 @@ const InscriptionEtudiant = () => {
                                         name="prenom"
                                         value={formData.prenom}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                         placeholder={t('registration:studentRegistration.placeholders.firstName')}
                                         disabled={loading}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                         {t('registration:studentRegistration.fields.lastName')} *
                                     </label>
                                     <input
@@ -308,14 +308,14 @@ const InscriptionEtudiant = () => {
                                         name="nom"
                                         value={formData.nom}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                         placeholder={t('registration:studentRegistration.placeholders.lastName')}
                                         disabled={loading}
                                     />
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     <Mail className="inline w-4 h-4 mr-1" />
                                     {t('registration:studentRegistration.fields.email')} *
                                 </label>
@@ -324,13 +324,13 @@ const InscriptionEtudiant = () => {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     placeholder={t('registration:studentRegistration.placeholders.email')}
                                     disabled={loading}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     <Phone className="inline w-4 h-4 mr-1" />
                                     {t('registration:studentRegistration.fields.phoneNumber')} *
                                 </label>
@@ -339,35 +339,35 @@ const InscriptionEtudiant = () => {
                                     name="telephone"
                                     value={formData.telephone}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     placeholder={t('registration:studentRegistration.placeholders.phoneNumber')}
                                     disabled={loading}
                                 />
                             </div>
                         </div>
                         <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center">
                                 <GraduationCap className="w-4 h-4 mr-2 text-blue-600" />
                                 {t('registration:studentRegistration.sections.academicInfo')}
                             </h2>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     {t('registration:studentRegistration.fields.studyProgram')} *
                                 </label>
                                 {loadingProgrammes ? (
-                                    <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center">
-                                        <svg className="animate-spin h-4 w-4 text-gray-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <div className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center">
+                                        <svg className="animate-spin h-4 w-4 text-gray-500 dark:text-slate-300 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        <span className="text-gray-500 text-sm">{t('registration:studentRegistration.placeholders.studyProgram')}</span>
+                                        <span className="text-gray-500 dark:text-slate-300 text-sm">{t('registration:studentRegistration.placeholders.studyProgram')}</span>
                                     </div>
                                 ) : (
                                     <select
                                         name="programmeEtudes"
                                         value={formData.programmeEtudes}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                         disabled={loading}
                                     >
                                         <option value="">{t('registration:studentRegistration.placeholders.studyProgram')}</option>
@@ -381,14 +381,14 @@ const InscriptionEtudiant = () => {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                         {t('registration:studentRegistration.fields.studyYear')} *
                                     </label>
                                     <select
                                         name="anneeEtude"
                                         value={formData.anneeEtude}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                         disabled={loading}
                                     >
                                         <option value="">{t('registration:studentRegistration.placeholders.studyYear')}</option>
@@ -400,14 +400,14 @@ const InscriptionEtudiant = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                         {t('registration:studentRegistration.fields.session')} *
                                     </label>
                                     <select
                                         name="session"
                                         value={formData.session}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                         disabled={loading}
                                     >
                                         <option value="">{t('registration:studentRegistration.placeholders.session')}</option>
@@ -419,12 +419,12 @@ const InscriptionEtudiant = () => {
                             </div>
                         </div>
                         <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center">
                                 <Lock className="w-4 h-4 mr-2 text-blue-600" />
                                 {t('registration:studentRegistration.sections.accountSecurity')}
                             </h2>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     {t('registration:studentRegistration.fields.password')} *
                                 </label>
                                 <input
@@ -432,8 +432,8 @@ const InscriptionEtudiant = () => {
                                     name="motDePasse"
                                     value={formData.motDePasse}
                                     onChange={handleChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                                        passwordErrors.length > 0 ? 'border-red-300' : 'border-gray-300'
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${
+                                        passwordErrors.length > 0 ? 'border-red-300 dark:border-red-700' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                     placeholder={t('registration:studentRegistration.placeholders.password')}
                                     disabled={loading}
@@ -441,16 +441,16 @@ const InscriptionEtudiant = () => {
                                 {passwordErrors.length > 0 && (
                                     <div className="mt-2 space-y-1">
                                         {passwordErrors.map((error, idx) => (
-                                            <p key={idx} className="text-red-600 text-xs">{error}</p>
+                                            <p key={idx} className="text-red-600 dark:text-red-300 text-xs">{error}</p>
                                         ))}
                                     </div>
                                 )}
                                 {isPasswordValid && (
-                                    <p className="mt-2 text-green-600 text-xs">✓ {t('registration:studentRegistration.validation.passwordValid')}</p>
+                                    <p className="mt-2 text-green-600 dark:text-green-300 text-xs">✓ {t('registration:studentRegistration.validation.passwordValid')}</p>
                                 )}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     {t('registration:studentRegistration.fields.confirmPassword')} *
                                 </label>
                                 <input
@@ -458,7 +458,7 @@ const InscriptionEtudiant = () => {
                                     name="confirmerMotDePasse"
                                     value={formData.confirmerMotDePasse}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     placeholder={t('registration:studentRegistration.placeholders.confirmPassword')}
                                     disabled={loading}
                                 />
@@ -482,9 +482,9 @@ const InscriptionEtudiant = () => {
                                     t('registration:studentRegistration.buttons.createAccount')
                                 )}
                             </button>
-                            <p className="mt-4 text-center text-sm text-gray-600">
+                            <p className="mt-4 text-center text-sm text-gray-600 dark:text-slate-300">
                                 {t('registration:studentRegistration.backToHome')} ?{' '}
-                                <NavLink to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                                <NavLink to="/login" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
                                     {t('registration:studentRegistration.buttons.createAccount')}
                                 </NavLink>
                             </p>
@@ -497,3 +497,4 @@ const InscriptionEtudiant = () => {
 };
 
 export default InscriptionEtudiant;
+

@@ -488,12 +488,12 @@ const CandidaturesRecues = () => {
         return (
             <>
                 <NavBar />
-                <div className="min-h-screen bg-gray-50 py-8 px-4">
+                <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 px-4">
                     <div className="max-w-7xl mx-auto">
                         <div className="flex items-center justify-center h-96">
                             <div className="text-center">
                                 <RefreshCw className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-                                <p className="text-gray-600 font-medium">{t("candidaturesrecues:loading")}</p>
+                                <p className="text-gray-600 dark:text-slate-300 font-medium">{t("candidaturesrecues:loading")}</p>
                             </div>
                         </div>
                     </div>
@@ -505,34 +505,34 @@ const CandidaturesRecues = () => {
     return (
         <div>
             <NavBar />
-            <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto space-y-6">
                     {/* Bouton retour */}
                     <button
                         onClick={() => navigate('/dashboard-employeur')}
-                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         <span className="font-medium">{t('candidaturesrecues:backToDashboard')}</span>
                     </button>
 
                     {/* Header */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
                                 <Users className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex-1">
-                                <h1 className="text-2xl font-bold text-gray-900">
+                                <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                                     {t("candidaturesrecues:title")}
                                 </h1>
-                                <p className="text-sm text-gray-600 mt-1">
+                                <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">
                                     {t("candidaturesrecues:subtitle")}
                                 </p>
                             </div>
                             <button
                                 onClick={loadCandidatures}
-                                className="cursor-pointer p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                className="cursor-pointer p-2 text-gray-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
                                 title={t("candidaturesrecues:labels.refresh")}
                             >
                                 <RefreshCw className="w-5 h-5" />
@@ -542,57 +542,57 @@ const CandidaturesRecues = () => {
 
                     {/* Statistics Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-5">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">
+                                    <p className="text-sm font-medium text-gray-600 dark:text-slate-300">
                                         {t("candidaturesrecues:stats.total")}
                                     </p>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-1">{stats.total}</p>
                                 </div>
-                                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                                     <Briefcase className="w-6 h-6 text-blue-600" />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-5">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">
+                                    <p className="text-sm font-medium text-gray-600 dark:text-slate-300">
                                         {t("candidaturesrecues:stats.pending")}
                                     </p>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.enAttente}</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-1">{stats.enAttente}</p>
                                 </div>
-                                <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center">
+                                <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
                                     <Clock className="w-6 h-6 text-amber-600" />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-5">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">
+                                    <p className="text-sm font-medium text-gray-600 dark:text-slate-300">
                                         {t("candidaturesrecues:stats.accepted")}
                                     </p>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.acceptees}</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-1">{stats.acceptees}</p>
                                 </div>
-                                <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
+                                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
                                     <CheckCircle className="w-6 h-6 text-emerald-600" />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-5">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">
+                                    <p className="text-sm font-medium text-gray-600 dark:text-slate-300">
                                         {t("candidaturesrecues:stats.refused")}
                                     </p>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.refusees}</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-1">{stats.refusees}</p>
                                 </div>
-                                <div className="w-12 h-12 bg-rose-50 rounded-lg flex items-center justify-center">
+                                <div className="w-12 h-12 bg-rose-50 dark:bg-rose-900/30 rounded-lg flex items-center justify-center">
                                     <XCircle className="w-6 h-6 text-rose-600" />
                                 </div>
                             </div>
@@ -648,7 +648,7 @@ const CandidaturesRecues = () => {
                     )}
 
                     {/* Filters */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-5">
                         <div className="flex flex-col lg:flex-row gap-4">
                             <div className="flex-1 relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -657,7 +657,7 @@ const CandidaturesRecues = () => {
                                     placeholder={t("candidaturesrecues:searchPlaceholder")}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800"
                                 />
                             </div>
 
@@ -665,7 +665,7 @@ const CandidaturesRecues = () => {
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                                    className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800"
                                 >
                                     <option value="ALL">{t("candidaturesrecues:filters.all")}</option>
                                     <option value="EN_ATTENTE">{t("candidaturesrecues:filters.pending")}</option>
@@ -676,7 +676,7 @@ const CandidaturesRecues = () => {
                                 <select
                                     value={offreFilter}
                                     onChange={(e) => setOffreFilter(e.target.value)}
-                                    className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                                    className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800"
                                 >
                                     <option value="ALL">{t("candidaturesrecues:filters.allOffers")}</option>
                                     {offresUniques.map(offre => (
@@ -689,27 +689,27 @@ const CandidaturesRecues = () => {
                         {(searchTerm || statusFilter !== "ALL" || offreFilter !== "ALL") && (
                             <div className="mt-4 flex items-center gap-2 text-sm">
                                 <Filter className="w-4 h-4 text-gray-500" />
-                                <span className="text-gray-600">
-                                    <span className="font-medium text-gray-900">{filteredCandidatures.length}</span> {t("candidaturesrecues:resultsFound")}
+                                <span className="text-gray-600 dark:text-slate-300">
+                                    <span className="font-medium text-gray-900 dark:text-slate-100">{filteredCandidatures.length}</span> {t("candidaturesrecues:resultsFound")}
                                 </span>
                             </div>
                         )}
                     </div>
 
                     {/* Candidatures List */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
                         {filteredCandidatures.length === 0 ? (
                             <div className="text-center py-16">
-                                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Users className="w-10 h-10 text-gray-400" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
                                     {searchTerm || statusFilter !== "ALL" || offreFilter !== "ALL"
                                         ? t("candidaturesrecues:noResults.title")
                                         : t("candidaturesrecues:noCandidatures.title")
                                     }
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-slate-300">
                                     {searchTerm || statusFilter !== "ALL" || offreFilter !== "ALL"
                                         ? t("candidaturesrecues:noResults.subtitle")
                                         : t("candidaturesrecues:noCandidatures.subtitle")
@@ -722,14 +722,14 @@ const CandidaturesRecues = () => {
                                     <div
                                         key={candidature.id}
                                         onClick={() => handleOpenModal(candidature)}
-                                        className="border border-gray-200 rounded-lg p-5 hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-pointer"
+                                        className="border border-gray-200 dark:border-slate-700 rounded-lg p-5 hover:border-blue-300 dark:hover:border-slate-500 hover:shadow-md transition-all duration-200 cursor-pointer"
                                     >
                                         <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                                             <div className="flex-1 space-y-3">
                                                 {/* Header */}
                                                 <div className="flex items-start justify-between gap-4">
                                                     <div>
-                                                        <h3 className="text-lg font-semibold text-gray-900">
+                                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
                                                             {candidature.etudiantPrenom} {candidature.etudiantNom}
                                                         </h3>
                                                         <p className="text-sm text-blue-600 font-medium mt-1 flex items-center gap-1.5">
@@ -747,11 +747,11 @@ const CandidaturesRecues = () => {
 
                                                 {/* Details */}
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
                                                         <Mail className="w-4 h-4 text-gray-400" />
                                                         <span className="truncate">{candidature.etudiantEmail}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
                                                         <Calendar className="w-4 h-4 text-gray-400" />
                                                         {formatDate(candidature.dateCandidature)}
                                                     </div>
@@ -762,7 +762,7 @@ const CandidaturesRecues = () => {
                                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium ${
                                                         candidature.acv
                                                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                                            : 'bg-gray-100 text-gray-500 border border-gray-200'
+                                                            : 'bg-gray-100 dark:bg-slate-700/50 text-gray-500 dark:text-slate-300 border border-gray-200 dark:border-slate-600'
                                                     }`}>
                                                         <FileText className="w-3.5 h-3.5" />
                                                         CV {candidature.acv ? '✓' : '✗'}
@@ -770,7 +770,7 @@ const CandidaturesRecues = () => {
                                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium ${
                                                         candidature.alettreMotivation
                                                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                                            : 'bg-gray-100 text-gray-500 border border-gray-200'
+                                                            : 'bg-gray-100 dark:bg-slate-700/50 text-gray-500 dark:text-slate-300 border border-gray-200 dark:border-slate-600'
                                                     }`}>
                                                         <FileText className="w-3.5 h-3.5" />
                                                         {t("candidaturesrecues:coverLetter")} {candidature.alettreMotivation ? '✓' : '✗'}
@@ -850,26 +850,26 @@ const CandidaturesRecues = () => {
                     {/* Modal d'approbation */}
                     {showApproveModal && candidatureToAction && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full">
                                 <div className="p-6">
                                     <div className="flex items-center gap-3 mb-4">
                                         <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
                                             <Check className="w-5 h-5 text-emerald-600" />
                                         </div>
-                                        <h3 className="text-lg font-semibold text-gray-900">
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
                                             {t("candidaturesrecues:approveModal.title")}
                                         </h3>
                                     </div>
 
-                                    <p className="text-gray-600 mb-4">
+                                    <p className="text-gray-600 dark:text-slate-300 mb-4">
                                         {t("candidaturesrecues:approveModal.message")}
                                     </p>
 
-                                    <div className="bg-gray-50 rounded-lg p-3 mb-6">
-                                        <p className="text-sm text-gray-600 mb-1">{t("candidaturesrecues:approveModal.studentInfo")} :</p>
-                                        <p className="font-medium">{candidatureToAction.etudiantPrenom} {candidatureToAction.etudiantNom}</p>
-                                        <p className="text-sm text-gray-600 mt-2 mb-1">{t("candidaturesrecues:approveModal.offerInfo")} :</p>
-                                        <p className="font-medium">{candidatureToAction.offreTitre}</p>
+                                    <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 mb-6">
+                                        <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t("candidaturesrecues:approveModal.studentInfo")} :</p>
+                                        <p className="font-medium dark:text-slate-100">{candidatureToAction.etudiantPrenom} {candidatureToAction.etudiantNom}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300 mt-2 mb-1">{t("candidaturesrecues:approveModal.offerInfo")} :</p>
+                                        <p className="font-medium dark:text-slate-100">{candidatureToAction.offreTitre}</p>
                                     </div>
 
                                     <div className="flex gap-3">
@@ -878,7 +878,7 @@ const CandidaturesRecues = () => {
                                                 setShowApproveModal(false);
                                                 setCandidatureToAction(null);
                                             }}
-                                            className="cursor-pointer flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                            className="cursor-pointer flex-1 px-4 py-2 text-gray-700 dark:text-slate-200 bg-gray-100 dark:bg-slate-700 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
                                             disabled={actionLoading}
                                         >
                                             {t("candidaturesrecues:actions.cancel")}
@@ -899,30 +899,30 @@ const CandidaturesRecues = () => {
                     {/* Modal de refus */}
                     {showRefuseModal && candidatureToAction && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full">
                                 <div className="p-6">
                                     <div className="flex items-center gap-3 mb-4">
                                         <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
                                             <X className="w-5 h-5 text-rose-600" />
                                         </div>
-                                        <h3 className="text-lg font-semibold text-gray-900">
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
                                             {t("candidaturesrecues:refuseModal.title")}
                                         </h3>
                                     </div>
 
-                                    <p className="text-gray-600 mb-4">
+                                    <p className="text-gray-600 dark:text-slate-300 mb-4">
                                         {t("candidaturesrecues:refuseModal.message")}
                                     </p>
 
-                                    <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                                        <p className="text-sm text-gray-600 mb-1">{t("candidaturesrecues:refuseModal.studentInfo")} :</p>
-                                        <p className="font-medium">{candidatureToAction.etudiantPrenom} {candidatureToAction.etudiantNom}</p>
-                                        <p className="text-sm text-gray-600 mt-2 mb-1">{t("candidaturesrecues:refuseModal.offerInfo")} :</p>
-                                        <p className="font-medium">{candidatureToAction.offreTitre}</p>
+                                    <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 mb-4">
+                                        <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t("candidaturesrecues:refuseModal.studentInfo")} :</p>
+                                        <p className="font-medium dark:text-slate-100">{candidatureToAction.etudiantPrenom} {candidatureToAction.etudiantNom}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300 mt-2 mb-1">{t("candidaturesrecues:refuseModal.offerInfo")} :</p>
+                                        <p className="font-medium dark:text-slate-100">{candidatureToAction.offreTitre}</p>
                                     </div>
 
                                     <div className="mb-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                                             {t("candidaturesrecues:refuseModal.reasonLabel")} *
                                         </label>
                                         <textarea
@@ -930,7 +930,7 @@ const CandidaturesRecues = () => {
                                             onChange={(e) => setRefuseReason(e.target.value)}
                                             placeholder={t("candidaturesrecues:refuseModal.reasonPlaceholder")}
                                             rows={4}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                            className="w-full border border-gray-300 dark:border-slate-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none dark:bg-slate-800 dark:text-slate-100"
                                         />
                                         {!refuseReason.trim() && (
                                             <p className="text-sm text-rose-600 mt-1">
@@ -946,7 +946,7 @@ const CandidaturesRecues = () => {
                                                 setCandidatureToAction(null);
                                                 setRefuseReason("");
                                             }}
-                                            className="cursor-pointer flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                            className="cursor-pointer flex-1 px-4 py-2 text-gray-700 dark:text-slate-200 bg-gray-100 dark:bg-slate-700 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
                                             disabled={actionLoading}
                                         >
                                             {t("candidaturesrecues:actions.cancel")}
@@ -967,18 +967,18 @@ const CandidaturesRecues = () => {
                     {/* Modal de détails (existant) */}
                     {showModal && selectedCandidature && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                                 {/* Header Modal */}
-                                <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+                                <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-6 flex items-center justify-between">
                                     <div>
-                                        <h2 className="text-2xl font-bold text-gray-900">
+                                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                                             {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
                                         </h2>
-                                        <p className="text-sm text-gray-600 mt-1">{t("candidaturesrecues:labels.applicationNumber")}{selectedCandidature.id}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">{t("candidaturesrecues:labels.applicationNumber")}{selectedCandidature.id}</p>
                                     </div>
                                     <button
                                         onClick={handleCloseModal}
-                                        className="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                        className="cursor-pointer p-2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                                     >
                                         <X className="w-6 h-6" />
                                     </button>
@@ -988,28 +988,28 @@ const CandidaturesRecues = () => {
                                 <div className="p-6 space-y-6">
                                     {/* Statut */}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.status")}</label>
+                                        <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">{t("candidaturesrecues:labels.status")}</label>
                                         {getStatutBadge(selectedCandidature.statut)}
                                     </div>
 
                                     {/* Offre */}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.internshipOffer")}</label>
-                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+                                        <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">{t("candidaturesrecues:labels.internshipOffer")}</label>
+                                        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-center gap-3">
                                             <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                                            <span className="text-blue-900 font-medium">{selectedCandidature.offreTitre}</span>
+                                            <span className="text-blue-900 dark:text-blue-200 font-medium">{selectedCandidature.offreTitre}</span>
                                         </div>
                                     </div>
 
                                     {/* Contact */}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.contact")}</label>
+                                        <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">{t("candidaturesrecues:labels.contact")}</label>
                                         <div className="space-y-2">
-                                            <div className="flex items-center gap-3 text-gray-700">
+                                            <div className="flex items-center gap-3 text-gray-700 dark:text-slate-200">
                                                 <Mail className="w-5 h-5 text-gray-400" />
                                                 <span>{selectedCandidature.etudiantEmail}</span>
                                             </div>
-                                            <div className="flex items-center gap-3 text-gray-700">
+                                            <div className="flex items-center gap-3 text-gray-700 dark:text-slate-200">
                                                 <Calendar className="w-5 h-5 text-gray-400" />
                                                 <span>{t("candidaturesrecues:labels.appliedOn")} {formatDate(selectedCandidature.dateCandidature)}</span>
                                             </div>
@@ -1018,20 +1018,20 @@ const CandidaturesRecues = () => {
 
                                     {/* Documents */}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700 block mb-3">{t("candidaturesrecues:labels.documents")}</label>
+                                        <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-3">{t("candidaturesrecues:labels.documents")}</label>
                                         <div className="space-y-3">
                                             {selectedCandidature.acv && (
                                                 <button
                                                     onClick={(e) => handleRegarderCV(selectedCandidature.id, e)}
-                                                    className="cursor-pointer w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                                                    className="cursor-pointer w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg transition-colors"
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
                                                             <FileText className="w-5 h-5 text-blue-600" />
                                                         </div>
                                                         <div className="text-left">
-                                                            <p className="font-medium text-gray-900">{t("candidaturesrecues:documentCards.cvTitle")}</p>
-                                                            <p className="text-sm text-gray-500">{t("candidaturesrecues:documentCards.cvSubtitle")}</p>
+                                                            <p className="font-medium text-gray-900 dark:text-slate-100">{t("candidaturesrecues:documentCards.cvTitle")}</p>
+                                                            <p className="text-sm text-gray-500 dark:text-slate-300">{t("candidaturesrecues:documentCards.cvSubtitle")}</p>
                                                         </div>
                                                     </div>
                                                     <Eye className="w-5 h-5 text-gray-400" />
@@ -1041,15 +1041,15 @@ const CandidaturesRecues = () => {
                                             {selectedCandidature.alettreMotivation && (
                                                 <button
                                                     onClick={(e) => handleRegarderLettreMotivation(selectedCandidature.id, e)}
-                                                    className="cursor-pointer w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                                                    className="cursor-pointer w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg transition-colors"
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                        <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
                                                             <FileText className="w-5 h-5 text-purple-600" />
                                                         </div>
                                                         <div className="text-left">
-                                                            <p className="font-medium text-gray-900">{t("candidaturesrecues:documentCards.letterTitle")}</p>
-                                                            <p className="text-sm text-gray-500">{t("candidaturesrecues:documentCards.letterSubtitle")}</p>
+                                                            <p className="font-medium text-gray-900 dark:text-slate-100">{t("candidaturesrecues:documentCards.letterTitle")}</p>
+                                                            <p className="text-sm text-gray-500 dark:text-slate-300">{t("candidaturesrecues:documentCards.letterSubtitle")}</p>
                                                         </div>
                                                     </div>
                                                     <Eye className="w-5 h-5 text-gray-400" />
@@ -1057,17 +1057,17 @@ const CandidaturesRecues = () => {
                                             )}
 
                                             {!selectedCandidature.acv && !selectedCandidature.alettreMotivation && (
-                                                <p className="text-sm text-gray-500 text-center py-4">{t("candidaturesrecues:documentCards.noDocument")}</p>
+                                                <p className="text-sm text-gray-500 dark:text-slate-300 text-center py-4">{t("candidaturesrecues:documentCards.noDocument")}</p>
                                             )}
                                         </div>
                                     </div>
 
                                     {/* Message de réponse si existe */}
                                     {selectedCandidature.messageReponse && (
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
-                                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                                <p className="text-gray-700">{selectedCandidature.messageReponse}</p>
+        	                            <div>
+                                            <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">{t("candidaturesrecues:labels.message")}</label>
+                                            <div className="bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-lg p-4">
+                                                <p className="text-gray-700 dark:text-slate-200">{selectedCandidature.messageReponse}</p>
                                             </div>
                                         </div>
                                     )}
@@ -1075,13 +1075,13 @@ const CandidaturesRecues = () => {
                                     {/* Convocation section in modal */}
                                     {selectedCandidature.convocation && (
                                         <div>
-                                            <label className="text-sm font-medium text-gray-700 block mb-2">{t('candidaturesrecues:labels.convocation')}</label>
-                                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                            <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">{t('candidaturesrecues:labels.convocation')}</label>
+                                            <div className="bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-lg p-4">
                                                 <div className="flex items-start justify-between">
                                                     <div>
-                                                        <p className="text-sm text-gray-700"><strong>{t('candidaturesrecues:convocation.date')}</strong> {formatDate(selectedCandidature.convocation.dateHeure)}</p>
-                                                        <p className="text-sm text-gray-700 mt-1"><strong>{t('candidaturesrecues:convocation.location')}</strong> {selectedCandidature.convocation.lieuOuLien}</p>
-                                                        <p className="text-sm text-gray-700 mt-2">{selectedCandidature.convocation.message}</p>
+                                                        <p className="text-sm text-gray-700 dark:text-slate-200"><strong>{t('candidaturesrecues:convocation.date')}</strong> {formatDate(selectedCandidature.convocation.dateHeure)}</p>
+                                                        <p className="text-sm text-gray-700 dark:text-slate-200 mt-1"><strong>{t('candidaturesrecues:convocation.location')}</strong> {selectedCandidature.convocation.lieuOuLien}</p>
+                                                        <p className="text-sm text-gray-700 dark:text-slate-200 mt-2">{selectedCandidature.convocation.message}</p>
                                                     </div>
                                                     <div className="flex-shrink-0">
                                                         {getConvocationStatusBadge(selectedCandidature.convocation.statut)}
@@ -1093,10 +1093,10 @@ const CandidaturesRecues = () => {
                                 </div>
 
                                 {/* Footer Modal */}
-                                <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
+                                <div className="sticky bottom-0 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 p-6 flex justify-end gap-3">
                                     <button
                                         onClick={handleCloseModal}
-                                        className="cursor-pointer px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                                        className="cursor-pointer px-6 py-2.5 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-200 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                                     >
                                         {t("candidaturesrecues:labels.close")}
                                     </button>
@@ -1108,7 +1108,7 @@ const CandidaturesRecues = () => {
                     {/* Modal d'aperçu document (existant) */}
                     {showDocumentModal && selectedDocument && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                            <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
                                 <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
                                     <h3 className="text-xl font-semibold">
                                         {selectedDocument.cv ? t("candidaturesrecues:documentCards.cvTitle") : t("candidaturesrecues:documentCards.letterTitle")} - {selectedDocument.prenom} {selectedDocument.nom}
@@ -1128,7 +1128,7 @@ const CandidaturesRecues = () => {
                                     ) : (
                                         <div className="text-center py-12">
                                             <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                                            <p className="text-gray-600">{t("candidaturesrecues:modal.noPreview")}</p>
+                                            <p className="text-gray-600 dark:text-slate-300">{t("candidaturesrecues:modal.noPreview")}</p>
                                         </div>
                                     )}
                                 </div>
@@ -1139,18 +1139,18 @@ const CandidaturesRecues = () => {
                     {/* Modal de création de convocation (existant) */}
                     {showConvocationModal && selectedCandidature && !selectedCandidature.convocation && (
                         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
                                 {/* Header Modal */}
-                                <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+                                <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-6 flex items-center justify-between">
                                     <div>
-                                        <h2 className="text-2xl font-bold text-gray-900">
+                                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                                             {t("candidaturesrecues:createConvocation")}
                                         </h2>
-                                        <p className="text-sm text-gray-600 mt-1">{t("candidaturesrecues:for")} {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">{t("candidaturesrecues:for")} {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}</p>
                                     </div>
                                     <button
                                         onClick={handleCloseConvocationModal}
-                                        className="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                        className="cursor-pointer p-2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                                     >
                                         <X className="w-6 h-6" />
                                     </button>
@@ -1160,54 +1160,54 @@ const CandidaturesRecues = () => {
                                 <div className="p-6 space-y-6">
                                     {/* Formulaire de convocation */}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.dateHeure")}</label>
+                                        <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">{t("candidaturesrecues:labels.dateHeure")}</label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <input
                                                 type="date"
                                                 name="dateEntrevue"
                                                 value={convocationFormData.dateEntrevue}
                                                 onChange={handleConvocationFormChange}
-                                                className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                             <input
                                                 type="time"
                                                 name="heureDebut"
                                                 value={convocationFormData.heureDebut}
                                                 onChange={handleConvocationFormChange}
-                                                className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.lieu")}</label>
+                                        <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">{t("candidaturesrecues:labels.lieu")}</label>
                                         <input
                                             type="text"
                                             name="lieu"
                                             value={convocationFormData.lieu}
                                             onChange={handleConvocationFormChange}
-                                            className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                                            className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
                                             placeholder={t("candidaturesrecues:placeholders.lieu")}
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700 block mb-2">{t("candidaturesrecues:labels.message")}</label>
+                                        <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">{t("candidaturesrecues:labels.message")}</label>
                                         <textarea
                                             name="message"
                                             value={convocationFormData.message}
                                             onChange={handleConvocationFormChange}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                                            className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
                                             rows={4}
                                             placeholder={t('candidaturesrecues:placeholders.messageTemplate', { prenom: selectedCandidature.etudiantPrenom, offre: selectedCandidature.offreTitre })}
                                         />
                                     </div>
 
                                     {/* Footer Modal */}
-                                    <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex justify-end gap-3">
+                                    <div className="sticky bottom-0 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 p-6 flex justify-end gap-3">
                                         <button
                                             onClick={handleCloseConvocationModal}
-                                            className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                                            className="px-6 py-2.5 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-200 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                                         >
                                             {t("candidaturesrecues:labels.cancel")}
                                         </button>

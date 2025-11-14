@@ -332,23 +332,23 @@ const ProfesseurEvaluationMilieuStage = () => {
     return (
         <>
             <NavBar />
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-950 py-8 px-4">
                 <div className="max-w-7xl mx-auto">
                     {/* Header */}
                     <div className="mb-8 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => navigate("/dashboard-professeur")}
-                                className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+                                className="p-2 hover:bg-white/50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                             >
-                                <ArrowLeft className="w-6 h-6 text-indigo-700" />
+                                <ArrowLeft className="w-6 h-6 text-indigo-700 dark:text-indigo-300" />
                             </button>
                             <div>
-                                <h1 className="text-3xl font-bold text-indigo-900 flex items-center gap-3">
+                                <h1 className="text-3xl font-bold text-indigo-900 dark:text-slate-100 flex items-center gap-3">
                                     <ClipboardList className="w-8 h-8" />
                                     {t("title")}
                                 </h1>
-                                <p className="text-indigo-600 mt-1">{t("myEvaluations")}</p>
+                                <p className="text-indigo-600 dark:text-indigo-300 mt-1">{t("myEvaluations")}</p>
                             </div>
                         </div>
 
@@ -365,14 +365,14 @@ const ProfesseurEvaluationMilieuStage = () => {
 
                     {/* Error Display */}
                     {error && (
-                        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                             <div className="flex-1">
-                                <p className="text-red-800 font-medium">{error}</p>
+                                <p className="text-red-800 dark:text-red-200 font-medium">{error}</p>
                             </div>
                             <button
                                 onClick={() => setError("")}
-                                className="text-red-400 hover:text-red-600 transition-colors"
+                                className="text-red-400 hover:text-red-600 dark:text-red-300 dark:hover:text-red-100 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -381,12 +381,12 @@ const ProfesseurEvaluationMilieuStage = () => {
 
                     {/* Form */}
                     {showForm && (
-                        <div className="bg-white rounded-xl shadow-xl p-8 mb-8">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-8 mb-8 border border-gray-200 dark:border-slate-700">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-bold text-indigo-900">{t("form.title")}</h2>
+                                <h2 className="text-2xl font-bold text-indigo-900 dark:text-indigo-300">{t("form.title")}</h2>
                                 <button
                                     onClick={() => setShowForm(false)}
-                                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors"
                                 >
                                     <X className="w-6 h-6" />
                                 </button>
@@ -526,7 +526,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                     )}
 
                     {/* Students List with CV and Actions */}
-                    <div className="bg-white rounded-xl shadow-xl overflow-hidden mb-8">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl overflow-hidden mb-8 border border-gray-200 dark:border-slate-700">
                         <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600">
                             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                                 <Users className="w-6 h-6" />
@@ -624,7 +624,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                     </div>
 
                     {/* Evaluations List */}
-                    <div className="bg-white rounded-xl shadow-xl overflow-hidden">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-slate-700">
                         <div className="p-6 bg-gradient-to-r from-indigo-600 to-indigo-700">
                             <h2 className="text-2xl font-bold text-white">{t("list.title")}</h2>
                         </div>
@@ -796,7 +796,7 @@ const ProfesseurEvaluationMilieuStage = () => {
             {/* Candidatures Modal */}
             {viewMode === 'candidatures' && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
                         <div className="p-6 border-b border-slate-200 flex justify-between items-center">
                             <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                 <FileText className="w-6 h-6 text-purple-600" />
@@ -858,7 +858,7 @@ const ProfesseurEvaluationMilieuStage = () => {
             {/* Ententes Modal */}
             {viewMode === 'ententes' && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
                         <div className="p-6 border-b border-slate-200 flex justify-between items-center">
                             <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                 <Briefcase className="w-6 h-6 text-green-600" />

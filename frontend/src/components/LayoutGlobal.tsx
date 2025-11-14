@@ -17,7 +17,7 @@ const LayoutGlobal = () => {
     const showFloatingLanguageSelector = pagesWithoutNavBar.includes(location.pathname);
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-white dark:bg-slate-900">
             {/* Sélecteur de langue et thème flottants pour pages sans NavBar */}
             {showFloatingLanguageSelector && (
                 <div className="fixed top-4 right-4 z-50 flex gap-2">

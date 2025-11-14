@@ -23,7 +23,6 @@ const ThemeSelector = ({ className = "" }: { className?: string }) => {
   const [systemTick, setSystemTick] = useState(0);
   const mountedRef = useRef(false);
 
-  // Initialize from storage and apply
   useEffect(() => {
     const stored = (localStorage.getItem(STORAGE_KEY) as ThemeChoice | null) || "system";
     setChoice(stored);
@@ -31,7 +30,6 @@ const ThemeSelector = ({ className = "" }: { className?: string }) => {
     mountedRef.current = true;
   }, []);
 
-  // Watch system changes when in system mode; trigger re-render to refresh highlight
   useEffect(() => {
     if (choice !== "system") return;
     const mql = window.matchMedia("(prefers-color-scheme: dark)");
@@ -51,7 +49,7 @@ const ThemeSelector = ({ className = "" }: { className?: string }) => {
   };
 
   const effective = choice === "system" ? getSystemTheme() : choice;
-  void systemTick; // used to trigger re-render on system changes
+  void systemTick;
 
   return (
     <div className={`flex items-center gap-2 bg-white/95 dark:bg-slate-800/80 backdrop-blur-md rounded-lg px-3 py-2 shadow-lg border border-gray-200/50 dark:border-slate-700 hover:shadow-xl transition-all duration-300 ${className}`}>

@@ -96,7 +96,7 @@ const NotificationEtudiant = () => {
         <div className="relative">
             <button
                 onClick={toggleOpen}
-                className="relative p-2 rounded-full text-white hover:bg-white/20 transition-all"
+                className="relative p-2 rounded-full text-white hover:bg-white/20 dark:hover:bg-slate-700/40 transition-all"
                 aria-label={t('title')}
             >
                 <Bell className="w-5 h-5" />
@@ -109,20 +109,20 @@ const NotificationEtudiant = () => {
 
             {open && (
                 <div
-                    className="absolute right-0 mt-3 w-80 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50"
+                    className="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden z-50"
                 >
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
-                        <h4 className="font-semibold text-gray-800">{t('title')}</h4>
-                        <button onClick={() => setOpen(false)} className="p-1 text-gray-500 hover:text-gray-800">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/80">
+                        <h4 className="font-semibold text-gray-800 dark:text-slate-100">{t('title')}</h4>
+                        <button onClick={() => setOpen(false)} className="p-1 text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200">
                             <X className="cursor-pointer w-4 h-4" />
                         </button>
                     </div>
 
-                    <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
-                        {loading && <div className="p-4 text-center text-gray-500">{t('loading')}</div>}
+                    <div className="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700">
+                        {loading && <div className="p-4 text-center text-gray-500 dark:text-slate-400">{t('loading')}</div>}
 
                         {!loading && unreadCount === 0 && (
-                            <div className="p-4 text-sm text-gray-500 text-center">{t('noNotifications')}</div>
+                            <div className="p-4 text-sm text-gray-500 dark:text-slate-400 text-center">{t('noNotifications')}</div>
                         )}
 
                         {!loading && notifications.map(n => {
@@ -132,28 +132,28 @@ const NotificationEtudiant = () => {
                             return (
                                 <div
                                     key={n.id}
-                                    className={`p-3 hover:bg-gray-50 transition-all bg-blue-50/40`}
+                                    className="p-3 hover:bg-gray-50 dark:hover:bg-slate-700/60 transition-all bg-blue-50/40 dark:bg-blue-900/20"
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="flex-shrink-0 mt-1">
-                                            <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
-                                                <Bell className="w-4 h-4 text-blue-600" />
+                                            <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                                                <Bell className="w-4 h-4 text-blue-600 dark:text-blue-300" />
                                             </div>
                                         </div>
 
                                         <div className="flex-1">
-                                            <div className="text-sm font-medium text-gray-900 leading-tight">
+                                            <div className="text-sm font-medium text-gray-900 dark:text-slate-100 leading-tight">
                                                 {mainMessage}
                                             </div>
                                             {details?.employeur && (
-                                                <div className="text-xs text-blue-600 mt-0.5">{details.employeur}</div>
+                                                <div className="text-xs text-blue-600 dark:text-blue-300 mt-0.5">{details.employeur}</div>
                                             )}
                                             {details?.competences && (
-                                                <div className="text-xs text-gray-500 mt-0.5">
+                                                <div className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                                                     {t('competences')}: {details.competences}
                                                 </div>
                                             )}
-                                            <div className="text-[11px] text-gray-400 mt-1">
+                                            <div className="text-[11px] text-gray-400 dark:text-slate-500 mt-1">
                                                 {new Date(n.dateCreation).toLocaleString()}
                                             </div>
                                         </div>
@@ -161,7 +161,7 @@ const NotificationEtudiant = () => {
                                         <button
                                             onClick={(e) => { e.stopPropagation(); markAsRead(n.id); }}
                                             aria-label={t('markAsRead')}
-                                            className="p-1.5 rounded-full hover:bg-blue-50 text-blue-600 transition-all"
+                                            className="p-1.5 rounded-full hover:bg-blue-50 dark:hover:bg-slate-700 text-blue-600 dark:text-blue-300 transition-all"
                                         >
                                             <EyeOff className="cursor-pointer w-4 h-4" />
                                         </button>

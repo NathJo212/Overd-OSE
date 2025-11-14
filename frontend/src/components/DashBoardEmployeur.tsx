@@ -162,18 +162,18 @@ const DashBoardEmployeur = () => {
     };
 
     return (
-        <div className="bg-gray-200">
+        <div className="bg-gray-200 dark:bg-slate-900">
             <NavBar/>
-            <div className="min-h-screen bg-gradient-to-br p-4">
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-slate-900 dark:to-slate-800 p-4">
                 {showNotification && (
                     <div className="fixed top-4 right-4 z-50 max-w-md w-full">
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg">
+                        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-900/40 rounded-lg p-4 shadow-lg">
                             <div className="flex items-start">
                                 <div className="flex-shrink-0">
-                                    <CheckCircle className="h-5 w-5 text-green-400" />
+                                    <CheckCircle className="h-5 w-5 text-green-400 dark:text-green-300" />
                                 </div>
                                 <div className="ml-3 flex-1">
-                                    <p className="text-sm font-medium text-green-800">
+                                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
                                         {notificationMessage}
                                     </p>
                                 </div>
@@ -181,7 +181,7 @@ const DashBoardEmployeur = () => {
                                     <button
                                         type="button"
                                         onClick={handleCloseNotification}
-                                        className="cursor-pointer bg-green-50 rounded-md inline-flex text-green-400 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                        className="cursor-pointer bg-green-50 dark:bg-green-900/30 rounded-md inline-flex text-green-400 dark:text-green-300 hover:text-green-500 dark:hover:text-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                                     >
                                         <span className="sr-only">{t('employerdashboard:modal.close')}</span>
                                         <X className="h-5 w-5" />
@@ -192,13 +192,14 @@ const DashBoardEmployeur = () => {
                     </div>
                 )}
                 <div className="max-w-4xl mx-auto">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8 text-center">
+                    {/* Header */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 mb-8 text-center border border-transparent dark:border-slate-700">
                         <div className="flex justify-center mb-4">
-                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
                                 <Building className="w-8 h-8 text-blue-600" />
                             </div>
                         </div>
-                        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+                        <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100 mb-6">
                             {t("employerdashboard:title")}
                         </h1>
                         <div className="flex flex-wrap gap-4 justify-center">
@@ -220,13 +221,13 @@ const DashBoardEmployeur = () => {
                         </div>
                     </div>
 
-                    {/* Convocations Section (re-added) */}
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
+                    {/* Convocations Section */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 mb-8 border border-transparent dark:border-slate-700">
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-semibold text-gray-800">{t('employerdashboard:convocations.title')}</h2>
+                            <h2 className="text-2xl font-semibold text-gray-800 dark:text-slate-100">{t('employerdashboard:convocations.title')}</h2>
                             <button
                                 onClick={loadConvocations}
-                                className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
+                                className="cursor-pointer text-sm text-gray-500 dark:text-slate-300 hover:text-gray-700 dark:hover:text-slate-100 flex items-center gap-2"
                                 disabled={loadingConvocations}
                             >
                                 <RefreshCw className={`w-4 h-4 ${loadingConvocations ? 'animate-spin' : ''}`} />
@@ -235,40 +236,40 @@ const DashBoardEmployeur = () => {
                         </div>
 
                         {loadingConvocations ? (
-                            <div className="text-center py-8 text-gray-600">{t('employerdashboard:convocations.loading')}</div>
+                            <div className="text-center py-8 text-gray-600 dark:text-slate-300">{t('employerdashboard:convocations.loading')}</div>
                         ) : convocations.length === 0 ? (
                             <div className="text-center py-12">
-                                <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                                <p className="text-gray-500">{t('employerdashboard:convocations.noneTitle')}</p>
+                                <Clock className="w-16 h-16 text-gray-400 dark:text-slate-600 mx-auto mb-4" />
+                                <p className="text-gray-500 dark:text-slate-400">{t('employerdashboard:convocations.noneTitle')}</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
                                 {convocations.map(conv => (
-                                    <div key={conv.id} className="border-2 border-blue-200 bg-blue-50 rounded-xl p-6">
+                                    <div key={conv.id} className="border-2 border-blue-200 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6">
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <div className="flex items-center mb-2">
-                                                    <h3 className="text-lg font-semibold text-gray-800">
+                                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
                                                         {conv.offreTitre || t('employerdashboard:convocations.defaultTitle')}
                                                     </h3>
                                                     {conv.statut && (
                                                         <div className="ml-4">{getConvocationStatusBadge(conv.statut)}</div>
                                                     )}
                                                 </div>
-                                                <p className="text-sm text-gray-600 flex items-center gap-2 mb-1">
+                                                <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2 mb-1">
                                                     <Calendar className="w-4 h-4" />
                                                     {new Date(conv.dateHeure).toLocaleString(i18n?.language?.startsWith('fr') ? 'fr-CA' : 'en-CA')}
                                                 </p>
-                                                <p className="text-sm text-gray-600 flex items-center gap-2 mb-1">
+                                                <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2">
                                                     <MapPin className="w-4 h-4" />
                                                     {conv.lieuOuLien}
                                                 </p>
                                                 {conv.etudiantNom && conv.etudiantPrenom && (
-                                                    <p className="text-sm text-blue-700 font-medium mt-2">
+                                                    <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-2">
                                                         {t('employerdashboard:convocations.student')}: {conv.etudiantPrenom} {conv.etudiantNom}
                                                     </p>
                                                 )}
-                                                <p className="text-sm text-gray-700 mt-3">{conv.message}</p>
+                                                <p className="text-sm text-gray-700 dark:text-slate-200 mt-3">{conv.message}</p>
                                             </div>
                                             {conv.statut != "ANNULEE" && (
                                                 <div className="flex flex-col gap-2 ml-4">
@@ -296,18 +297,18 @@ const DashBoardEmployeur = () => {
                     </div>
 
                     {/* Offres Section */}
-                    <div className="bg-white rounded-2xl shadow-2xl p-8">
-                        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-200 dark:border-slate-700">
+                        <h2 className="text-2xl font-semibold text-gray-800 dark:text-slate-100 mb-6">
                             {t("employerdashboard:myOffers")}
                         </h2>
 
                         {offres.length === 0 ? (
                             <div className="text-center py-12">
-                                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Building className="w-10 h-10 text-gray-400" />
+                                <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Building className="w-10 h-10 text-gray-400 dark:text-slate-500" />
                                 </div>
-                                <p className="text-gray-500 text-lg">{t("employerdashboard:noOffers.title")}</p>
-                                <p className="text-gray-400 text-sm mt-2">{t("employerdashboard:noOffers.subtitle")}</p>
+                                <p className="text-gray-500 dark:text-slate-400 text-lg">{t("employerdashboard:noOffers.title")}</p>
+                                <p className="text-gray-400 dark:text-slate-500 text-sm mt-2">{t("employerdashboard:noOffers.subtitle")}</p>
                             </div>
                         ) : (
                             <div className="space-y-6">
@@ -321,30 +322,30 @@ const DashBoardEmployeur = () => {
                                             key={index}
                                             className={`border-2 rounded-xl p-6 transition-all duration-300 ${
                                                 isRefused
-                                                    ? 'border-red-200 bg-red-50 hover:border-red-300 cursor-pointer hover:shadow-lg'
+                                                    ? 'border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-900/20 hover:border-red-300 dark:hover:border-red-800 cursor-pointer hover:shadow-lg'
                                                     : isApproved
-                                                        ? 'border-green-200 bg-green-50 hover:border-green-300 hover:shadow-lg'
-                                                        : 'border-yellow-200 bg-yellow-50 hover:border-yellow-300 hover:shadow-lg'
+                                                        ? 'border-green-200 dark:border-green-900/40 bg-green-50 dark:bg-green-900/20 hover:border-green-300 dark:hover:border-green-800 hover:shadow-lg'
+                                                        : 'border-yellow-200 dark:border-yellow-900/40 bg-yellow-50 dark:bg-yellow-900/20 hover:border-yellow-300 dark:hover:border-yellow-800 hover:shadow-lg'
                                             }`}
                                             onClick={() => isRefused && handleRefuseClick(offre.messageRefus)}
                                         >
                                             <div className="flex justify-between items-start mb-4">
                                                 <div className="flex-1">
-                                                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                                                    <h3 className="text-xl font-semibold text-gray-800 dark:text-slate-100 mb-2">
                                                         {offre.titre}
                                                     </h3>
-                                                    <p className="text-gray-600 text-sm flex items-center mb-1">
+                                                    <p className="text-gray-600 dark:text-slate-300 text-sm flex items-center mb-1">
                                                         <Building className="w-4 h-4 mr-2" />
                                                         {offre.employeurDTO?.nomEntreprise}
                                                     </p>
                                                     {offre.lieuStage && (
-                                                        <p className="text-gray-600 text-sm flex items-center mb-1">
+                                                        <p className="text-gray-600 dark:text-slate-300 text-sm flex items-center mb-1">
                                                             <MapPin className="w-4 h-4 mr-2" />
                                                             {offre.lieuStage}
                                                         </p>
                                                     )}
                                                     {offre.progEtude && (
-                                                        <p className="text-gray-600 text-sm flex items-center">
+                                                        <p className="text-gray-600 dark:text-slate-300 text-sm flex items-center">
                                                             <GraduationCap className="w-4 h-4 mr-2" />
                                                             {tProgrammes(offre.progEtude)}
                                                         </p>
@@ -352,20 +353,20 @@ const DashBoardEmployeur = () => {
                                                 </div>
                                                 <span className={`px-4 py-2 rounded-full text-sm font-medium flex-shrink-0 ml-4 ${
                                                     isRefused
-                                                        ? 'bg-red-200 text-red-800'
+                                                        ? 'bg-red-200 dark:bg-red-900/40 text-red-800 dark:text-red-200'
                                                         : isApproved
-                                                            ? 'bg-green-200 text-green-800'
-                                                            : 'bg-yellow-200 text-yellow-800'
+                                                            ? 'bg-green-200 dark:bg-green-900/40 text-green-800 dark:text-green-200'
+                                                            : 'bg-yellow-200 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200'
                                                 }`}>
                                                 {isRefused ? t("employerdashboard:status.refused") : isApproved ? t("employerdashboard:status.approved") : t("employerdashboard:status.pending")}
                                             </span>
                                             </div>
 
-                                            <p className="text-gray-700 mb-4">
+                                            <p className="text-gray-700 dark:text-slate-300 mb-4">
                                                 {offre.description}
                                             </p>
 
-                                            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                                            <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-slate-300">
                                             <span className="flex items-center">
                                                 <Calendar className="w-4 h-4 mr-1" />
                                                 {t("employerdashboard:start")}: {offre.date_debut}
@@ -377,7 +378,7 @@ const DashBoardEmployeur = () => {
                                             </div>
 
                                             {isRefused && (
-                                                <div className="mt-4 text-sm text-red-600 font-medium">
+                                                <div className="mt-4 text-sm text-red-600 dark:text-red-300 font-medium">
                                                     {t("employerdashboard:clickToSeeRefuseReason")}
                                                 </div>
                                             )}
@@ -391,14 +392,14 @@ const DashBoardEmployeur = () => {
 
                 {/* Edit Convocation Modal */}
                 {showEditModal && (
-                    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30">
-                        <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-                            <div className="bg-blue-50 px-6 py-4 rounded-t-xl border-b border-blue-100">
-                                <h3 className="text-xl font-semibold text-blue-700">{t('employerdashboard:convocations.editModal.title')}</h3>
+                    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30 backdrop-blur-sm">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-700">
+                            <div className="bg-blue-50 dark:bg-blue-900/30 px-6 py-4 rounded-t-xl border-b border-blue-100 dark:border-blue-800">
+                                <h3 className="text-xl font-semibold text-blue-700 dark:text-blue-300">{t('employerdashboard:convocations.editModal.title')}</h3>
                             </div>
                             <div className="px-6 py-6 space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('employerdashboard:convocations.editModal.dateTime')}</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.dateTime')}</label>
                                     <input
                                         type="datetime-local"
                                         value={editForm.dateHeure}
@@ -407,7 +408,7 @@ const DashBoardEmployeur = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('employerdashboard:convocations.editModal.location')}</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.location')}</label>
                                     <input
                                         type="text"
                                         value={editForm.lieuOuLien}
@@ -416,7 +417,7 @@ const DashBoardEmployeur = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('employerdashboard:convocations.editModal.message')}</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.message')}</label>
                                     <textarea
                                         value={editForm.message}
                                         onChange={(e) => setEditForm({...editForm, message: e.target.value})}
@@ -482,3 +483,4 @@ const DashBoardEmployeur = () => {
 };
 
 export default DashBoardEmployeur;
+

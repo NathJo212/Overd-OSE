@@ -151,28 +151,28 @@ const EntentesEtudiants = () => {
     };
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 <div className="mb-8">
                     <button
                         onClick={() => navigate('/dashboard-etudiant')}
-                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         {t('buttons.backToDashboard')}
                     </button>
 
                     <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
                             <FileSignature className="w-6 h-6 text-blue-600" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">
                                 {t('title')}
                             </h1>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-slate-300">
                                 {t('subtitle')}
                             </p>
                         </div>
@@ -180,7 +180,7 @@ const EntentesEtudiants = () => {
 
                     <button
                         onClick={loadEntentes}
-                        className="cursor-pointer flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
                         disabled={loading}
                     >
                         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -189,41 +189,41 @@ const EntentesEtudiants = () => {
                 </div>
 
                 {successMessage && (
-                    <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+                    <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-center gap-3">
                         <CheckCircle className="w-5 h-5 text-green-600" />
-                        <p className="text-green-800">{successMessage}</p>
+                        <p className="text-green-800 dark:text-green-200">{successMessage}</p>
                     </div>
                 )}
 
                 {error && (
-                    <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+                    <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center gap-3">
                         <AlertCircle className="w-5 h-5 text-red-600" />
-                        <p className="text-red-800">{error}</p>
+                        <p className="text-red-800 dark:text-red-200">{error}</p>
                     </div>
                 )}
 
                 {loading && (
                     <div className="text-center py-12">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                        <p className="mt-4 text-gray-600">{t('loading')}</p>
+                        <p className="mt-4 text-gray-600 dark:text-slate-300">{t('loading')}</p>
                     </div>
                 )}
 
                 {!loading && ententes.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center">
                         <div className="flex justify-center mb-4">
-                            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
                                 <FileSignature className="w-8 h-8 text-slate-400" />
                             </div>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{t('noEntentes')}</h3>
-                        <p className="text-gray-600 max-w-md mx-auto">{t('noEntentesSubtitle')}</p>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">{t('noEntentes')}</h3>
+                        <p className="text-gray-600 dark:text-slate-300 max-w-md mx-auto">{t('noEntentesSubtitle')}</p>
                     </div>
                 ) : (
                     <div>
                         <div className="mb-4">
-                            <p className="text-sm text-gray-600">
-                                <span className="font-semibold text-gray-900">{ententes.length}</span> {t('ententeCount')}
+                            <p className="text-sm text-gray-600 dark:text-slate-300">
+                                <span className="font-semibold text-gray-900 dark:text-slate-100">{ententes.length}</span> {t('ententeCount')}
                             </p>
                         </div>
 
@@ -234,42 +234,41 @@ const EntentesEtudiants = () => {
                                     onClick={() => setSelectedEntente(entente)}
                                     role="button"
                                     tabIndex={0}
-                                    className="bg-white rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-6 border border-slate-200 cursor-pointer group"
+                                    className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400/40 transition-all duration-300 p-6 border border-slate-200 dark:border-slate-700 cursor-pointer group"
                                 >
                                     <div className="flex items-center justify-between mb-4">
-                                        {/* Show student's own signature status on card */}
                                         {getSignatureStatusBadge(entente.etudiantSignature)}
-                                        <span className="text-xs text-gray-500">{t('fields.createdOn')}: {entente?.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}</span>
+                                        <span className="text-xs text-gray-500 dark:text-slate-400">{t('fields.createdOn')}: {entente?.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}</span>
                                     </div>
 
-                                    <div className="mb-4 pb-4 border-b border-slate-200">
+                                    <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
                                         <div className="flex items-start gap-3">
-                                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
                                                 <FileSignature className="w-5 h-5 text-blue-600" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h3 className="font-bold text-gray-900 mb-1">{entente.offreTitre || entente.titre || t('fields.defaultTitle')}</h3>
-                                                <p className="text-xs text-gray-600 truncate">{entente.description || t('fields.noDescription')}</p>
+                                                <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-1">{entente.offreTitre || entente.titre || t('fields.defaultTitle')}</h3>
+                                                <p className="text-xs text-gray-600 dark:text-slate-300 truncate">{entente.description || t('fields.noDescription')}</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="space-y-1 mb-3">
-                                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
                                             <Calendar className="w-3 h-3 flex-shrink-0" />
                                             <span>{entente.dateDebut} → {entente.dateFin}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
                                             <Clock className="w-3 h-3 flex-shrink-0" />
                                             <span>{entente.nombreHeuresParSemaine ?? entente.dureeHebdomadaire ?? '-'}{" "}{t('hourShort', { defaultValue: 'h' })}/{t('week')}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
                                             <DollarSign className="w-3 h-3 flex-shrink-0" />
                                             <span>{entente.salaire ?? entente.remuneration ?? '-' }{entente.salaire ? '$' : ''}</span>
                                         </div>
                                     </div>
 
-                                    <div className="mt-4 pt-4 border-t border-slate-200">
+                                    <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                                         <p className="text-sm text-blue-600 font-medium group-hover:text-blue-700 flex items-center gap-2">
                                             {t('buttons.viewDetails')}
                                         </p>
@@ -284,16 +283,16 @@ const EntentesEtudiants = () => {
             {/* Modal de détails */}
             {selectedEntente && !showSignModal && !showRefuseModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-blue-50 px-6 py-4 border-b border-blue-100 rounded-t-2xl">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="sticky top-0 bg-blue-50 dark:bg-blue-900/30 px-6 py-4 border-b border-blue-100 dark:border-blue-800 rounded-t-2xl">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800/40 rounded-full flex items-center justify-center">
                                         <FileSignature className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-blue-900">{t('modal.title')}</h3>
-                                        <p className="text-sm text-blue-700">{selectedEntente.titre}</p>
+                                        <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">{t('modal.title')}</h3>
+                                        <p className="text-sm text-blue-700 dark:text-blue-300">{selectedEntente.titre}</p>
                                     </div>
                                 </div>
 
@@ -301,123 +300,115 @@ const EntentesEtudiants = () => {
                         </div>
 
                         <div className="p-6 space-y-6">
-                            <div className="bg-gray-50 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div className="bg-gray-50 dark:bg-slate-700/40 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">{t("ententesemployeurs:modal.signatures")}</h4>
+                                    <h4 className="font-semibold text-gray-900 dark:text-slate-100">{t("ententesemployeurs:modal.signatures")}</h4>
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    {/* Both sides signatures */}
                                     {getSignatureStatusBadge(selectedEntente.etudiantSignature)}
                                 </div>
                             </div>
-                            <div className="bg-blue-50 rounded-xl p-4">
-                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
                                     <User className="w-5 h-5 text-blue-600" />
                                     {t('modal.employer')}
                                 </h4>
                                 <div className="space-y-1">
-                                    <p className="text-gray-800"><span className="font-medium">{t('modal.employerName')}:</span> {selectedEntente.employeurContact}</p>
-                                    <p className="text-gray-800"><span className="font-medium">{t('modal.employerEmail')}:</span> {selectedEntente.employeurEmail}</p>
+                                    <p className="text-gray-800 dark:text-slate-200"><span className="font-medium">{t('modal.employerName')}:</span> {selectedEntente.employeurContact}</p>
+                                    <p className="text-gray-800 dark:text-slate-200"><span className="font-medium">{t('modal.employerEmail')}:</span> {selectedEntente.employeurEmail}</p>
                                 </div>
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2"><FileSignature className="w-5 h-5 text-blue-600" />{t('modal.internshipInfo')}</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2"><FileSignature className="w-5 h-5 text-blue-600" />{t('modal.internshipInfo')}</h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-sm text-gray-600">{t('modal.startDate')}</p>
-                                        <p className="font-medium text-gray-900">{selectedEntente.dateDebut}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.startDate')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dateDebut}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">{t('modal.endDate')}</p>
-                                        <p className="font-medium text-gray-900">{selectedEntente.dateFin}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.endDate')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dateFin}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">{t('modal.schedule')}</p>
-                                        <p className="font-medium text-gray-900">{(selectedEntente as any).horaire ?? '-'}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.schedule')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{(selectedEntente as any).horaire ?? '-'}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">{t('modal.weeklyHours')}</p>
-                                        <p className="font-medium text-gray-900">{selectedEntente.dureeHebdomadaire}{' '}{t('hourShort', { defaultValue: 'h' })}/{t('week')}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.weeklyHours')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dureeHebdomadaire}{' '}{t('hourShort', { defaultValue: 'h' })}/{t('week')}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">{t('fields.programme')}</p>
-                                        <p className="font-medium text-gray-900">{getProgrammeLabel(selectedEntente)}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('fields.programme')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{getProgrammeLabel(selectedEntente)}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">{t('fields.location') || 'Lieu'}</p>
-                                        <p className="font-medium text-gray-900">{(selectedEntente as any).lieuStage || (selectedEntente as any).lieu || t('common.notDefined')}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('fields.location') || 'Lieu'}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{(selectedEntente as any).lieuStage || (selectedEntente as any).lieu || t('common.notDefined')}</p>
                                     </div>
                                     <div className="col-span-2">
-                                        <p className="text-sm text-gray-600">{t('modal.remuneration')}</p>
-                                        <p className="font-medium text-gray-900">{selectedEntente.remuneration}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.remuneration')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.remuneration}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {(selectedEntente as any).description && (
                                 <div>
-                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.description')}</h4>
-                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{selectedEntente.description}</p>
+                                    <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">{t('modal.description')}</h4>
+                                    <p className="text-gray-700 dark:text-slate-300 whitespace-pre-line bg-gray-50 dark:bg-slate-700/40 p-4 rounded-lg">{selectedEntente.description}</p>
                                 </div>
                             )}
 
                             {(selectedEntente as any).responsabilitesEtudiant && (
                                 <div>
-                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.responsabilitesEtudiant')}</h4>
-                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{(selectedEntente as any).responsabilitesEtudiant}</p>
+                                    <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">{t('modal.responsabilitesEtudiant')}</h4>
+                                    <p className="text-gray-700 dark:text-slate-300 whitespace-pre-line bg-gray-50 dark:bg-slate-700/40 p-4 rounded-lg">{(selectedEntente as any).responsabilitesEtudiant}</p>
                                 </div>
                             )}
 
                             {(selectedEntente as any).responsabilitesEmployeur && (
                                 <div>
-                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.responsabilitesEmployeur')}</h4>
-                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{(selectedEntente as any).responsabilitesEmployeur}</p>
+                                    <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">{t('modal.responsabilitesEmployeur')}</h4>
+                                    <p className="text-gray-700 dark:text-slate-300 whitespace-pre-line bg-gray-50 dark:bg-slate-700/40 p-4 rounded-lg">{(selectedEntente as any).responsabilitesEmployeur}</p>
                                 </div>
                             )}
 
                             {(selectedEntente as any).responsabilitesCollege && (
                                 <div>
-                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.responsabilitesCollege')}</h4>
-                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{(selectedEntente as any).responsabilitesCollege}</p>
+                                    <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">{t('modal.responsabilitesCollege')}</h4>
+                                    <p className="text-gray-700 dark:text-slate-300 whitespace-pre-line bg-gray-50 dark:bg-slate-700/40 p-4 rounded-lg">{(selectedEntente as any).responsabilitesCollege}</p>
                                 </div>
                             )}
 
                             {(selectedEntente as any).objectifs && (
                                 <div>
-                                    <h4 className="font-semibold text-gray-900 mb-2">{t('modal.objectives')}</h4>
-                                    <p className="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-lg">{(selectedEntente as any).objectifs}</p>
+                                    <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">{t('modal.objectives')}</h4>
+                                    <p className="text-gray-700 dark:text-slate-300 whitespace-pre-line bg-gray-50 dark:bg-slate-700/40 p-4 rounded-lg">{(selectedEntente as any).objectifs}</p>
                                 </div>
                             )}
                         </div>
 
-                        {/* Pied du modal */}
-                        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-2xl">
-                            {/* Allow actions only if student signature is pending */}
+                        <div className="sticky bottom-0 bg-gray-50 dark:bg-slate-800 px-6 py-4 border-t border-gray-200 dark:border-slate-700 rounded-b-2xl">
                             {selectedEntente.etudiantSignature === 'EN_ATTENTE' ? (
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <button
                                         onClick={() => { setSelectedEntente(null); }}
                                         className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                     >
-                                        {t('buttons.close')}
-                                    </button>
-
-                                    <button
-                                        onClick={() => setShowRefuseModal(true)}
-                                        disabled={actionLoading}
-                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-                                    >
-                                        <XCircle className="w-5 h-5" />
-                                        {t('buttons.refuse')}
+                                        {t('modal.close')}
                                     </button>
                                     <button
-                                        onClick={() => setShowSignModal(true)}
-                                        disabled={actionLoading}
-                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                        onClick={() => { setShowRefuseModal(true); }}
+                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                     >
-                                        <FileSignature className="w-5 h-5" />
-                                        {t('buttons.sign')}
+                                        {t('modal.refuse')}
+                                    </button>
+                                    <button
+                                        onClick={() => { setShowSignModal(true); }}
+                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                    >
+                                        {t('modal.sign')}
                                     </button>
                                 </div>
                             ) : (
@@ -425,7 +416,7 @@ const EntentesEtudiants = () => {
                                     onClick={() => setSelectedEntente(null)}
                                     className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                 >
-                                    {t('buttons.close')}
+                                    {t('modal.close')}
                                 </button>
                             )}
                         </div>
@@ -516,4 +507,3 @@ const EntentesEtudiants = () => {
 };
 
 export default EntentesEtudiants;
-

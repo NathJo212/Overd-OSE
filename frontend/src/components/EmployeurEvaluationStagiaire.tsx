@@ -30,7 +30,45 @@ import type {
     AppreciationGlobale,
     EntrepriseProchainStageChoix
 } from '../services/EmployeurService';
-import * as React from "react";
+// Local form type allowing null before user selects values
+interface LocalEvaluationForm {
+    nomSuperviseur: string;
+    fonctionSuperviseur: string;
+    telephoneSuperviseur: string;
+    dateSignature: string;
+    prodPlanifierOrganiser: NiveauAccord | null;
+    prodComprendreDirectives: NiveauAccord | null;
+    prodRythmeSoutenu: NiveauAccord | null;
+    prodEtablirPriorites: NiveauAccord | null;
+    prodRespectEcheanciers: NiveauAccord | null;
+    commentairesProductivite: string;
+    qualRespectMandats: NiveauAccord | null;
+    qualAttentionDetails: NiveauAccord | null;
+    qualVerifierTravail: NiveauAccord | null;
+    qualRechercherPerfectionnement: NiveauAccord | null;
+    qualAnalyseProblemes: NiveauAccord | null;
+    commentairesQualiteTravail: string;
+    relEtablirContacts: NiveauAccord | null;
+    relContribuerEquipe: NiveauAccord | null;
+    relAdapterCulture: NiveauAccord | null;
+    relAccepterCritiques: NiveauAccord | null;
+    relEtreRespectueux: NiveauAccord | null;
+    relEcouteActive: NiveauAccord | null;
+    commentairesRelations: string;
+    habInteretMotivation: NiveauAccord | null;
+    habExprimerIdees: NiveauAccord | null;
+    habFairePreuveInitiative: NiveauAccord | null;
+    habTravaillerSecuritaire: NiveauAccord | null;
+    habSensResponsabilites: NiveauAccord | null;
+    habPonctuelAssidu: NiveauAccord | null;
+    commentairesHabiletes: string;
+    appreciationGlobale: AppreciationGlobale | null;
+    precisionAppreciation: string;
+    discussionAvecStagiaire: boolean;
+    heuresEncadrementSemaine: number;
+    entrepriseAccueillirProchainStage: EntrepriseProchainStageChoix | null;
+    formationTechniqueSuffisante: string;
+}
 
 // Composant pour les boutons radio Likert
 interface LikertRadioProps {
@@ -79,7 +117,7 @@ const LikertRadio: React.FC<LikertRadioProps> = ({ name, value, onChange, label,
 
     return (
         <div className="mb-6">
-            <p className="text-sm font-medium text-gray-800 mb-3 flex items-start">
+            <p className="text-sm font-medium text-gray-800 dark:text-slate-100 mb-3 flex items-start">
                 <span className="mr-2">•</span>
                 <span>{label}</span>
                 {required && <span className="text-red-500 ml-1">*</span>}
@@ -90,8 +128,8 @@ const LikertRadio: React.FC<LikertRadioProps> = ({ name, value, onChange, label,
                         key={option.value}
                         className={`relative flex items-center justify-center cursor-pointer border-2 rounded-lg p-3 transition-all ${
                             value === option.value
-                                ? `${option.colorClass} ${option.bgClass} ring-2 ring-offset-2`
-                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                                ? `${option.colorClass} ${option.bgClass} ring-2 ring-offset-2 dark:ring-offset-slate-800`
+                                : 'border-gray-200 hover:border-gray-300 bg-white dark:border-slate-700 dark:hover:border-slate-600 dark:bg-slate-800'
                         }`}
                     >
                         <input
@@ -103,7 +141,7 @@ const LikertRadio: React.FC<LikertRadioProps> = ({ name, value, onChange, label,
                             className="sr-only"
                         />
                         <span className={`text-xs font-medium text-center ${
-                            value === option.value ? 'text-gray-900' : 'text-gray-600'
+                            value === option.value ? 'text-gray-900 dark:text-slate-100' : 'text-gray-600 dark:text-slate-300'
                         }`}>
                             {t(option.labelKey)}
                         </span>
@@ -181,7 +219,7 @@ const EmployeurEvaluationStagiaire = () => {
 
     // Form data
     // @ts-ignore
-    const [formData, setFormData] = useState<Omit<CreerEvaluationDTO, 'ententeId'>>({
+    const [formData, setFormData] = useState<LocalEvaluationForm>({
         nomSuperviseur: '',
         fonctionSuperviseur: '',
         telephoneSuperviseur: '',
@@ -428,10 +466,46 @@ const EmployeurEvaluationStagiaire = () => {
             setActionLoading(true);
             setFormErrors([]);
 
+            // Cast after validation (all nullable fields should be non-null now)
             const evaluationData: CreerEvaluationDTO = {
                 ententeId: selectedEntente.id,
                 etudiantId: selectedEntente.etudiantId,
-                ...formData
+                nomSuperviseur: formData.nomSuperviseur,
+                fonctionSuperviseur: formData.fonctionSuperviseur,
+                telephoneSuperviseur: formData.telephoneSuperviseur,
+                dateSignature: formData.dateSignature,
+                prodPlanifierOrganiser: formData.prodPlanifierOrganiser!,
+                prodComprendreDirectives: formData.prodComprendreDirectives!,
+                prodRythmeSoutenu: formData.prodRythmeSoutenu!,
+                prodEtablirPriorites: formData.prodEtablirPriorites!,
+                prodRespectEcheanciers: formData.prodRespectEcheanciers!,
+                commentairesProductivite: formData.commentairesProductivite,
+                qualRespectMandats: formData.qualRespectMandats!,
+                qualAttentionDetails: formData.qualAttentionDetails!,
+                qualVerifierTravail: formData.qualVerifierTravail!,
+                qualRechercherPerfectionnement: formData.qualRechercherPerfectionnement!,
+                qualAnalyseProblemes: formData.qualAnalyseProblemes!,
+                commentairesQualiteTravail: formData.commentairesQualiteTravail,
+                relEtablirContacts: formData.relEtablirContacts!,
+                relContribuerEquipe: formData.relContribuerEquipe!,
+                relAdapterCulture: formData.relAdapterCulture!,
+                relAccepterCritiques: formData.relAccepterCritiques!,
+                relEtreRespectueux: formData.relEtreRespectueux!,
+                relEcouteActive: formData.relEcouteActive!,
+                commentairesRelations: formData.commentairesRelations,
+                habInteretMotivation: formData.habInteretMotivation!,
+                habExprimerIdees: formData.habExprimerIdees!,
+                habFairePreuveInitiative: formData.habFairePreuveInitiative!,
+                habTravaillerSecuritaire: formData.habTravaillerSecuritaire!,
+                habSensResponsabilites: formData.habSensResponsabilites!,
+                habPonctuelAssidu: formData.habPonctuelAssidu!,
+                commentairesHabiletes: formData.commentairesHabiletes,
+                appreciationGlobale: formData.appreciationGlobale!,
+                precisionAppreciation: formData.precisionAppreciation,
+                discussionAvecStagiaire: formData.discussionAvecStagiaire,
+                heuresEncadrementSemaine: formData.heuresEncadrementSemaine,
+                entrepriseAccueillirProchainStage: formData.entrepriseAccueillirProchainStage!,
+                formationTechniqueSuffisante: formData.formationTechniqueSuffisante
             };
 
             await employeurService.creerEvaluation(evaluationData);
@@ -510,19 +584,19 @@ const EmployeurEvaluationStagiaire = () => {
             case 0: // Superviseur
                 return (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border-2 border-blue-200">
+                        <div className="rounded-2xl p-8 border-2 border-blue-200 dark:border-slate-700 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800">
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
                                     <User className="w-8 h-8 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-bold text-gray-900">{t('modal.supervisor.title')}</h3>
-                                    <p className="text-sm text-gray-600">Informations sur le superviseur du stage</p>
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{t('modal.supervisor.title')}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300">Informations sur le superviseur du stage</p>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white rounded-xl p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-slate-800 rounded-xl p-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                         {t('modal.supervisor.name')} <span className="text-red-500">*</span>
                                     </label>
                                     <input
@@ -530,11 +604,11 @@ const EmployeurEvaluationStagiaire = () => {
                                         value={formData.nomSuperviseur}
                                         onChange={(e) => setFormData({...formData, nomSuperviseur: e.target.value})}
                                         placeholder={t('modal.supervisor.namePlaceholder')}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                         {t('modal.supervisor.function')} <span className="text-red-500">*</span>
                                     </label>
                                     <input
@@ -542,11 +616,11 @@ const EmployeurEvaluationStagiaire = () => {
                                         value={formData.fonctionSuperviseur}
                                         onChange={(e) => setFormData({...formData, fonctionSuperviseur: e.target.value})}
                                         placeholder={t('modal.supervisor.functionPlaceholder')}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                         {t('modal.supervisor.phone')} <span className="text-red-500">*</span>
                                     </label>
                                     <input
@@ -554,18 +628,18 @@ const EmployeurEvaluationStagiaire = () => {
                                         value={formData.telephoneSuperviseur}
                                         onChange={(e) => setFormData({...formData, telephoneSuperviseur: e.target.value})}
                                         placeholder={t('modal.supervisor.phonePlaceholder')}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                         {t('modal.supervisor.signatureDate')} <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="date"
                                         value={formData.dateSignature}
                                         onChange={(e) => setFormData({...formData, dateSignature: e.target.value})}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                             </div>
@@ -576,18 +650,18 @@ const EmployeurEvaluationStagiaire = () => {
             case 1: // Productivité
                 return (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 border-2 border-blue-200">
+                        <div className="rounded-2xl p-8 border-2 border-blue-200 dark:border-slate-700 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800">
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
                                     <TrendingUp className="w-8 h-8 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-bold text-gray-900">{t('modal.sections.productivity')}</h3>
-                                    <p className="text-sm text-gray-600">{t('modal.sections.productivitySubtitle')}</p>
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{t('modal.sections.productivity')}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.sections.productivitySubtitle')}</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-6 bg-white rounded-xl p-6">
+                            <div className="space-y-6 bg-white dark:bg-slate-800 rounded-xl p-6">
                                 <LikertRadio
                                     name="prodPlanifierOrganiser"
                                     value={formData.prodPlanifierOrganiser}
@@ -624,8 +698,8 @@ const EmployeurEvaluationStagiaire = () => {
                                     required
                                 />
 
-                                <div className="mt-8 pt-6 border-t-2 border-gray-200">
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                <div className="mt-8 pt-6 border-t-2 border-gray-200 dark:border-slate-700">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                         {t('modal.fields.comments')} <span className="text-red-500">*</span>
                                     </label>
                                     <textarea
@@ -633,7 +707,7 @@ const EmployeurEvaluationStagiaire = () => {
                                         onChange={(e) => setFormData({...formData, commentairesProductivite: e.target.value})}
                                         placeholder={t('modal.fields.commentsPlaceholder')}
                                         rows={4}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                             </div>
@@ -644,18 +718,18 @@ const EmployeurEvaluationStagiaire = () => {
             case 2: // Qualité du travail
                 return (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 border-2 border-green-200">
+                        <div className="rounded-2xl p-8 border-2 border-green-200 dark:border-slate-700 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-800">
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
                                     <ClipboardCheck className="w-8 h-8 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-bold text-gray-900">{t('modal.sections.workQuality')}</h3>
-                                    <p className="text-sm text-gray-600">{t('modal.sections.workQualitySubtitle')}</p>
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{t('modal.sections.workQuality')}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.sections.workQualitySubtitle')}</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-6 bg-white rounded-xl p-6">
+                            <div className="space-y-6 bg-white dark:bg-slate-800 rounded-xl p-6">
                                 <LikertRadio
                                     name="qualRespectMandats"
                                     value={formData.qualRespectMandats}
@@ -692,8 +766,8 @@ const EmployeurEvaluationStagiaire = () => {
                                     required
                                 />
 
-                                <div className="mt-8 pt-6 border-t-2 border-gray-200">
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                <div className="mt-8 pt-6 border-t-2 border-gray-200 dark:border-slate-700">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                         {t('modal.fields.comments')} <span className="text-red-500">*</span>
                                     </label>
                                     <textarea
@@ -701,7 +775,7 @@ const EmployeurEvaluationStagiaire = () => {
                                         onChange={(e) => setFormData({...formData, commentairesQualiteTravail: e.target.value})}
                                         placeholder={t('modal.fields.commentsPlaceholder')}
                                         rows={4}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                             </div>
@@ -712,18 +786,18 @@ const EmployeurEvaluationStagiaire = () => {
             case 3: // Relations interpersonnelles
                 return (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 border-2 border-purple-200">
+                        <div className="rounded-2xl p-8 border-2 border-purple-200 dark:border-slate-700 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-800 dark:to-slate-800">
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
                                     <Users className="w-8 h-8 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-bold text-gray-900">{t('modal.sections.interpersonalSkills')}</h3>
-                                    <p className="text-sm text-gray-600">{t('modal.sections.interpersonalSkillsSubtitle')}</p>
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{t('modal.sections.interpersonalSkills')}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.sections.interpersonalSkillsSubtitle')}</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-6 bg-white rounded-xl p-6">
+                            <div className="space-y-6 bg-white dark:bg-slate-800 rounded-xl p-6">
                                 <LikertRadio
                                     name="relEtablirContacts"
                                     value={formData.relEtablirContacts}
@@ -767,8 +841,8 @@ const EmployeurEvaluationStagiaire = () => {
                                     required
                                 />
 
-                                <div className="mt-8 pt-6 border-t-2 border-gray-200">
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                <div className="mt-8 pt-6 border-t-2 border-gray-200 dark:border-slate-700">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                         {t('modal.fields.comments')} <span className="text-red-500">*</span>
                                     </label>
                                     <textarea
@@ -776,7 +850,7 @@ const EmployeurEvaluationStagiaire = () => {
                                         onChange={(e) => setFormData({...formData, commentairesRelations: e.target.value})}
                                         placeholder={t('modal.fields.commentsPlaceholder')}
                                         rows={4}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                             </div>
@@ -787,18 +861,18 @@ const EmployeurEvaluationStagiaire = () => {
             case 4: // Habiletés personnelles
                 return (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-8 border-2 border-orange-200">
+                        <div className="rounded-2xl p-8 border-2 border-orange-200 dark:border-slate-700 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-800 dark:to-slate-800">
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg">
                                     <Lightbulb className="w-8 h-8 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-bold text-gray-900">{t('modal.sections.personalSkills')}</h3>
-                                    <p className="text-sm text-gray-600">{t('modal.sections.personalSkillsSubtitle')}</p>
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{t('modal.sections.personalSkills')}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.sections.personalSkillsSubtitle')}</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-6 bg-white rounded-xl p-6">
+                            <div className="space-y-6 bg-white dark:bg-slate-800 rounded-xl p-6">
                                 <LikertRadio
                                     name="habInteretMotivation"
                                     value={formData.habInteretMotivation}
@@ -842,8 +916,8 @@ const EmployeurEvaluationStagiaire = () => {
                                     required
                                 />
 
-                                <div className="mt-8 pt-6 border-t-2 border-gray-200">
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                <div className="mt-8 pt-6 border-t-2 border-gray-200 dark:border-slate-700">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                         {t('modal.fields.comments')} <span className="text-red-500">*</span>
                                     </label>
                                     <textarea
@@ -851,7 +925,7 @@ const EmployeurEvaluationStagiaire = () => {
                                         onChange={(e) => setFormData({...formData, commentairesHabiletes: e.target.value})}
                                         placeholder={t('modal.fields.commentsPlaceholder')}
                                         rows={4}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                             </div>
@@ -862,20 +936,20 @@ const EmployeurEvaluationStagiaire = () => {
             case 5: // Appréciation globale
                 return (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 border-2 border-indigo-200">
+                        <div className="rounded-2xl p-8 border-2 border-indigo-200 dark:border-slate-700 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-800">
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                                     <Star className="w-8 h-8 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-bold text-gray-900">{t('modal.globalAssessment.title')}</h3>
-                                    <p className="text-sm text-gray-600">Évaluation globale et commentaires finaux</p>
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{t('modal.globalAssessment.title')}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300">Évaluation globale et commentaires finaux</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-6 bg-white rounded-xl p-6">
+                            <div className="space-y-6 bg-white dark:bg-slate-800 rounded-xl p-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-4">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-4">
                                         {t('modal.globalAssessment.title')} <span className="text-red-500">*</span>
                                     </label>
                                     <div className="space-y-3">
@@ -902,7 +976,7 @@ const EmployeurEvaluationStagiaire = () => {
                                                     onChange={(e) => setFormData({...formData, appreciationGlobale: e.target.value as AppreciationGlobale})}
                                                     className="w-5 h-5 text-indigo-600"
                                                 />
-                                                <span className="ml-3 text-sm font-semibold text-gray-800">
+                                                <span className="ml-3 text-sm font-semibold text-gray-800 dark:text-slate-200">
                                                     {t(`modal.globalAssessment.${option.labelKey}`)}
                                                 </span>
                                             </label>
@@ -911,7 +985,7 @@ const EmployeurEvaluationStagiaire = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                         {t('modal.globalAssessment.specifyAssessment')} <span className="text-red-500">*</span>
                                     </label>
                                     <textarea
@@ -919,30 +993,30 @@ const EmployeurEvaluationStagiaire = () => {
                                         onChange={(e) => setFormData({...formData, precisionAppreciation: e.target.value})}
                                         placeholder={t('modal.globalAssessment.specifyAssessmentPlaceholder')}
                                         rows={4}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
 
-                                <div className="pt-6 border-t-2 border-gray-200">
-                                    <h4 className="font-bold text-gray-900 mb-4 text-lg">{t('modal.finalSection.title')}</h4>
+                                <div className="pt-6 border-t-2 border-gray-200 dark:border-slate-700">
+                                    <h4 className="font-bold text-gray-900 dark:text-slate-100 mb-4 text-lg">{t('modal.finalSection.title')}</h4>
 
                                     <div className="space-y-6">
                                         <div>
-                                            <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                            <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-slate-700/40 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
                                                 <input
                                                     type="checkbox"
                                                     checked={formData.discussionAvecStagiaire}
                                                     onChange={(e) => setFormData({...formData, discussionAvecStagiaire: e.target.checked})}
                                                     className="w-6 h-6 text-blue-600 rounded"
                                                 />
-                                                <span className="text-sm font-semibold text-gray-700">
+                                                <span className="text-sm font-semibold text-gray-700 dark:text-slate-200">
                                                     {t('modal.finalSection.discussedWithIntern')}
                                                 </span>
                                             </label>
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-3">
+                                            <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                                 {t('modal.finalSection.supervisionHours')}
                                             </label>
                                             <input
@@ -950,12 +1024,12 @@ const EmployeurEvaluationStagiaire = () => {
                                                 min="0"
                                                 value={formData.heuresEncadrementSemaine}
                                                 onChange={(e) => setFormData({...formData, heuresEncadrementSemaine: parseInt(e.target.value) || 0})}
-                                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                             />
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-3">
+                                            <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                                 {t('modal.finalSection.welcomeNextInternship')} <span className="text-red-500">*</span>
                                             </label>
                                             <div className="grid grid-cols-3 gap-3">
@@ -981,7 +1055,7 @@ const EmployeurEvaluationStagiaire = () => {
                                                             className="sr-only"
                                                         />
                                                         <span className="text-2xl mb-2">{option.emoji}</span>
-                                                        <span className="text-sm font-bold text-gray-800">
+                                                        <span className="text-sm font-bold text-gray-800 dark:text-slate-200">
                                                             {t(`modal.finalSection.${option.labelKey}`)}
                                                         </span>
                                                     </label>
@@ -990,7 +1064,7 @@ const EmployeurEvaluationStagiaire = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-3">
+                                            <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">
                                                 {t('modal.finalSection.technicalTraining')} <span className="text-red-500">*</span>
                                             </label>
                                             <textarea
@@ -998,7 +1072,7 @@ const EmployeurEvaluationStagiaire = () => {
                                                 onChange={(e) => setFormData({...formData, formationTechniqueSuffisante: e.target.value})}
                                                 placeholder={t('modal.finalSection.technicalTrainingPlaceholder')}
                                                 rows={3}
-                                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                                                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                             />
                                         </div>
                                     </div>
@@ -1014,7 +1088,7 @@ const EmployeurEvaluationStagiaire = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950">
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -1022,7 +1096,7 @@ const EmployeurEvaluationStagiaire = () => {
                 <div className="mb-8">
                     <button
                         onClick={() => navigate('/dashboard-employeur')}
-                        className="cursor-pointer mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors font-medium group"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors font-medium group"
                     >
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                         {t('backToDashboard')}
@@ -1033,37 +1107,37 @@ const EmployeurEvaluationStagiaire = () => {
                             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
                                 {t('title')}
                             </h1>
-                            <p className="text-gray-600">{t('subtitle')}</p>
+                            <p className="text-gray-600 dark:text-slate-300">{t('subtitle')}</p>
                         </div>
 
                         <button
                             onClick={loadData}
                             disabled={loadingEntentes || loadingEvaluations}
-                            className="cursor-pointer flex items-center gap-2 px-5 py-3 bg-white rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 border border-gray-200 group"
+                            className="cursor-pointer flex items-center gap-2 px-5 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 border border-gray-200 dark:border-slate-700 group"
                         >
-                            <RefreshCw className={`w-5 h-5 ${(loadingEntentes || loadingEvaluations) ? 'animate-spin text-blue-600' : 'text-gray-600 group-hover:rotate-180 transition-transform duration-500'}`} />
-                            <span className="font-medium text-gray-700">{t('refresh')}</span>
+                            <RefreshCw className={`w-5 h-5 ${(loadingEntentes || loadingEvaluations) ? 'animate-spin text-blue-600' : 'text-gray-600 dark:text-slate-300 group-hover:rotate-180 transition-transform duration-500'}`} />
+                            <span className="font-medium text-gray-700 dark:text-slate-200">{t('refresh')}</span>
                         </button>
                     </div>
                 </div>
 
                 {/* Error Message */}
                 {error && (
-                    <div className="mb-6 bg-red-50 border-l-4 border-red-500 rounded-xl p-4 flex items-start gap-3 shadow-sm animate-fade-in">
+                    <div className="mb-6 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-900/40 rounded-xl p-4 flex items-start gap-3 shadow-sm animate-fade-in">
                         <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                        <span className="text-red-800 font-medium">{error}</span>
+                        <span className="text-red-800 dark:text-red-200 font-medium">{error}</span>
                     </div>
                 )}
 
                 {/* Tabs */}
-                <div className="mb-8 bg-white rounded-2xl p-2 shadow-lg">
+                <div className="mb-8 bg-white dark:bg-slate-800 rounded-2xl p-2 shadow-lg">
                     <div className="grid grid-cols-2 gap-2">
                         <button
                             onClick={() => setActiveTab('toEvaluate')}
                             className={`px-6 py-4 rounded-xl font-semibold transition-all ${
                                 activeTab === 'toEvaluate'
                                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                                    : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700'
                             }`}
                         >
                             <div className="flex items-center justify-center gap-2">
@@ -1081,7 +1155,7 @@ const EmployeurEvaluationStagiaire = () => {
                             className={`px-6 py-4 rounded-xl font-semibold transition-all ${
                                 activeTab === 'evaluated'
                                     ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg transform scale-105'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                                    : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700'
                             }`}
                         >
                             <div className="flex items-center justify-center gap-2">
@@ -1100,28 +1174,28 @@ const EmployeurEvaluationStagiaire = () => {
                 {/* Tab Content */}
                 {activeTab === 'toEvaluate' ? (
                     // Ententes à évaluer
-                    <div className="bg-white rounded-3xl shadow-xl p-8 animate-fade-in">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 animate-fade-in">
                         {loadingEntentes ? (
                             <div className="text-center py-20">
                                 <RefreshCw className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-                                <p className="text-gray-600 font-medium">{t('loading')}</p>
+                                <p className="text-gray-600 dark:text-slate-300 font-medium">{t('loading')}</p>
                             </div>
                         ) : ententesAEvaluer.length === 0 ? (
                             <div className="text-center py-20">
                                 <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
                                     <FileText className="w-12 h-12 text-blue-600" />
                                 </div>
-                                <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                                <h3 className="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-3">
                                     {t('ententesList.noEntentes')}
                                 </h3>
-                                <p className="text-gray-600 max-w-md mx-auto">
+                                <p className="text-gray-600 dark:text-slate-300 max-w-md mx-auto">
                                     {t('ententesList.noEntentesDescription')}
                                 </p>
                             </div>
                         ) : (
                             <>
                                 <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-800">
+                                    <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                                         {t('ententesList.title')}
                                     </h2>
                                     <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
@@ -1133,7 +1207,7 @@ const EmployeurEvaluationStagiaire = () => {
                                     {ententesAEvaluer.map((entente) => (
                                         <div
                                             key={entente.id}
-                                            className="group border-2 border-gray-200 rounded-2xl p-6 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-100 transition-all cursor-pointer bg-gradient-to-br from-white to-blue-50/30 relative overflow-hidden transform hover:-translate-y-1"
+                                            className="group border-2 border-gray-200 dark:border-slate-700 rounded-2xl p-6 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-100 transition-all cursor-pointer bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-800 dark:to-slate-800 relative overflow-hidden transform hover:-translate-y-1"
                                             onClick={() => handleOpenEvaluationModal(entente)}
                                         >
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-colors" />
@@ -1147,25 +1221,25 @@ const EmployeurEvaluationStagiaire = () => {
                                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">
                                                             {t('ententesList.student')}
                                                         </p>
-                                                        <h3 className="font-bold text-lg text-gray-900 truncate mb-1">
+                                                        <h3 className="font-bold text-lg text-gray-900 dark:text-slate-100 truncate mb-1">
                                                             {entente.etudiantNomComplet || 'N/A'}
                                                         </h3>
-                                                        <p className="text-sm text-gray-600 truncate">
+                                                        <p className="text-sm text-gray-600 dark:text-slate-300 truncate">
                                                             {entente.etudiantEmail || 'N/A'}
                                                         </p>
                                                     </div>
                                                 </div>
 
                                                 <div className="space-y-3 mb-6">
-                                                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-100">
+                                                    <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700">
                                                         <Briefcase className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                                                        <p className="text-sm font-semibold text-gray-900 truncate">
+                                                        <p className="text-sm font-semibold text-gray-900 dark:text-slate-100 truncate">
                                                             {entente.titre}
                                                         </p>
                                                     </div>
-                                                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-100">
+                                                    <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700">
                                                         <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                                        <p className="text-sm text-gray-600">
+                                                        <p className="text-sm text-gray-600 dark:text-slate-300">
                                                             {formatDate(entente.dateDebut)} → {formatDate(entente.dateFin)}
                                                         </p>
                                                     </div>
@@ -1190,28 +1264,28 @@ const EmployeurEvaluationStagiaire = () => {
                     </div>
                 ) : (
                     // Évaluations soumises
-                    <div className="bg-white rounded-3xl shadow-xl p-8 animate-fade-in">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 animate-fade-in">
                         {loadingEvaluations ? (
                             <div className="text-center py-20">
                                 <RefreshCw className="w-12 h-12 animate-spin text-green-600 mx-auto mb-4" />
-                                <p className="text-gray-600 font-medium">{t('loading')}</p>
+                                <p className="text-gray-600 dark:text-slate-300 font-medium">{t('loading')}</p>
                             </div>
                         ) : evaluations.length === 0 ? (
                             <div className="text-center py-20">
                                 <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
                                     <CheckCircle className="w-12 h-12 text-green-600" />
                                 </div>
-                                <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                                <h3 className="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-3">
                                     {t('evaluationsList.noEvaluations')}
                                 </h3>
-                                <p className="text-gray-600 max-w-md mx-auto">
+                                <p className="text-gray-600 dark:text-slate-300 max-w-md mx-auto">
                                     {t('evaluationsList.noEvaluationsDescription')}
                                 </p>
                             </div>
                         ) : (
                             <>
                                 <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-800">
+                                    <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                                         {t('evaluationsList.title')}
                                     </h2>
                                     <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
@@ -1225,7 +1299,7 @@ const EmployeurEvaluationStagiaire = () => {
                                         return (
                                             <div
                                                 key={evaluation.id}
-                                                className="group border-2 border-green-200 rounded-2xl p-6 hover:border-green-400 hover:shadow-2xl hover:shadow-green-100 transition-all cursor-pointer bg-gradient-to-br from-white to-green-50/30 relative overflow-hidden transform hover:-translate-y-1"
+                                                className="group border-2 border-green-200 dark:border-green-900/40 rounded-2xl p-6 hover:border-green-400 hover:shadow-2xl hover:shadow-green-100 transition-all cursor-pointer bg-gradient-to-br from-white to-green-50/30 dark:from-slate-800 dark:to-slate-800 relative overflow-hidden transform hover:-translate-y-1"
                                                 onClick={() => handleOpenDetailsModal(evaluation).then()}
                                             >
                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -mr-16 -mt-16 group-hover:bg-green-500/10 transition-colors" />
@@ -1242,10 +1316,10 @@ const EmployeurEvaluationStagiaire = () => {
 
                                                     {entente && (
                                                         <>
-                                                            <h3 className="font-bold text-lg text-gray-900 mb-2">
+                                                            <h3 className="font-bold text-lg text-gray-900 dark:text-slate-100 mb-2">
                                                                 {entente.etudiantNomComplet || 'N/A'}
                                                             </h3>
-                                                            <p className="text-sm text-gray-600 mb-6 line-clamp-2">
+                                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-6 line-clamp-2">
                                                                 {entente.titre}
                                                             </p>
                                                         </>
@@ -1275,7 +1349,7 @@ const EmployeurEvaluationStagiaire = () => {
             {/* Modal d'évaluation (WIZARD MULTI-ÉTAPES) */}
             {showEvaluationModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-fade-in">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-fade-in">
                         {/* Header fixe */}
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6 flex justify-between items-center flex-shrink-0">
                             <div>
@@ -1295,35 +1369,35 @@ const EmployeurEvaluationStagiaire = () => {
                         </div>
 
                         {/* Stepper */}
-                        <div className="px-8 pt-6 bg-gray-50 flex-shrink-0">
+                        <div className="px-8 pt-6 bg-gray-50 dark:bg-slate-800 flex-shrink-0">
                             <Stepper steps={steps} currentStep={currentStep} />
                         </div>
 
                         {/* Content scrollable */}
-                        <div className="flex-1 overflow-y-auto px-8 py-6 bg-gray-50">
+                        <div className="flex-1 overflow-y-auto px-8 py-6 bg-gray-50 dark:bg-slate-900">
                             {/* Success Message */}
                             {successMessage && (
-                                <div className="mb-6 bg-green-50 border-l-4 border-green-500 rounded-xl p-4 flex items-start gap-3 shadow-sm animate-fade-in">
+                                <div className="mb-6 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 dark:border-green-900/40 rounded-xl p-4 flex items-start gap-3 shadow-sm animate-fade-in">
                                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-green-800 font-semibold">{successMessage}</p>
-                                        <p className="text-green-700 text-sm mt-1">{t('messages.successDescription')}</p>
+                                        <p className="text-green-800 dark:text-green-200 font-semibold">{successMessage}</p>
+                                        <p className="text-green-700 dark:text-green-300 text-sm mt-1">{t('messages.successDescription')}</p>
                                     </div>
                                 </div>
                             )}
 
                             {/* Validation Errors */}
                             {formErrors.length > 0 && (
-                                <div className="mb-6 bg-red-50 border-l-4 border-red-500 rounded-xl p-4 shadow-sm animate-fade-in">
+                                <div className="mb-6 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-900/40 rounded-xl p-4 shadow-sm animate-fade-in">
                                     <div className="flex items-start gap-3">
                                         <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                                         <div>
-                                            <p className="text-red-800 font-semibold mb-2">
+                                            <p className="text-red-800 dark:text-red-200 font-semibold mb-2">
                                                 {t('errors.allFieldsRequired')}
                                             </p>
                                             <ul className="list-disc list-inside space-y-1">
                                                 {formErrors.map((error, idx) => (
-                                                    <li key={idx} className="text-red-700 text-sm">{error}</li>
+                                                    <li key={idx} className="text-red-700 dark:text-red-300 text-sm">{error}</li>
                                                 ))}
                                             </ul>
                                         </div>
@@ -1332,27 +1406,27 @@ const EmployeurEvaluationStagiaire = () => {
                             )}
 
                             {/* Student Info */}
-                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-200">
-                                <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800 rounded-xl p-6 mb-6 border border-blue-200 dark:border-slate-700">
+                                <h3 className="font-semibold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2">
                                     <User className="w-5 h-5 text-blue-600" />
                                     {t('modal.studentInfo')}
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                     <div className="flex items-center gap-2">
-                                        <span className="font-semibold text-gray-700">{t('modal.name')}:</span>
-                                        <span className="text-gray-600">{selectedEntente.etudiantNomComplet || 'N/A'}</span>
+                                        <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.name')}:</span>
+                                        <span className="text-gray-600 dark:text-slate-300">{selectedEntente.etudiantNomComplet || 'N/A'}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="font-semibold text-gray-700">{t('modal.email')}:</span>
-                                        <span className="text-gray-600">{selectedEntente.etudiantEmail || 'N/A'}</span>
+                                        <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.email')}:</span>
+                                        <span className="text-gray-600 dark:text-slate-300">{selectedEntente.etudiantEmail || 'N/A'}</span>
                                     </div>
                                     <div className="flex items-center gap-2 md:col-span-2">
-                                        <span className="font-semibold text-gray-700">{t('modal.internshipTitle')}:</span>
-                                        <span className="text-gray-600">{selectedEntente.titre}</span>
+                                        <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.internshipTitle')}:</span>
+                                        <span className="text-gray-600 dark:text-slate-300">{selectedEntente.titre}</span>
                                     </div>
                                     <div className="flex items-center gap-2 md:col-span-2">
-                                        <span className="font-semibold text-gray-700">{t('modal.period')}:</span>
-                                        <span className="text-gray-600">{formatDate(selectedEntente.dateDebut)} → {formatDate(selectedEntente.dateFin)}</span>
+                                        <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.period')}:</span>
+                                        <span className="text-gray-600 dark:text-slate-300">{formatDate(selectedEntente.dateDebut)} → {formatDate(selectedEntente.dateFin)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1364,12 +1438,12 @@ const EmployeurEvaluationStagiaire = () => {
                         </div>
 
                         {/* Footer fixe avec boutons de navigation */}
-                        <div className="bg-white border-t-2 border-gray-200 px-8 py-5 flex justify-between items-center flex-shrink-0 gap-4">
+                        <div className="bg-white dark:bg-slate-800 border-t-2 border-gray-200 dark:border-slate-700 px-8 py-5 flex justify-between items-center flex-shrink-0 gap-4">
                             <button
                                 type="button"
                                 onClick={handlePrevious}
                                 disabled={currentStep === 0}
-                                className="cursor-pointer flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="cursor-pointer flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <ChevronLeft className="w-5 h-5" />
                                 Précédent
@@ -1379,7 +1453,7 @@ const EmployeurEvaluationStagiaire = () => {
                                 <button
                                     type="button"
                                     onClick={handleCloseModals}
-                                    className="cursor-pointer px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
+                                    className="cursor-pointer px-6 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 font-semibold rounded-xl transition-all"
                                 >
                                     {t('modal.actions.cancel')}
                                 </button>
@@ -1422,7 +1496,7 @@ const EmployeurEvaluationStagiaire = () => {
             {/* Modal de détails d'évaluation (VISUALISATION PDF) */}
             {showDetailsModal && selectedEvaluation && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
                         <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-6 flex justify-between items-center flex-shrink-0">
                             <h2 className="text-2xl font-bold text-white">
                                 {t('detailsModal.title')}
@@ -1436,48 +1510,48 @@ const EmployeurEvaluationStagiaire = () => {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-8">
-                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 mb-6 flex items-center gap-4 border border-green-200">
+                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-800 rounded-xl p-5 mb-6 flex items-center gap-4 border border-green-200 dark:border-slate-700">
                                 <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
                                     <CheckCircle className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-600 font-medium">{t('detailsModal.evaluationDate')}</p>
-                                    <p className="text-lg font-bold text-gray-900">{formatDate(selectedEvaluation.dateEvaluation)}</p>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300 font-medium">{t('detailsModal.evaluationDate')}</p>
+                                    <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{formatDate(selectedEvaluation.dateEvaluation)}</p>
                                 </div>
                             </div>
 
                             {(() => {
                                 const entente = ententes.find(e => e.id === selectedEvaluation.ententeId);
                                 return entente ? (
-                                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-200">
-                                        <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800 rounded-xl p-6 mb-6 border border-blue-200 dark:border-slate-700">
+                                        <h3 className="font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                                             <User className="w-5 h-5 text-blue-600" />
                                             {t('detailsModal.studentInfo')}
                                         </h3>
                                         <div className="space-y-3 text-sm">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-semibold text-gray-700">{t('modal.name')}:</span>
-                                                <span className="text-gray-600">{entente.etudiantNomComplet || 'N/A'}</span>
+                                                <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.name')}:</span>
+                                                <span className="text-gray-600 dark:text-slate-300">{entente.etudiantNomComplet || 'N/A'}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <span className="font-semibold text-gray-700">{t('modal.email')}:</span>
-                                                <span className="text-gray-600">{entente.etudiantEmail || 'N/A'}</span>
+                                                <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.email')}:</span>
+                                                <span className="text-gray-600 dark:text-slate-300">{entente.etudiantEmail || 'N/A'}</span>
                                             </div>
-                                            <div className="mt-4 pt-4 border-t border-blue-200">
-                                                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">{t('detailsModal.internshipInfo')}</p>
-                                                <p className="font-semibold text-gray-800 mb-1">{entente.titre}</p>
-                                                <p className="text-gray-600">{formatDate(entente.dateDebut)} → {formatDate(entente.dateFin)}</p>
+                                            <div className="mt-4 pt-4 border-t border-blue-200 dark:border-slate-700">
+                                                <p className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-2">{t('detailsModal.internshipInfo')}</p>
+                                                <p className="font-semibold text-gray-800 dark:text-slate-100 mb-1">{entente.titre}</p>
+                                                <p className="text-gray-600 dark:text-slate-300">{formatDate(entente.dateDebut)} → {formatDate(entente.dateFin)}</p>
                                             </div>
                                         </div>
                                     </div>
                                 ) : null;
                             })()}
 
-                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 text-center border border-gray-200">
+                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-800 rounded-xl p-6 text-center border border-gray-200 dark:border-slate-700">
                                 <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Eye className="w-8 h-8 text-white" />
                                 </div>
-                                <p className="text-gray-700 mb-4 font-medium">{t('detailsModal.pdfInfo')}</p>
+                                <p className="text-gray-700 dark:text-slate-300 mb-4 font-medium">{t('detailsModal.pdfInfo')}</p>
                                 <button
                                     onClick={() => handleGetPDF(selectedEvaluation)}
                                     className="cursor-pointer inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
@@ -1488,10 +1562,10 @@ const EmployeurEvaluationStagiaire = () => {
                             </div>
                         </div>
 
-                        <div className="border-t border-gray-200 px-8 py-5 flex-shrink-0">
+                        <div className="border-t border-gray-200 dark:border-slate-700 px-8 py-5 flex-shrink-0">
                             <button
                                 onClick={handleCloseModals}
-                                className="cursor-pointer w-full px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-xl transition-all"
+                                className="cursor-pointer w-full px-6 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-slate-200 font-semibold rounded-xl transition-all"
                             >
                                 {t('detailsModal.close')}
                             </button>
@@ -1503,7 +1577,7 @@ const EmployeurEvaluationStagiaire = () => {
             {/* Modal PDF */}
             {showPdfModal && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden flex flex-col">
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex justify-between items-center flex-shrink-0">
                             <div>
                                 <h3 className="text-2xl font-bold mb-1">
@@ -1518,7 +1592,7 @@ const EmployeurEvaluationStagiaire = () => {
                             </button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+                        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-slate-900">
                             {pdfLoading ? (
                                 <div className="flex items-center justify-center h-full">
                                     <RefreshCw className="w-12 h-12 animate-spin text-blue-600" />
@@ -1533,12 +1607,12 @@ const EmployeurEvaluationStagiaire = () => {
                             ) : (
                                 <div className="text-center py-20">
                                     <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-600">{t('detailsModal.noPdfPreview')}</p>
+                                    <p className="text-gray-600 dark:text-slate-300">{t('detailsModal.noPdfPreview')}</p>
                                 </div>
                             )}
                         </div>
 
-                        <div className="p-6 border-t flex items-center justify-between gap-4 flex-shrink-0">
+                        <div className="p-6 border-t dark:border-slate-700 flex items-center justify-between gap-4 flex-shrink-0">
                             <div className="flex items-center gap-3">
                                 {pdfUrl && pdfFilename && (
                                     <a
@@ -1552,7 +1626,7 @@ const EmployeurEvaluationStagiaire = () => {
                             </div>
                             <button
                                 onClick={closePdfModal}
-                                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-xl transition-all"
+                                className="px-6 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-slate-200 font-semibold rounded-xl transition-all"
                             >
                                 {t('detailsModal.close')}
                             </button>
