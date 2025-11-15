@@ -439,11 +439,6 @@ class ProfesseurControllerTest {
     void creerEvaluationMilieuStage_success() throws Exception {
         CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
         dto.setEntenteId(100L);
-        dto.setQualiteEncadrement("Excellent encadrement");
-        dto.setPertinenceMissions("Missions très pertinentes");
-        dto.setRespectHorairesConditions("Horaires respectés");
-        dto.setCommunicationDisponibilite("Communication fluide");
-        dto.setCommentairesAmelioration("Rien à améliorer");
 
         doNothing().when(professeurService).creerEvaluationMilieuStage(any(CreerEvaluationMilieuStageDTO.class));
 
@@ -545,11 +540,12 @@ class ProfesseurControllerTest {
     void getEvaluationsMilieuStage_success() throws Exception {
         EvaluationMilieuStageDTO eval1 = new EvaluationMilieuStageDTO();
         eval1.setId(1L);
-        eval1.setNomEntreprise("Entreprise ABC");
+        // adaptation: EvaluationMilieuStageDTO n'a plus 'nomEntreprise' -> on met un pdfBase64
+        eval1.setPdfBase64(java.util.Base64.getEncoder().encodeToString("PDF1".getBytes()));
 
         EvaluationMilieuStageDTO eval2 = new EvaluationMilieuStageDTO();
         eval2.setId(2L);
-        eval2.setNomEntreprise("Entreprise XYZ");
+        eval2.setPdfBase64(java.util.Base64.getEncoder().encodeToString("PDF2".getBytes()));
 
         when(professeurService.getEvaluationsMilieuStagePourProfesseur())
                 .thenReturn(Arrays.asList(eval1, eval2));
@@ -599,8 +595,9 @@ class ProfesseurControllerTest {
 
         EvaluationMilieuStageDTO evaluation = new EvaluationMilieuStageDTO();
         evaluation.setId(evaluationId);
-        evaluation.setNomEntreprise("Entreprise ABC");
-        evaluation.setQualiteEncadrement("Excellent");
+        // adaptation : plus de 'nomEntreprise' ni 'qualiteEncadrement' dans DTO -> utiliser pdfBase64
+        evaluation.setPdfBase64(java.util.Base64.getEncoder().encodeToString("PDF content".getBytes()));
+        evaluation.setEntenteId(100L);
 
         when(professeurService.getEvaluationMilieuStageSpecifique(evaluationId))
                 .thenReturn(evaluation);
@@ -609,8 +606,8 @@ class ProfesseurControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.nomEntreprise").value("Entreprise ABC"))
-                .andExpect(jsonPath("$.qualiteEncadrement").value("Excellent"));
+                .andExpect(jsonPath("$.ententeId").value(100))
+                .andExpect(jsonPath("$.pdfBase64").value(java.util.Base64.getEncoder().encodeToString("PDF content".getBytes())));
 
         verify(professeurService).getEvaluationMilieuStageSpecifique(evaluationId);
     }

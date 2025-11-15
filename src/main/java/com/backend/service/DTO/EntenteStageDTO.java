@@ -14,6 +14,7 @@ public class EntenteStageDTO {
     private Long etudiantId;
     private String etudiantNomComplet;
     private String etudiantEmail;
+    private String nomEntreprise;
     private String employeurContact;
     private String employeurEmail;
     private Long offreId;
@@ -46,6 +47,7 @@ public class EntenteStageDTO {
         dto.setEtudiantId(entente.getEtudiant().getId());
         dto.setEtudiantNomComplet(entente.getEtudiant().getPrenom() + " " + entente.getEtudiant().getNom());
         dto.setEtudiantEmail(entente.getEtudiant().getEmail());
+        dto.setNomEntreprise(entente.getEmployeur().getNomEntreprise());
         dto.setEmployeurContact(entente.getEmployeur().getContact());
         dto.setEmployeurEmail(entente.getEmployeur().getEmail());
         dto.setOffreId(entente.getOffre() != null ? entente.getOffre().getId() : null);

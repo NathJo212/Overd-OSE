@@ -75,5 +75,13 @@
     "cancel": "Cancel",
     "confirm": "Send Request",
     "loading": "Sending..."
+  },
+  "signModal": {
+    "title": "Confirm Signature",
+    "message": "Are you sure you want to sign this internship agreement? This action is irreversible.",
+    "cancel": "Cancel",
+    "confirm": "Confirm signature",
+    "loading": "Signing..."
   }
+
 }

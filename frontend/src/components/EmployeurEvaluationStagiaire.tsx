@@ -218,8 +218,7 @@ const EmployeurEvaluationStagiaire = () => {
     ];
 
     // Form data
-    // @ts-ignore
-    const [formData, setFormData] = useState<LocalEvaluationForm>({
+    const [formData, setFormData] = useState<any>({
         nomSuperviseur: '',
         fonctionSuperviseur: '',
         telephoneSuperviseur: '',
@@ -466,7 +465,6 @@ const EmployeurEvaluationStagiaire = () => {
             setActionLoading(true);
             setFormErrors([]);
 
-            // Cast after validation (all nullable fields should be non-null now)
             const evaluationData: CreerEvaluationDTO = {
                 ententeId: selectedEntente.id,
                 etudiantId: selectedEntente.etudiantId,
