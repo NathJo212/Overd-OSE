@@ -16,7 +16,6 @@ class EtudiantService {
     'API_URL',
     defaultValue: 'http://10.0.2.2:8080',
   );
-  // Stocke le token JWT après login pour réutilisation dans les appels protégés
   static String? _token;
 
   static Future<AuthResult> login(String email, String password) async {
@@ -35,7 +34,6 @@ class EtudiantService {
         if (token == null && data.containsKey('accessToken'))
           token = data['accessToken'];
         if (token == null && data.containsKey('jwt')) token = data['jwt'];
-        // Sauvegarde le token pour les futurs appels
         _token = token;
         return AuthResult(success: true, token: token);
       }
@@ -59,7 +57,24 @@ class EtudiantService {
     }
   }
 
-  /// Récupère la liste des offres approuvées depuis le backend.
+  static Future<bool> logout() async {
+    try {
+      final uri = Uri.parse('$_baseUrl/OSE/logout');
+      final headers = {'Content-Type': 'application/json'};
+      if (_token != null && _token!.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $_token';
+      }
+      final resp = await http.post(uri, headers: headers);
+
+      if (resp.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   static Future<List<OffreDTO>> getOffres() async {
     try {
       final uri = Uri.parse('$_baseUrl/OSEetudiant/voirOffres');
@@ -77,17 +92,17 @@ class EtudiantService {
             return OffreDTO.fromJson(Map<String, dynamic>.from(e));
           }).toList();
         }
-        // Si le backend renvoie un objet avec une propriété contenant la liste
         if (body is Map<String, dynamic>) {
           final list = body['offres'] ?? body['data'] ?? body['result'];
           if (list is List) {
-            return list.map((e) => OffreDTO.fromJson(Map<String, dynamic>.from(e))).toList();
+            return list
+                .map((e) => OffreDTO.fromJson(Map<String, dynamic>.from(e)))
+                .toList();
           }
         }
         return <OffreDTO>[];
       }
 
-      // En cas d'erreur, renvoyer une liste vide
       return <OffreDTO>[];
     } catch (e) {
       return <OffreDTO>[];

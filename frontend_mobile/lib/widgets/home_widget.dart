@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_mobile/pages/auth_screen.dart';
 import 'package:frontend_mobile/services/etudiant_service.dart';
 import 'package:frontend_mobile/models/offre_dto.dart';
 
@@ -40,6 +41,21 @@ class _HomeWidgetState extends State<HomeWidget> {
       });
     }
   }
+
+  void _logout() async {
+    final result = await EtudiantService.logout();
+
+    if (result) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const AuthScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("error")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +65,7 @@ class _HomeWidgetState extends State<HomeWidget> {
             icon: const Icon(Icons.logout),
             tooltip: 'Déconnexion',
             onPressed: () {
+              _logout();
             },
           ),
         ],
@@ -58,48 +75,100 @@ class _HomeWidgetState extends State<HomeWidget> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null
-                ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text('Erreur: $_error'),
-                      )
-                    ],
-                  )
-                : _offres.isEmpty
-                    ? ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        children: const [
-                          SizedBox(height: 200),
-                          Center(child: Text('Aucune offre disponible'))
-                        ],
-                      )
-                    : ListView.builder(
-                        itemCount: _offres.length,
-                        itemBuilder: (context, index) {
-                          final o = _offres[index];
-                          return ListTile(
-                            title: Text(o.titre ?? 'Sans titre'),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if ((o.description ?? '').isNotEmpty) Text(o.description!),
-                                const SizedBox(height: 6),
-                                if (o.employeurNomEntreprise != null)
-                                  Text('Employeur: ${o.employeurNomEntreprise}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                                if (o.employeurTelephone != null)
-                                  Text('Téléphone: ${o.employeurTelephone}', style: const TextStyle(fontSize: 12)),
-                                if (o.employeurContact != null)
-                                  Text('Contact: ${o.employeurContact}', style: const TextStyle(fontSize: 12)),
-                              ],
-                            ),
-                            trailing: o.dateLimite != null ? Text('Date limite\n${o.dateLimite}', textAlign: TextAlign.right, style: const TextStyle(fontSize: 11)) : null,
-                            isThreeLine: true,
-                          );
-                        },
+            ? ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Erreur: $_error'),
+                  ),
+                ],
+              )
+            : _offres.isEmpty
+            ? ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 200),
+                  Center(child: Text('Aucune offre disponible')),
+                ],
+              )
+            : ListView.builder(
+                itemCount: _offres.length,
+                itemBuilder: (context, index) {
+                  final o = _offres[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 6.0,
+                    ),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      o.titre ?? 'Sans titre',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    if (o.employeurNomEntreprise != null ||
+                                        o.employeurTelephone != null ||
+                                        o.employeurContact != null)
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (o.employeurNomEntreprise != null)
+                                            Text(
+                                              'Employeur: ${o.employeurNomEntreprise}',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                                color: Theme.of(
+                                                  context,
+                                                ).primaryColor,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    const SizedBox(height: 6),
+                                    if ((o.description ?? '').isNotEmpty)
+                                      Text(
+                                        o.description!,
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                    const SizedBox(height: 6),
+                                    if (o.dateLimite != null)
+                                      Text(
+                                        'Date limite d\'application: ${o.dateLimite}',
+                                        textAlign: TextAlign.right,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
       ),
     );
   }

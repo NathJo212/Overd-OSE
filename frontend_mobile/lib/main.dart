@@ -13,9 +13,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: .fromSeed(seedColor: Color.fromARGB(255, 0, 60, 255)),
       ),
-      home: AuthScreen()
+      home: AuthScreen(),
     );
   }
 }
