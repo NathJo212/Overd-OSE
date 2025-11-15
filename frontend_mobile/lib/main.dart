@@ -12,8 +12,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Color.fromARGB(255, 0, 60, 255)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromARGB(255, 0, 60, 255),
+        ),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromARGB(255, 0, 60, 255),
+          brightness: Brightness.dark,
+        ),
       ),
       home: AuthScreen(),
     );
