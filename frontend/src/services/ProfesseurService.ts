@@ -93,6 +93,12 @@ export interface EvaluationMilieuStageDTO {
 export interface CreerEvaluationMilieuStageDTO {
     ententeId?: number;
     employeurId?: number;
+    // Champs ajoutés pour la création d'une évaluation (correspondent à EvaluationMilieuStageDTO)
+    qualiteEncadrement?: string;
+    pertinenceMissions?: string;
+    respectHorairesConditions?: string;
+    communicationDisponibilite?: string;
+    commentairesAmelioration?: string;
 
     // --- IDENTIFICATION DE L'ENTREPRISE (Page 1)
     nomEntreprise?: string;

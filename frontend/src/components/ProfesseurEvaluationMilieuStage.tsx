@@ -33,6 +33,15 @@ import {
     type StatutStageDTO
 } from "../services/ProfesseurService";
 
+interface EvaluationFormData extends CreerEvaluationMilieuStageDTO {
+    ententeId: number;
+    qualiteEncadrement: string;
+    pertinenceMissions: string;
+    respectHorairesConditions: string;
+    communicationDisponibilite: string;
+    commentairesAmelioration: string;
+}
+
 const ProfesseurEvaluationMilieuStage = () => {
     const { t } = useTranslation(["evaluationMilieurStage"]);
     const navigate = useNavigate();
@@ -59,7 +68,7 @@ const ProfesseurEvaluationMilieuStage = () => {
     const [downloadingLettre, setDownloadingLettre] = useState<number | null>(null);
 
     // Form data
-    const [formData, setFormData] = useState<CreerEvaluationMilieuStageDTO>({
+    const [formData, setFormData] = useState<EvaluationFormData>({
         ententeId: 0,
         qualiteEncadrement: "",
         pertinenceMissions: "",
@@ -127,7 +136,7 @@ const ProfesseurEvaluationMilieuStage = () => {
         }
     };
 
-    const handleFormChange = (field: keyof CreerEvaluationMilieuStageDTO, value: string | number) => {
+    const handleFormChange = (field: keyof EvaluationFormData, value: string | number) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -319,8 +328,8 @@ const ProfesseurEvaluationMilieuStage = () => {
         return (
             <>
                 <NavBar />
-                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-                    <div className="flex items-center gap-3 text-indigo-600">
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-950 flex items-center justify-center">
+                    <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-300">
                         <Loader2 className="w-8 h-8 animate-spin" />
                         <span className="text-lg font-medium">{t("status.loading")}</span>
                     </div>
@@ -399,19 +408,19 @@ const ProfesseurEvaluationMilieuStage = () => {
                                         {t("form.selectEntente")} *
                                     </label>
                                     {ententes.length === 0 ? (
-                                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                                        <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-yellow-800 dark:text-yellow-200">
                                             {t("messages.noEntentes")}
                                         </div>
                                     ) : (
                                         <select
                                             value={formData.ententeId}
                                             onChange={(e) => handleFormChange("ententeId", Number(e.target.value))}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
                                             required
                                         >
                                             <option value={0}>{t("form.selectPlaceholder")}</option>
                                             {ententes.map((entente) => (
-                                                <option key={entente.id} value={entente.id}>
+                                                <option key={entente.id} value={entente.id} className="dark:bg-slate-700 dark:text-slate-100">
                                                     {entente.etudiantNomComplet} - {entente.titre} ({entente.employeurContact})
                                                 </option>
                                             ))}
@@ -429,7 +438,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                                         onChange={(e) => handleFormChange("qualiteEncadrement", e.target.value)}
                                         placeholder={t("form.qualiteEncadrementPlaceholder")}
                                         rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                        className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400"
                                         required
                                     />
                                 </div>
@@ -444,7 +453,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                                         onChange={(e) => handleFormChange("pertinenceMissions", e.target.value)}
                                         placeholder={t("form.pertinenceMissionsPlaceholder")}
                                         rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                        className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400"
                                         required
                                     />
                                 </div>
@@ -459,7 +468,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                                         onChange={(e) => handleFormChange("respectHorairesConditions", e.target.value)}
                                         placeholder={t("form.respectHorairesPlaceholder")}
                                         rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                        className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400"
                                         required
                                     />
                                 </div>
@@ -474,7 +483,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                                         onChange={(e) => handleFormChange("communicationDisponibilite", e.target.value)}
                                         placeholder={t("form.communicationPlaceholder")}
                                         rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                        className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400"
                                         required
                                     />
                                 </div>
@@ -489,7 +498,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                                         onChange={(e) => handleFormChange("commentairesAmelioration", e.target.value)}
                                         placeholder={t("form.commentairesPlaceholder")}
                                         rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                        className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400"
                                         required
                                     />
                                 </div>
@@ -527,7 +536,7 @@ const ProfesseurEvaluationMilieuStage = () => {
 
                     {/* Students List with CV and Actions */}
                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl overflow-hidden mb-8 border border-gray-200 dark:border-slate-700">
-                        <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600">
+                        <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700">
                             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                                 <Users className="w-6 h-6" />
                                 Mes Étudiants
@@ -536,57 +545,57 @@ const ProfesseurEvaluationMilieuStage = () => {
 
                         {etudiants.length === 0 ? (
                             <div className="p-12 text-center">
-                                <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                <p className="text-gray-500 text-lg">Aucun étudiant assigné pour le moment</p>
+                                <GraduationCap className="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
+                                <p className="text-gray-500 dark:text-slate-300 text-lg">Aucun étudiant assigné pour le moment</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full min-w-max">
-                                    <thead className="bg-gradient-to-r from-blue-50 to-slate-50">
+                                    <thead className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-slate-700 dark:to-slate-800">
                                         <tr>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[200px]">Étudiant</th>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[140px]">Programme</th>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[120px]">Session</th>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[160px]">Contact</th>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[120px]">CV</th>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[180px]">Actions</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-200 min-w-[200px]">Étudiant</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-200 min-w-[140px]">Programme</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-200 min-w-[120px]">Session</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-200 min-w-[160px]">Contact</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-200 min-w-[120px]">CV</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-200 min-w-[180px]">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100">
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                                         {etudiants.map((etudiant) => (
-                                            <tr key={etudiant.id} className="hover:shadow-sm hover:bg-blue-50/60 transition-all duration-200">
+                                            <tr key={etudiant.id} className="hover:shadow-sm hover:bg-blue-50/60 dark:hover:bg-slate-700/50 transition-all duration-200">
                                                 <td className="px-4 py-4 min-w-[200px]">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                                            <GraduationCap className="w-5 h-5 text-blue-600" />
+                                                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center flex-shrink-0">
+                                                            <GraduationCap className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <div className="font-medium text-gray-900 truncate">
+                                                            <div className="font-medium text-gray-900 dark:text-slate-100 truncate">
                                                                 {etudiant.prenom} {etudiant.nom}
                                                             </div>
-                                                            <div className="text-sm text-gray-500 truncate">{etudiant.email}</div>
+                                                            <div className="text-sm text-gray-500 dark:text-slate-400 truncate">{etudiant.email}</div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-4 min-w-[140px]">
-                                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm">
                                                         <BookOpen className="w-3 h-3 flex-shrink-0" />
                                                         <span className="truncate">{getProgramName(etudiant.progEtude)}</span>
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-4 min-w-[120px]">
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
                                                         <Calendar className="w-4 h-4 flex-shrink-0" />
                                                         <span className="truncate">{etudiant.session} {etudiant.annee}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-4 min-w-[160px]">
                                                     <div className="space-y-1">
-                                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
                                                             <Mail className="w-3 h-3 flex-shrink-0" />
                                                             <span className="text-xs truncate">{etudiant.email}</span>
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
                                                             <Phone className="w-3 h-3 flex-shrink-0" />
                                                             <span className="text-xs truncate">{etudiant.telephone}</span>
                                                         </div>
@@ -599,7 +608,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                                                     <div className="flex gap-2">
                                                         <button
                                                             onClick={() => etudiant.id && handleViewCandidatures(etudiant.id)}
-                                                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs font-medium"
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-purple-600 dark:bg-purple-700 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-purple-800 transition-colors text-xs font-medium"
                                                             title="Candidatures"
                                                         >
                                                             <FileText className="w-4 h-4 flex-shrink-0" />
@@ -607,7 +616,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                                                         </button>
                                                         <button
                                                             onClick={() => etudiant.id && handleViewEntentes(etudiant.id)}
-                                                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium"
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-800 transition-colors text-xs font-medium"
                                                             title="Ententes"
                                                         >
                                                             <Briefcase className="w-4 h-4 flex-shrink-0" />
@@ -625,43 +634,43 @@ const ProfesseurEvaluationMilieuStage = () => {
 
                     {/* Evaluations List */}
                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-slate-700">
-                        <div className="p-6 bg-gradient-to-r from-indigo-600 to-indigo-700">
+                        <div className="p-6 bg-gradient-to-r from-indigo-600 to-indigo-700 dark:from-indigo-700 dark:to-indigo-800">
                             <h2 className="text-2xl font-bold text-white">{t("list.title")}</h2>
                         </div>
 
                         {evaluations.length === 0 ? (
                             <div className="p-12 text-center">
-                                <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                <p className="text-gray-500 text-lg">{t("noEvaluations")}</p>
-                                <p className="text-gray-400 mt-2">{t("createNew")}</p>
+                                <FileText className="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
+                                <p className="text-gray-500 dark:text-slate-300 text-lg">{t("noEvaluations")}</p>
+                                <p className="text-gray-400 dark:text-slate-400 mt-2">{t("createNew")}</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full">
-                                    <thead className="bg-gray-50 border-b border-gray-200">
+                                    <thead className="bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600">
                                         <tr>
-                                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-200 uppercase tracking-wider">
                                                 {t("list.student")}
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-200 uppercase tracking-wider">
                                                 {t("list.company")}
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-200 uppercase tracking-wider">
                                                 {t("list.date")}
                                             </th>
-                                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-slate-200 uppercase tracking-wider">
                                                 {t("list.actions")}
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-200">
+                                    <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                                         {evaluations.map((evaluation) => (
-                                            <tr key={evaluation.id} className="hover:bg-gray-50 transition-colors">
+                                            <tr key={evaluation.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <GraduationCap className="w-5 h-5 text-indigo-600" />
+                                                        <GraduationCap className="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
                                                         <div>
-                                                            <div className="font-medium text-gray-900">
+                                                            <div className="font-medium text-gray-900 dark:text-slate-100">
                                                                 {evaluation.prenomEtudiant} {evaluation.nomEtudiant}
                                                             </div>
                                                         </div>
@@ -669,12 +678,12 @@ const ProfesseurEvaluationMilieuStage = () => {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <Building2 className="w-5 h-5 text-gray-400" />
-                                                        <span className="text-gray-900">{evaluation.nomEntreprise}</span>
+                                                        <Building2 className="w-5 h-5 text-gray-400 dark:text-slate-400" />
+                                                        <span className="text-gray-900 dark:text-slate-100">{evaluation.nomEntreprise}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-2 text-gray-600">
+                                                    <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
                                                         <Calendar className="w-4 h-4" />
                                                         <span>{formatDate(evaluation.dateEvaluation)}</span>
                                                     </div>
@@ -683,7 +692,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button
                                                             onClick={() => setSelectedEvaluation(evaluation)}
-                                                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                            className="p-2 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
                                                             title={t("list.view")}
                                                         >
                                                             <Eye className="w-5 h-5" />
@@ -703,8 +712,8 @@ const ProfesseurEvaluationMilieuStage = () => {
             {/* Evaluation Details Modal */}
             {selectedEvaluation && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-indigo-700 p-6 flex items-center justify-between">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-slate-700">
+                        <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-indigo-700 dark:from-indigo-700 dark:to-indigo-800 p-6 flex items-center justify-between">
                             <h3 className="text-2xl font-bold text-white">{t("details.title")}</h3>
                             <button
                                 onClick={() => setSelectedEvaluation(null)}
@@ -716,65 +725,65 @@ const ProfesseurEvaluationMilieuStage = () => {
 
                         <div className="p-6 space-y-6">
                             {/* Student Info */}
-                            <div className="bg-indigo-50 rounded-lg p-4">
-                                <h4 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+                            <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                <h4 className="font-semibold text-indigo-900 dark:text-indigo-300 mb-3 flex items-center gap-2">
                                     <GraduationCap className="w-5 h-5" />
                                     {t("details.studentInfo")}
                                 </h4>
-                                <p className="text-gray-700">
+                                <p className="text-gray-700 dark:text-slate-200">
                                     {selectedEvaluation.prenomEtudiant} {selectedEvaluation.nomEtudiant}
                                 </p>
                             </div>
 
                             {/* Company Info */}
-                            <div className="bg-gray-50 rounded-lg p-4">
-                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
                                     <Building2 className="w-5 h-5" />
                                     {t("details.companyInfo")}
                                 </h4>
-                                <p className="text-gray-700">{selectedEvaluation.nomEntreprise}</p>
+                                <p className="text-gray-700 dark:text-slate-200">{selectedEvaluation.nomEntreprise}</p>
                             </div>
 
                             {/* Evaluation Details */}
                             <div className="space-y-4">
-                                <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                                <h4 className="font-semibold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                                     <ClipboardList className="w-5 h-5" />
                                     {t("details.evaluationInfo")}
                                 </h4>
 
                                 <div className="space-y-4">
-                                    <div className="border-l-4 border-indigo-500 pl-4">
-                                        <p className="font-medium text-gray-700 mb-1">{t("form.qualiteEncadrement")}</p>
-                                        <p className="text-gray-600">{selectedEvaluation.qualiteEncadrement}</p>
+                                    <div className="border-l-4 border-indigo-500 dark:border-indigo-400 pl-4">
+                                        <p className="font-medium text-gray-700 dark:text-slate-200 mb-1">{t("form.qualiteEncadrement")}</p>
+                                        <p className="text-gray-600 dark:text-slate-300">{selectedEvaluation.qualiteEncadrement}</p>
                                     </div>
 
-                                    <div className="border-l-4 border-indigo-500 pl-4">
-                                        <p className="font-medium text-gray-700 mb-1">{t("form.pertinenceMissions")}</p>
-                                        <p className="text-gray-600">{selectedEvaluation.pertinenceMissions}</p>
+                                    <div className="border-l-4 border-indigo-500 dark:border-indigo-400 pl-4">
+                                        <p className="font-medium text-gray-700 dark:text-slate-200 mb-1">{t("form.pertinenceMissions")}</p>
+                                        <p className="text-gray-600 dark:text-slate-300">{selectedEvaluation.pertinenceMissions}</p>
                                     </div>
 
-                                    <div className="border-l-4 border-indigo-500 pl-4">
-                                        <p className="font-medium text-gray-700 mb-1">{t("form.respectHoraires")}</p>
-                                        <p className="text-gray-600">{selectedEvaluation.respectHorairesConditions}</p>
+                                    <div className="border-l-4 border-indigo-500 dark:border-indigo-400 pl-4">
+                                        <p className="font-medium text-gray-700 dark:text-slate-200 mb-1">{t("form.respectHoraires")}</p>
+                                        <p className="text-gray-600 dark:text-slate-300">{selectedEvaluation.respectHorairesConditions}</p>
                                     </div>
 
-                                    <div className="border-l-4 border-indigo-500 pl-4">
-                                        <p className="font-medium text-gray-700 mb-1">{t("form.communication")}</p>
-                                        <p className="text-gray-600">{selectedEvaluation.communicationDisponibilite}</p>
+                                    <div className="border-l-4 border-indigo-500 dark:border-indigo-400 pl-4">
+                                        <p className="font-medium text-gray-700 dark:text-slate-200 mb-1">{t("form.communication")}</p>
+                                        <p className="text-gray-600 dark:text-slate-300">{selectedEvaluation.communicationDisponibilite}</p>
                                     </div>
 
-                                    <div className="border-l-4 border-indigo-500 pl-4">
-                                        <p className="font-medium text-gray-700 mb-1">{t("form.commentaires")}</p>
-                                        <p className="text-gray-600">{selectedEvaluation.commentairesAmelioration}</p>
+                                    <div className="border-l-4 border-indigo-500 dark:border-indigo-400 pl-4">
+                                        <p className="font-medium text-gray-700 dark:text-slate-200 mb-1">{t("form.commentaires")}</p>
+                                        <p className="text-gray-600 dark:text-slate-300">{selectedEvaluation.commentairesAmelioration}</p>
                                     </div>
                                 </div>
 
-                                <div className="pt-4 border-t border-gray-200 flex items-center justify-between text-sm text-gray-500">
+                                <div className="pt-4 border-t border-gray-200 dark:border-slate-600 flex items-center justify-between text-sm text-gray-500 dark:text-slate-400">
                                     <span className="flex items-center gap-2">
                                         <Calendar className="w-4 h-4" />
                                         {t("details.evaluationDate")}: {formatDate(selectedEvaluation.dateEvaluation)}
                                     </span>
-                                    <span>
+                                    <span className="dark:text-slate-300">
                                         {t("details.evaluatedBy")}: {selectedEvaluation.prenomProfesseur} {selectedEvaluation.nomProfesseur}
                                     </span>
                                 </div>
@@ -783,7 +792,7 @@ const ProfesseurEvaluationMilieuStage = () => {
                             <div className="pt-4 flex justify-end">
                                 <button
                                     onClick={() => setSelectedEvaluation(null)}
-                                    className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors"
+                                    className="px-6 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-slate-100 rounded-lg font-medium transition-colors"
                                 >
                                     {t("details.close")}
                                 </button>
@@ -796,50 +805,50 @@ const ProfesseurEvaluationMilieuStage = () => {
             {/* Candidatures Modal */}
             {viewMode === 'candidatures' && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                        <div className="p-6 border-b border-slate-200 flex justify-between items-center">
-                            <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                <FileText className="w-6 h-6 text-purple-600" />
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700">
+                        <div className="p-6 border-b border-slate-200 dark:border-slate-600 flex justify-between items-center bg-gray-50 dark:bg-slate-700/50">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
+                                <FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                                 Candidatures de l'étudiant
                             </h3>
-                            <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                                <X className="w-6 h-6" />
+                            <button onClick={closeModal} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                                <X className="w-6 h-6 text-gray-700 dark:text-slate-300" />
                             </button>
                         </div>
                         <div className="p-6 overflow-y-auto flex-1">
                             {loadingCandidatures ? (
                                 <div className="flex justify-center items-center py-12">
-                                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-purple-600" />
+                                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 dark:border-slate-600 border-t-purple-600" />
                                 </div>
                             ) : candidatures.length === 0 ? (
-                                <p className="text-center text-gray-600 py-12">Aucune candidature trouvée</p>
+                                <p className="text-center text-gray-600 dark:text-slate-300 py-12">Aucune candidature trouvée</p>
                             ) : (
                                 <div className="space-y-4">
                                     {candidatures.map((candidature) => (
-                                        <div key={candidature.id} className="border border-slate-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+                                        <div key={candidature.id} className="border border-slate-200 dark:border-slate-600 rounded-xl p-6 hover:shadow-md transition-shadow bg-white dark:bg-slate-700/40">
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
-                                                    <h4 className="text-lg font-semibold text-gray-900">{candidature.offreTitre}</h4>
-                                                    <p className="text-sm text-gray-600">Employeur: {candidature.employeurNom}</p>
-                                                    <p className="text-sm text-gray-500">
+                                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{candidature.offreTitre}</h4>
+                                                    <p className="text-sm text-gray-600 dark:text-slate-300">Employeur: {candidature.employeurNom}</p>
+                                                    <p className="text-sm text-gray-500 dark:text-slate-400">
                                                         Date: {new Date(candidature.dateCandidature).toLocaleDateString()}
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-200">
+                                            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
                                                 <div className="flex items-center gap-2">
                                                     {candidature.alettreMotivation ? (
                                                         <button
                                                             onClick={() => handleViewLettre(candidature.id)}
                                                             disabled={downloadingLettre === candidature.id}
-                                                            className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm"
+                                                            className="flex items-center gap-2 px-3 py-2 bg-purple-600 dark:bg-purple-700 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-purple-800 transition-colors disabled:opacity-50 text-sm"
                                                         >
                                                             <FileText className="w-4 h-4" />
                                                             <span>Regarder la lettre de motivation</span>
                                                         </button>
                                                     ) : (
-                                                        <div className="flex items-center gap-2 text-gray-400">
+                                                        <div className="flex items-center gap-2 text-gray-400 dark:text-slate-500">
                                                             <FileX className="w-4 h-4" />
                                                             <span className="text-sm">Aucune lettre de motivation</span>
                                                         </div>
@@ -858,23 +867,23 @@ const ProfesseurEvaluationMilieuStage = () => {
             {/* Ententes Modal */}
             {viewMode === 'ententes' && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                        <div className="p-6 border-b border-slate-200 flex justify-between items-center">
-                            <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                <Briefcase className="w-6 h-6 text-green-600" />
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700">
+                        <div className="p-6 border-b border-slate-200 dark:border-slate-600 flex justify-between items-center bg-gray-50 dark:bg-slate-700/50">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
+                                <Briefcase className="w-6 h-6 text-green-600 dark:text-green-400" />
                                 Ententes de stage
                             </h3>
-                            <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                                <X className="w-6 h-6" />
+                            <button onClick={closeModal} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                                <X className="w-6 h-6 text-gray-700 dark:text-slate-300" />
                             </button>
                         </div>
                         <div className="p-6 overflow-y-auto flex-1">
                             {loadingEntentes ? (
                                 <div className="flex justify-center items-center py-12">
-                                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-green-600" />
+                                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 dark:border-slate-600 border-t-green-600" />
                                 </div>
                             ) : ententesStudent.length === 0 ? (
-                                <p className="text-center text-gray-600 py-12">Aucune entente trouvée</p>
+                                <p className="text-center text-gray-600 dark:text-slate-300 py-12">Aucune entente trouvée</p>
                             ) : (
                                 <div className="space-y-4">
                                     {ententesStudent.map((entente) => {
@@ -882,62 +891,62 @@ const ProfesseurEvaluationMilieuStage = () => {
                                         const statut = isSigned ? statutsStage[entente.id] : null;
 
                                         return (
-                                            <div key={entente.id} className="border border-slate-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+                                            <div key={entente.id} className="border border-slate-200 dark:border-slate-600 rounded-xl p-6 hover:shadow-md transition-shadow bg-white dark:bg-slate-700/40">
                                                 <div className="flex justify-between items-start mb-4">
                                                     <div className="flex-1">
-                                                        <h4 className="text-lg font-semibold text-gray-900">{entente.titre}</h4>
-                                                        <p className="text-sm text-gray-600 mt-1">{entente.description}</p>
+                                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{entente.titre}</h4>
+                                                        <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">{entente.description}</p>
                                                         <div className="mt-3 grid grid-cols-2 gap-3">
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Employeur</p>
-                                                                <p className="text-sm font-medium text-gray-900">{entente.employeurContact}</p>
+                                                                <p className="text-sm text-gray-500 dark:text-slate-400">Employeur</p>
+                                                                <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{entente.employeurContact}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Lieu</p>
-                                                                <p className="text-sm font-medium text-gray-900">{entente.lieu}</p>
+                                                                <p className="text-sm text-gray-500 dark:text-slate-400">Lieu</p>
+                                                                <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{entente.lieu}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Période</p>
-                                                                <p className="text-sm font-medium text-gray-900">
+                                                                <p className="text-sm text-gray-500 dark:text-slate-400">Période</p>
+                                                                <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
                                                                     {new Date(entente.dateDebut).toLocaleDateString()} - {new Date(entente.dateFin).toLocaleDateString()}
                                                                 </p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Durée hebdomadaire</p>
-                                                                <p className="text-sm font-medium text-gray-900">{entente.dureeHebdomadaire}h</p>
+                                                                <p className="text-sm text-gray-500 dark:text-slate-400">Durée hebdomadaire</p>
+                                                                <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{entente.dureeHebdomadaire}h</p>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+                                                <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-600">
                                                     <div className="flex items-center gap-4">
                                                         <div className="flex items-center gap-2">
                                                             {entente.etudiantSignature === 'SIGNEE' ? (
-                                                                <CheckCircle className="w-5 h-5 text-green-600" />
+                                                                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                                                             ) : (
-                                                                <Clock className="w-5 h-5 text-yellow-600" />
+                                                                <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
                                                             )}
-                                                            <span className="text-sm text-gray-600">
+                                                            <span className="text-sm text-gray-600 dark:text-slate-300">
                                                                 Étudiant: {entente.etudiantSignature}
                                                             </span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             {entente.employeurSignature === 'SIGNEE' ? (
-                                                                <CheckCircle className="w-5 h-5 text-green-600" />
+                                                                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                                                             ) : (
-                                                                <Clock className="w-5 h-5 text-yellow-600" />
+                                                                <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
                                                             )}
-                                                            <span className="text-sm text-gray-600">
+                                                            <span className="text-sm text-gray-600 dark:text-slate-300">
                                                                 Employeur: {entente.employeurSignature}
                                                             </span>
                                                         </div>
                                                     </div>
 
                                                     {statut && (
-                                                        <div className="px-4 py-2 bg-blue-50 rounded-lg">
-                                                            <div className="text-sm font-semibold text-gray-700">Statut du stage:</div>
-                                                            <div className="mt-1">{statut}</div>
+                                                        <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
+                                                            <div className="text-sm font-semibold text-gray-700 dark:text-slate-200">Statut du stage:</div>
+                                                            <div className="mt-1 dark:text-slate-100">{statut}</div>
                                                         </div>
                                                     )}
                                                 </div>
@@ -954,23 +963,23 @@ const ProfesseurEvaluationMilieuStage = () => {
             {/* PDF Viewer Modal */}
             {pdfUrl && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-gray-200">
-                        <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                            <h2 className="text-lg font-semibold text-gray-800">{pdfTitle}</h2>
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700">
+                        <div className="p-4 border-b border-gray-200 dark:border-slate-600 flex justify-between items-center bg-gray-50 dark:bg-slate-700/50">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100">{pdfTitle}</h2>
                             <button
                                 onClick={() => {
                                     window.URL.revokeObjectURL(pdfUrl);
                                     setPdfUrl(null);
                                 }}
-                                className="p-2 hover:bg-gray-200 rounded-lg"
+                                className="p-2 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg"
                             >
-                                <X className="w-5 h-5 text-gray-700" />
+                                <X className="w-5 h-5 text-gray-700 dark:text-slate-300" />
                             </button>
                         </div>
                         <iframe
                             src={pdfUrl}
                             title={pdfTitle}
-                            className="flex-1 w-full"
+                            className="flex-1 w-full bg-white dark:bg-slate-800"
                             style={{ border: "none" }}
                         />
                     </div>

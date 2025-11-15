@@ -165,12 +165,12 @@ const DashboardProfesseur = () => {
 
     const getStatutBadge = (statut: string) => {
         const styles: Record<string, string> = {
-            'EN_ATTENTE': 'bg-yellow-100 text-yellow-800',
-            'ACCEPTEE': 'bg-green-100 text-green-800',
-            'REFUSEE': 'bg-red-100 text-red-800',
-            'ENTREVUE': 'bg-blue-100 text-blue-800',
+            'EN_ATTENTE': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200',
+            'ACCEPTEE': 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200',
+            'REFUSEE': 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200',
+            'ENTREVUE': 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200',
         };
-        return styles[statut] || 'bg-gray-100 text-gray-800';
+        return styles[statut] || 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-200';
     };
 
     const getStatutLabel = (statut: string) => {
@@ -252,7 +252,7 @@ const DashboardProfesseur = () => {
                 </div>
 
                 <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-xl rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                    <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                    <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-600 to-indigo-600 text-white dark:from-blue-700 dark:to-indigo-700">
                         <h2 className="text-xl font-semibold flex items-center gap-2">
                             <Users className="w-6 h-6" />
                             {t('dashboardProfesseur:studentList.title')}
@@ -289,7 +289,7 @@ const DashboardProfesseur = () => {
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                                 {etudiants.map((etudiant) => (
-                                    <tr key={etudiant.id} className="hover:shadow-sm hover:bg-blue-50/60 dark:hover:bg-slate-700 transition-all duration-200">
+                                    <tr key={etudiant.id} className="hover:shadow-sm hover:bg-blue-50/60 dark:hover:bg-slate-700/50 transition-all duration-200">
                                         <td className="px-4 py-4 min-w-[200px]">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
@@ -304,7 +304,7 @@ const DashboardProfesseur = () => {
                                             </div>
                                         </td>
                                         <td className="px-4 py-4 min-w-[140px]">
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm">
                                                 <BookOpen className="w-3 h-3 flex-shrink-0" />
                                                 <span className="truncate">{getProgramName(etudiant.progEtude)}</span>
                                             </span>
@@ -341,11 +341,11 @@ const DashboardProfesseur = () => {
                     <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700">
                         <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
                             <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
-                                <FileText className="w-6 h-6 text-purple-600" />
+                                <FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                                 {t('dashboardProfesseur:candidatures.title')}
                             </h3>
                             <button onClick={closeModal} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <X className="w-6 h-6" />
+                                <X className="w-6 h-6 text-gray-700 dark:text-slate-300" />
                             </button>
                         </div>
                         <div className="p-6 overflow-y-auto flex-1">
@@ -358,7 +358,7 @@ const DashboardProfesseur = () => {
                             ) : (
                                 <div className="space-y-4">
                                     {candidatures.map((candidature) => (
-                                        <div key={candidature.id} className="border border-slate-200 dark:border-slate-700 rounded-xl p-6 hover:shadow-md transition-shadow">
+                                        <div key={candidature.id} className="border border-slate-200 dark:border-slate-700 rounded-xl p-6 hover:shadow-md transition-shadow bg-white dark:bg-slate-800/60">
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
                                                     <h4 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{candidature.offreTitre}</h4>
@@ -367,7 +367,7 @@ const DashboardProfesseur = () => {
                                                         Date: {new Date(candidature.dateCandidature).toLocaleDateString()}
                                                     </p>
                                                 </div>
-                                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatutBadge(candidature.statut)}`}>
+                                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatutBadge(candidature.statut)} shadow-sm`}>
                                                     {getStatutLabel(candidature.statut)}
                                                 </span>
                                             </div>
@@ -378,7 +378,7 @@ const DashboardProfesseur = () => {
                                                         <button
                                                             onClick={() => handleViewLettre(candidature.id)}
                                                             disabled={downloadingLettre === candidature.id}
-                                                            className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm"
+                                                            className="flex items-center gap-2 px-3 py-2 bg-purple-600 dark:bg-purple-700 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-purple-800 transition-colors disabled:opacity-50 text-sm"
                                                         >
                                                             <FileText className="w-4 h-4" />
                                                             <span>{t('dashboardProfesseur:candidatures.letterMotivation.view')}</span>
@@ -411,11 +411,11 @@ const DashboardProfesseur = () => {
                     <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700">
                         <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
                             <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
-                                <Briefcase className="w-6 h-6 text-green-600" />
+                                <Briefcase className="w-6 h-6 text-green-600 dark:text-green-400" />
                                 {t('dashboardProfesseur:ententes.title')}
                             </h3>
                             <button onClick={closeModal} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <X className="w-6 h-6" />
+                                <X className="w-6 h-6 text-gray-700 dark:text-slate-300" />
                             </button>
                         </div>
                         <div className="p-6 overflow-y-auto flex-1">
@@ -432,7 +432,7 @@ const DashboardProfesseur = () => {
                                         const statut = isSigned ? statutsStage[entente.id] : null;
 
                                         return (
-                                            <div key={entente.id} className="border border-slate-200 dark:border-slate-700 rounded-xl p-6 hover:shadow-md transition-shadow">
+                                            <div key={entente.id} className="border border-slate-200 dark:border-slate-700 rounded-xl p-6 hover:shadow-md transition-shadow bg-white dark:bg-slate-800/60">
                                                 <div className="flex justify-between items-start mb-4">
                                                     <div className="flex-1">
                                                         <h4 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{entente.titre}</h4>
@@ -464,11 +464,11 @@ const DashboardProfesseur = () => {
                                                     <div className="flex items-center gap-4">
                                                         <div className="flex items-center gap-2">
                                                             {entente.etudiantSignature === 'SIGNEE' ? (
-                                                                <CheckCircle className="w-5 h-5 text-green-600" />
+                                                                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                                                             ) : entente.etudiantSignature === 'REFUSEE' ? (
-                                                                <XCircle className="w-5 h-5 text-red-600" />
+                                                                <XCircle className="w-5 h-5 text-red-600 dark:text-red-500" />
                                                             ) : (
-                                                                <Clock className="w-5 h-5 text-yellow-600" />
+                                                                <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
                                                             )}
                                                             <span className="text-sm text-gray-600 dark:text-slate-300">
                                                                 {t('dashboardProfesseur:ententes.labels.student')}: {t(`dashboardProfesseur:ententes.signatures.${entente.etudiantSignature}`, entente.etudiantSignature)}
@@ -476,11 +476,11 @@ const DashboardProfesseur = () => {
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             {entente.employeurSignature === 'SIGNEE' ? (
-                                                                <CheckCircle className="w-5 h-5 text-green-600" />
+                                                                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                                                             ) : entente.employeurSignature === 'REFUSEE' ? (
-                                                                <XCircle className="w-5 h-5 text-red-600" />
+                                                                <XCircle className="w-5 h-5 text-red-600 dark:text-red-500" />
                                                             ) : (
-                                                                <Clock className="w-5 h-5 text-yellow-600" />
+                                                                <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
                                                             )}
                                                             <span className="text-sm text-gray-600 dark:text-slate-300">
                                                                 {t('dashboardProfesseur:ententes.labels.employer')}: {t(`dashboardProfesseur:ententes.signatures.${entente.employeurSignature}`, entente.employeurSignature)}
@@ -508,7 +508,7 @@ const DashboardProfesseur = () => {
             {viewMode === 'evaluation' && selectedEtudiant && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700">
-                        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex justify-between items-center">
+                        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white dark:from-indigo-700 dark:to-indigo-800 flex justify-between items-center">
                             <div>
                                 <h3 className="text-2xl font-bold flex items-center gap-2">
                                     <ClipboardList className="w-6 h-6" />
@@ -566,7 +566,7 @@ const DashboardProfesseur = () => {
                                             onChange={(e) => handleEvaluationFormChange("qualiteEncadrement", e.target.value)}
                                             placeholder="Décrivez la qualité de l'encadrement fourni par le superviseur de l'entreprise..."
                                             rows={4}
-                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
                                             required
                                         />
                                     </div>
@@ -581,7 +581,7 @@ const DashboardProfesseur = () => {
                                             onChange={(e) => handleEvaluationFormChange("pertinenceMissions", e.target.value)}
                                             placeholder="Évaluez la pertinence des missions confiées à l'étudiant par rapport à son programme d'études..."
                                             rows={4}
-                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
                                             required
                                         />
                                     </div>
@@ -596,7 +596,7 @@ const DashboardProfesseur = () => {
                                             onChange={(e) => handleEvaluationFormChange("respectHorairesConditions", e.target.value)}
                                             placeholder="Commentez sur le respect des horaires de travail et des conditions convenues dans l'entente..."
                                             rows={4}
-                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
                                             required
                                         />
                                     </div>
@@ -611,7 +611,7 @@ const DashboardProfesseur = () => {
                                             onChange={(e) => handleEvaluationFormChange("communicationDisponibilite", e.target.value)}
                                             placeholder="Évaluez la communication et la disponibilité du superviseur de l'entreprise..."
                                             rows={4}
-                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
                                             required
                                         />
                                     </div>
@@ -626,7 +626,7 @@ const DashboardProfesseur = () => {
                                             onChange={(e) => handleEvaluationFormChange("commentairesAmelioration", e.target.value)}
                                             placeholder="Fournissez des commentaires constructifs et des suggestions pour améliorer l'expérience de stage..."
                                             rows={4}
-                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                            className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
                                             required
                                         />
                                     </div>
@@ -636,7 +636,7 @@ const DashboardProfesseur = () => {
                                         <button
                                             type="submit"
                                             disabled={submittingEvaluation}
-                                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors dark:bg-indigo-700 dark:hover:bg-indigo-600"
                                         >
                                             {submittingEvaluation ? (
                                                 <>
@@ -678,7 +678,7 @@ const DashboardProfesseur = () => {
                                 }}
                                 className="p-2 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg"
                             >
-                                <X className="w-5 h-5 text-gray-700 dark:text-slate-200" />
+                                <X className="w-5 h-5 text-gray-700 dark:text-slate-300" />
                             </button>
                         </div>
                         <iframe
