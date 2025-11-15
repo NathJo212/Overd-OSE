@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../widgets/auth_form.dart';
-import '../../services/auth_service.dart';
+import 'package:frontend_mobile/pages/home.dart';
+import '../widgets/auth_form.dart';
+import '../services/etudiant_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -16,12 +17,14 @@ class _AuthScreenState extends State<AuthScreen> {
       context,
     ).showSnackBar(const SnackBar(content: Text('Connexion...')));
 
-    final result = await AuthService.login(email, password);
+    final result = await EtudiantService.login(email, password);
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
     if (result.success) {
-      print("login marche");
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (context) => const home()));
     } else {
       final message = result.error ?? 'Erreur d\'authentification';
       ScaffoldMessenger.of(

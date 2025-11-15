@@ -10,7 +10,7 @@ class AuthResult {
   AuthResult({required this.success, this.token, this.error});
 }
 
-class AuthService {
+class EtudiantService {
   static const String _baseUrl = String.fromEnvironment(
     'API_URL',
     defaultValue: 'http://10.0.2.2:8080',
@@ -54,4 +54,5 @@ class AuthService {
       return AuthResult(success: false, error: e.toString());
     }
   }
+
 }
