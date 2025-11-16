@@ -213,7 +213,8 @@ public class GestionnaireService {
 
     private void verifierGestionnaireConnecte() throws ActionNonAutoriseeException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean isGestionnaire = auth.getAuthorities().stream()
+        boolean isGestionnaire = auth != null && auth.getAuthorities() != null
+                && auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("GESTIONNAIRE"));
         if (!isGestionnaire) {
             throw new ActionNonAutoriseeException();
