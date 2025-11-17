@@ -45,12 +45,15 @@ const SearchResults = () => {
         setHasSearched(true);
         try {
             const data = await searchService.searchUsers(term, cat);
-
             let allResults: SearchResult[] = [];
 
-            if (data.etudiants && availableCategories.includes('ETUDIANT')) {
-                allResults = [...allResults, ...data.etudiants.map((e: any) => ({ ...e, type: "ETUDIANT" as const }))];
+            // ETUDIANT can't see other ETUDIANTs
+            if ((cat === "ETUDIANT" && userRole !== "ETUDIANT") || cat !== "ETUDIANT") {
+                if (data.etudiants) {
+                    allResults = [...allResults, ...data.etudiants.map((e: any) => ({ ...e, type: "ETUDIANT" as const }))];
+                }
             }
+
             if (data.employeurs) {
                 allResults = [...allResults, ...data.employeurs.map((e: any) => ({ ...e, type: "EMPLOYEUR" as const }))];
             }
@@ -128,9 +131,9 @@ const SearchResults = () => {
         return `${result.prenom || ""} ${result.nom || ""}`.trim() || "Utilisateur";
     };
 
-    const handleViewProfile = (result: SearchResult) => {
-        navigate(`/profile/${result.type.toLowerCase()}/${result.id}`);
-    };
+    // const handleViewProfile = (result: SearchResult) => {
+    //     navigate(`/profile/${result.type.toLowerCase()}/${result.id}`);
+    // };
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -284,12 +287,12 @@ const SearchResults = () => {
                                         )}
                                     </div>
 
-                                    <button
-                                        onClick={() => handleViewProfile(result)}
-                                        className="cursor-pointer w-full px-4 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
-                                    >
-                                        Voir le profil
-                                    </button>
+                                    {/*<button*/}
+                                    {/*    onClick={() => handleViewProfile(result)}*/}
+                                    {/*    className="cursor-pointer w-full px-4 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"*/}
+                                    {/*>*/}
+                                    {/*    Voir le profil*/}
+                                    {/*</button>*/}
                                 </div>
                             ))}
                         </div>

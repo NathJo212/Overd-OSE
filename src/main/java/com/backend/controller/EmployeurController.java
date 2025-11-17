@@ -463,4 +463,115 @@ public class EmployeurController {
         }
     }
 
+    // ==================== SEARCH ETUDIANTS ====================
+    @GetMapping("/search/etudiants")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EtudiantDTO>> searchEtudiants(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<EtudiantDTO> etudiants = employeurService.searchEtudiants(searchTerm);
+            return ResponseEntity.ok(etudiants);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/etudiants/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<EtudiantDTO> getEtudiantProfile(@PathVariable Long id) {
+        try {
+            EtudiantDTO etudiant = employeurService.getEtudiantInfo(id);
+            return ResponseEntity.ok(etudiant);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== SEARCH EMPLOYEURS ====================
+    @GetMapping("/search/employeurs")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EmployeurDTO>> searchEmployeurs(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<EmployeurDTO> employeurs = employeurService.searchEmployeurs(searchTerm);
+            return ResponseEntity.ok(employeurs);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/employeurs/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<EmployeurDTO> getEmployeurProfile(@PathVariable Long id) {
+        try {
+            EmployeurDTO employeur = employeurService.getEmployeurInfo(id);
+            return ResponseEntity.ok(employeur);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== SEARCH PROFESSEURS ====================
+    @GetMapping("/search/professeurs")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<ProfesseurDTO>> searchProfesseurs(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<ProfesseurDTO> professeurs = employeurService.searchProfesseursList(searchTerm);
+            return ResponseEntity.ok(professeurs);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/professeurs/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<ProfesseurDTO> getProfesseurProfile(@PathVariable Long id) {
+        try {
+            ProfesseurDTO professeur = employeurService.getProfesseurInfo(id);
+            return ResponseEntity.ok(professeur);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== SEARCH GESTIONNAIRES ====================
+    @GetMapping("/search/gestionnaires")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<GestionnaireDTO>> searchGestionnaires(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<GestionnaireDTO> gestionnaires = employeurService.searchGestionnaires(searchTerm);
+            return ResponseEntity.ok(gestionnaires);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/gestionnaires/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<GestionnaireDTO> getGestionnaireProfile(@PathVariable Long id) {
+        try {
+            GestionnaireDTO gestionnaire = employeurService.getGestionnaireInfo(id);
+            return ResponseEntity.ok(gestionnaire);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }

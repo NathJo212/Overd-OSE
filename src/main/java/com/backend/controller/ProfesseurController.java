@@ -188,4 +188,113 @@ public class ProfesseurController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    // ==================== SEARCH ETUDIANTS ====================
+    @GetMapping("/search/etudiants")
+    public ResponseEntity<List<EtudiantDTO>> searchEtudiants(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<EtudiantDTO> etudiants = professeurService.searchEtudiants(searchTerm);
+            return ResponseEntity.ok(etudiants);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/etudiants/{id}")
+    public ResponseEntity<EtudiantDTO> getEtudiantProfile(@PathVariable Long id) {
+        try {
+            EtudiantDTO etudiant = professeurService.getEtudiantInfo(id);
+            return ResponseEntity.ok(etudiant);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== SEARCH EMPLOYEURS ====================
+    @GetMapping("/search/employeurs")
+    public ResponseEntity<List<EmployeurDTO>> searchEmployeurs(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<EmployeurDTO> employeurs = professeurService.searchEmployeurs(searchTerm);
+            return ResponseEntity.ok(employeurs);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/employeurs/{id}")
+    public ResponseEntity<EmployeurDTO> getEmployeurProfile(@PathVariable Long id) {
+        try {
+            EmployeurDTO employeur = professeurService.getEmployeurInfo(id);
+            return ResponseEntity.ok(employeur);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== SEARCH PROFESSEURS ====================
+    @GetMapping("/search/professeurs")
+    public ResponseEntity<List<ProfesseurDTO>> searchProfesseurs(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<ProfesseurDTO> professeurs = professeurService.searchProfesseursList(searchTerm);
+            return ResponseEntity.ok(professeurs);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/professeurs/{id}")
+    public ResponseEntity<ProfesseurDTO> getProfesseurProfile(@PathVariable Long id) {
+        try {
+            ProfesseurDTO professeur = professeurService.getProfesseurInfo(id);
+            return ResponseEntity.ok(professeur);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== SEARCH GESTIONNAIRES ====================
+    @GetMapping("/search/gestionnaires")
+    public ResponseEntity<List<GestionnaireDTO>> searchGestionnaires(
+            @RequestParam(required = false) String searchTerm) {
+        try {
+            List<GestionnaireDTO> gestionnaires = professeurService.searchGestionnaires(searchTerm);
+            return ResponseEntity.ok(gestionnaires);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/gestionnaires/{id}")
+    public ResponseEntity<GestionnaireDTO> getGestionnaireProfile(@PathVariable Long id) {
+        try {
+            GestionnaireDTO gestionnaire = professeurService.getGestionnaireInfo(id);
+            return ResponseEntity.ok(gestionnaire);
+        } catch (UtilisateurPasTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
