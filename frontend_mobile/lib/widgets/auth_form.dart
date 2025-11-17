@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_mobile/l10n/app_localizations.dart';
 
 class AuthFormWidget extends StatefulWidget {
   final void Function(String email, String password) _submitForm;
@@ -33,7 +34,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
         Padding(
           padding: const EdgeInsets.only(bottom: 16.0),
           child: Text(
-            "📚 Overd-OSE",
+            AppLocalizations.of(context)!.authTitle,
             style: TextStyle(
               fontSize: 34,
               fontWeight: FontWeight.bold,
@@ -44,7 +45,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
         Padding(
           padding: const EdgeInsets.only(bottom: 16.0),
           child: Text(
-            "Accédez à votre espace etudiant",
+            AppLocalizations.of(context)!.authSubtitle,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -68,11 +69,11 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
                         key: ValueKey("email"),
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
-                          labelText: "Adresse courriel",
+                          labelText: AppLocalizations.of(context)!.emailLabel,
                         ),
                         validator: (val) {
                           if (val!.isEmpty || val.length < 8) {
-                            return 'Au moins 7 caracteres.';
+                            return AppLocalizations.of(context)!.minChars;
                           }
                           return null;
                         },
@@ -81,12 +82,16 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
                         },
                       ),
                       TextFormField(
-                        decoration: InputDecoration(labelText: "Mot de passe"),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(
+                            context,
+                          )!.passwordLabel,
+                        ),
                         key: ValueKey("password"),
                         obscureText: true,
                         validator: (val) {
                           if (val!.isEmpty || val.length < 8) {
-                            return 'Au moins 7 caracteres.';
+                            return AppLocalizations.of(context)!.minChars;
                           }
                           return null;
                         },
@@ -99,7 +104,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
                         onPressed: (() {
                           _submit();
                         }),
-                        child: Text("Connexion"),
+                        child: Text(AppLocalizations.of(context)!.signInButton),
                       ),
                     ],
                   ),

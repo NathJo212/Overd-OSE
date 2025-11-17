@@ -1,0 +1,42 @@
+
+{
+	"@@locale": "en",
+	"helloWorld": "Hello world!",
+	"appuse": "This device uses",
+	"localplat": "Local from the Platform is",
+	"hardcodedtext": "This is a Text that is not hardcoded",
+	"achat": "A purchase of",
+	"itis": "It is",
+
+	"logoutTooltip": "Logout",
+	"errorMessage": "Error: {error}",
+	"@errorMessage": {
+		"description": "Error message showing details",
+		"placeholders": { "error": {} }
+	},
+
+	"noOffers": "No offers available",
+	"untitled": "Untitled",
+	"limitDate": "Deadline\n{date}",
+	"@limitDate": {
+		"description": "Offer deadline possibly with newline",
+		"placeholders": { "date": {} }
+	},
+
+	"periodRange": "Period: {debut}{sep}{fin}",
+	"@periodRange": {
+		"description": "Internship period",
+		"placeholders": { "debut": {}, "sep": {}, "fin": {} }
+	},
+
+	"authTitle": "📚 Overd-OSE",
+	"authSubtitle": "Access your student space",
+	"emailLabel": "Email address",
+	"passwordLabel": "Password",
+	"minChars": "At least 7 characters.",
+	"signInButton": "Sign in",
+	"logoutError": "Error: unable to logout",
+	"refusedAccess" : "Access denied",
+	"authentificationError" : "Authentication error",
+	"connexionInProgress" : "Connection..."
+}

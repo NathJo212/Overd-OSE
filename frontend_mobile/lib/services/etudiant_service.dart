@@ -19,6 +19,9 @@ class EtudiantService {
   static String? _token;
 
   static Future<AuthResult> login(String email, String password) async {
+    const String _errRefused = 'refusedAccess';
+    AuthResult _fail() => AuthResult(success: false, error: _errRefused);
+
     try {
       final uri = Uri.parse('$_baseUrl/OSE/login');
       final resp = await http.post(
@@ -27,82 +30,71 @@ class EtudiantService {
         body: jsonEncode({'email': email, 'password': password}),
       );
 
-      if (resp.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(resp.body);
-        String? token;
-        if (data.containsKey('token')) token = data['token'];
-        if (token == null && data.containsKey('accessToken')) {
-          token = data['accessToken'];
-        }
-        if (token == null && data.containsKey('jwt')) token = data['jwt'];
+      if (resp.statusCode != 200) return _fail();
 
-        if (token == null) {
-          return AuthResult(success: false, error: 'Accès refusé');
-        }
-
-        // Décoder le payload du JWT pour vérifier le rôle/authorities
-        try {
-          final parts = token.split('.');
-          if (parts.length < 2) {
-            return AuthResult(success: false, error: 'Accès refusé');
-          }
-          String payloadPart = parts[1];
-
-          // Ajouter le padding nécessaire pour base64Url
-          final mod = payloadPart.length % 4;
-          if (mod == 2)
-            payloadPart += '==';
-          else if (mod == 3)
-            payloadPart += '=';
-          else if (mod == 1) {
-            return AuthResult(success: false, error: 'Accès refusé');
-          }
-
-          final decoded = utf8.decode(base64Url.decode(payloadPart));
-          final Map<String, dynamic> payload = jsonDecode(decoded);
-
-          String? userType;
-
-          if (payload.containsKey('authorities') &&
-              payload['authorities'] is List) {
-            final List a = payload['authorities'] as List;
-            if (a.isNotEmpty) {
-              final first = a[0];
-              if (first is Map && first.containsKey('authority')) {
-                userType = first['authority']?.toString();
-              } else {
-                userType = first.toString();
-              }
-            }
-          } else if (payload.containsKey('roles') && payload['roles'] is List) {
-            final List r = payload['roles'] as List;
-            if (r.isNotEmpty) userType = r[0].toString();
-          } else if (payload.containsKey('role')) {
-            userType = payload['role']?.toString();
-          }
-
-          if (userType == null) {
-            return AuthResult(success: false, error: 'Accès refusé');
-          }
-
-          final lowered = userType.toLowerCase();
-          final isEtudiant = lowered.contains('etudiant');
-
-          if (!isEtudiant) {
-            return AuthResult(success: false, error: 'Accès refusé');
-          }
-
-          // Autorisé : conserver le token
-          _token = token;
-          return AuthResult(success: true, token: token);
-        } catch (e) {
-          return AuthResult(success: false, error: 'Accès refusé');
-        }
+      final Map<String, dynamic> data = jsonDecode(resp.body);
+      String? token;
+      if (data.containsKey('token')) token = data['token'];
+      if (token == null && data.containsKey('accessToken')) {
+        token = data['accessToken'];
       }
+      if (token == null && data.containsKey('jwt')) token = data['jwt'];
 
-      return AuthResult(success: false, error: 'Accès refusé');
+      if (token == null) return _fail();
+
+      // Décoder le payload du JWT pour vérifier le rôle/authorities
+      try {
+        final parts = token.split('.');
+        if (parts.length < 2) return _fail();
+        String payloadPart = parts[1];
+
+        // Ajouter le padding nécessaire pour base64Url
+        final mod = payloadPart.length % 4;
+        if (mod == 2)
+          payloadPart += '==';
+        else if (mod == 3)
+          payloadPart += '=';
+        else if (mod == 1) {
+          return _fail();
+        }
+
+        final decoded = utf8.decode(base64Url.decode(payloadPart));
+        final Map<String, dynamic> payload = jsonDecode(decoded);
+
+        String? userType;
+
+        if (payload.containsKey('authorities') && payload['authorities'] is List) {
+          final List a = payload['authorities'] as List;
+          if (a.isNotEmpty) {
+            final first = a[0];
+            if (first is Map && first.containsKey('authority')) {
+              userType = first['authority']?.toString();
+            } else {
+              userType = first.toString();
+            }
+          }
+        } else if (payload.containsKey('roles') && payload['roles'] is List) {
+          final List r = payload['roles'] as List;
+          if (r.isNotEmpty) userType = r[0].toString();
+        } else if (payload.containsKey('role')) {
+          userType = payload['role']?.toString();
+        }
+
+        if (userType == null) return _fail();
+
+        final lowered = userType.toLowerCase();
+        final isEtudiant = lowered.contains('etudiant');
+
+        if (!isEtudiant) return _fail();
+
+        // Autorisé : conserver le token
+        _token = token;
+        return AuthResult(success: true, token: token);
+      } catch (e) {
+        return _fail();
+      }
     } catch (e) {
-      return AuthResult(success: false, error: "Accès refusé");
+      return _fail();
     }
   }
 

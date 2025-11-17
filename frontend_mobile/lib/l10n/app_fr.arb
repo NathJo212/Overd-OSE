@@ -1,0 +1,42 @@
+
+{
+	"@@locale": "fr",
+	"helloWorld": "Bonjour le monde!",
+	"appuse": "Cet appareil utilise",
+	"localplat": "Local from the Platform is",
+	"hardcodedtext": "Voici un Text qui n'est pas hardcodé",
+	"achat": "Un achat de",
+	"itis": "Il est",
+
+	"logoutTooltip": "Déconnexion",
+	"errorMessage": "Erreur: {error}",
+	"@errorMessage": {
+		"description": "Message d'erreur affichant le détail",
+		"placeholders": { "error": {} }
+	},
+
+	"noOffers": "Aucune offre disponible",
+	"untitled": "Sans titre",
+	"limitDate": "Limite\n{date}",
+	"@limitDate": {
+		"description": "Date limite d'une offre, peut contenir saut de ligne",
+		"placeholders": { "date": {} }
+	},
+
+	"periodRange": "Période: {debut}{sep}{fin}",
+	"@periodRange": {
+		"description": "Période de stage",
+		"placeholders": { "debut": {}, "sep": {}, "fin": {} }
+	},
+
+	"authTitle": "📚 Overd-OSE",
+	"authSubtitle": "Accédez à votre espace étudiant",
+	"emailLabel": "Adresse courriel",
+	"passwordLabel": "Mot de passe",
+	"minChars": "Au moins 7 caractères.",
+	"signInButton": "Connexion",
+	"logoutError": "Erreur: impossible de se déconnecter",
+	"refusedAccess" : "Accès refusé",
+	"authentificationError" : "Erreur d'authentification",
+	"connexionInProgress" : "Connexion..."
+}

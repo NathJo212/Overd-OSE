@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_mobile/l10n/app_localizations.dart';
 import 'package:frontend_mobile/pages/auth_screen.dart';
 import 'package:frontend_mobile/services/etudiant_service.dart';
 import 'package:frontend_mobile/models/offre_dto.dart';
@@ -50,9 +51,9 @@ class _HomeWidgetState extends State<HomeWidget> {
         MaterialPageRoute(builder: (context) => const AuthScreen()),
       );
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("error")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.logoutError)),
+      );
     }
   }
 
@@ -63,7 +64,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Déconnexion',
+            tooltip: AppLocalizations.of(context)!.logoutTooltip,
             onPressed: _logout,
           ),
         ],
@@ -78,16 +79,18 @@ class _HomeWidgetState extends State<HomeWidget> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text('Erreur: $_error'),
+                    child: Text(
+                      AppLocalizations.of(context)!.errorMessage(_error ?? ''),
+                    ),
                   ),
                 ],
               )
             : _offres.isEmpty
             ? ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(height: 200),
-                  Center(child: Text('Aucune offre disponible')),
+                children: [
+                  const SizedBox(height: 200),
+                  Center(child: Text(AppLocalizations.of(context)!.noOffers)),
                 ],
               )
             : ListView.builder(
@@ -117,7 +120,10 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      o.titre ?? 'Sans titre',
+                                      o.titre ??
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.untitled,
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -184,7 +190,16 @@ class _HomeWidgetState extends State<HomeWidget> {
                                     if (o.date_debut != null ||
                                         o.date_fin != null)
                                       Text(
-                                        'Période: ${o.date_debut ?? ''}${(o.date_debut != null && o.date_fin != null) ? ' — ' : ''}${o.date_fin ?? ''}',
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.periodRange(
+                                          o.date_debut ?? '',
+                                          (o.date_debut != null &&
+                                                  o.date_fin != null)
+                                              ? ' — '
+                                              : '',
+                                          o.date_fin ?? '',
+                                        ),
                                         style: const TextStyle(fontSize: 12),
                                       ),
                                   ],
@@ -206,7 +221,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
-                                        'Limite\n${o.dateLimite}',
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.limitDate(o.dateLimite ?? ''),
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Colors.red.shade700,
