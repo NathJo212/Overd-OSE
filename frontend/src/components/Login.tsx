@@ -173,35 +173,35 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
             <div className="max-w-md w-full">
                 {/* Logo/Titre de l'application */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-4">
                         <span className="text-white font-bold text-2xl">O</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                         {t('login:title')}
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-slate-300">
                         {t('login:subtitle')}
                     </p>
                 </div>
 
                 {/* Carte de formulaire */}
-                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-8 border border-slate-200">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-8 border border-slate-200 dark:border-slate-700">
                     {/* Messages d'erreur de validation */}
                     {validationErrors.length > 0 && (
-                        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-xl p-4">
                             <div className="flex items-start gap-3">
                                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
-                                    <h3 className="text-sm font-semibold text-red-900 mb-1">
+                                    <h3 className="text-sm font-semibold text-red-900 dark:text-red-200 mb-1">
                                         {t('login:errorTitle')}
                                     </h3>
                                     <ul className="space-y-1">
                                         {validationErrors.map((error, idx) => (
-                                            <li key={idx} className="text-sm text-red-700">• {error}</li>
+                                            <li key={idx} className="text-sm text-red-700 dark:text-red-300">• {error}</li>
                                         ))}
                                     </ul>
                                 </div>
@@ -211,16 +211,16 @@ const Login = () => {
 
                     {/* Messages d'erreur du backend */}
                     {backendErrorCodes.length > 0 && (
-                        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-xl p-4">
                             <div className="flex items-start gap-3">
                                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
-                                    <h3 className="text-sm font-semibold text-red-900 mb-1">
+                                    <h3 className="text-sm font-semibold text-red-900 dark:text-red-200 mb-1">
                                         {t('login:errorTitle')}
                                     </h3>
                                     <ul className="space-y-1">
                                         {backendErrorCodes.map((errorCode, idx) => (
-                                            <li key={idx} className="text-sm text-red-700">
+                                            <li key={idx} className="text-sm text-red-700 dark:text-red-300">
                                                 • {t(`errors:${errorCode}`, { defaultValue: t('errors:ERROR_000') })}
                                             </li>
                                         ))}
@@ -234,7 +234,7 @@ const Login = () => {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Email */}
                         <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                                 <Mail className="w-4 h-4 text-blue-600" />
                                 {t('login:fields.email')}
                             </label>
@@ -243,7 +243,7 @@ const Login = () => {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                 placeholder={t('login:placeholders.email')}
                                 disabled={loading}
                             />
@@ -251,7 +251,7 @@ const Login = () => {
 
                         {/* Mot de passe */}
                         <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                                 <Lock className="w-4 h-4 text-blue-600" />
                                 {t('login:fields.password')}
                             </label>
@@ -260,7 +260,7 @@ const Login = () => {
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                 placeholder={t('login:placeholders.password')}
                                 disabled={loading}
                             />
@@ -291,7 +291,7 @@ const Login = () => {
 
                     {/* Quick-login buttons (dev only) */}
                     <div className="mt-6">
-                        <p className="text-sm text-slate-600 mb-2">Comptes de test — développement seulement :</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Comptes de test — développement seulement :</p>
                         <div className="flex gap-2 flex-wrap">
                             <button
                                 type="button"
@@ -331,12 +331,12 @@ const Login = () => {
 
 
                     {/* Lien d'inscription */}
-                    <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-                        <p className="text-sm text-gray-600">
+                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-700 text-center">
+                        <p className="text-sm text-gray-600 dark:text-slate-300">
                             {t('login:noAccount')}{' '}
                             <NavLink
                                 to="/"
-                                className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
                             >
                                 {t('login:signUp')}
                             </NavLink>
@@ -345,7 +345,7 @@ const Login = () => {
                 </div>
 
                 {/* Note de sécurité */}
-                <p className="text-center text-xs text-gray-500 mt-6">
+                <p className="text-center text-xs text-gray-500 dark:text-slate-400 mt-6">
                     {t('login:securityNote')}
                 </p>
             </div>

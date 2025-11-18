@@ -240,7 +240,7 @@ const InscriptionEmployeur = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-950 py-8 px-4">
             <div className="max-w-4xl mx-auto">
                 <div className="mb-6">
                     <NavLink
@@ -251,20 +251,20 @@ const InscriptionEmployeur = () => {
                         {t('registration:employerRegistration.backToHome')}
                     </NavLink>
 
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                         {t('registration:employerRegistration.title')}
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-slate-300">
                         {t('registration:employerRegistration.subtitle')}
                     </p>
                 </div>
 
                 {/* Erreurs de validation côté client */}
                 {validationErrors.length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-lg p-4 mb-6">
                         <ul className="list-disc list-inside space-y-1">
                             {validationErrors.map((error, idx) => (
-                                <li key={idx} className="text-red-700 text-sm">{error}</li>
+                                <li key={idx} className="text-red-700 dark:text-red-200 text-sm">{error}</li>
                             ))}
                         </ul>
                     </div>
@@ -272,10 +272,10 @@ const InscriptionEmployeur = () => {
 
                 {/* Erreurs du backend (se traduisent automatiquement) */}
                 {backendErrorCodes.length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-lg p-4 mb-6">
                         <ul className="list-disc list-inside space-y-1">
                             {backendErrorCodes.map((errorCode, idx) => (
-                                <li key={idx} className="text-red-700 text-sm">
+                                <li key={idx} className="text-red-700 dark:text-red-200 text-sm">
                                     {t(`errors:${errorCode}`, { defaultValue: 'Une erreur est survenue' })}
                                 </li>
                             ))}
@@ -285,24 +285,24 @@ const InscriptionEmployeur = () => {
 
                 {/* Message de succès */}
                 {successMessage && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-green-800 font-medium text-center">
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/40 rounded-lg p-4 mb-6 text-green-800 dark:text-green-200 font-medium text-center">
                         {successMessage}
-                        <p className="text-green-600 text-sm mt-1">{t('registration:employerRegistration.redirecting')}</p>
+                        <p className="text-green-600 dark:text-green-300 text-sm mt-1">{t('registration:employerRegistration.redirecting')}</p>
                     </div>
                 )}
 
                 {/* Formulaire */}
-                <div className="bg-white rounded-xl shadow-lg p-8">
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8 border border-slate-200 dark:border-slate-700">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Informations de l'entreprise */}
                         <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center">
                                 <Building className="w-4 h-4 mr-2 text-blue-600" />
                                 {t('registration:employerRegistration.sections.companyInfo')}
                             </h2>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     {t('registration:employerRegistration.fields.companyName')} *
                                 </label>
                                 <input
@@ -310,14 +310,14 @@ const InscriptionEmployeur = () => {
                                     name="nomEntreprise"
                                     value={formData.nomEntreprise}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     placeholder={t('registration:employerRegistration.placeholders.companyName')}
                                     disabled={loading}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     {t('registration:employerRegistration.fields.companyAddress')} *
                                 </label>
                                 <input
@@ -325,7 +325,7 @@ const InscriptionEmployeur = () => {
                                     name="adresseEntreprise"
                                     value={formData.adresseEntreprise}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     placeholder={t('registration:employerRegistration.placeholders.companyAddress')}
                                     disabled={loading}
                                 />
@@ -334,14 +334,14 @@ const InscriptionEmployeur = () => {
 
                         {/* Informations du contact */}
                         <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center">
                                 <User className="w-4 h-4 mr-2 text-blue-600" />
                                 {t('registration:employerRegistration.sections.contactPerson')}
                             </h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                         {t('registration:employerRegistration.fields.contactFirstName')} *
                                     </label>
                                     <input
@@ -349,14 +349,14 @@ const InscriptionEmployeur = () => {
                                         name="prenomContact"
                                         value={formData.prenomContact}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                         placeholder={t('registration:employerRegistration.placeholders.contactFirstName')}
                                         disabled={loading}
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                         {t('registration:employerRegistration.fields.contactLastName')} *
                                     </label>
                                     <input
@@ -364,7 +364,7 @@ const InscriptionEmployeur = () => {
                                         name="nomContact"
                                         value={formData.nomContact}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                         placeholder={t('registration:employerRegistration.placeholders.contactLastName')}
                                         disabled={loading}
                                     />
@@ -372,7 +372,7 @@ const InscriptionEmployeur = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     <Mail className="inline w-4 h-4 mr-1" />
                                     {t('registration:employerRegistration.fields.professionalEmail')} *
                                 </label>
@@ -381,14 +381,14 @@ const InscriptionEmployeur = () => {
                                     name="emailProfessionnel"
                                     value={formData.emailProfessionnel}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     placeholder={t('registration:employerRegistration.placeholders.professionalEmail')}
                                     disabled={loading}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     <Phone className="inline w-4 h-4 mr-1" />
                                     {t('registration:employerRegistration.fields.phoneNumber')} *
                                 </label>
@@ -397,7 +397,7 @@ const InscriptionEmployeur = () => {
                                     name="telephone"
                                     value={formData.telephone}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     placeholder={t('registration:employerRegistration.placeholders.phoneNumber')}
                                     disabled={loading}
                                 />
@@ -406,13 +406,13 @@ const InscriptionEmployeur = () => {
 
                         {/* Sécurité */}
                         <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center">
                                 <Lock className="w-4 h-4 mr-2 text-blue-600" />
                                 {t('registration:employerRegistration.sections.accountSecurity')}
                             </h2>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     {t('registration:employerRegistration.fields.password')} *
                                 </label>
                                 <input
@@ -420,8 +420,8 @@ const InscriptionEmployeur = () => {
                                     name="motDePasse"
                                     value={formData.motDePasse}
                                     onChange={handleChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                                        passwordErrors.length > 0 ? 'border-red-300' : 'border-gray-300'
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${
+                                        passwordErrors.length > 0 ? 'border-red-300 dark:border-red-700' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                     placeholder={t('registration:employerRegistration.placeholders.password')}
                                     disabled={loading}
@@ -430,18 +430,18 @@ const InscriptionEmployeur = () => {
                                 {passwordErrors.length > 0 && (
                                     <div className="mt-2 space-y-1">
                                         {passwordErrors.map((error, idx) => (
-                                            <p key={idx} className="text-red-600 text-xs">{error}</p>
+                                            <p key={idx} className="text-red-600 dark:text-red-300 text-xs">{error}</p>
                                         ))}
                                     </div>
                                 )}
 
                                 {isPasswordValid && (
-                                    <p className="mt-2 text-green-600 text-xs">✓ {t('registration:employerRegistration.validation.passwordValid')}</p>
+                                    <p className="mt-2 text-green-600 dark:text-green-300 text-xs">✓ {t('registration:employerRegistration.validation.passwordValid')}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     {t('registration:employerRegistration.fields.confirmPassword')} *
                                 </label>
                                 <input
@@ -449,7 +449,7 @@ const InscriptionEmployeur = () => {
                                     name="confirmerMotDePasse"
                                     value={formData.confirmerMotDePasse}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                     placeholder={t('registration:employerRegistration.placeholders.confirmPassword')}
                                     disabled={loading}
                                 />
@@ -482,3 +482,4 @@ const InscriptionEmployeur = () => {
 };
 
 export default InscriptionEmployeur;
+

@@ -144,10 +144,10 @@ export default function GestionnaireAttribueEtudiant() {
         return (
             <>
                 <NavBar />
-                <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white">
+                <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-slate-900 dark:to-slate-800">
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-                        <p className="text-gray-600 font-medium">Chargement...</p>
+                        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
+                        <p className="text-gray-600 dark:text-slate-300 font-medium">Chargement...</p>
                     </div>
                 </div>
             </>
@@ -155,13 +155,13 @@ export default function GestionnaireAttribueEtudiant() {
     }
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
             <NavBar />
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* Header */}
                 <button
                     onClick={() => navigate('/dashboard-gestionnaire')}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                    className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-4 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     {t('backToDashboard')}
@@ -169,11 +169,11 @@ export default function GestionnaireAttribueEtudiant() {
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
                         <Users className="w-10 h-10 text-blue-600" />
-                        <h1 className="text-3xl font-bold text-gray-900">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">
                             {t("title") || "Assigner des Professeurs aux Étudiants"}
                         </h1>
                     </div>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-slate-300">
                         {t("subtitle") || "Assignez un professeur superviseur à chaque étudiant"}
                     </p>
                 </div>
@@ -182,8 +182,8 @@ export default function GestionnaireAttribueEtudiant() {
                 {alert && (
                     <div className={`mb-6 p-4 rounded-xl shadow-md flex items-center gap-3 ${
                         alert.type === 'success'
-                            ? 'bg-green-50 border border-green-200'
-                            : 'bg-red-50 border border-red-200'
+                            ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
+                            : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
                     }`}>
                         {alert.type === 'success' ? (
                             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
@@ -191,7 +191,7 @@ export default function GestionnaireAttribueEtudiant() {
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                         )}
                         <p className={`flex-1 font-medium ${
-                            alert.type === 'success' ? 'text-green-800' : 'text-red-800'
+                            alert.type === 'success' ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'
                         }`}>
                             {alert.message}
                         </p>
@@ -199,8 +199,8 @@ export default function GestionnaireAttribueEtudiant() {
                             onClick={() => setAlert(null)}
                             className={`p-1 rounded-lg transition-colors ${
                                 alert.type === 'success'
-                                    ? 'hover:bg-green-100'
-                                    : 'hover:bg-red-100'
+                                    ? 'hover:bg-green-100 dark:hover:bg-green-800/30'
+                                    : 'hover:bg-red-100 dark:hover:bg-red-800/30'
                             }`}
                         >
                             <X className="w-4 h-4" />
@@ -209,63 +209,63 @@ export default function GestionnaireAttribueEtudiant() {
                 )}
 
                 {/* Global Student Search Bar */}
-                <div className="mb-6 bg-white rounded-xl shadow-md p-4">
+                <div className="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-slate-700">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
                         <input
                             type="text"
                             placeholder={t("searchStudent") || "Rechercher un étudiant par nom, email ou programme..."}
                             value={studentSearch}
                             onChange={(e) => setStudentSearch(e.target.value)}
-                            className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                         />
                         {studentSearch && (
                             <button
                                 onClick={() => setStudentSearch("")}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         )}
                     </div>
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">
                         {filteredEtudiants.length} étudiant(s) trouvé(s)
                     </p>
                 </div>
 
                 {/* Table */}
                 {filteredEtudiants.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-md p-8 text-center">
-                        <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md p-8 text-center border border-gray-200 dark:border-slate-700">
+                        <GraduationCap className="w-16 h-16 text-gray-300 dark:text-slate-500 mx-auto mb-4" />
+                        <p className="text-gray-500 dark:text-slate-300">
                             {studentSearch
                                 ? (t("noStudentsFound") || "Aucun étudiant trouvé pour cette recherche")
                                 : (t("noStudents") || "Aucun étudiant disponible")}
                         </p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-2xl shadow-md bg-white">
+                    <div className="overflow-x-auto rounded-2xl shadow-md bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700">
                         <table className="w-full table-auto border-collapse">
-                            <thead className="bg-gradient-to-r from-blue-100 to-blue-50">
+                            <thead className="bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/10">
                             <tr>
-                                <th className="p-4 text-left font-semibold text-gray-700">
+                                <th className="p-4 text-left font-semibold text-gray-700 dark:text-slate-200">
                                     {t("student") || "Étudiant"}
                                 </th>
-                                <th className="p-4 text-left font-semibold text-gray-700">
+                                <th className="p-4 text-left font-semibold text-gray-700 dark:text-slate-200">
                                     {t("currentTeacher") || "Professeur Actuel"}
                                 </th>
-                                <th className="p-4 text-left font-semibold text-gray-700">
+                                <th className="p-4 text-left font-semibold text-gray-700 dark:text-slate-200">
                                     {t("program") || "Programme"}
                                 </th>
-                                <th className="p-4 text-left font-semibold text-gray-700 min-w-[300px]">
+                                <th className="p-4 text-left font-semibold text-gray-700 dark:text-slate-200 min-w-[300px]">
                                     {t("teacher") || "Professeur"}
                                 </th>
-                                <th className="p-4 text-center font-semibold text-gray-700">
+                                <th className="p-4 text-center font-semibold text-gray-700 dark:text-slate-200">
                                     {t("action") || "Action"}
                                 </th>
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                             {filteredEtudiants.map((etudiant) => {
                                 const currentTeacher = getCurrentTeacher(etudiant);
                                 const hasTeacher = !!currentTeacher;
@@ -273,13 +273,13 @@ export default function GestionnaireAttribueEtudiant() {
                                 return (
                                     <tr
                                         key={etudiant.id}
-                                        className="border-t hover:bg-blue-50 transition-colors"
+                                        className="border-t border-gray-200 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors"
                                     >
                                         <td className="p-4">
-                                            <div className="font-medium text-gray-800">
+                                            <div className="font-medium text-gray-800 dark:text-slate-200">
                                                 {etudiant.nom} {etudiant.prenom}
                                             </div>
-                                            <div className="text-sm text-gray-500">
+                                            <div className="text-sm text-gray-500 dark:text-slate-400">
                                                 {etudiant.email}
                                             </div>
                                         </td>
@@ -287,7 +287,7 @@ export default function GestionnaireAttribueEtudiant() {
                                             {currentTeacher ? (
                                                 <div className="flex items-center gap-2">
                                                     <UserCog className="w-4 h-4 text-blue-600" />
-                                                    <span className="text-sm font-medium text-blue-700">
+                                                    <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
                                                             {currentTeacher}
                                                         </span>
                                                 </div>
@@ -297,8 +297,8 @@ export default function GestionnaireAttribueEtudiant() {
                                                     </span>
                                             )}
                                         </td>
-                                        <td className="p-4 text-gray-600">
-                                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm">
+                                        <td className="p-4 text-gray-600 dark:text-slate-300">
+                                                <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-md text-sm">
                                                     {t(`programmes:${etudiant.progEtude}`) || etudiant.progEtude || "N/A"}
                                                 </span>
                                         </td>
@@ -312,7 +312,7 @@ export default function GestionnaireAttribueEtudiant() {
                                                         [etudiant.id!]: parseInt(e.target.value, 10)
                                                     })
                                                 }
-                                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full border border-gray-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                                 disabled={assigning === etudiant.id}
                                             >
                                                 <option value="">
@@ -333,7 +333,7 @@ export default function GestionnaireAttribueEtudiant() {
                                                     hasTeacher
                                                         ? 'bg-orange-600 hover:bg-orange-700'
                                                         : 'bg-blue-600 hover:bg-blue-700'
-                                                } disabled:bg-gray-400 text-white px-4 py-2 rounded-xl shadow transition-all duration-200 flex items-center gap-2 mx-auto`}
+                                                } disabled:bg-gray-400 dark:disabled:bg-slate-600 text-white px-4 py-2 rounded-xl shadow transition-all duration-200 flex items-center gap-2 mx-auto`}
                                             >
                                                 {assigning === etudiant.id ? (
                                                     <>

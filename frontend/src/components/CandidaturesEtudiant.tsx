@@ -234,12 +234,12 @@ const CandidaturesEtudiant = () => {
 
     if (loading) {
         return (
-            <div className="bg-gray-50 min-h-screen">
+            <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
                 <NavBar />
                 <div className="container mx-auto px-4 py-8 max-w-7xl">
                     <div className="flex items-center justify-center py-12">
                         <RefreshCw className="w-8 h-8 text-blue-600 animate-spin" />
-                        <span className="ml-3 text-lg text-gray-600">{t('loading')}</span>
+                        <span className="ml-3 text-lg text-gray-600 dark:text-slate-300">{t('loading')}</span>
                     </div>
                 </div>
             </div>
@@ -247,7 +247,7 @@ const CandidaturesEtudiant = () => {
     }
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -255,78 +255,78 @@ const CandidaturesEtudiant = () => {
                 <div className="mb-8">
                     <button
                         onClick={() => navigate('/dashboard-etudiant')}
-                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         <span className="font-medium">{t('backToDashboard')}</span>
                     </button>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                         {t('title')}
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-slate-300">
                         {t('subtitle')}
                     </p>
                 </div>
 
                 {/* Messages de succès/erreur */}
                 {actionSuccess && (
-                    <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                    <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/40 rounded-xl p-4">
                         <div className="flex items-center">
-                            <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                            <p className="text-sm text-green-800">{actionSuccess}</p>
+                            <CheckCircle className="h-5 w-5 text-green-400 dark:text-green-300 mr-3" />
+                            <p className="text-sm text-green-800 dark:text-green-200">{actionSuccess}</p>
                         </div>
                     </div>
                 )}
 
                 {actionError && (
-                    <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                    <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-xl p-4">
                         <div className="flex items-center">
-                            <AlertTriangle className="h-5 w-5 text-red-400 mr-3" />
-                            <p className="text-sm text-red-800">{actionError}</p>
+                            <AlertTriangle className="h-5 w-5 text-red-400 dark:text-red-300 mr-3" />
+                            <p className="text-sm text-red-800 dark:text-red-200">{actionError}</p>
                         </div>
                     </div>
                 )}
 
                 {/* Error Message */}
                 {error && (
-                    <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                    <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-xl p-4">
                         <div className="flex items-center">
-                            <XCircle className="h-5 w-5 text-red-400 mr-3" />
-                            <p className="text-sm text-red-800">{error}</p>
+                            <XCircle className="h-5 w-5 text-red-400 dark:text-red-300 mr-3" />
+                            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
                         </div>
                     </div>
                 )}
 
                 {/* Filters */}
-                <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Search */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                                 {t('search')}
                             </label>
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
                                 <input
                                     type="text"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder={t('searchPlaceholder')}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                 />
                             </div>
                         </div>
 
                         {/* Status Filter */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                                 <Filter className="inline w-4 h-4 mr-1" />
                                 {t('filterByStatus')}
                             </label>
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                             >
                                 <option value="ALL">{t('filters.all')} ({getStatusCount("ALL")})</option>
                                 <option value="EN_ATTENTE">{t('filters.pending')} ({getStatusCount("EN_ATTENTE")})</option>
@@ -341,40 +341,40 @@ const CandidaturesEtudiant = () => {
 
                 {/* Statistics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">{t('stats.total')}</p>
-                                <p className="text-2xl font-bold text-gray-900">{getStatusCount("ALL")}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-slate-300">{t('stats.total')}</p>
+                                <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{getStatusCount("ALL")}</p>
                             </div>
                             <Briefcase className="w-8 h-8 text-blue-600" />
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">{t('stats.pending')}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-slate-300">{t('stats.pending')}</p>
                                 <p className="text-2xl font-bold text-yellow-600">{getStatusCount("EN_ATTENTE")}</p>
                             </div>
                             <Clock className="w-8 h-8 text-yellow-600" />
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">{t('stats.accepted')}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-slate-300">{t('stats.accepted')}</p>
                                 <p className="text-2xl font-bold text-green-600">{getStatusCount("ACCEPTEE") + getStatusCount("ACCEPTEE_PAR_ETUDIANT")}</p>
                             </div>
                             <CheckCircle className="w-8 h-8 text-green-600" />
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">{t('stats.refused')}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-slate-300">{t('stats.refused')}</p>
                                 <p className="text-2xl font-bold text-red-600">{getStatusCount("REFUSEE") + getStatusCount("REFUSEE_PAR_ETUDIANT")}</p>
                             </div>
                             <XCircle className="w-8 h-8 text-red-600" />
@@ -384,12 +384,12 @@ const CandidaturesEtudiant = () => {
 
                 {/* Candidatures List */}
                 {filteredCandidatures.length === 0 ? (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                        <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-12 text-center">
+                        <FileText className="w-16 h-16 text-gray-400 dark:text-slate-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
                             {t('noCandidatures.title')}
                         </h3>
-                        <p className="text-gray-600 mb-6">
+                        <p className="text-gray-600 dark:text-slate-300 mb-6">
                             {searchTerm || statusFilter !== "ALL"
                                 ? t('noCandidatures.noResults')
                                 : t('noCandidatures.neverApplied')}
@@ -409,18 +409,18 @@ const CandidaturesEtudiant = () => {
                         {filteredCandidatures.map((candidature) => (
                             <div
                                 key={candidature.id}
-                                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                                className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6 hover:shadow-md transition-shadow"
                             >
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex-1">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                                             {candidature.offreTitre}
                                         </h3>
-                                        <div className="flex items-center text-gray-600 mb-2">
+                                        <div className="flex items-center text-gray-600 dark:text-slate-300 mb-2">
                                             <Building2 className="w-4 h-4 mr-2" />
                                             {candidature.employeurNom}
                                         </div>
-                                        <div className="flex items-center text-gray-500 text-sm">
+                                        <div className="flex items-center text-gray-500 dark:text-slate-400 text-sm">
                                             <Calendar className="w-4 h-4 mr-2" />
                                             {t('appliedOn')} {formatDate(candidature.dateCandidature)}
                                         </div>
@@ -451,9 +451,9 @@ const CandidaturesEtudiant = () => {
                                 </div>
 
                                 {candidature.messageReponse && (
-                                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                        <p className="text-sm font-medium text-gray-700 mb-1">{t('employerMessage')}</p>
-                                        <p className="text-sm text-gray-600">{candidature.messageReponse}</p>
+                                    <div className="mt-4 p-4 bg-gray-50 dark:bg-slate-700/40 rounded-lg border border-gray-200 dark:border-slate-600">
+                                        <p className="text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">{t('employerMessage')}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{candidature.messageReponse}</p>
                                     </div>
                                 )}
                             </div>
@@ -465,29 +465,29 @@ const CandidaturesEtudiant = () => {
             {/* Modal de confirmation d'acceptation */}
             {showAcceptModal && candidatureToAction && (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 dark:border-slate-700">
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                                     <Check className="w-5 h-5 text-green-600" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
                                     {t("acceptModal.title")}
                                 </h3>
                             </div>
 
-                            <p className="text-gray-600 mb-4">
+                            <p className="text-gray-600 dark:text-slate-300 mb-4">
                                 {t("acceptModal.message")}
                             </p>
 
-                            <div className="bg-gray-50 rounded-lg p-3 mb-6">
-                                <p className="text-sm font-medium text-gray-700 mb-1">
+                            <div className="bg-gray-50 dark:bg-slate-700/40 rounded-lg p-3 mb-6 border border-gray-200 dark:border-slate-600">
+                                <p className="text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     {t("acceptModal.offerInfo")}
                                 </p>
-                                <p className="text-sm text-gray-900 font-medium">
+                                <p className="text-sm text-gray-900 dark:text-slate-100 font-medium">
                                     {candidatureToAction.offreTitre}
                                 </p>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-slate-300">
                                     {candidatureToAction.employeurNom}
                                 </p>
                             </div>
@@ -499,7 +499,7 @@ const CandidaturesEtudiant = () => {
                                         setCandidatureToAction(null);
                                     }}
                                     disabled={actionLoading}
-                                    className="cursor-pointer flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                    className="cursor-pointer flex-1 px-4 py-2 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
                                 >
                                     {t("actions.cancel")}
                                 </button>
@@ -519,29 +519,29 @@ const CandidaturesEtudiant = () => {
             {/* Modal de confirmation de refus */}
             {showRefuseModal && candidatureToAction && (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 dark:border-slate-700">
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
                                     <X className="w-5 h-5 text-red-600" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
                                     {t("refuseModal.title")}
                                 </h3>
                             </div>
 
-                            <p className="text-gray-600 mb-4">
+                            <p className="text-gray-600 dark:text-slate-300 mb-4">
                                 {t("refuseModal.message")}
                             </p>
 
-                            <div className="bg-gray-50 rounded-lg p-3 mb-6">
-                                <p className="text-sm font-medium text-gray-700 mb-1">
+                            <div className="bg-gray-50 dark:bg-slate-700/40 rounded-lg p-3 mb-6 border border-gray-200 dark:border-slate-600">
+                                <p className="text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                     {t("refuseModal.offerInfo")}
                                 </p>
-                                <p className="text-sm text-gray-900 font-medium">
+                                <p className="text-sm text-gray-900 dark:text-slate-100 font-medium">
                                     {candidatureToAction.offreTitre}
                                 </p>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-slate-300">
                                     {candidatureToAction.employeurNom}
                                 </p>
                             </div>
@@ -553,7 +553,7 @@ const CandidaturesEtudiant = () => {
                                         setCandidatureToAction(null);
                                     }}
                                     disabled={actionLoading}
-                                    className="cursor-pointer flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                    className="cursor-pointer flex-1 px-4 py-2 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
                                 >
                                     {t("actions.cancel")}
                                 </button>

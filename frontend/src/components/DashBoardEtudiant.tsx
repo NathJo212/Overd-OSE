@@ -210,7 +210,7 @@ const DashBoardEtudiant = () => {
     };
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
             <NavBar/>
 
             {showNotification && (
@@ -241,10 +241,10 @@ const DashBoardEtudiant = () => {
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                         {t('welcome')}{userFullName && `, ${userFullName}`}!
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-slate-300">
                         {t('subtitle')}
                     </p>
                 </div>
@@ -252,51 +252,51 @@ const DashBoardEtudiant = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                     <button
                         onClick={handleNavigateToCv}
-                        className="cursor-pointer bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
+                        className="cursor-pointer bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 dark:border-slate-700 transition-all duration-200 text-left group"
                     >
                         <div className="flex items-start justify-between mb-4">
-                            <div className="bg-blue-50 p-4 rounded-xl group-hover:bg-blue-100 transition-colors">
+                            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
                                 <Upload className="h-7 w-7 text-blue-600" />
                             </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                             {t('cards.cv.title')}
                         </h2>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-slate-300">
                             {t('cards.cv.description')}
                         </p>
                     </button>
 
                     <button
                         onClick={() => navigate("/mes-candidatures")}
-                        className="cursor-pointer bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
+                        className="cursor-pointer bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 dark:border-slate-700 transition-all duration-200 text-left group"
                     >
                         <div className="flex items-start justify-between mb-4">
-                            <div className="bg-purple-50 p-4 rounded-xl group-hover:bg-purple-100 transition-colors">
+                            <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
                                 <FileText className="h-7 w-7 text-purple-600" />
                             </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                             {t('cards.applications.title')}
                         </h2>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-slate-300">
                             {t('cards.applications.description')}
                         </p>
                     </button>
 
                     <button
                         onClick={() => navigate("/mes-ententes-stage")}
-                        className="cursor-pointer bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 transition-all duration-200 text-left group"
+                        className="cursor-pointer bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 dark:border-slate-700 transition-all duration-200 text-left group"
                     >
                         <div className="flex items-start justify-between mb-4">
-                            <div className="bg-green-50 p-4 rounded-xl group-hover:bg-green-100 transition-colors">
+                            <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl group-hover:bg-green-100 dark:group-hover:bg-green-900/40 transition-colors">
                                 <FileSignature className="h-7 w-7 text-green-600" />
                             </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                             {t('cards.ententes.title')}
                         </h2>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-slate-300">
                             {t('cards.ententes.description')}
                         </p>
                     </button>
@@ -305,10 +305,10 @@ const DashBoardEtudiant = () => {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">
                                 {t('offers.title')}
                             </h2>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-slate-300">
                                 {t('offers.subtitle')}
                             </p>
                         </div>
@@ -320,29 +320,29 @@ const DashBoardEtudiant = () => {
                 {/* Convocations section */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-bold text-gray-900">{t('convocations.title') || 'Convocations'}</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{t('convocations.title') || 'Convocations'}</h2>
                         <button
                             onClick={async () => {
                                 setLoadingConvocations(true);
                                 try { const convs = await etudiantService.getConvocations(); setConvocations(convs || []); }
                                 finally { setLoadingConvocations(false); }
                             }}
-                            className="cursor-pointer text-sm text-gray-500 hover:text-gray-700"
+                            className="cursor-pointer text-sm text-gray-500 dark:text-slate-300 hover:text-gray-700 dark:hover:text-slate-100"
                         >
                             {t('convocations.refresh') || 'Refresh'}
                         </button>
                     </div>
 
                 {loadingConvocations ? (
-                    <div className="text-sm text-gray-600">{t('convocations.loading') || 'Loading convocations...'}</div>
+                    <div className="text-sm text-gray-600 dark:text-slate-300">{t('convocations.loading') || 'Loading convocations...'}</div>
                 ) : convocations.length === 0 ? (
-                    <div className="text-sm text-gray-500">{t('convocations.empty') || 'No convocations at the moment.'}</div>
+                    <div className="text-sm text-gray-500 dark:text-slate-400">{t('convocations.empty') || 'No convocations at the moment.'}</div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {convocations.map(c => (
                             <div
                                 key={c.id}
-                                className={`relative bg-white p-6 rounded-2xl border ${c.statut === 'CONVOQUEE' ? 'ring-1 ring-green-100' : c.statut === 'MODIFIE' ? 'ring-1 ring-yellow-100' : c.statut === 'ANNULEE' ? 'ring-1 ring-red-100' : 'ring-1 ring-slate-50'} shadow-sm hover:shadow-lg transform hover:-translate-y-1 transition-all`}
+                                className={`relative bg-white dark:bg-slate-800 p-6 rounded-2xl border ${c.statut === 'CONVOQUEE' ? 'ring-1 ring-green-100' : c.statut === 'MODIFIE' ? 'ring-1 ring-yellow-100' : c.statut === 'ANNULEE' ? 'ring-1 ring-red-100' : 'ring-1 ring-slate-50'} shadow-sm hover:shadow-lg transform hover:-translate-y-1 transition-all`}
                             >
                                 <div className="absolute -top-3 left-4">
                                     <div className={`px-3 py-1 rounded-full text-xs font-semibold ${c.statut === 'CONVOQUEE' ? 'bg-green-50 text-green-700' : c.statut === 'MODIFIE' ? 'bg-yellow-50 text-yellow-700' : c.statut === 'ANNULEE' ? 'bg-red-50 text-red-700' : 'bg-slate-50 text-slate-700'}`}>
@@ -352,7 +352,7 @@ const DashBoardEtudiant = () => {
 
                                 <div className="flex items-start gap-4">
                                     <div className="flex-shrink-0">
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-white flex items-center justify-center">
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/30 dark:to-slate-800 flex items-center justify-center">
                                             <Calendar className="w-6 h-6 text-blue-600" />
                                         </div>
                                     </div>
@@ -360,8 +360,8 @@ const DashBoardEtudiant = () => {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between">
                                             <div className="min-w-0">
-                                                <p className="text-sm text-gray-500">{new Date(c.dateHeure).toLocaleDateString()} · {new Date(c.dateHeure).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                                                {c.offreTitre && <p className="text-md font-semibold text-gray-900 truncate">{c.offreTitre}</p>}
+                                                <p className="text-sm text-gray-500 dark:text-slate-400">{new Date(c.dateHeure).toLocaleDateString()} · {new Date(c.dateHeure).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                                                {c.offreTitre && <p className="text-md font-semibold text-gray-900 dark:text-slate-100 truncate">{c.offreTitre}</p>}
                                             </div>
                                             <div className="ml-4 text-right">
                                                 <button
@@ -374,18 +374,18 @@ const DashBoardEtudiant = () => {
                                             </div>
                                         </div>
 
-                                        <div className="mt-3 text-sm text-gray-600 flex flex-col gap-2">
+                                        <div className="mt-3 text-sm text-gray-600 dark:text-slate-300 flex flex-col gap-2">
                                             <div className="flex items-center gap-2">
                                                 <MapPin className="w-4 h-4 text-gray-400" />
                                                 <span className="truncate">{c.lieuOuLien || t('convocations.locationUnknown')}</span>
                                             </div>
                                             {c.employeurNom && (
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-xs uppercase tracking-wide text-gray-500">{t('convocations.employer') || 'Employeur'}</span>
-                                                    <span className="text-sm text-gray-700 font-medium truncate">{c.employeurNom}</span>
+                                                    <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">{t('convocations.employer') || 'Employeur'}</span>
+                                                    <span className="text-sm text-gray-700 dark:text-slate-200 font-medium truncate">{c.employeurNom}</span>
                                                 </div>
                                             )}
-                                            {c.message && <p className="text-sm text-gray-700 max-h-14 overflow-hidden">{c.message}</p>}
+                                            {c.message && <p className="text-sm text-gray-700 dark:text-slate-200 max-h-14 overflow-hidden">{c.message}</p>}
                                         </div>
                                     </div>
                                 </div>
@@ -399,21 +399,21 @@ const DashBoardEtudiant = () => {
             {/* Convocation modal */}
             {selectedConvocation && (
                 <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-lg w-full p-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl max-w-lg w-full p-6">
                         <div className="flex justify-between items-start">
                             <div>
                                 <div className="flex items-center gap-3">
-                                    <h3 className="text-xl font-bold">{selectedConvocation.offreTitre || t('convocations.title')}</h3>
+                                    <h3 className="text-xl font-bold dark:text-slate-100">{selectedConvocation.offreTitre || t('convocations.title')}</h3>
                                     {selectedConvocation.statut && getConvocationStatusBadge(selectedConvocation.statut)}
                                 </div>
-                                <p className="text-sm text-gray-600 mt-1">{new Date(selectedConvocation.dateHeure).toLocaleString()}</p>
+                                <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">{new Date(selectedConvocation.dateHeure).toLocaleString()}</p>
                             </div>
-                            <button onClick={() => setSelectedConvocation(null)} className="cursor-pointer text-gray-500">{t('convocations.close') || 'Close'}</button>
+                            <button onClick={() => setSelectedConvocation(null)} className="cursor-pointer text-gray-500 dark:text-slate-300">{t('convocations.close') || 'Close'}</button>
                         </div>
                         <div className="mt-4">
-                            <p className="text-sm text-gray-700">{selectedConvocation.message}</p>
-                            <p className="text-sm text-gray-600 mt-3"><strong>{t('convocations.location') || 'Location'}:</strong> {selectedConvocation.lieuOuLien}</p>
-                            {selectedConvocation.employeurNom && <p className="text-sm text-gray-600 mt-1"><strong>{t('convocations.employer') || 'Employer'}:</strong> {selectedConvocation.employeurNom}</p>}
+                            <p className="text-sm text-gray-700 dark:text-slate-200">{selectedConvocation.message}</p>
+                            <p className="text-sm text-gray-600 dark:text-slate-300 mt-3"><strong>{t('convocations.location') || 'Location'}:</strong> {selectedConvocation.lieuOuLien}</p>
+                            {selectedConvocation.employeurNom && <p className="text-sm text-gray-600 dark:text-slate-300 mt-1"><strong>{t('convocations.employer') || 'Employer'}:</strong> {selectedConvocation.employeurNom}</p>}
                         </div>
                     </div>
                 </div>
@@ -423,3 +423,4 @@ const DashBoardEtudiant = () => {
 };
 
 export default DashBoardEtudiant;
+

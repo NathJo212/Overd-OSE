@@ -205,19 +205,22 @@ const OffresApprouvees = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="flex justify-center items-center py-12 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
+                    <p className="text-sm text-gray-600 dark:text-slate-300">Chargement des offres...</p>
+                </div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                <p className="text-red-600">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-lg p-4 text-center">
+                <p className="text-red-600 dark:text-red-200">{error}</p>
                 <button
                     onClick={chargerDonnees}
-                    className="cursor-pointer mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    className="cursor-pointer mt-4 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
                 >
                     {t('error.retry')}
                 </button>
@@ -227,68 +230,57 @@ const OffresApprouvees = () => {
 
     return (
         <div className="space-y-6">
-            {/* Message de succès */}
             {successMessage && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/40 rounded-lg p-4">
                     <div className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                        <p className="text-sm font-medium text-green-900">{successMessage}</p>
+                        <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-300 flex-shrink-0" />
+                        <p className="text-sm font-medium text-green-900 dark:text-green-200">{successMessage}</p>
                     </div>
                 </div>
             )}
-
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border border-gray-200 dark:border-slate-700">
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 h-5 w-5" />
                         <input
                             type="text"
                             placeholder={t('search')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                         />
                     </div>
-
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                        className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors text-gray-700 dark:text-slate-200"
                     >
                         <SlidersHorizontal className="h-5 w-5" />
                         {t('filters')}
                         <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
                     </button>
                 </div>
-
                 {showFilters && (
-                    <div className="mt-6 pt-6 border-t-2 border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 shadow-inner">
+                    <div className="mt-6 pt-6 border-t-2 border-blue-100 dark:border-blue-900 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800 rounded-xl p-6 shadow-inner">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-800 mb-2">
-                                    {t('filterLabels.programme')}
-                                </label>
+                                <label className="block text-sm font-semibold text-gray-800 dark:text-slate-100 mb-2">{t('filterLabels.programme')}</label>
                                 <select
                                     value={selectedProgramme}
                                     onChange={(e) => setSelectedProgramme(e.target.value)}
-                                    className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:border-blue-300"
+                                    className="w-full px-4 py-2.5 border-2 border-blue-200 dark:border-blue-900/40 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:border-blue-300 dark:text-slate-100"
                                 >
                                     <option value="TOUS">{t('filterLabels.allProgrammes')}</option>
                                     {programmes.map(key => (
-                                        <option key={key} value={key}>
-                                            {tProgrammes(key)}
-                                        </option>
+                                        <option key={key} value={key}>{tProgrammes(key)}</option>
                                     ))}
                                 </select>
                             </div>
-
                             <div>
-                                <label className="block text-sm font-semibold text-gray-800 mb-2">
-                                    {t('filterLabels.sortBy')}
-                                </label>
+                                <label className="block text-sm font-semibold text-gray-800 dark:text-slate-100 mb-2">{t('filterLabels.sortBy')}</label>
                                 <select
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
-                                    className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:border-blue-300"
+                                    className="w-full px-4 py-2.5 border-2 border-blue-200 dark:border-blue-900/40 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:border-blue-300 dark:text-slate-100"
                                 >
                                     <option value="datePublication">{t('sortOptions.datePublication')}</option>
                                     <option value="dateLimite">{t('sortOptions.dateLimite')}</option>
@@ -300,14 +292,11 @@ const OffresApprouvees = () => {
                                     <option value="dateDebut">{t('sortOptions.dateDebut')}</option>
                                 </select>
                             </div>
-
                             <div>
-                                <label className="block text-sm font-semibold text-gray-800 mb-2">
-                                    {t('filterLabels.order')}
-                                </label>
+                                <label className="block text-sm font-semibold text-gray-800 dark:text-slate-100 mb-2">{t('filterLabels.order')}</label>
                                 <button
                                     onClick={toggleSortOrder}
-                                    className="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-blue-200 rounded-lg bg-white hover:bg-blue-50 transition-all shadow-sm hover:border-blue-300 font-medium"
+                                    className="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-blue-200 dark:border-blue-900/40 rounded-lg bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-700 transition-all shadow-sm hover:border-blue-300 font-medium dark:text-slate-100"
                                 >
                                     <ArrowUpDown className="h-5 w-5 text-blue-600" />
                                     {t(`sortOrder.${sortOrder}`)}
@@ -316,77 +305,47 @@ const OffresApprouvees = () => {
                         </div>
                     </div>
                 )}
-
-                <div className="mt-4 text-sm text-gray-600">
+                <div className="mt-4 text-sm text-gray-600 dark:text-slate-300">
                     {offresFiltered.length} {offresFiltered.length > 1 ? t('results.foundPlural') : t('results.found')}
                 </div>
             </div>
-
             {offresFiltered.length === 0 ? (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-                    <p className="text-gray-600">{t('results.noResults')}</p>
+                <div className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-8 text-center">
+                    <p className="text-gray-600 dark:text-slate-300">{t('results.noResults')}</p>
                 </div>
             ) : (
                 <div className="space-y-4">
                     {offresFiltered.map((offre) => {
                         const aDejaPostule = offresPostulees.has(offre.id);
-
                         return (
-                            <div
-                                key={offre.id}
-                                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
-                            >
+                            <div key={offre.id} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 hover:shadow-lg transition-shadow">
                                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                                     <div className="flex-1">
-                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                                            {offre.titre}
-                                        </h3>
-                                        <p className="text-blue-600 font-medium mb-3">
-                                            {offre.employeurDTO.nomEntreprise}
-                                        </p>
-                                        <p className="text-gray-700 text-sm mb-4 line-clamp-2">
-                                            {offre.description}
-                                        </p>
-
+                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-2">{offre.titre}</h3>
+                                        <p className="text-blue-600 dark:text-blue-400 font-medium mb-3">{offre.employeurDTO.nomEntreprise}</p>
+                                        <p className="text-gray-700 dark:text-slate-300 text-sm mb-4 line-clamp-2">{offre.description}</p>
                                         <div className="flex flex-wrap gap-2">
-                                            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                                                {getProgrammeLabel(offre.progEtude)}
-                                            </span>
-                                            <span className="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
-                                                {offre.lieuStage}
-                                            </span>
-                                            <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                                                {offre.remuneration}
-                                            </span>
-                                            <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                                                {calculateDuree(offre.date_debut, offre.date_fin)} {t('card.jours')}
-                                            </span>
+                                            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">{getProgrammeLabel(offre.progEtude)}</span>
+                                            <span className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-slate-200 text-xs font-medium rounded-full">{offre.lieuStage}</span>
+                                            <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">{offre.remuneration}</span>
+                                            <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-xs font-medium rounded-full">{calculateDuree(offre.date_debut, offre.date_fin)} {t('card.jours')}</span>
                                             {aDejaPostule && (
-                                                <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-medium rounded-full flex items-center gap-1">
+                                                <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 text-xs font-medium rounded-full flex items-center gap-1">
                                                     <CheckCircle className="w-3 h-3" />
                                                     {t('card.dejaPostule') || 'Déjà postulé'}
                                                 </span>
                                             )}
                                         </div>
                                     </div>
-
                                     <div className="lg:w-64 flex flex-col gap-3">
                                         <div className="text-sm">
-                                            <p className="text-gray-600">
-                                                <span className="font-medium">{t('card.periode')}</span> {offre.date_debut} → {offre.date_fin}
-                                            </p>
-                                            <p className="text-gray-600 mt-1">
-                                                <span className="font-medium">{t('card.dateLimite')}</span> {offre.dateLimite}
-                                            </p>
+                                            <p className="text-gray-600 dark:text-slate-300"><span className="font-medium">{t('card.periode')}</span> {offre.date_debut} → {offre.date_fin}</p>
+                                            <p className="text-gray-600 dark:text-slate-300 mt-1"><span className="font-medium">{t('card.dateLimite')}</span> {offre.dateLimite}</p>
                                         </div>
                                         <button
                                             onClick={() => handlePostulerClick(offre)}
                                             disabled={aDejaPostule}
-                                            className={`cursor-pointer w-full px-4 py-2 rounded-lg transition-colors font-medium ${
-                                                aDejaPostule
-                                                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                                                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                                            }`}
+                                            className={`cursor-pointer w-full px-4 py-2 rounded-lg transition-colors font-medium ${aDejaPostule ? 'bg-gray-300 dark:bg-slate-600 text-gray-600 dark:text-slate-300 cursor-not-allowed' : 'bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-600'}`}
                                         >
                                             {aDejaPostule ? (t('card.dejaPostule') || 'Déjà postulé') : (t('card.postuler') || 'Postuler')}
                                         </button>
