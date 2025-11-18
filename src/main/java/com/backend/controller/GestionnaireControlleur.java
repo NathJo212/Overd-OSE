@@ -3,7 +3,7 @@ package com.backend.controller;
 import com.backend.Exceptions.*;
 import com.backend.service.DTO.*;
 import com.backend.service.GestionnaireService;
-import com.backend.service.DatabaseAiAssistantService;
+import com.backend.service.AiService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -23,9 +23,9 @@ import java.util.List;
 public class GestionnaireControlleur {
 
     private final GestionnaireService gestionnaireService;
-    private final DatabaseAiAssistantService dbAssistant;
+    private final AiService dbAssistant;
 
-    public GestionnaireControlleur(GestionnaireService gestionnaireService, DatabaseAiAssistantService dbAssistant) {
+    public GestionnaireControlleur(GestionnaireService gestionnaireService, AiService dbAssistant) {
         this.gestionnaireService = gestionnaireService;
         this.dbAssistant = dbAssistant;
     }

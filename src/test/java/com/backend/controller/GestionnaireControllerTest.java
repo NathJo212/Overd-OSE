@@ -35,6 +35,9 @@ class GestionnaireControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
+    private com.backend.service.AiService aiService;
+
+    @MockitoBean
     private GestionnaireService gestionnaireService;
 
     @Test
@@ -948,3 +951,4 @@ class GestionnaireControllerTest {
     }
 
 }
+
