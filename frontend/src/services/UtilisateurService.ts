@@ -18,6 +18,7 @@ export interface AuthResponseDTO {
         annee?: number;
     };
 }
+
 const API_BASE_URL = 'http://localhost:8080';
 const UTILISATEUR_ENDPOINT = '/OSE';
 
@@ -31,7 +32,6 @@ class UtilisateurService {
     getToken(): string | null {
         return sessionStorage.getItem('authToken');
     }
-
 
     /**
      * Authentifie un utilisateur avec email et mot de passe
@@ -56,7 +56,7 @@ class UtilisateurService {
                 const error: any = new Error(data.errorResponse.message || 'Erreur de connexion');
                 error.response = {
                     data: {
-                        errorResponse: data.errorResponse  // Structure AuthResponseDTO
+                        errorResponse: data.errorResponse
                     }
                 };
                 throw error;
@@ -82,19 +82,16 @@ class UtilisateurService {
             return authResponse;
 
         } catch (error: any) {
-            // Si l'erreur a déjà un errorResponse, la relancer
             if (error.response?.data?.errorResponse) {
                 throw error;
             }
 
-            // Gestion des erreurs de réseau
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
                 networkError.code = 'ERR_NETWORK';
                 throw networkError;
             }
 
-            // Autres erreurs
             const genericError: any = new Error(error.message || 'Erreur inconnue');
             genericError.response = {
                 data: {
@@ -203,7 +200,6 @@ class UtilisateurService {
             const data = await response.json();
 
             if (!response.ok) {
-                // Si errorCode présent
                 if (data.errorCode) {
                     const error: any = new Error(data.message || 'Erreur de déconnexion');
                     error.response = { data };
@@ -233,81 +229,33 @@ class UtilisateurService {
     }
 
     /**
-     * Gets the base endpoint based on user role
-     */
-    private getSearchBaseEndpoint(): string {
-        const role = sessionStorage.getItem('userType');
-        switch (role) {
-            case 'ETUDIANT':
-                return '/OSEetudiant';
-            case 'GESTIONNAIRE':
-                return '/OSEGestionnaire';
-            case 'PROFESSEUR':
-                return '/OSEProfesseur';
-            case 'EMPLOYEUR':
-                return '/OSEemployeur';
-            default:
-                return '/OSEetudiant';
-        }
-    }
-
-    /**
-     * Search all users based on category and search term
+     * Search all users based on category and search term - UNIFIED ENDPOINT
      */
     async searchUsers(searchTerm: string, category: string): Promise<any> {
         const token = this.getToken();
         if (!token) throw new Error('Non authentifié');
 
-        const baseUrl = `${API_BASE_URL}${this.getSearchBaseEndpoint()}`;
-        const results: any = {
-            etudiants: [],
-            employeurs: [],
-            professeurs: [],
-            gestionnaires: []
-        };
-
         try {
-            if (category === 'ALL' || category === 'ETUDIANT') {
-                const url = searchTerm
-                    ? `${baseUrl}/search/etudiants?searchTerm=${encodeURIComponent(searchTerm)}`
-                    : `${baseUrl}/search/etudiants`;
-                const res = await fetch(url, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) results.etudiants = await res.json();
+            const params = new URLSearchParams();
+            if (searchTerm) {
+                params.append('q', searchTerm);
+            }
+            params.append('category', category);
+
+            const response = await fetch(`${this.baseUrl}/search?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
             }
 
-            if (category === 'ALL' || category === 'EMPLOYEUR') {
-                const url = searchTerm
-                    ? `${baseUrl}/search/employeurs?searchTerm=${encodeURIComponent(searchTerm)}`
-                    : `${baseUrl}/search/employeurs`;
-                const res = await fetch(url, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) results.employeurs = await res.json();
-            }
-
-            if (category === 'ALL' || category === 'PROFESSEUR') {
-                const url = searchTerm
-                    ? `${baseUrl}/search/professeurs?searchTerm=${encodeURIComponent(searchTerm)}`
-                    : `${baseUrl}/search/professeurs`;
-                const res = await fetch(url, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) results.professeurs = await res.json();
-            }
-
-            if (category === 'ALL' || category === 'GESTIONNAIRE') {
-                const url = searchTerm
-                    ? `${baseUrl}/search/gestionnaires?searchTerm=${encodeURIComponent(searchTerm)}`
-                    : `${baseUrl}/search/gestionnaires`;
-                const res = await fetch(url, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) results.gestionnaires = await res.json();
-            }
-
-            return results;
+            return await response.json();
         } catch (error) {
             console.error('Search error:', error);
             throw error;
@@ -321,14 +269,20 @@ class UtilisateurService {
         const token = this.getToken();
         if (!token) throw new Error('Non authentifié');
 
-        const baseUrl = `${API_BASE_URL}${this.getSearchBaseEndpoint()}`;
-        const endpoint = `${baseUrl}/${type}s/${id}`;
+        const endpoint = `${this.baseUrl}/info/${type}/${id}`;
 
         const response = await fetch(endpoint, {
-            headers: { 'Authorization': `Bearer ${token}` }
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
 
-        if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
         return await response.json();
     }
 
