@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { User, Building2, GraduationCap, UserCog, Search as SearchIcon, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import NavBar from "./NavBar";
 import searchService from "../services/UtilisateurService.ts";
 
@@ -21,6 +22,7 @@ interface SearchResult {
 const SearchResults = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { t } = useTranslation('searchresult');
     const query = searchParams.get("q") || "";
     const userRole = sessionStorage.getItem('userType');
 
@@ -128,8 +130,10 @@ const SearchResults = () => {
         return `${result.prenom || ""} ${result.nom || ""}`.trim() || "Utilisateur";
     };
 
-    const handleViewProfile = (result: SearchResult) => {
-        navigate(`/profile/${result.type.toLowerCase()}/${result.id}`);
+    // Get translated program name
+    const getTranslatedProgram = (progEtude?: string) => {
+        if (!progEtude) return null;
+        return t(progEtude, { defaultValue: progEtude });
     };
 
     return (
@@ -139,7 +143,7 @@ const SearchResults = () => {
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                        Recherche d'utilisateurs
+                        {t('search.title')}
                     </h1>
 
                     <form onSubmit={handleSearchSubmit} className="mb-6">
@@ -149,7 +153,7 @@ const SearchResults = () => {
                                     type="text"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    placeholder="Rechercher par nom, email ou entreprise..."
+                                    placeholder={t('search.placeholder')}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                                 <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -158,7 +162,7 @@ const SearchResults = () => {
                                 type="submit"
                                 className="cursor-pointer px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
                             >
-                                Rechercher
+                                {t('search.button')}
                             </button>
                         </div>
                     </form>
@@ -172,7 +176,7 @@ const SearchResults = () => {
                                     : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
                             }`}
                         >
-                            Tous
+                            {t('search.categories.all')}
                         </button>
                         {availableCategories.includes('ETUDIANT') && (
                             <button
@@ -184,7 +188,7 @@ const SearchResults = () => {
                                 }`}
                             >
                                 <Users className="w-4 h-4" />
-                                Étudiants
+                                {t('search.categories.students')}
                             </button>
                         )}
                         <button
@@ -196,7 +200,7 @@ const SearchResults = () => {
                             }`}
                         >
                             <Building2 className="w-4 h-4" />
-                            Employeurs
+                            {t('search.categories.employers')}
                         </button>
                         <button
                             onClick={() => handleCategoryChange("PROFESSEUR")}
@@ -207,7 +211,7 @@ const SearchResults = () => {
                             }`}
                         >
                             <GraduationCap className="w-4 h-4" />
-                            Professeurs
+                            {t('search.categories.professors')}
                         </button>
                         <button
                             onClick={() => handleCategoryChange("GESTIONNAIRE")}
@@ -218,7 +222,7 @@ const SearchResults = () => {
                             }`}
                         >
                             <UserCog className="w-4 h-4" />
-                            Gestionnaires
+                            {t('search.categories.managers')}
                         </button>
                     </div>
                 </div>
@@ -226,29 +230,29 @@ const SearchResults = () => {
                 {loading ? (
                     <div className="text-center py-12">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                        <p className="text-gray-600 mt-4">Recherche en cours...</p>
+                        <p className="text-gray-600 mt-4">{t('search.searching')}</p>
                     </div>
                 ) : !hasSearched ? (
                     <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
                         <SearchIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-600">Effectuez une recherche pour voir les résultats</p>
+                        <p className="text-gray-600">{t('search.performSearch')}</p>
                     </div>
                 ) : results.length === 0 ? (
                     <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
                         <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-600">Aucun résultat trouvé</p>
-                        <p className="text-gray-500 text-sm mt-2">Essayez avec d'autres termes de recherche</p>
+                        <p className="text-gray-600">{t('search.noResults')}</p>
+                        <p className="text-gray-500 text-sm mt-2">{t('search.tryDifferent')}</p>
                     </div>
                 ) : (
                     <>
                         <p className="text-gray-600 mb-4">
-                            {results.length} résultat{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''}
+                            {t('search.resultsCount', { count: results.length })}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {results.map((result) => (
                                 <div
                                     key={`${result.type}-${result.id}`}
-                                    className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:shadow-blue-100 transition-all duration-200 transform hover:-translate-y-1"
+                                    className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:shadow-blue-100 transition-all duration-200"
                                 >
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="flex items-center gap-3">
@@ -265,31 +269,24 @@ const SearchResults = () => {
                                                     {getDisplayName(result)}
                                                 </h3>
                                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getUserBadgeColor(result.type)}`}>
-                                                    {result.type === 'ETUDIANT' ? 'Étudiant' : result.type.charAt(0) + result.type.slice(1).toLowerCase()}
+                                                    {t(`search.types.${result.type.toLowerCase()}`)}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2 mb-4 text-sm text-gray-600">
+                                    <div className="space-y-2 text-sm text-gray-600">
                                         <p className="truncate">{result.email}</p>
                                         {result.telephone && (
                                             <p className="truncate">{result.telephone}</p>
                                         )}
                                         {result.type === "EMPLOYEUR" && result.contact && (
-                                            <p className="truncate">Contact: {result.contact}</p>
+                                            <p className="truncate">{t('search.contact')}: {result.contact}</p>
                                         )}
                                         {result.type === "ETUDIANT" && result.progEtude && (
-                                            <p className="truncate">Programme: {result.progEtude}</p>
+                                            <p className="truncate">{t('search.program')}: {getTranslatedProgram(result.progEtude)}</p>
                                         )}
                                     </div>
-
-                                    {/*<button*/}
-                                    {/*    onClick={() => handleViewProfile(result)}*/}
-                                    {/*    className="cursor-pointer w-full px-4 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"*/}
-                                    {/*>*/}
-                                    {/*    Voir le profil*/}
-                                    {/*</button>*/}
                                 </div>
                             ))}
                         </div>

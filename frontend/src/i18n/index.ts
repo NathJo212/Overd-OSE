@@ -55,6 +55,10 @@ import notificationsFr from './locales/fr/notifications.json';
 import notificationsEn from './locales/en/notifications.json';
 import evaluationMilieurStageEn from './locales/en/evaluationMilieuStage.json';
 import evaluationMilieurStageFr from './locales/fr/evaluationMilieuStage.json';
+import searchResultFr from './locales/fr/searchresult.json'
+import searchResultEn from './locales/en/searchresult.json'
+import searchbarFr from './locales/fr/searchbar.json'
+import searchbarEn from './locales/en/searchbar.json'
 
 const resources = {
     fr: {
@@ -84,6 +88,8 @@ const resources = {
         notifications: notificationsFr,
         gestionnaireSigneEntente: gestionnaireSigneEntenteFr,
         evaluationMilieurStage: evaluationMilieurStageFr,
+        searchresult: searchResultFr,
+        searchbar: searchbarFr,
     },
     en: {
         registration: registrationEn,
@@ -112,6 +118,8 @@ const resources = {
         gestionnaireSigneEntente: gestionnaireSigneEntenteEn,
         notifications: notificationsEn,
         evaluationMilieurStage: evaluationMilieurStageEn,
+        searchresult: searchResultEn,
+        searchbar: searchbarEn,
     }
 };
 

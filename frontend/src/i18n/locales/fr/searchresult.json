@@ -1,0 +1,28 @@
+{
+  "search": {
+    "title": "Recherche d'utilisateurs",
+    "placeholder": "Rechercher par nom, email ou entreprise...",
+    "button": "Rechercher",
+    "categories": {
+      "all": "Tous",
+      "students": "Étudiants",
+      "employers": "Employeurs",
+      "professors": "Professeurs",
+      "managers": "Gestionnaires"
+    },
+    "searching": "Recherche en cours...",
+    "performSearch": "Effectuez une recherche pour voir les résultats",
+    "noResults": "Aucun résultat trouvé",
+    "tryDifferent": "Essayez avec d'autres termes de recherche",
+    "resultsCount": "{{count}} résultat trouvé",
+    "resultsCount_plural": "{{count}} résultats trouvés",
+    "types": {
+      "etudiant": "Étudiant",
+      "employeur": "Employeur",
+      "professeur": "Professeur",
+      "gestionnaire": "Gestionnaire"
+    },
+    "contact": "Contact",
+    "program": "Programme"
+  }
+}
