@@ -153,20 +153,20 @@ const SearchResults = () => {
     };
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-gray-50 dark:bg-slate-800 min-h-screen transition-colors duration-200">
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 <div className="mb-8">
                     <button
                         onClick={() => navigate(getDashboardRoute())}
-                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         <span className="font-medium">{t('backToDashboard')}</span>
                     </button>
 
-                    <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                         {t('search.title')}
                     </h1>
 
@@ -178,13 +178,13 @@ const SearchResults = () => {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder={t('search.placeholder')}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-indigo-400 focus:border-transparent"
                                 />
-                                <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-300" />
                             </div>
                             <button
                                 type="submit"
-                                className="cursor-pointer px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                                className="cursor-pointer px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                             >
                                 {t('search.button')}
                             </button>
@@ -197,7 +197,7 @@ const SearchResults = () => {
                             className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all ${
                                 category === "ALL"
                                     ? "bg-blue-600 text-white shadow-md"
-                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                                    : "bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600 border border-gray-200 dark:border-slate-600"
                             }`}
                         >
                             {t('search.categories.all')}
@@ -208,7 +208,7 @@ const SearchResults = () => {
                                 className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${
                                     category === "ETUDIANT"
                                         ? "bg-blue-600 text-white shadow-md"
-                                        : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                                        : "bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600 border border-gray-200 dark:border-slate-600"
                                 }`}
                             >
                                 <Users className="w-4 h-4" />
@@ -220,7 +220,7 @@ const SearchResults = () => {
                             className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${
                                 category === "EMPLOYEUR"
                                     ? "bg-blue-600 text-white shadow-md"
-                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                                    : "bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600 border border-gray-200 dark:border-slate-600"
                             }`}
                         >
                             <Building2 className="w-4 h-4" />
@@ -231,7 +231,7 @@ const SearchResults = () => {
                             className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${
                                 category === "PROFESSEUR"
                                     ? "bg-blue-600 text-white shadow-md"
-                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                                    : "bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600 border border-gray-200 dark:border-slate-600"
                             }`}
                         >
                             <GraduationCap className="w-4 h-4" />
@@ -242,7 +242,7 @@ const SearchResults = () => {
                             className={`cursor-pointer px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${
                                 category === "GESTIONNAIRE"
                                     ? "bg-blue-600 text-white shadow-md"
-                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                                    : "bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600 border border-gray-200 dark:border-slate-600"
                             }`}
                         >
                             <UserCog className="w-4 h-4" />
@@ -253,53 +253,53 @@ const SearchResults = () => {
 
                 {loading ? (
                     <div className="text-center py-12">
-                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                        <p className="text-gray-600 mt-4">{t('search.searching')}</p>
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
+                        <p className="text-gray-600 dark:text-gray-200 mt-4">{t('search.searching')}</p>
                     </div>
                 ) : !hasSearched ? (
-                    <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
-                        <SearchIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-600">{t('search.performSearch')}</p>
+                    <div className="text-center py-12 bg-white dark:bg-slate-700 rounded-2xl border border-gray-200 dark:border-slate-600">
+                        <SearchIcon className="w-16 h-16 text-gray-300 dark:text-slate-400 mx-auto mb-4" />
+                        <p className="text-gray-600 dark:text-gray-200">{t('search.performSearch')}</p>
                     </div>
                 ) : results.length === 0 ? (
-                    <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
-                        <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-600">{t('search.noResults')}</p>
-                        <p className="text-gray-500 text-sm mt-2">{t('search.tryDifferent')}</p>
+                    <div className="text-center py-12 bg-white dark:bg-slate-700 rounded-2xl border border-gray-200 dark:border-slate-600">
+                        <User className="w-16 h-16 text-gray-300 dark:text-slate-400 mx-auto mb-4" />
+                        <p className="text-gray-600 dark:text-gray-200">{t('search.noResults')}</p>
+                        <p className="text-gray-500 dark:text-gray-300 text-sm mt-2">{t('search.tryDifferent')}</p>
                     </div>
                 ) : (
                     <>
-                        <p className="text-gray-600 mb-4">
+                        <p className="text-gray-600 dark:text-gray-200 mb-4">
                             {t('search.resultsCount', { count: results.length })}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {results.map((result) => (
                                 <div
                                     key={`${result.type}-${result.id}`}
-                                    className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:shadow-blue-100 transition-all duration-200"
+                                    className="bg-white dark:bg-slate-700 rounded-2xl border border-gray-200 dark:border-slate-600 p-6 hover:shadow-lg hover:shadow-blue-100 dark:hover:shadow-none transition-all duration-200"
                                 >
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="flex items-center gap-3">
                                             <div className={`p-3 rounded-xl ${
-                                                result.type === "ETUDIANT" ? "bg-indigo-50" :
-                                                    result.type === "EMPLOYEUR" ? "bg-blue-50" :
-                                                        result.type === "PROFESSEUR" ? "bg-purple-50" :
-                                                            "bg-green-50"
-                                            }`}>
+                                                 result.type === "ETUDIANT" ? "bg-indigo-50" :
+                                                     result.type === "EMPLOYEUR" ? "bg-blue-50" :
+                                                         result.type === "PROFESSEUR" ? "bg-purple-50" :
+                                                             "bg-green-50"
+                                             }`}>
                                                 {getUserIcon(result.type)}
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-gray-900 line-clamp-1">
+                                             </div>
+                                             <div>
+                                                <h3 className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1">
                                                     {getDisplayName(result)}
                                                 </h3>
                                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getUserBadgeColor(result.type)}`}>
                                                     {t(`search.types.${result.type.toLowerCase()}`)}
                                                 </span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                             </div>
+                                         </div>
+                                     </div>
 
-                                    <div className="space-y-2 text-sm text-gray-600">
+                                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-200">
                                         <p className="truncate">{result.email}</p>
                                         {result.telephone && (
                                             <p className="truncate">{result.telephone}</p>
@@ -322,3 +322,4 @@ const SearchResults = () => {
 };
 
 export default SearchResults;
+
