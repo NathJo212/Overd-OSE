@@ -1,4 +1,5 @@
 {
+  "backToDashboard": "Back to dashboard",
   "search": {
     "title": "User Search",
     "placeholder": "Search by name, email or company...",

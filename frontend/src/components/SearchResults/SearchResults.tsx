@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { User, Building2, GraduationCap, UserCog, Search as SearchIcon, Users } from "lucide-react";
+import { User, Building2, GraduationCap, UserCog, Search as SearchIcon, Users, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import NavBar from "../NavBar.tsx";
 import searchService from "../../services/UtilisateurService.ts";
@@ -41,6 +41,22 @@ const SearchResults = () => {
     };
 
     const availableCategories = getAvailableCategories();
+
+    // Get dashboard route based on user role
+    const getDashboardRoute = () => {
+        switch (userRole) {
+            case 'ETUDIANT':
+                return '/dashboard-etudiant';
+            case 'EMPLOYEUR':
+                return '/dashboard-employeur';
+            case 'PROFESSEUR':
+                return '/dashboard-professeur';
+            case 'GESTIONNAIRE':
+                return '/dashboard-gestionnaire';
+            default:
+                return '/';
+        }
+    };
 
     const performSearch = async (term: string, cat: UserCategory) => {
         setLoading(true);
@@ -142,6 +158,14 @@ const SearchResults = () => {
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 <div className="mb-8">
+                    <button
+                        onClick={() => navigate(getDashboardRoute())}
+                        className="cursor-pointer mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                        <span className="font-medium">{t('backToDashboard')}</span>
+                    </button>
+
                     <h1 className="text-3xl font-bold text-gray-900 mb-4">
                         {t('search.title')}
                     </h1>

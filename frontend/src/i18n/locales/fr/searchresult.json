@@ -1,4 +1,5 @@
 {
+  "backToDashboard": "Retour au tableau de bord",
   "search": {
     "title": "Recherche d'utilisateurs",
     "placeholder": "Rechercher par nom, email ou entreprise...",
