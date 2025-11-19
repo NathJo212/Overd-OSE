@@ -641,9 +641,9 @@ const DashboardProfesseur = () => {
                                 <table className="w-full min-w-max">
                                     <thead className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-slate-700 dark:to-slate-800">
                                         <tr>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[200px]">{t("list.student")}</th>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[120px]">CV</th>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 min-w-[180px]">{t("list.actions")}</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-white min-w-[200px]">{t("list.student")}</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-white min-w-[120px]">CV</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-white min-w-[180px]">{t("list.actions")}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
@@ -980,7 +980,7 @@ const DashboardProfesseur = () => {
                                                         <div className="px-4 py-2 bg-blue-50 dark:bg-slate-700 rounded-lg">
                                                             <div className="text-sm font-semibold text-gray-700 dark:text-slate-200">{t("ententes.statusLabel")}</div>
                                                             <div className="mt-1 text-sm text-gray-700 dark:text-slate-200">
-                                                                {statut ? statut.etat : t('ententes.unknown')}
+                                                                {statut ? statut : t('ententes.unknown')}
                                                             </div>
                                                         </div>
                                                     )}
