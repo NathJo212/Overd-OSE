@@ -4,7 +4,7 @@ import { gestionnaireService } from '../services/GestionnaireService.ts';
 import type { EtudiantDTO, ProfesseurDTO } from '../services/GestionnaireService.ts';
 import { useTranslation } from "react-i18next";
 import UtilisateurService from "../services/UtilisateurService.ts";
-import { UserCheck, Users, GraduationCap, Search, X, CheckCircle, AlertCircle, UserCog } from "lucide-react";
+import {UserCheck, Users, GraduationCap, Search, X, CheckCircle, AlertCircle, UserCog, ArrowLeft} from "lucide-react";
 import NavBar from "./NavBar.tsx";
 
 export default function GestionnaireAttribueEtudiant() {
@@ -24,7 +24,6 @@ export default function GestionnaireAttribueEtudiant() {
 
     // Search states
     const [studentSearch, setStudentSearch] = useState("");
-    const [teacherSearch, setTeacherSearch] = useState<Record<number, string>>({});
 
     const token = UtilisateurService.getToken();
 
@@ -127,18 +126,6 @@ export default function GestionnaireAttribueEtudiant() {
             prog.includes(searchLower);
     });
 
-    // Filter teachers for a specific row
-    const getFilteredProfesseurs = (etudiantId: number) => {
-        const search = teacherSearch[etudiantId]?.toLowerCase() || "";
-        if (!search) return professeurs;
-
-        return professeurs.filter(prof => {
-            const fullName = `${prof.prenom} ${prof.nom}`.toLowerCase();
-            const email = prof.email.toLowerCase();
-            return fullName.includes(search) || email.includes(search);
-        });
-    };
-
     // Get current teacher name for a student
     const getCurrentTeacher = (etudiant: EtudiantDTO) => {
         // First check if the etudiant has a professeur property (from backend)
@@ -170,9 +157,15 @@ export default function GestionnaireAttribueEtudiant() {
     return (
         <div className="bg-gray-50 min-h-screen">
             <NavBar />
-
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* Header */}
+                <button
+                    onClick={() => navigate('/dashboard-gestionnaire')}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                    {t('backToDashboard')}
+                </button>
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
                         <Users className="w-10 h-10 text-blue-600" />
@@ -310,53 +303,27 @@ export default function GestionnaireAttribueEtudiant() {
                                                 </span>
                                         </td>
                                         <td className="p-4">
-                                            <div className="space-y-2">
-                                                {/* Teacher search for this row */}
-                                                <div className="relative">
-                                                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                    <input
-                                                        type="text"
-                                                        placeholder={t("searchTeacher") || "Rechercher un professeur..."}
-                                                        value={teacherSearch[etudiant.id!] || ""}
-                                                        onChange={(e) =>
-                                                            setTeacherSearch({
-                                                                ...teacherSearch,
-                                                                [etudiant.id!]: e.target.value
-                                                            })
-                                                        }
-                                                        className="w-full pl-8 pr-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent"
-                                                        disabled={assigning === etudiant.id}
-                                                    />
-                                                </div>
-
-                                                {/* Teacher select dropdown */}
-                                                <select
-                                                    value={selectedProf[etudiant.id!] ? String(selectedProf[etudiant.id!]) : ""}
-                                                    onChange={(e) =>
-                                                        setSelectedProf({
-                                                            ...selectedProf,
-                                                            [etudiant.id!]: parseInt(e.target.value, 10)
-                                                        })
-                                                    }
-                                                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                    disabled={assigning === etudiant.id}
-                                                >
-                                                    <option value="">
-                                                        {t("selectOption") || "-- Sélectionner --"}
+                                            {/* Teacher select dropdown */}
+                                            <select
+                                                value={selectedProf[etudiant.id!] ? String(selectedProf[etudiant.id!]) : ""}
+                                                onChange={(e) =>
+                                                    setSelectedProf({
+                                                        ...selectedProf,
+                                                        [etudiant.id!]: parseInt(e.target.value, 10)
+                                                    })
+                                                }
+                                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                disabled={assigning === etudiant.id}
+                                            >
+                                                <option value="">
+                                                    {t("selectOption") || "-- Sélectionner --"}
+                                                </option>
+                                                {professeurs.map((prof) => (
+                                                    <option key={prof.id} value={String(prof.id)}>
+                                                        {prof.prenom} {prof.nom} ({prof.email})
                                                     </option>
-                                                    {getFilteredProfesseurs(etudiant.id!).map((prof) => (
-                                                        <option key={prof.id} value={String(prof.id)}>
-                                                            {prof.prenom} {prof.nom} ({prof.email})
-                                                        </option>
-                                                    ))}
-                                                </select>
-
-                                                {teacherSearch[etudiant.id!] && getFilteredProfesseurs(etudiant.id!).length === 0 && (
-                                                    <p className="text-xs text-red-500">
-                                                        {t("noTeacherFound") || "Aucun professeur trouvé"}
-                                                    </p>
-                                                )}
-                                            </div>
+                                                ))}
+                                            </select>
                                         </td>
                                         <td className="p-4 text-center">
                                             <button

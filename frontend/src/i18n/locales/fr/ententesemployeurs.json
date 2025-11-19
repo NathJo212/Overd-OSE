@@ -8,6 +8,9 @@
   "hourShort": "h",
   "ententeCount": "entente(s)",
   "viewDetails": "Voir les détails",
+  "fields": {
+    "createdOn": "Date de création"
+  },
   "noEntentes": {
     "title": "Aucune entente de stage",
     "subtitle": "Vous n'avez actuellement aucune entente de stage signée. Les ententes apparaîtront ici une fois créées par le gestionnaire."

@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, XCircle, AlertCircle, X, User, Mail, Phone, GraduationCap, Calendar, FileText } from "lucide-react";
+import {
+    CheckCircle,
+    XCircle,
+    AlertCircle,
+    X,
+    User,
+    Mail,
+    Phone,
+    GraduationCap,
+    Calendar,
+    FileText,
+    ArrowLeft
+} from "lucide-react";
 import { gestionnaireService, type EtudiantDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -133,9 +145,15 @@ const ApprouverRefuserCV = () => {
     return (
         <>
             <NavBar />
-
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-6 md:p-8">
+            <div className="min-h-screen p-4 sm:p-6 md:p-8">
                 <div className="max-w-7xl mx-auto">
+                    <button
+                        onClick={() => navigate('/dashboard-gestionnaire')}
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                        {t('backToDashboard')}
+                    </button>
                     <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 mb-6">
                         <h1 className="text-3xl font-bold text-gray-800 mb-2">
                             {t("cvmanager:page.title")}

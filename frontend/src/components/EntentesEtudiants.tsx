@@ -239,7 +239,7 @@ const EntentesEtudiants = () => {
                                     <div className="flex items-center justify-between mb-4">
                                         {/* Show student's own signature status on card */}
                                         {getSignatureStatusBadge(entente.etudiantSignature)}
-                                        <span className="text-xs text-gray-500">{entente?.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}</span>
+                                        <span className="text-xs text-gray-500">{t('fields.createdOn')}: {entente?.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}</span>
                                     </div>
 
                                     <div className="mb-4 pb-4 border-b border-slate-200">

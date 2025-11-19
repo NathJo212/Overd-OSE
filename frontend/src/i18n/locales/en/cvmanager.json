@@ -1,4 +1,5 @@
 {
+  "backToDashboard": "Back to Dashboard",
   "page": {
     "title": "Pending student resumes",
     "manageResumes": "Manage resumes submitted by students."

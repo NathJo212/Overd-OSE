@@ -5,6 +5,7 @@ import com.backend.modele.*;
 import com.backend.persistence.*;
 import com.backend.service.DTO.*;
 import com.backend.util.EncryptageCV;
+import com.backend.util.PdfGenerationMilieuStage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,6 +55,15 @@ public class ProfesseurServiceTest {
 
     @Mock
     private EmployeurRepository employeurRepository;
+
+    @Mock
+    private NotificationRepository notificationRepository;
+
+    @Mock
+    private GestionnaireRepository gestionnaireRepository;
+
+    @Mock
+    private PdfGenerationMilieuStage pdfGenerationMilieuStage;
 
     @InjectMocks
     private ProfesseurService professeurService;
@@ -673,18 +683,15 @@ public class ProfesseurServiceTest {
         when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
 
         Etudiant etudiant = mock(Etudiant.class);
-        when(etudiant.getNom()).thenReturn("Martin");
-        when(etudiant.getPrenom()).thenReturn("Sophie");
 
         Employeur employeur = mock(Employeur.class);
-        when(employeur.getNomEntreprise()).thenReturn("Entreprise ABC");
 
-        EvaluationMilieuStageParProfesseur eval1 = new EvaluationMilieuStageParProfesseur();
+        EvaluationMilieuStage eval1 = new EvaluationMilieuStage();
         eval1.setProfesseur(professeur);
         eval1.setEtudiant(etudiant);
         eval1.setEmployeur(employeur);
 
-        EvaluationMilieuStageParProfesseur eval2 = new EvaluationMilieuStageParProfesseur();
+        EvaluationMilieuStage eval2 = new EvaluationMilieuStage();
         eval2.setProfesseur(professeur);
         eval2.setEtudiant(etudiant);
         eval2.setEmployeur(employeur);
@@ -722,17 +729,16 @@ public class ProfesseurServiceTest {
         when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
 
         Etudiant etudiant = mock(Etudiant.class);
-        when(etudiant.getNom()).thenReturn("Martin");
-        when(etudiant.getPrenom()).thenReturn("Sophie");
 
         Employeur employeur = mock(Employeur.class);
-        when(employeur.getNomEntreprise()).thenReturn("Entreprise ABC");
 
-        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        EvaluationMilieuStage evaluation = new EvaluationMilieuStage();
         evaluation.setProfesseur(professeur);
         evaluation.setEtudiant(etudiant);
         evaluation.setEmployeur(employeur);
-        evaluation.setQualiteEncadrement("Excellent");
+        // adaptation: le modèle ne contient plus 'qualiteEncadrement', on vérifie le pdfBase64
+        String pdfBase64 = java.util.Base64.getEncoder().encodeToString("PDF content".getBytes());
+        evaluation.setPdfBase64(pdfBase64);
 
         when(evaluationMilieuStageParProfesseurRepository.findById(1L))
                 .thenReturn(Optional.of(evaluation));
@@ -740,7 +746,7 @@ public class ProfesseurServiceTest {
         EvaluationMilieuStageDTO result = professeurService.getEvaluationMilieuStageSpecifique(1L);
 
         assertNotNull(result);
-        assertEquals("Excellent", result.getQualiteEncadrement());
+        assertEquals(pdfBase64, result.getPdfBase64());
     }
 
     @Test
@@ -767,7 +773,7 @@ public class ProfesseurServiceTest {
         Professeur autreProfesseur = mock(Professeur.class);
         when(autreProfesseur.getId()).thenReturn(999L);
 
-        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        EvaluationMilieuStage evaluation = new EvaluationMilieuStage();
         evaluation.setProfesseur(autreProfesseur); // Évaluation d'un autre professeur
 
         when(evaluationMilieuStageParProfesseurRepository.findById(1L))
@@ -789,7 +795,7 @@ public class ProfesseurServiceTest {
 
         String pdfBase64 = Base64.getEncoder().encodeToString("PDF content".getBytes());
 
-        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        EvaluationMilieuStage evaluation = new EvaluationMilieuStage();
         evaluation.setProfesseur(professeur);
         evaluation.setPdfBase64(pdfBase64);
 
@@ -814,7 +820,7 @@ public class ProfesseurServiceTest {
         when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
         when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
 
-        EvaluationMilieuStageParProfesseur evaluation = new EvaluationMilieuStageParProfesseur();
+        EvaluationMilieuStage evaluation = new EvaluationMilieuStage();
         evaluation.setId(1L);
         evaluation.setProfesseur(professeur2);
         evaluation.setPdfBase64("base64string");
