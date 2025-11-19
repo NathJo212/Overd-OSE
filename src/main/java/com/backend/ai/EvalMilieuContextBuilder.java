@@ -1,11 +1,11 @@
 package com.backend.ai;
 
-import com.backend.modele.EvaluationMilieuStageParProfesseur;
+import com.backend.modele.EvaluationMilieuStage;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EvalMilieuContextBuilder implements EntityContextBuilder<EvaluationMilieuStageParProfesseur> {
-    @Override public String build(EvaluationMilieuStageParProfesseur ev) {
+public class EvalMilieuContextBuilder implements EntityContextBuilder<EvaluationMilieuStage> {
+    @Override public String build(EvaluationMilieuStage ev) {
         return "{" +
                 "\n  \"type\": \"evaluationMilieu\"," +
                 "\n  \"id\": " + ev.getId() + ',' +
@@ -14,11 +14,6 @@ public class EvalMilieuContextBuilder implements EntityContextBuilder<Evaluation
                 (ev.getProfesseur()!=null?"\n  \"professeurId\": " + ev.getProfesseur().getId() + ',':"") +
                 (ev.getEmployeur()!=null?"\n  \"employeurId\": " + ev.getEmployeur().getId() + ',':"") +
                 (ev.getEtudiant()!=null?"\n  \"etudiantId\": " + ev.getEtudiant().getId() + ',':"") +
-                (ev.getQualiteEncadrement()!=null?"\n  \"qualiteEncadrement\": \""+ RedactionUtil.escape(RedactionUtil.truncate(ev.getQualiteEncadrement())) +"\",":"") +
-                (ev.getPertinenceMissions()!=null?"\n  \"pertinenceMissions\": \""+ RedactionUtil.escape(RedactionUtil.truncate(ev.getPertinenceMissions())) +"\",":"") +
-                (ev.getRespectHorairesConditions()!=null?"\n  \"respectHorairesConditions\": \""+ RedactionUtil.escape(RedactionUtil.truncate(ev.getRespectHorairesConditions())) +"\",":"") +
-                (ev.getCommunicationDisponibilite()!=null?"\n  \"communicationDisponibilite\": \""+ RedactionUtil.escape(RedactionUtil.truncate(ev.getCommunicationDisponibilite())) +"\",":"") +
-                (ev.getCommentairesAmelioration()!=null?"\n  \"commentairesAmelioration\": \""+ RedactionUtil.escape(RedactionUtil.truncate(ev.getCommentairesAmelioration())) +"\",":"") +
                 "\n}"; // pdf omitted
     }
     @Override public String getType() { return "evaluationsMilieu"; }
