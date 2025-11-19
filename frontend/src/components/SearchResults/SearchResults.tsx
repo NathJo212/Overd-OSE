@@ -153,7 +153,7 @@ const SearchResults = () => {
     };
 
     return (
-        <div className="bg-gray-50 dark:bg-slate-800 min-h-screen transition-colors duration-200">
+        <div className="bg-gray-50 dark:bg-slate-900 min-h-screen transition-colors duration-200">
             <NavBar />
 
             <div className="container mx-auto px-4 py-8 max-w-7xl">
