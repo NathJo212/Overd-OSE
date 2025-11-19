@@ -396,19 +396,19 @@ const EntentesEtudiants = () => {
                                         onClick={() => { setSelectedEntente(null); }}
                                         className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                     >
-                                        {t('modal.close')}
+                                        {t('buttons.close')}
                                     </button>
                                     <button
                                         onClick={() => { setShowRefuseModal(true); }}
                                         className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                     >
-                                        {t('modal.refuse')}
+                                        {t('buttons.refuse')}
                                     </button>
                                     <button
                                         onClick={() => { setShowSignModal(true); }}
                                         className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                     >
-                                        {t('modal.sign')}
+                                        {t('buttons.sign')}
                                     </button>
                                 </div>
                             ) : (

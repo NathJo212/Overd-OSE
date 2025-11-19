@@ -64,7 +64,8 @@
   },
 
   "form": {
-    "title": "New internship workplace evaluation",
+    "header": "New internship workplace evaluation",
+    "headerStudent": "Student:",
     "selectEntente": "Select an internship agreement",
     "selectPlaceholder": "Choose an agreement...",
 
