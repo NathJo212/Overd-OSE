@@ -30,17 +30,17 @@ public class EmployeurController {
                     .body(new MessageRetourDTO("Employeur créé avec succès", null));
         } catch (EmailDejaUtiliseException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (MotPasseInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         }
     }
 
     @PostMapping("/creerOffre")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> creerOffre(@RequestBody OffreDTO offreDTO) {
-        try{
+        try {
             employeurService.creerOffreDeStage(
                     offreDTO.getAuthResponseDTO(),
                     offreDTO.getTitre(),
@@ -56,13 +56,12 @@ public class EmployeurController {
                     offreDTO.getResponsabilitesEtudiant(),
                     offreDTO.getResponsabilitesEmployeur(),
                     offreDTO.getResponsabiliteCollege(),
-                    offreDTO.getObjectifs()
-            );
+                    offreDTO.getObjectifs());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Offre de stage créée avec succès", null));
-        } catch (ActionNonAutoriseeException e){
+        } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (DateInvalideException e) {
             // Date invalid (e.g. end before start) -> return validation-style error
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -83,12 +82,26 @@ public class EmployeurController {
 
     @GetMapping("/candidatures")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<CandidatureDTO>> getAllCandidatures() {
+    public ResponseEntity<List<CandidatureDTO>> getAllCandidatures(
+            @RequestParam(required = false) String annee) {
         try {
-            List<CandidatureDTO> candidatures = employeurService.getCandidaturesPourEmployeur();
+            List<CandidatureDTO> candidatures;
+            if (annee != null && annee.equalsIgnoreCase("toutes")) {
+                // Afficher TOUTES les candidatures (historique complet)
+                candidatures = employeurService.getCandidaturesPourEmployeur();
+            } else if (annee != null) {
+                // Afficher les candidatures d'une année spécifique
+                Integer anneeDebut = Integer.parseInt(annee);
+                candidatures = employeurService.getCandidaturesPourEmployeurParAnnee(anneeDebut);
+            } else {
+                // Par défaut : afficher l'année courante
+                candidatures = employeurService.getCandidaturesPourEmployeurParAnnee(null);
+            }
             return ResponseEntity.ok(candidatures);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -147,20 +160,22 @@ public class EmployeurController {
 
     @PostMapping("/creerConvocation")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> creerConvocation(@RequestBody ConvocationEntrevueDTO dto){
+    public ResponseEntity<MessageRetourDTO> creerConvocation(@RequestBody ConvocationEntrevueDTO dto) {
         try {
             employeurService.creerConvocation(dto);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Convocation créée avec succès", null));
         } catch (CandidatureNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", "Candidature non trouvée avec l'ID: " + dto.candidatureId)));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND",
+                            "Candidature non trouvée avec l'ID: " + dto.candidatureId)));
         } catch (ConvocationDejaExistanteException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new MessageRetourDTO(null, new ErrorResponse("CONVOCATION_EXISTS", e.getMessage())));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à créer une convocation pour cette candidature")));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED",
+                            "Vous n'êtes pas autorisé à créer une convocation pour cette candidature")));
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
@@ -172,8 +187,8 @@ public class EmployeurController {
 
     @PutMapping("/candidatures/convocation")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> modifierConvocation(@RequestBody ConvocationEntrevueDTO dto){
-        try{
+    public ResponseEntity<MessageRetourDTO> modifierConvocation(@RequestBody ConvocationEntrevueDTO dto) {
+        try {
             employeurService.modifierConvocation(dto);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageRetourDTO("Convocation modifiée avec succès", null));
@@ -182,7 +197,8 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à modifier cette convocation")));
+                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED",
+                            "Vous n'êtes pas autorisé à modifier cette convocation")));
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
@@ -191,8 +207,8 @@ public class EmployeurController {
 
     @PutMapping("/candidatures/{id}/convocation/annuler")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> annulerConvocation(@PathVariable Long id){
-        try{
+    public ResponseEntity<MessageRetourDTO> annulerConvocation(@PathVariable Long id) {
+        try {
             employeurService.annulerConvocation(id);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageRetourDTO("Convocation annulée avec succès", null));
@@ -201,7 +217,8 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse("CANDIDATURE_NOT_FOUND", e.getMessage())));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à annuler cette convocation")));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à annuler cette convocation")));
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse("USER_NOT_FOUND", e.getMessage())));
@@ -221,7 +238,7 @@ public class EmployeurController {
         }
     }
 
-    @PostMapping ("/candidatures/{id}/approuver")
+    @PostMapping("/candidatures/{id}/approuver")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> approuverCandidature(@PathVariable Long id) {
         try {
@@ -230,7 +247,7 @@ public class EmployeurController {
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (UtilisateurPasTrouveException  e) {
+        } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (CandidatureNonTrouveeException e) {
@@ -241,7 +258,8 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
@@ -254,7 +272,7 @@ public class EmployeurController {
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (UtilisateurPasTrouveException  e) {
+        } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (CandidatureNonTrouveeException e) {
@@ -263,9 +281,10 @@ public class EmployeurController {
         } catch (CandidatureDejaVerifieException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
@@ -291,7 +310,7 @@ public class EmployeurController {
             employeurService.marquerNotificationLu(id, lu);
             return ResponseEntity.ok()
                     .body(new MessageRetourDTO("Notification marquée comme lue", null));
-        }catch (NotificationPasTrouveException e) {
+        } catch (NotificationPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (ActionNonAutoriseeException e) {
@@ -302,7 +321,8 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
@@ -321,12 +341,26 @@ public class EmployeurController {
 
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentes() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentes(
+            @RequestParam(required = false) String annee) {
         try {
-            List<EntenteStageDTO> ententes = employeurService.getEntentesPourEmployeur();
+            List<EntenteStageDTO> ententes;
+            if (annee != null && annee.equalsIgnoreCase("toutes")) {
+                // Afficher TOUTES les ententes (historique complet)
+                ententes = employeurService.getEntentesPourEmployeur();
+            } else if (annee != null) {
+                // Afficher les ententes d'une année spécifique
+                Integer anneeDebut = Integer.parseInt(annee);
+                ententes = employeurService.getEntentesPourEmployeurParAnnee(anneeDebut);
+            } else {
+                // Par défaut : afficher l'année courante
+                ententes = employeurService.getEntentesPourEmployeurParAnnee(null);
+            }
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -375,12 +409,13 @@ public class EmployeurController {
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (EntenteNonTrouveException e){
+        } catch (EntenteNonTrouveException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
@@ -397,12 +432,13 @@ public class EmployeurController {
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (EntenteNonTrouveException e){
+        } catch (EntenteNonTrouveException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
@@ -411,7 +447,8 @@ public class EmployeurController {
     public ResponseEntity<MessageRetourDTO> creerEvaluation(@RequestBody CreerEvaluationDTO creerEvaluationDTO) {
         try {
             employeurService.creerEvaluation(creerEvaluationDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageRetourDTO("Évaluation créée avec succès", null));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageRetourDTO("Évaluation créée avec succès", null));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
@@ -426,18 +463,33 @@ public class EmployeurController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
     @GetMapping("/evaluations")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EvaluationDTO>> getEvaluations() {
+    public ResponseEntity<List<EvaluationDTO>> getEvaluations(
+            @RequestParam(required = false) String annee) {
         try {
-            List<EvaluationDTO> dtos = employeurService.getEvaluationsPourEmployeur();
+            List<EvaluationDTO> dtos;
+            if (annee != null && annee.equalsIgnoreCase("toutes")) {
+                // Afficher TOUTES les évaluations (historique complet)
+                dtos = employeurService.getEvaluationsPourEmployeur();
+            } else if (annee != null) {
+                // Afficher les évaluations d'une année spécifique
+                Integer anneeDebut = Integer.parseInt(annee);
+                dtos = employeurService.getEvaluationsPourEmployeurParAnnee(anneeDebut);
+            } else {
+                // Par défaut : afficher l'année courante
+                dtos = employeurService.getEvaluationsPourEmployeurParAnnee(null);
+            }
             return ResponseEntity.ok(dtos);
         } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

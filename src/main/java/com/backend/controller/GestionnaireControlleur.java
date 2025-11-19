@@ -84,12 +84,26 @@ public class GestionnaireControlleur {
 
     @GetMapping("/visualiserOffres")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<OffreDTO>> getAllOffres() {
+    public ResponseEntity<List<OffreDTO>> getAllOffres(
+            @RequestParam(required = false) String annee) {
         try {
-            List<OffreDTO> toutesLesOffres = gestionnaireService.getAllOffres();
+            List<OffreDTO> toutesLesOffres;
+            if (annee != null && annee.equalsIgnoreCase("toutes")) {
+                // Afficher TOUTES les offres (historique complet)
+                toutesLesOffres = gestionnaireService.getAllOffres();
+            } else if (annee != null) {
+                // Afficher les offres d'une année spécifique
+                Integer anneeDebut = Integer.parseInt(annee);
+                toutesLesOffres = gestionnaireService.getAllOffresParAnnee(anneeDebut);
+            } else {
+                // Par défaut : afficher l'année courante
+                toutesLesOffres = gestionnaireService.getAllOffresParAnnee(null);
+            }
             return ResponseEntity.ok(toutesLesOffres);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -156,12 +170,26 @@ public class GestionnaireControlleur {
 
     @GetMapping("/candidaturesEligiblesEntente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEligiblesEntente() {
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEligiblesEntente(
+            @RequestParam(required = false) String annee) {
         try{
-            List<CandidatureDTO> candidaturesEligiblesEntente = gestionnaireService.getCandidaturesEligiblesEntente();
+            List<CandidatureDTO> candidaturesEligiblesEntente;
+            if (annee != null && annee.equalsIgnoreCase("toutes")) {
+                // Afficher TOUTES les candidatures éligibles (historique complet)
+                candidaturesEligiblesEntente = gestionnaireService.getCandidaturesEligiblesEntente();
+            } else if (annee != null) {
+                // Afficher les candidatures d'une année spécifique
+                Integer anneeDebut = Integer.parseInt(annee);
+                candidaturesEligiblesEntente = gestionnaireService.getCandidaturesEligiblesEntenteParAnnee(anneeDebut);
+            } else {
+                // Par défaut : afficher l'année courante
+                candidaturesEligiblesEntente = gestionnaireService.getCandidaturesEligiblesEntenteParAnnee(null);
+            }
             return ResponseEntity.ok(candidaturesEligiblesEntente);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -232,11 +260,26 @@ public class GestionnaireControlleur {
 
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentes() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentes(
+            @RequestParam(required = false) String annee) {
         try {
-            return ResponseEntity.ok(gestionnaireService.getEntentesActives());
+            List<EntenteStageDTO> ententes;
+            if (annee != null && annee.equalsIgnoreCase("toutes")) {
+                // Afficher TOUTES les ententes (historique complet)
+                ententes = gestionnaireService.getEntentesActives();
+            } else if (annee != null) {
+                // Afficher les ententes d'une année spécifique
+                Integer anneeDebut = Integer.parseInt(annee);
+                ententes = gestionnaireService.getEntentesActivesParAnnee(anneeDebut);
+            } else {
+                // Par défaut : afficher l'année courante
+                ententes = gestionnaireService.getEntentesActivesParAnnee(null);
+            }
+            return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

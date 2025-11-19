@@ -32,10 +32,10 @@ public class EtudiantController {
                     .body(new MessageRetourDTO("Étudiant créé avec succès", null));
         } catch (EmailDejaUtiliseException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (MotPasseInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageRetourDTO(null,  new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         }
     }
 
@@ -47,7 +47,8 @@ public class EtudiantController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageRetourDTO("CV sauvegardé avec succès", null));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageRetourDTO(null, new ErrorResponse("CV_001", e.getMessage())));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageRetourDTO(null, new ErrorResponse("CV_001", e.getMessage())));
         }
     }
 
@@ -70,7 +71,8 @@ public class EtudiantController {
 
     @GetMapping("/cv/info")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<StatutCvDTO> getInfosCvEtudiant() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public ResponseEntity<StatutCvDTO> getInfosCvEtudiant()
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         StatutCvDTO dto = etudiantService.getInfosCvEtudiantConnecte();
         return ResponseEntity.ok(dto);
     }
@@ -118,12 +120,26 @@ public class EtudiantController {
 
     @GetMapping("/candidatures")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<CandidatureDTO>> getMesCandidatures() {
+    public ResponseEntity<List<CandidatureDTO>> getMesCandidatures(
+            @RequestParam(required = false) String annee) {
         try {
-            List<CandidatureDTO> candidatures = etudiantService.getMesCandidatures();
+            List<CandidatureDTO> candidatures;
+            if (annee != null && annee.equalsIgnoreCase("toutes")) {
+                // Afficher TOUTES les candidatures (historique complet)
+                candidatures = etudiantService.getMesCandidatures();
+            } else if (annee != null) {
+                // Afficher les candidatures d'une année spécifique
+                Integer anneeDebut = Integer.parseInt(annee);
+                candidatures = etudiantService.getMesCandidaturesParAnnee(anneeDebut);
+            } else {
+                // Par défaut : afficher l'année courante
+                candidatures = etudiantService.getMesCandidaturesParAnnee(null);
+            }
             return ResponseEntity.ok(candidatures);
         } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -154,8 +170,8 @@ public class EtudiantController {
                     .header("Content-Disposition", "attachment; filename=\"lettre-motivation.pdf\"")
                     .header("Content-Type", "application/pdf")
                     .body(lettreMotivation);
-        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException | CandidatureNonDisponibleException |
-                 LettreDeMotivationNonDisponibleException e) {
+        } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException | CandidatureNonDisponibleException
+                | LettreDeMotivationNonDisponibleException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
@@ -234,7 +250,7 @@ public class EtudiantController {
             etudiantService.marquerNotificationLu(id, lu);
             return ResponseEntity.ok()
                     .body(new MessageRetourDTO("Notification marquée comme lue", null));
-        }catch (NotificationPasTrouveException e) {
+        } catch (NotificationPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (ActionNonAutoriseeException e) {
@@ -245,7 +261,8 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
@@ -261,7 +278,8 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (CandidatureNonDisponibleException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.CANDIDATURE_NON_DISPONIBLE.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.CANDIDATURE_NON_DISPONIBLE.getCode(), e.getMessage())));
         } catch (StatutCandidatureInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
@@ -270,7 +288,8 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
@@ -286,7 +305,8 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (CandidatureNonDisponibleException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.CANDIDATURE_NON_DISPONIBLE.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.CANDIDATURE_NON_DISPONIBLE.getCode(), e.getMessage())));
         } catch (StatutCandidatureInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
@@ -295,7 +315,8 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
@@ -311,7 +332,8 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (EntenteNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.ENTENTE_NON_TROUVE.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.ENTENTE_NON_TROUVE.getCode(), e.getMessage())));
         } catch (StatutEntenteInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
@@ -320,7 +342,8 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
@@ -336,7 +359,8 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (EntenteNonTrouveeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.ENTENTE_NON_TROUVE.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.ENTENTE_NON_TROUVE.getCode(), e.getMessage())));
         } catch (StatutEntenteInvalideException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
@@ -345,12 +369,12 @@ public class EtudiantController {
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
+                    .body(new MessageRetourDTO(null,
+                            new ErrorResponse(ErrorCode.UNKNOWN_ERROR.getCode(), e.getMessage())));
         }
     }
 
-
-// get all ententes in waiting for the connected student
+    // get all ententes in waiting for the connected student
     @GetMapping("/ententes/en-attente")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<EntenteStageDTO>> getEntentesEnAttente() {
@@ -372,15 +396,30 @@ public class EtudiantController {
     // get all ententes for the connected student
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getMesEntentes() {
+    public ResponseEntity<List<EntenteStageDTO>> getMesEntentes(
+            @RequestParam(required = false) String annee) {
         try {
-            List<EntenteStageDTO> ententes = etudiantService.getMesEntentes();
+            List<EntenteStageDTO> ententes;
+            if (annee != null && annee.equalsIgnoreCase("toutes")) {
+                // Afficher TOUTES les ententes (historique complet)
+                ententes = etudiantService.getMesEntentes();
+            } else if (annee != null) {
+                // Afficher les ententes d'une année spécifique
+                Integer anneeDebut = Integer.parseInt(annee);
+                ententes = etudiantService.getMesEntentesParAnnee(anneeDebut);
+            } else {
+                // Par défaut : afficher l'année courante
+                ententes = etudiantService.getMesEntentesParAnnee(null);
+            }
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(null);
         } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(null);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

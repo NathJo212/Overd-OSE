@@ -31,9 +31,10 @@ public class ProfesseurService {
     private final NotificationRepository notificationRepository;
     private final GestionnaireRepository gestionnaireRepository;
     private final PdfGenerationMilieuStage pdfGenerationMilieuStage;
+    private final AnneeAcademiqueService anneeAcademiqueService;
 
 
-    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository, EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository, NotificationRepository notificationRepository, GestionnaireRepository gestionnaireRepository, PdfGenerationMilieuStage pdfGenerationMilieuStage) {
+    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository, EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository, NotificationRepository notificationRepository, GestionnaireRepository gestionnaireRepository, PdfGenerationMilieuStage pdfGenerationMilieuStage, AnneeAcademiqueService anneeAcademiqueService) {
         this.professeurRepository = professeurRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
@@ -45,6 +46,7 @@ public class ProfesseurService {
         this.notificationRepository = notificationRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.pdfGenerationMilieuStage = pdfGenerationMilieuStage;
+        this.anneeAcademiqueService = anneeAcademiqueService;
     }
 
     @Transactional
@@ -211,6 +213,10 @@ public class ProfesseurService {
         } catch (java.io.IOException e) {
             throw new RuntimeException("Erreur lors de la génération du PDF", e);
         }
+
+        // Assigner automatiquement l'année académique courante
+        AnneeAcademique anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+        evaluation.setAnneeAcademique(anneeAcademique);
 
         evaluationMilieuStageParProfesseurRepository.save(evaluation);
     }

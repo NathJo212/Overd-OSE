@@ -40,9 +40,10 @@ public class EmployeurService {
     private final EntenteStageRepository ententeStageRepository;
     private final EvaluationEtudiantParEmployeurRepository evaluationRepository;
     private final PdfGenerationEvaluation pdfGenerationEvaluation;
+    private final AnneeAcademiqueService anneeAcademiqueService;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationEtudiantParEmployeurRepository evaluationRepository, PdfGenerationEvaluation pdfGenerationEvaluation) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationEtudiantParEmployeurRepository evaluationRepository, PdfGenerationEvaluation pdfGenerationEvaluation, AnneeAcademiqueService anneeAcademiqueService) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -55,6 +56,7 @@ public class EmployeurService {
         this.ententeStageRepository = ententeStageRepository;
         this.evaluationRepository = evaluationRepository;
         this.pdfGenerationEvaluation = pdfGenerationEvaluation;
+        this.anneeAcademiqueService = anneeAcademiqueService;
     }
 
     @Transactional
@@ -88,6 +90,11 @@ public class EmployeurService {
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
         Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur, horaire, dureeHebdomadaire, responsabilitesEtudiant, responsabilitesEmployeur, responsabiliteCollege, objectifs);
+        
+        // Assigner automatiquement l'année académique courante basée sur la date de début
+        AnneeAcademique anneeAcademique = anneeAcademiqueService.determinerAnneeAcademique(date_debut != null ? date_debut : LocalDate.now());
+        offre.setAnneeAcademique(anneeAcademique);
+        
         offreRepository.save(offre);
     }
 
@@ -479,6 +486,11 @@ public class EmployeurService {
         eval.setEtudiant(etudiant);
         eval.setEmployeur(employeur);
         eval.setPdfBase64(pdfBase64);
+        
+        // Assigner automatiquement l'année académique courante
+        AnneeAcademique anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+        eval.setAnneeAcademique(anneeAcademique);
+        
         evaluationRepository.save(eval);
 
         new EvaluationDTO().toDTO(eval);
@@ -512,5 +524,117 @@ public class EmployeurService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid base64 PDF data");
         }
+    }
+
+    // ==================== MÉTHODES AVEC FILTRAGE PAR ANNÉE ACADÉMIQUE ====================
+
+    /**
+     * Récupère les offres d'un employeur pour une année académique spécifique
+     */
+    @Transactional
+    public List<OffreDTO> getOffresPourEmployeurParAnnee(Integer anneeDebut) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+        
+        if (anneeDebut == null) {
+            // Si aucune année n'est spécifiée, retourner toutes les offres (historique complet)
+            List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
+            return offres.stream().map(offre -> new OffreDTO().toDTO(offre)).toList();
+        }
+        
+        // Filtrer par année académique spécifique
+        AnneeAcademique anneeAcademique = anneeAcademiqueService.getAnneeByAnneeDebut(anneeDebut).orElse(null);
+        if (anneeAcademique == null) {
+            return new ArrayList<>();
+        }
+        
+        List<Offre> offres = offreRepository.findAllByEmployeurAndAnneeAcademique(employeur, anneeAcademique);
+        return offres.stream().map(offre -> new OffreDTO().toDTO(offre)).toList();
+    }
+
+    /**
+     * Récupère les candidatures pour un employeur pour une année académique spécifique
+     * @param anneeDebut L'année de début (ex: 2024). Si null, retourne l'année courante.
+     */
+    @Transactional
+    public List<CandidatureDTO> getCandidaturesPourEmployeurParAnnee(Integer anneeDebut)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+        List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
+
+        // Si null, utiliser l'année courante
+        AnneeAcademique anneeAcademique;
+        if (anneeDebut == null) {
+            anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        } else {
+            anneeAcademique = anneeAcademiqueService.getAnneeByAnneeDebut(anneeDebut).orElse(null);
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        }
+
+        // Filtrer par année académique
+        List<Candidature> candidatures = candidatureRepository.findAllByOffreInAndAnneeAcademique(offres, anneeAcademique);
+        return candidatures.stream()
+                .map(candidature -> new CandidatureDTO().toDTO(candidature))
+                .toList();
+    }
+
+    /**
+     * Récupère les ententes pour un employeur pour une année académique spécifique
+     * @param anneeDebut L'année de début (ex: 2024). Si null, retourne l'année courante.
+     */
+    @Transactional
+    public List<EntenteStageDTO> getEntentesPourEmployeurParAnnee(Integer anneeDebut) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        // Si null, utiliser l'année courante
+        AnneeAcademique anneeAcademique;
+        if (anneeDebut == null) {
+            anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        } else {
+            anneeAcademique = anneeAcademiqueService.getAnneeByAnneeDebut(anneeDebut).orElse(null);
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        }
+
+        // Filtrer par année académique
+        List<EntenteStage> ententes = ententeStageRepository.findByEmployeurAndArchivedFalseAndAnneeAcademique(employeur, anneeAcademique);
+        return ententes.stream()
+                .map(entente -> new EntenteStageDTO().toDTO(entente))
+                .toList();
+    }
+
+    /**
+     * Récupère les évaluations pour un employeur pour une année académique spécifique
+     * @param anneeDebut L'année de début (ex: 2024). Si null, retourne l'année courante.
+     */
+    @Transactional
+    public List<EvaluationDTO> getEvaluationsPourEmployeurParAnnee(Integer anneeDebut) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
+
+        // Si null, utiliser l'année courante
+        AnneeAcademique anneeAcademique;
+        if (anneeDebut == null) {
+            anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        } else {
+            anneeAcademique = anneeAcademiqueService.getAnneeByAnneeDebut(anneeDebut).orElse(null);
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        }
+
+        // Filtrer par année académique
+        List<EvaluationEtudiantParEmployeur> evaluations = evaluationRepository.findAllByEmployeurIdAndAnneeAcademique(employeur.getId(), anneeAcademique);
+        return evaluations.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
     }
 }

@@ -32,8 +32,9 @@ public class EtudiantService {
     private final CandidatureRepository candidatureRepository;
     private final NotificationRepository notificationRepository;
     private final EntenteStageRepository ententeStageRepository;
+    private final AnneeAcademiqueService anneeAcademiqueService;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, AnneeAcademiqueService anneeAcademiqueService) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
@@ -42,6 +43,7 @@ public class EtudiantService {
         this.candidatureRepository = candidatureRepository;
         this.notificationRepository = notificationRepository;
         this.ententeStageRepository = ententeStageRepository;
+        this.anneeAcademiqueService = anneeAcademiqueService;
     }
 
     @Transactional
@@ -153,6 +155,11 @@ public class EtudiantService {
         }
 
         Candidature candidature = new Candidature(etudiant, offre, lettreMotivationChiffree);
+        
+        // Assigner automatiquement l'année académique courante
+        AnneeAcademique anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+        candidature.setAnneeAcademique(anneeAcademique);
+        
         candidature = candidatureRepository.save(candidature);
         try {
             if (offre.getEmployeur() != null) {
@@ -441,6 +448,69 @@ public class EtudiantService {
 
         List<EntenteStage> ententes = ententeStageRepository.findByEtudiantAndArchivedFalse(etudiant);
 
+        return ententes.stream()
+                .map(e -> new EntenteStageDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
+
+    // ==================== MÉTHODES AVEC FILTRAGE PAR ANNÉE ACADÉMIQUE ====================
+
+    /**
+     * Récupère les candidatures d'un étudiant pour une année académique spécifique
+     * @param anneeDebut L'année de début (ex: 2024). Si null, retourne l'année courante.
+     */
+    @Transactional
+    public List<CandidatureDTO> getMesCandidaturesParAnnee(Integer anneeDebut) throws Exception {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        // Si null, utiliser l'année courante
+        AnneeAcademique anneeAcademique;
+        if (anneeDebut == null) {
+            anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        } else {
+            anneeAcademique = anneeAcademiqueService.getAnneeByAnneeDebut(anneeDebut).orElse(null);
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        }
+
+        // Filtrer par année académique
+        List<Candidature> candidatures = candidatureRepository.findAllByEtudiantAndAnneeAcademique(etudiant, anneeAcademique);
+        List<CandidatureDTO> candidatureDTOs = new ArrayList<>();
+        for (Candidature candidature : candidatures) {
+            candidatureDTOs.add(new CandidatureDTO().toDTO(candidature));
+        }
+        return candidatureDTOs;
+    }
+
+    /**
+     * Récupère les ententes d'un étudiant pour une année académique spécifique
+     * @param anneeDebut L'année de début (ex: 2024). Si null, retourne l'année courante.
+     */
+    @Transactional
+    public List<EntenteStageDTO> getMesEntentesParAnnee(Integer anneeDebut)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        // Si null, utiliser l'année courante
+        AnneeAcademique anneeAcademique;
+        if (anneeDebut == null) {
+            anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        } else {
+            anneeAcademique = anneeAcademiqueService.getAnneeByAnneeDebut(anneeDebut).orElse(null);
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        }
+
+        // Filtrer par année académique
+        List<EntenteStage> ententes = ententeStageRepository.findByEtudiantAndArchivedFalseAndAnneeAcademique(etudiant, anneeAcademique);
         return ententes.stream()
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());

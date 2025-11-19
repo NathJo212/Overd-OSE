@@ -37,9 +37,10 @@ public class GestionnaireService {
     private final NotificationRepository notificationRepository;
     private final CandidatureRepository candidatureRepository;
     private final ProfesseurRepository professeurRepository;
+    private final AnneeAcademiqueService anneeAcademiqueService;
 
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, AnneeAcademiqueService anneeAcademiqueService) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
@@ -50,6 +51,7 @@ public class GestionnaireService {
         this.notificationRepository = notificationRepository;
         this.candidatureRepository = candidatureRepository;
         this.professeurRepository = professeurRepository;
+        this.anneeAcademiqueService = anneeAcademiqueService;
     }
 
     @Transactional
@@ -279,6 +281,11 @@ public class GestionnaireService {
         );
 
         entente.setDateCreation(LocalDateTime.now());
+        
+        // Assigner automatiquement l'année académique courante
+        AnneeAcademique anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+        entente.setAnneeAcademique(anneeAcademique);
+        
         ententeStageRepository.save(entente);
     }
 
@@ -486,6 +493,102 @@ public class GestionnaireService {
                         && e.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE
                         && e.getStatut() == EntenteStage.StatutEntente.EN_ATTENTE)
                 .map(e -> new EntenteStageDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
+
+    // ==================== MÉTHODES AVEC FILTRAGE PAR ANNÉE ACADÉMIQUE ====================
+
+    /**
+     * Récupère toutes les offres pour une année académique spécifique (Gestionnaire voit tout)
+     * @param anneeDebut L'année de début (ex: 2024). Si null, retourne l'année courante.
+     */
+    @Transactional
+    public List<OffreDTO> getAllOffresParAnnee(Integer anneeDebut) throws ActionNonAutoriseeException {
+        checkGestionnaireStageRole();
+        
+        // Si null, utiliser l'année courante
+        AnneeAcademique anneeAcademique;
+        if (anneeDebut == null) {
+            anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        } else {
+            anneeAcademique = anneeAcademiqueService.getAnneeByAnneeDebut(anneeDebut).orElse(null);
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        }
+
+        // Filtrer par année académique spécifique
+        List<Offre> offres = offreRepository.findAllByAnneeAcademique(anneeAcademique);
+        return offres.stream()
+                .map(offre -> new OffreDTO().toDTO(offre))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Récupère toutes les ententes actives pour une année académique spécifique (Gestionnaire voit tout)
+     * @param anneeDebut L'année de début (ex: 2024). Si null, retourne l'année courante.
+     */
+    @Transactional
+    public List<EntenteStageDTO> getEntentesActivesParAnnee(Integer anneeDebut) throws ActionNonAutoriseeException {
+        checkGestionnaireStageRole();
+
+        // Si null, utiliser l'année courante
+        AnneeAcademique anneeAcademique;
+        if (anneeDebut == null) {
+            anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        } else {
+            anneeAcademique = anneeAcademiqueService.getAnneeByAnneeDebut(anneeDebut).orElse(null);
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        }
+
+        // Filtrer par année académique spécifique
+        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalseAndAnneeAcademique(anneeAcademique);
+        return ententes.stream()
+                .map(e -> new EntenteStageDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Récupère les candidatures éligibles pour une entente pour une année académique spécifique
+     * @param anneeDebut L'année de début (ex: 2024). Si null, retourne l'année courante.
+     */
+    @Transactional
+    public List<CandidatureDTO> getCandidaturesEligiblesEntenteParAnnee(Integer anneeDebut) throws ActionNonAutoriseeException {
+        verifierGestionnaireConnecte();
+
+        // Si null, utiliser l'année courante
+        AnneeAcademique anneeAcademique;
+        if (anneeDebut == null) {
+            anneeAcademique = anneeAcademiqueService.getAnneeCourante();
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        } else {
+            anneeAcademique = anneeAcademiqueService.getAnneeByAnneeDebut(anneeDebut).orElse(null);
+            if (anneeAcademique == null) {
+                return new ArrayList<>();
+            }
+        }
+
+        // Filtrer par année académique spécifique
+        List<Candidature> candidatures = candidatureRepository.findByStatutAndAnneeAcademique(
+                Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT,
+                anneeAcademique
+        );
+        return candidatures.stream()
+                .filter(c -> !ententeStageRepository.existsByEtudiantAndOffreAndArchivedFalse(
+                        c.getEtudiant(),
+                        c.getOffre()
+                ))
+                .map(c -> new CandidatureDTO().toDTO(c))
                 .collect(Collectors.toList());
     }
 
