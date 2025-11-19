@@ -1,7 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router";
-import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, FileText, FileSignature, UserCog } from "lucide-react";
+import {
+    CheckCircle,
+    XCircle,
+    AlertCircle,
+    X,
+    Building2,
+    Mail,
+    Phone,
+    MapPin,
+    Calendar,
+    DollarSign,
+    GraduationCap,
+    FileText,
+    FileSignature,
+    UserCog,
+    Eye
+} from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -201,6 +217,21 @@ const DashboardGestionnaire = () => {
                         </div>
                         <h3 className="text-xl font-bold mb-2">{t('navbar:assignTeachers')}</h3>
                         <p className="text-indigo-100 text-sm">Associer les professeurs aux étudiants</p>
+                    </NavLink>
+
+                    {/* Voir toutes les offres */}
+                    <NavLink
+                        to="/visualiser-offres"
+                        className="group bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-teal-400/50 transition-all duration-300 transform hover:scale-105 p-6"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <Eye className="w-10 h-10" />
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
+                            </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">{t("internshipmanager:page.buttonVisualize")}</h3>
+                        <p className="text-teal-100 text-sm">Consulter toutes les offres approuvées</p>
                     </NavLink>
                 </div>
 
@@ -426,4 +457,3 @@ const DashboardGestionnaire = () => {
 };
 
 export default DashboardGestionnaire;
-
