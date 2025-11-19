@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from './NavBar';
 import AnneeAcademiqueSelector from './AnneeAcademiqueSelector';
 import { employeurService } from '../services/EmployeurService';
-import { History, FileText, Users, BookOpen, Award } from 'lucide-react';
+import { History, FileText, Users, BookOpen, Award, ArrowLeft } from 'lucide-react';
 
 type OngletType = 'candidatures' | 'ententes' | 'evaluations';
 
@@ -75,6 +75,17 @@ const HistoriqueEmployeur = () => {
             <NavBar />
             
             <div className="max-w-7xl mx-auto px-4 py-8">
+                {/* Bouton retour */}
+                <div className="mb-6">
+                    <button
+                        onClick={() => navigate('/dashboard-employeur')}
+                        className="cursor-pointer flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                        <span className="font-medium">Retour au tableau de bord</span>
+                    </button>
+                </div>
+
                 {/* En-tête */}
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
@@ -100,7 +111,7 @@ const HistoriqueEmployeur = () => {
                         <nav className="flex -mb-px">
                             <button
                                 onClick={() => setOngletActif('candidatures')}
-                                className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
+                                className={`cursor-pointer flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
                                     ongletActif === 'candidatures'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
@@ -111,7 +122,7 @@ const HistoriqueEmployeur = () => {
                             </button>
                             <button
                                 onClick={() => setOngletActif('ententes')}
-                                className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
+                                className={`cursor-pointer flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
                                     ongletActif === 'ententes'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
@@ -122,7 +133,7 @@ const HistoriqueEmployeur = () => {
                             </button>
                             <button
                                 onClick={() => setOngletActif('evaluations')}
-                                className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
+                                className={`cursor-pointer flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
                                     ongletActif === 'evaluations'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'

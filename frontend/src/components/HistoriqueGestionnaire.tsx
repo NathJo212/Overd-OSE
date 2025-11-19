@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from './NavBar';
 import AnneeAcademiqueSelector from './AnneeAcademiqueSelector';
 import { gestionnaireService } from '../services/GestionnaireService';
-import { History, Briefcase, BookOpen, Users, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, AlertCircle, CheckCircle, XCircle, Filter } from 'lucide-react';
+import { History, Briefcase, BookOpen, Users, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, AlertCircle, CheckCircle, XCircle, Filter, ArrowLeft } from 'lucide-react';
 
 type OngletType = 'offres' | 'ententes' | 'candidatures';
 type FilterType = 'all' | 'pending' | 'approved' | 'refused' | 'expired';
@@ -161,6 +161,17 @@ const HistoriqueGestionnaire = () => {
             <NavBar />
             
             <div className="max-w-7xl mx-auto px-4 py-8">
+                {/* Bouton retour */}
+                <div className="mb-6">
+                    <button
+                        onClick={() => navigate('/dashboard-gestionnaire')}
+                        className="cursor-pointer flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                        <span className="font-medium">Retour au tableau de bord</span>
+                    </button>
+                </div>
+
                 {/* En-tête */}
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
@@ -187,7 +198,7 @@ const HistoriqueGestionnaire = () => {
                         <nav className="flex -mb-px">
                             <button
                                 onClick={() => setOngletActif('offres')}
-                                className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
+                                className={`cursor-pointer flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
                                     ongletActif === 'offres'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
@@ -198,7 +209,7 @@ const HistoriqueGestionnaire = () => {
                             </button>
                             <button
                                 onClick={() => setOngletActif('ententes')}
-                                className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
+                                className={`cursor-pointer flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
                                     ongletActif === 'ententes'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
@@ -209,7 +220,7 @@ const HistoriqueGestionnaire = () => {
                             </button>
                             <button
                                 onClick={() => setOngletActif('candidatures')}
-                                className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
+                                className={`cursor-pointer flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
                                     ongletActif === 'candidatures'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
@@ -242,7 +253,7 @@ const HistoriqueGestionnaire = () => {
                                             <div className="flex flex-wrap gap-3">
                                                 <button
                                                     onClick={() => filterOffres('all')}
-                                                    className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                                                    className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                                                         currentFilter === 'all'
                                                             ? 'bg-blue-600 text-white shadow-lg'
                                                             : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600'
@@ -252,7 +263,7 @@ const HistoriqueGestionnaire = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => filterOffres('pending')}
-                                                    className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                                                    className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                                                         currentFilter === 'pending'
                                                             ? 'bg-yellow-500 text-white shadow-lg'
                                                             : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800'
@@ -262,7 +273,7 @@ const HistoriqueGestionnaire = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => filterOffres('approved')}
-                                                    className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                                                    className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                                                         currentFilter === 'approved'
                                                             ? 'bg-green-600 text-white shadow-lg'
                                                             : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'
@@ -272,7 +283,7 @@ const HistoriqueGestionnaire = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => filterOffres('refused')}
-                                                    className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                                                    className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                                                         currentFilter === 'refused'
                                                             ? 'bg-red-600 text-white shadow-lg'
                                                             : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800'
@@ -282,7 +293,7 @@ const HistoriqueGestionnaire = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => filterOffres('expired')}
-                                                    className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                                                    className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                                                         currentFilter === 'expired'
                                                             ? 'bg-gray-600 text-white shadow-lg'
                                                             : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-600'
