@@ -17,4 +17,3 @@ public class ChatRequest {
         this.message = message;
     }
 }
-

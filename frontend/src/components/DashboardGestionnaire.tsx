@@ -5,7 +5,6 @@ import { CheckCircle, XCircle, AlertCircle, X, Building2, Mail, Phone, MapPin, C
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
-import ChatBot from './ChatBot';
 
 const DashboardGestionnaire = () => {
     const { t } = useTranslation(["internshipmanager"]);
@@ -130,9 +129,6 @@ const DashboardGestionnaire = () => {
     return (
         <div className="bg-gray-50 min-h-screen relative">
             <NavBar />
-            <div className="fixed right-6 bottom-6 z-50">
-                <ChatBot />
-            </div>
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* En-tête */}
                 <div className="mb-8">

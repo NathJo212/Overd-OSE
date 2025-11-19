@@ -1,0 +1,7 @@
+{
+  "header": "Assistant IA",
+  "welcome": "Bienvenue ! Je suis votre assistant IA. Comment puis-je vous aider dans la gestion des stages ?",
+  "send": "Envoyer",
+  "inputPlaceholder": "Tapez votre message...",
+  "loading": "Réflexion en cours..."
+}

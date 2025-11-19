@@ -53,6 +53,8 @@ import gestionnaireSigneEntenteFr from './locales/fr/gestionnaireSigneEntente.js
 import gestionnaireSigneEntenteEn from './locales/en/gestionnaireSigneEntente.json';
 import notificationsFr from './locales/fr/notifications.json';
 import notificationsEn from './locales/en/notifications.json';
+import chatbotFr from './locales/fr/chatbot.json';
+import chatbotEn from './locales/en/chatbot.json';
 
 const resources = {
     fr: {
@@ -81,6 +83,7 @@ const resources = {
         dashboardProfesseur: dashboardProfesseurFr,
         notifications: notificationsFr,
         gestionnaireSigneEntente: gestionnaireSigneEntenteFr,
+        chatbot: chatbotFr,
     },
     en: {
         registration: registrationEn,
@@ -108,6 +111,7 @@ const resources = {
         dashboardProfesseur: dashboardProfesseurEn,
         gestionnaireSigneEntente: gestionnaireSigneEntenteEn,
         notifications: notificationsEn,
+        chatbot: chatbotEn,
     }
 };
 

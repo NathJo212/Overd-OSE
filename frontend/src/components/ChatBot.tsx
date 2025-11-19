@@ -1,11 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { gestionnaireService } from '../services/GestionnaireService';
+import { useTranslation } from 'react-i18next';
 
 const ChatBot: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
+  const { t, i18n } = useTranslation(['chatbot']);
   const [messages, setMessages] = useState([
-    { from: 'bot', text: 'Bonjour ! Posez-moi une question.' },
+    { from: 'bot', text: t('welcome') },
   ]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -14,22 +19,50 @@ const ChatBot: React.FC = () => {
 
   const toggle = () => setOpen((v) => !v);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const text = input.trim();
-    if (!text) return;
+    if (!text || loading) return;
     setMessages((m) => [...m, { from: 'user', text }]);
     setInput('');
-    setTimeout(() => {
+    setLoading(true);
+    setError(null);
+    try {
+      const jwt = sessionStorage.getItem('authToken');
+      if (!jwt) throw new Error('Token JWT manquant. Veuillez vous reconnecter.');
+      const reply = await gestionnaireService.chatClient(text, jwt);
       setMessages((m) => [
         ...m,
-        { from: 'bot', text: `Réponse automatique : J'ai bien reçu votre question "${text}".` },
+        { from: 'bot', text: reply },
       ]);
-    }, 700);
+    } catch (e: any) {
+      setMessages((m) => [
+        ...m,
+        { from: 'bot', text: `Erreur: ${e.message}` },
+      ]);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') sendMessage();
   };
+
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      setMessages((msgs) => {
+        if (msgs.length > 0 && msgs[0].from === 'bot') {
+          return [{ from: 'bot', text: t('welcome') }, ...msgs.slice(1)];
+        }
+        return msgs;
+      });
+    };
+    i18n.on('languageChanged', handleLanguageChange);
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [t, i18n]);
 
   return (
     <div>
@@ -47,11 +80,9 @@ const ChatBot: React.FC = () => {
         <div
           className="fixed right-6 bottom-28 w-80 max-h-[420px] h-[420px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50 font-sans border border-white/10"
         >
+          {/* Use translated header */}
           <div className="px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 border-b border-white/10">
-            <strong className="text-white text-base">Assistant IA</strong>
-            <div className="text-white/80 text-xs mt-1">
-              Ceci est une intelligence artificielle servant d'assistant, vous pouvez luis poser des questions.
-            </div>
+            <strong className="text-white text-base">{t('header')}</strong>
           </div>
 
           <div className="px-3 py-2 flex-1 overflow-y-auto bg-white">
@@ -67,10 +98,21 @@ const ChatBot: React.FC = () => {
                       : 'bg-gray-100 text-gray-900'
                   }`}
                 >
-                  {m.text}
+                  {/* Découpe les gros blocks de texte en paragraphes */}
+                  {m.text.split(/\n\n|\r\n\r\n|\r\r/).map((block, idx) => (
+                    <p key={idx} style={{ marginBottom: 8 }}>{block}</p>
+                  ))}
                 </div>
               </div>
             ))}
+            {/* Indicateur d'attente */}
+            {loading && (
+              <div className="flex justify-start mb-2">
+                <div className="max-w-[78%] px-3 py-2 rounded-xl text-sm bg-gray-100 text-gray-900 animate-pulse">
+                  <span className="inline-block align-middle mr-2">⏳</span>{t('loading')}
+                </div>
+              </div>
+            )}
             <div ref={endRef} />
           </div>
 
@@ -79,15 +121,20 @@ const ChatBot: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Écrire un message..."
+              placeholder={t('inputPlaceholder')}
               className="flex-1 px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              disabled={loading}
             />
             <button
               onClick={sendMessage}
               className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+              disabled={loading}
             >
-              Envoyer
+              {loading ? '...' : t('send')}
             </button>
+            {error && (
+              <div className="text-red-500 text-xs mt-2">{t('error', { message: error })}</div>
+            )}
           </div>
         </div>
       )}

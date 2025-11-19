@@ -1,0 +1,10 @@
+{
+  "title": "ChatBot",
+  "subtitle": "Ask me anything about internships!",
+  "header": "AI Assistant",
+  "welcome": "Welcome! I am your AI assistant. How can I help you with internship management?",
+  "inputPlaceholder": "Type your message...",
+  "send": "Send",
+  "loading": "Thinking...",
+  "error": "Error: {{message}}"
+}

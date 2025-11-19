@@ -109,7 +109,7 @@ public class CreateEntenteForm {
                 for (int page = 1; page <= pages; page++) {
                     LinkedHashSet<String> tokens = new LinkedHashSet<>(replacements.keySet());
                     final String NBSP = "\u00A0";
-                   tokens.add("xx");
+                    tokens.add("xx");
                     tokens.add("xxh");
 
                     tokens.add("Date de début");
@@ -218,7 +218,7 @@ public class CreateEntenteForm {
                     }
                     respLabels.sort((a, b) -> Float.compare(b.rect.getBottom(), a.rect.getBottom()));
 
-                   for (Found f : collector.found) {
+                    for (Found f : collector.found) {
                         String token = f.token;
                         String value = replacements.get(token);
                         Rectangle r = f.rect;
@@ -250,7 +250,7 @@ public class CreateEntenteForm {
                             String lower = token.toLowerCase(Locale.ROOT);
                             String respVal = lower.contains("collège") ? respCol : (lower.contains("entreprise") || lower.contains("employeur")) ? respEmp : respEtu;
 
-                           float sectionTop = r.getBottom() - 6f; // a bit below the label
+                            float sectionTop = r.getBottom() - 6f; // a bit below the label
                             float desiredHeight = 170f;
                             float sectionBottomCandidate = sectionTop - desiredHeight;
 
@@ -299,7 +299,7 @@ public class CreateEntenteForm {
                                 "Horaire de travail", "Horaire de travail :", "Horaire de travail" + NBSP + ":",
                                 "Nombre total d'heures par semaine", "Nombre total d'heures par semaine :", "Nombre total d'heures par semaine" + NBSP + ":",
                                 "Nombre total d’heures par semaine", "Nombre total d’heures par semaine :", "Nombre total d’heures par semaine" + NBSP + ":")) {
-                           String norm = token.toLowerCase(Locale.ROOT)
+                            String norm = token.toLowerCase(Locale.ROOT)
                                     .replace('\u00A0', ' ')
                                     .replace(" :", "")
                                     .trim();
@@ -328,7 +328,7 @@ public class CreateEntenteForm {
                             continue;
                         }
 
-                       if (value != null) {
+                        if (value != null) {
                             float minFont = 10f;
                             float pad = 1.5f;
                             float minWidth = 140f;

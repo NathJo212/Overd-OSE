@@ -325,7 +325,7 @@ public class GestionnaireControlleur {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    
+
     @PutMapping("/ententes/{id}/signer")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> signerEntente(@PathVariable Long id) {
