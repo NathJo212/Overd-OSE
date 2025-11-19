@@ -18,6 +18,7 @@ export interface AuthResponseDTO {
         annee?: number;
     };
 }
+
 const API_BASE_URL = 'http://localhost:8080';
 const UTILISATEUR_ENDPOINT = '/OSE';
 
@@ -31,7 +32,6 @@ class UtilisateurService {
     getToken(): string | null {
         return sessionStorage.getItem('authToken');
     }
-
 
     /**
      * Authentifie un utilisateur avec email et mot de passe
@@ -56,7 +56,7 @@ class UtilisateurService {
                 const error: any = new Error(data.errorResponse.message || 'Erreur de connexion');
                 error.response = {
                     data: {
-                        errorResponse: data.errorResponse  // Structure AuthResponseDTO
+                        errorResponse: data.errorResponse
                     }
                 };
                 throw error;
@@ -82,19 +82,16 @@ class UtilisateurService {
             return authResponse;
 
         } catch (error: any) {
-            // Si l'erreur a déjà un errorResponse, la relancer
             if (error.response?.data?.errorResponse) {
                 throw error;
             }
 
-            // Gestion des erreurs de réseau
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 const networkError: any = new Error('Erreur de connexion au serveur');
                 networkError.code = 'ERR_NETWORK';
                 throw networkError;
             }
 
-            // Autres erreurs
             const genericError: any = new Error(error.message || 'Erreur inconnue');
             genericError.response = {
                 data: {
@@ -203,7 +200,6 @@ class UtilisateurService {
             const data = await response.json();
 
             if (!response.ok) {
-                // Si errorCode présent
                 if (data.errorCode) {
                     const error: any = new Error(data.message || 'Erreur de déconnexion');
                     error.response = { data };
@@ -231,6 +227,65 @@ class UtilisateurService {
             throw genericError;
         }
     }
+
+    /**
+     * Search all users based on category and search term - UNIFIED ENDPOINT
+     */
+    async searchUsers(searchTerm: string, category: string): Promise<any> {
+        const token = this.getToken();
+        if (!token) throw new Error('Non authentifié');
+
+        try {
+            const params = new URLSearchParams();
+            if (searchTerm) {
+                params.append('q', searchTerm);
+            }
+            params.append('category', category);
+
+            const response = await fetch(`${this.baseUrl}/search?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Search error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get a specific user profile by type and ID
+     */
+    async getUserProfile(type: string, id: number): Promise<any> {
+        const token = this.getToken();
+        if (!token) throw new Error('Non authentifié');
+
+        const endpoint = `${this.baseUrl}/info/${type}/${id}`;
+
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        return await response.json();
+    }
+
 }
 
 export const utilisateurService = new UtilisateurService();

@@ -26,6 +26,8 @@ import GestionnaireAttribueEtudiant from "./components/GestionnaireAttribueEtudi
 import ProfesseurDashboard from './components/DashboardProfesseur/DashboardProfesseur.tsx'
 import GestionnaireSigneEntente from "./components/GestionnaireSigneEntente.tsx";
 import DashboardProfesseur from "./components/DashboardProfesseur/DashboardProfesseur.tsx";
+import ProfesseurEvaluationMilieuStage from "./components/ProfesseurEvaluationMilieuStage.tsx";
+import SearchResults from "./components/SearchResults/SearchResults.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -51,6 +53,8 @@ const router = createBrowserRouter(
             <Route path="gestionnaire-signe-ententes" element={<GestionnaireSigneEntente/>}/>
             <Route path="dashboard-professeur" element={<ProfesseurDashboard/>}/>
             <Route path="evaluation-milieu-stage" element={<DashboardProfesseur/>}/>
+            <Route path="evaluation-milieu-stage" element={<ProfesseurEvaluationMilieuStage/>}/>
+            <Route path="/search" element={<SearchResults />} />
         </Route>
     )
 );

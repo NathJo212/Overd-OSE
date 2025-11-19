@@ -1,9 +1,9 @@
 package com.backend.controller;
 
+import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.AuthenticationException;
-import com.backend.service.DTO.AuthResponseDTO;
-import com.backend.service.DTO.LoginDTO;
-import com.backend.service.DTO.UtilisateurDTO;
+import com.backend.Exceptions.UtilisateurPasTrouveException;
+import com.backend.service.DTO.*;
 import com.backend.service.EmployeurService;
 import com.backend.service.EtudiantService;
 import com.backend.service.UtilisateurService;
@@ -20,7 +20,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -245,6 +247,233 @@ class UtilisateurControllerTest {
                 .andExpect(status().isInternalServerError());
 
         verify(utilisateurService, times(1)).getAllProgrammes();
+    }
+
+    @Test
+    @DisplayName("GET /OSE/search retourne 200 et les résultats pour category=ALL")
+    void search_withAllCategory_returnsOkAndResults() throws Exception {
+        // Arrange
+        Map<String, Object> results = new HashMap<>();
+        results.put("etudiants", List.of());
+        results.put("employeurs", List.of());
+        results.put("professeurs", List.of());
+        results.put("gestionnaires", List.of());
+
+        when(utilisateurService.searchUsersByCategory("test", "ALL"))
+                .thenReturn(results);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/search")
+                        .param("q", "test")
+                        .param("category", "ALL")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.etudiants").isArray())
+                .andExpect(jsonPath("$.employeurs").isArray())
+                .andExpect(jsonPath("$.professeurs").isArray())
+                .andExpect(jsonPath("$.gestionnaires").isArray());
+
+        verify(utilisateurService, times(1)).searchUsersByCategory("test", "ALL");
+    }
+
+    @Test
+    @DisplayName("GET /OSE/search retourne 200 pour category=ETUDIANT")
+    void search_withEtudiantCategory_returnsOkAndResults() throws Exception {
+        // Arrange
+        Map<String, Object> results = new HashMap<>();
+        results.put("etudiants", List.of());
+
+        when(utilisateurService.searchUsersByCategory("jean", "ETUDIANT"))
+                .thenReturn(results);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/search")
+                        .param("q", "jean")
+                        .param("category", "ETUDIANT")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.etudiants").isArray());
+
+        verify(utilisateurService, times(1)).searchUsersByCategory("jean", "ETUDIANT");
+    }
+
+    @Test
+    @DisplayName("GET /OSE/search retourne 403 si ActionNonAutoriseeException")
+    void search_whenUnauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        when(utilisateurService.searchUsersByCategory(anyString(), anyString()))
+                .thenThrow(new ActionNonAutoriseeException());
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/search")
+                        .param("q", "test")
+                        .param("category", "ALL")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+
+        verify(utilisateurService, times(1)).searchUsersByCategory("test", "ALL");
+    }
+
+    @Test
+    @DisplayName("GET /OSE/search retourne 400 si category invalide")
+    void search_withInvalidCategory_returnsBadRequest() throws Exception {
+        // Arrange
+        when(utilisateurService.searchUsersByCategory("test", "INVALID"))
+                .thenThrow(new IllegalArgumentException("Invalid category"));
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/search")
+                        .param("q", "test")
+                        .param("category", "INVALID")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        verify(utilisateurService, times(1)).searchUsersByCategory("test", "INVALID");
+    }
+
+    @Test
+    @DisplayName("GET /OSE/search sans searchTerm retourne tous les résultats")
+    void search_withoutSearchTerm_returnsAllResults() throws Exception {
+        // Arrange
+        Map<String, Object> results = new HashMap<>();
+        results.put("etudiants", List.of());
+        results.put("employeurs", List.of());
+        results.put("professeurs", List.of());
+        results.put("gestionnaires", List.of());
+
+        when(utilisateurService.searchUsersByCategory(null, "ALL"))
+                .thenReturn(results);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/search")
+                        .param("category", "ALL")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(utilisateurService, times(1)).searchUsersByCategory(null, "ALL");
+    }
+
+    @Test
+    @DisplayName("GET /OSE/info/etudiant/{id} retourne 200 et EtudiantDTO")
+    void getEtudiantInfo_success_returnsOkAndDTO() throws Exception {
+        // Arrange
+        EtudiantDTO etudiantDTO = new EtudiantDTO();
+        etudiantDTO.setId(1L);
+        etudiantDTO.setEmail("etudiant@test.com");
+        etudiantDTO.setNom("Dupont");
+        etudiantDTO.setPrenom("Jean");
+
+        when(utilisateurService.getEtudiantInfo(1L)).thenReturn(etudiantDTO);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/info/etudiant/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("etudiant@test.com"))
+                .andExpect(jsonPath("$.nom").value("Dupont"))
+                .andExpect(jsonPath("$.prenom").value("Jean"));
+
+        verify(utilisateurService, times(1)).getEtudiantInfo(1L);
+    }
+
+    @Test
+    @DisplayName("GET /OSE/info/etudiant/{id} retourne 404 si non trouvé")
+    void getEtudiantInfo_notFound_returnsNotFound() throws Exception {
+        // Arrange
+        when(utilisateurService.getEtudiantInfo(99L))
+                .thenThrow(new UtilisateurPasTrouveException());
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/info/etudiant/99")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(utilisateurService, times(1)).getEtudiantInfo(99L);
+    }
+
+    @Test
+    @DisplayName("GET /OSE/info/etudiant/{id} retourne 403 si non autorisé")
+    void getEtudiantInfo_unauthorized_returnsForbidden() throws Exception {
+        // Arrange
+        when(utilisateurService.getEtudiantInfo(1L))
+                .thenThrow(new ActionNonAutoriseeException());
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/info/etudiant/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+
+        verify(utilisateurService, times(1)).getEtudiantInfo(1L);
+    }
+
+    @Test
+    @DisplayName("GET /OSE/info/employeur/{id} retourne 200 et EmployeurDTO")
+    void getEmployeurInfo_success_returnsOkAndDTO() throws Exception {
+        // Arrange
+        EmployeurDTO employeurDTO = new EmployeurDTO();
+        employeurDTO.setId(1L);
+        employeurDTO.setEmail("employeur@test.com");
+        employeurDTO.setNomEntreprise("Google");
+
+        when(utilisateurService.getEmployeurInfo(1L)).thenReturn(employeurDTO);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/info/employeur/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("employeur@test.com"))
+                .andExpect(jsonPath("$.nomEntreprise").value("Google"));
+
+        verify(utilisateurService, times(1)).getEmployeurInfo(1L);
+    }
+
+    @Test
+    @DisplayName("GET /OSE/info/professeur/{id} retourne 200 et ProfesseurDTO")
+    void getProfesseurInfo_success_returnsOkAndDTO() throws Exception {
+        // Arrange
+        ProfesseurDTO professeurDTO = new ProfesseurDTO();
+        professeurDTO.setId(1L);
+        professeurDTO.setEmail("prof@test.com");
+        professeurDTO.setNom("Dupont");
+        professeurDTO.setPrenom("Pierre");
+
+        when(utilisateurService.getProfesseurInfo(1L)).thenReturn(professeurDTO);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/info/professeur/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("prof@test.com"))
+                .andExpect(jsonPath("$.nom").value("Dupont"));
+
+        verify(utilisateurService, times(1)).getProfesseurInfo(1L);
+    }
+
+    @Test
+    @DisplayName("GET /OSE/info/gestionnaire/{id} retourne 200 et GestionnaireDTO")
+    void getGestionnaireInfo_success_returnsOkAndDTO() throws Exception {
+        // Arrange
+        GestionnaireDTO gestionnaireDTO = new GestionnaireDTO();
+        gestionnaireDTO.setId(1L);
+        gestionnaireDTO.setEmail("gest@test.com");
+        gestionnaireDTO.setNom("Martin");
+        gestionnaireDTO.setPrenom("Claire");
+
+        when(utilisateurService.getGestionnaireInfo(1L)).thenReturn(gestionnaireDTO);
+
+        // Act & Assert
+        mockMvc.perform(get("/OSE/info/gestionnaire/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("gest@test.com"))
+                .andExpect(jsonPath("$.nom").value("Martin"));
+
+        verify(utilisateurService, times(1)).getGestionnaireInfo(1L);
     }
 
 }

@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,6 +19,7 @@ public class ProfesseurDTO {
     private String telephone;
     private String nom;
     private String prenom;
+    private List<EtudiantDTO> etudiantList;
 
     public static ProfesseurDTO toDTO(Professeur prof) {
         if (prof == null) return null;
@@ -25,6 +29,10 @@ public class ProfesseurDTO {
                 .telephone(prof.getTelephone())
                 .nom(prof.getNom())
                 .prenom(prof.getPrenom())
+                .etudiantList(prof.getEtudiantList() != null ?
+                        prof.getEtudiantList().stream()
+                                .map(e -> new EtudiantDTO().toDTO(e))
+                                .collect(Collectors.toList()) : null)
                 .build();
     }
 }

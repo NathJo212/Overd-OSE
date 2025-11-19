@@ -22,6 +22,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.backend.modele.Etudiant;
 
@@ -40,9 +41,12 @@ public class EmployeurService {
     private final EntenteStageRepository ententeStageRepository;
     private final EvaluationEtudiantParEmployeurRepository evaluationRepository;
     private final PdfGenerationEvaluation pdfGenerationEvaluation;
+    private final EtudiantRepository etudiantRepository;
+    private final ProfesseurRepository professeurRepository;
+    private final GestionnaireRepository gestionnaireRepository;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationEtudiantParEmployeurRepository evaluationRepository, PdfGenerationEvaluation pdfGenerationEvaluation) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationEtudiantParEmployeurRepository evaluationRepository, PdfGenerationEvaluation pdfGenerationEvaluation, EtudiantRepository etudiantRepository, ProfesseurRepository professeurRepository, GestionnaireRepository gestionnaireRepository) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -55,6 +59,9 @@ public class EmployeurService {
         this.ententeStageRepository = ententeStageRepository;
         this.evaluationRepository = evaluationRepository;
         this.pdfGenerationEvaluation = pdfGenerationEvaluation;
+        this.etudiantRepository = etudiantRepository;
+        this.professeurRepository = professeurRepository;
+        this.gestionnaireRepository = gestionnaireRepository;
     }
 
     @Transactional
@@ -513,4 +520,5 @@ public class EmployeurService {
             throw new RuntimeException("Invalid base64 PDF data");
         }
     }
+
 }

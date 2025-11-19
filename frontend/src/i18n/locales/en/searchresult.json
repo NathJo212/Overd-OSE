@@ -1,0 +1,29 @@
+{
+  "backToDashboard": "Back to dashboard",
+  "search": {
+    "title": "User Search",
+    "placeholder": "Search by name, email or company...",
+    "button": "Search",
+    "categories": {
+      "all": "All",
+      "students": "Students",
+      "employers": "Employers",
+      "professors": "Professors",
+      "managers": "Managers"
+    },
+    "searching": "Searching...",
+    "performSearch": "Perform a search to see results",
+    "noResults": "No results found",
+    "tryDifferent": "Try different search terms",
+    "resultsCount": "{{count}} result found",
+    "resultsCount_plural": "{{count}} results found",
+    "types": {
+      "etudiant": "Student",
+      "employeur": "Employer",
+      "professeur": "Professor",
+      "gestionnaire": "Manager"
+    },
+    "contact": "Contact",
+    "program": "Program"
+  }
+}

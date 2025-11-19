@@ -37,9 +37,10 @@ public class GestionnaireService {
     private final NotificationRepository notificationRepository;
     private final CandidatureRepository candidatureRepository;
     private final ProfesseurRepository professeurRepository;
+    private final EmployeurRepository employeurRepository;
 
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, EmployeurRepository employeurRepository) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
@@ -50,6 +51,7 @@ public class GestionnaireService {
         this.notificationRepository = notificationRepository;
         this.candidatureRepository = candidatureRepository;
         this.professeurRepository = professeurRepository;
+        this.employeurRepository = employeurRepository;
     }
 
     @Transactional
@@ -488,5 +490,6 @@ public class GestionnaireService {
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
+
 
 }

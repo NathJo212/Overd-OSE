@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class ProfesseurService {
@@ -31,9 +33,10 @@ public class ProfesseurService {
     private final NotificationRepository notificationRepository;
     private final GestionnaireRepository gestionnaireRepository;
     private final PdfGenerationMilieuStage pdfGenerationMilieuStage;
+    private final EmployeurRepository employeurRepository;
 
 
-    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository, EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository, NotificationRepository notificationRepository, GestionnaireRepository gestionnaireRepository, PdfGenerationMilieuStage pdfGenerationMilieuStage) {
+    public ProfesseurService(ProfesseurRepository professeurRepository, UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, CandidatureRepository candidatureRepository, EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository, NotificationRepository notificationRepository, GestionnaireRepository gestionnaireRepository, PdfGenerationMilieuStage pdfGenerationMilieuStage, EmployeurRepository employeurRepository) {
         this.professeurRepository = professeurRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
@@ -45,6 +48,7 @@ public class ProfesseurService {
         this.notificationRepository = notificationRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.pdfGenerationMilieuStage = pdfGenerationMilieuStage;
+        this.employeurRepository = employeurRepository;
     }
 
     @Transactional
@@ -268,4 +272,5 @@ public class ProfesseurService {
 
         return java.util.Base64.getDecoder().decode(evaluation.getPdfBase64());
     }
+
 }

@@ -1,13 +1,12 @@
 package com.backend.service;
 
+import com.backend.Exceptions.ActionNonAutoriseeException;
 import com.backend.Exceptions.AuthenticationException;
+import com.backend.Exceptions.UtilisateurPasTrouveException;
 import com.backend.config.JwtTokenProvider;
-import com.backend.modele.Employeur;
-import com.backend.modele.Etudiant;
-import com.backend.modele.Programme;
-import com.backend.persistence.UtilisateurRepository;
-import com.backend.service.DTO.AuthResponseDTO;
-import com.backend.service.DTO.ProgrammeDTO;
+import com.backend.modele.*;
+import com.backend.persistence.*;
+import com.backend.service.DTO.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,10 +16,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,6 +45,18 @@ public class UtilisateurServiceTest {
 
     @InjectMocks
     private UtilisateurService utilisateurService;
+
+    @Mock
+    private EtudiantRepository etudiantRepository;
+
+    @Mock
+    private EmployeurRepository employeurRepository;
+
+    @Mock
+    private ProfesseurRepository professeurRepository;
+
+    @Mock
+    private GestionnaireRepository gestionnaireRepository;
 
     @Test
     public void testAuthentificationEmployeur_Success() throws AuthenticationException {
@@ -288,6 +300,255 @@ public class UtilisateurServiceTest {
 
         assertTrue(result1.containsAll(result2));
         assertTrue(result2.containsAll(result3));
+    }
+
+    @Test
+    public void testSearchUsersByCategory_AllCategory_ReturnsAllUsers() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("GESTIONNAIRE")))
+                .when(auth).getAuthorities();
+        when(auth.isAuthenticated()).thenReturn(true);
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        Etudiant etudiant = new Etudiant("etu@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        Employeur employeur = new Employeur("emp@test.com", "pass", "tel", "Google", "Contact");
+        Professeur professeur = new Professeur("prof@test.com", "pass", "tel", "Martin", "Pierre");
+        GestionnaireStage gestionnaire = new GestionnaireStage("gest@test.com", "pass", "tel", "Gagnon", "Sophie");
+
+        when(etudiantRepository.findAll()).thenReturn(Collections.singletonList(etudiant));
+        when(employeurRepository.findAll()).thenReturn(Collections.singletonList(employeur));
+        when(professeurRepository.findAll()).thenReturn(Collections.singletonList(professeur));
+        when(gestionnaireRepository.findAll()).thenReturn(Collections.singletonList(gestionnaire));
+
+        // Act
+        Map<String, Object> result = utilisateurService.searchUsersByCategory("", "ALL");
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.containsKey("etudiants"));
+        assertTrue(result.containsKey("employeurs"));
+        assertTrue(result.containsKey("professeurs"));
+        assertTrue(result.containsKey("gestionnaires"));
+
+        List<?> etudiants = (List<?>) result.get("etudiants");
+        assertEquals(1, etudiants.size());
+    }
+
+    @Test
+    public void testSearchUsersByCategory_EtudiantCategory_ReturnsOnlyEtudiants() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("GESTIONNAIRE")))
+                .when(auth).getAuthorities();
+        when(auth.isAuthenticated()).thenReturn(true);
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        Etudiant etudiant = new Etudiant("jean@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        when(etudiantRepository.findAll()).thenReturn(Collections.singletonList(etudiant));
+
+        // Act
+        Map<String, Object> result = utilisateurService.searchUsersByCategory("jean", "ETUDIANT");
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.containsKey("etudiants"));
+        assertFalse(result.containsKey("employeurs"));
+    }
+
+    @Test
+    public void testSearchUsersByCategory_EtudiantBlocked_ThrowsException() {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("ETUDIANT")))
+                .when(auth).getAuthorities();
+        when(auth.isAuthenticated()).thenReturn(true);
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> utilisateurService.searchUsersByCategory("test", "ETUDIANT"));
+    }
+
+    @Test
+    public void testSearchUsersByCategory_AllCategoryExcludesEtudiantsForEtudiant() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("ETUDIANT")))
+                .when(auth).getAuthorities();
+        when(auth.isAuthenticated()).thenReturn(true);
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        Employeur employeur = new Employeur("emp@test.com", "pass", "tel", "Google", "Contact");
+        when(employeurRepository.findAll()).thenReturn(Collections.singletonList(employeur));
+        when(professeurRepository.findAll()).thenReturn(Collections.emptyList());
+        when(gestionnaireRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Act
+        Map<String, Object> result = utilisateurService.searchUsersByCategory("", "ALL");
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.containsKey("etudiants")); // Etudiants should NOT be included
+        assertTrue(result.containsKey("employeurs"));
+        verify(etudiantRepository, never()).findAll(); // Never called for ETUDIANT users
+    }
+
+    @Test
+    public void testSearchUsersByCategory_InvalidCategory_ThrowsException() {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        when(auth.isAuthenticated()).thenReturn(true);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("GESTIONNAIRE")))
+                .when(auth).getAuthorities();
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> utilisateurService.searchUsersByCategory("test", "INVALID"));
+    }
+
+    @Test
+    public void testSearchUsersByCategory_NotAuthenticated_ThrowsException() {
+        // Arrange
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(null);
+        SecurityContextHolder.setContext(securityContext);
+
+        // Act & Assert
+        assertThrows(ActionNonAutoriseeException.class,
+                () -> utilisateurService.searchUsersByCategory("test", "ALL"));
+    }
+
+    @Test
+    public void testGetEtudiantInfo_Success() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        when(auth.isAuthenticated()).thenReturn(true);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("GESTIONNAIRE")))
+                .when(auth).getAuthorities();
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        Etudiant etudiant = new Etudiant("etu@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        // Act
+        EtudiantDTO result = utilisateurService.getEtudiantInfo(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("etu@test.com", result.getEmail());
+        assertEquals("Jean", result.getPrenom());
+        assertEquals("Dupont", result.getNom());
+    }
+
+    @Test
+    public void testGetEtudiantInfo_NotFound_ThrowsException() {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        when(auth.isAuthenticated()).thenReturn(true);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("GESTIONNAIRE")))
+                .when(auth).getAuthorities();
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        when(etudiantRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UtilisateurPasTrouveException.class,
+                () -> utilisateurService.getEtudiantInfo(99L));
+    }
+
+    @Test
+    public void testGetEmployeurInfo_Success() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        when(auth.isAuthenticated()).thenReturn(true);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("GESTIONNAIRE")))
+                .when(auth).getAuthorities();
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        Employeur employeur = new Employeur("emp@test.com", "pass", "tel", "Google", "Contact");
+        when(employeurRepository.findById(1L)).thenReturn(Optional.of(employeur));
+
+        // Act
+        EmployeurDTO result = utilisateurService.getEmployeurInfo(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("emp@test.com", result.getEmail());
+        assertEquals("Google", result.getNomEntreprise());
+    }
+
+    @Test
+    public void testGetProfesseurInfo_Success() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        when(auth.isAuthenticated()).thenReturn(true);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("GESTIONNAIRE")))
+                .when(auth).getAuthorities();
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        Professeur professeur = new Professeur("prof@test.com", "pass", "tel", "Dupont", "Pierre");
+        when(professeurRepository.findById(1L)).thenReturn(Optional.of(professeur));
+
+        // Act
+        ProfesseurDTO result = utilisateurService.getProfesseurInfo(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("prof@test.com", result.getEmail());
+        assertEquals("Dupont", result.getNom());
+    }
+
+    @Test
+    public void testGetGestionnaireInfo_Success() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        when(auth.isAuthenticated()).thenReturn(true);
+        doReturn(Collections.singletonList(new SimpleGrantedAuthority("PROFESSEUR")))
+                .when(auth).getAuthorities();
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        GestionnaireStage gestionnaire = new GestionnaireStage("gest@test.com", "pass", "tel", "Martin", "Claire");
+        when(gestionnaireRepository.findById(1L)).thenReturn(Optional.of(gestionnaire));
+
+        // Act
+        GestionnaireDTO result = utilisateurService.getGestionnaireInfo(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("gest@test.com", result.getEmail());
+        assertEquals("Martin", result.getNom());
     }
 
 

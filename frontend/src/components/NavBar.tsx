@@ -7,6 +7,7 @@ import ThemeSelector from './ThemeSelector';
 import NotificationEtudiant from './NotificationEtudiant.tsx';
 import { useTranslation } from "react-i18next";
 import NotificationEmployeur from "./NotificationEmployeur.tsx";
+import SearchBar from "./SearchBar/SearchBar.tsx";
 
 const NavBar = () => {
     const navigate = useNavigate();
@@ -90,6 +91,7 @@ const NavBar = () => {
 
                         {/* Desktop menu */}
                         <div className="hidden md:flex items-center space-x-2">
+                            <SearchBar />
                             <LanguageSelector />
                             <ThemeSelector />
 

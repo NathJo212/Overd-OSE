@@ -32,8 +32,11 @@ public class EtudiantService {
     private final CandidatureRepository candidatureRepository;
     private final NotificationRepository notificationRepository;
     private final EntenteStageRepository ententeStageRepository;
+    private final ProfesseurRepository professeurRepository;
+    private final EmployeurRepository employeurRepository;
+    private final GestionnaireRepository gestionnaireRepository;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, ProfesseurRepository professeurRepository, EmployeurRepository employeurRepository, GestionnaireRepository gestionnaireRepository) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
@@ -42,6 +45,9 @@ public class EtudiantService {
         this.candidatureRepository = candidatureRepository;
         this.notificationRepository = notificationRepository;
         this.ententeStageRepository = ententeStageRepository;
+        this.professeurRepository = professeurRepository;
+        this.employeurRepository = employeurRepository;
+        this.gestionnaireRepository = gestionnaireRepository;
     }
 
     @Transactional
@@ -445,5 +451,7 @@ public class EtudiantService {
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
+
+
 
 }
