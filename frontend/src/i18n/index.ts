@@ -53,6 +53,8 @@ import gestionnaireSigneEntenteFr from './locales/fr/gestionnaireSigneEntente.js
 import gestionnaireSigneEntenteEn from './locales/en/gestionnaireSigneEntente.json';
 import notificationsFr from './locales/fr/notifications.json';
 import notificationsEn from './locales/en/notifications.json';
+import chatbotFr from './locales/fr/chatbot.json';
+import chatbotEn from './locales/en/chatbot.json';
 import searchResultFr from './locales/fr/searchresult.json'
 import searchResultEn from './locales/en/searchresult.json'
 import searchbarFr from './locales/fr/searchbar.json'
@@ -87,6 +89,7 @@ const resources = {
         gestionnaireSigneEntente: gestionnaireSigneEntenteFr,
         searchresult: searchResultFr,
         searchbar: searchbarFr,
+        chatbot: chatbotFr,
     },
     en: {
         registration: registrationEn,
@@ -114,6 +117,7 @@ const resources = {
         dashboardProfesseur: dashboardProfesseurEn,
         gestionnaireSigneEntente: gestionnaireSigneEntenteEn,
         notifications: notificationsEn,
+        chatbot: chatbotEn,
         searchresult: searchResultEn,
         searchbar: searchbarEn,
     }

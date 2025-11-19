@@ -10,6 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -18,9 +22,11 @@ import java.util.List;
 public class GestionnaireControlleur {
 
     private final GestionnaireService gestionnaireService;
+    private final AiService dbAssistant;
 
-    public GestionnaireControlleur(GestionnaireService gestionnaireService) {
+    public GestionnaireControlleur(GestionnaireService gestionnaireService, AiService dbAssistant) {
         this.gestionnaireService = gestionnaireService;
+        this.dbAssistant = dbAssistant;
     }
 
     @PostMapping("/approuveOffre")
@@ -318,7 +324,7 @@ public class GestionnaireControlleur {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    
+
     @PutMapping("/ententes/{id}/signer")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> signerEntente(@PathVariable Long id) {
@@ -374,5 +380,30 @@ public class GestionnaireControlleur {
         }
     }
 
+    @PostMapping("/chatclient")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<String> exchange(@RequestBody ChatRequest request,
+                                           @RequestHeader(value = "Accept-Language", required = false) String acceptLanguage) {
+        try {
+            if (request == null || request.getMessage() == null || request.getMessage().isBlank()) {
+                return ResponseEntity.badRequest().body("message is required");
+            }
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            boolean authorized = auth != null && auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).anyMatch(a -> a.equals("GESTIONNAIRE"));
+            if (!authorized) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            String msg = request.getMessage().trim();
+            String reply = dbAssistant.answer(msg, acceptLanguage);
+            return ResponseEntity.ok(reply);
+        } catch (WebClientResponseException e) {
+            HttpStatus status = HttpStatus.resolve(e.getRawStatusCode());
+            return ResponseEntity.status(status != null ? status : HttpStatus.BAD_GATEWAY)
+                    .body(e.getResponseBodyAsString());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Chat error: " + (e.getMessage() != null ? e.getMessage() : "unexpected error"));
+        }
+    }
 
 }

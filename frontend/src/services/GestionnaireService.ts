@@ -599,6 +599,22 @@ class GestionnaireService {
             throw new Error('Erreur lors du refus de l\'entente');
         }
     }
+
+    async chatClient(message: string, token: string): Promise<string> {
+        const response = await fetch(`${this.baseUrl}/chatclient`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept-Language': localStorage.getItem('i18nextLng') || 'fr',
+            },
+            body: JSON.stringify({ message }),
+        });
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+        return await response.text();
+    }
 }
 
 export const gestionnaireService = new GestionnaireService();

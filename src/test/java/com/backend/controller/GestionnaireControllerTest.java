@@ -1,22 +1,30 @@
 package com.backend.controller;
 
 import com.backend.Exceptions.*;
+import com.backend.service.AiService;
+import com.backend.service.DTO.ChatRequest;
 import com.backend.service.DTO.EtudiantDTO;
 import com.backend.service.DTO.OffreDTO;
 import com.backend.service.GestionnaireService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -35,7 +43,15 @@ class GestionnaireControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
+    private AiService aiService;
+
+    @MockitoBean
     private GestionnaireService gestionnaireService;
+
+    @AfterEach
+    void clearSecurity() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
     @DisplayName("POST /OSEGestionnaire/approuveOffre retourne 200 si succès")
@@ -947,4 +963,75 @@ class GestionnaireControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
+    @Test
+    @DisplayName("POST /OSEGestionnaire/chatclient returns 400 when message blank")
+    void chatclient_badRequest_blank() throws Exception {
+        List<GrantedAuthority> auths = List.of(new SimpleGrantedAuthority("GESTIONNAIRE"));
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("user","pw", auths);
+        auth.setAuthenticated(true);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        ChatRequest req = new ChatRequest("   ");
+        mockMvc.perform(post("/OSEGestionnaire/chatclient")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("message is required"));
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/chatclient returns 401 when not gestionnaire")
+    void chatclient_unauthorized() throws Exception {
+        SecurityContextHolder.clearContext();
+        ChatRequest req = new ChatRequest("Any message");
+        mockMvc.perform(post("/OSEGestionnaire/chatclient")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/chatclient success returns AI answer and respects Accept-Language")
+    void chatclient_success() throws Exception {
+
+        List<GrantedAuthority> auths = List.of(new SimpleGrantedAuthority("GESTIONNAIRE"));
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("user", "pw", auths);
+        auth.setAuthenticated(true);
+
+        // >> AJOUT CRUCIAL <<
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(aiService.answer(anyString(), anyString())).thenReturn("Réponse AI");
+        ChatRequest req = new ChatRequest("Liste toutes les offres");
+
+        mockMvc.perform(post("/OSEGestionnaire/chatclient")
+                        .header("Accept-Language", "fr")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("POST /OSEGestionnaire/chatclient returns 500 on unexpected error")
+    void chatclient_internalError() throws Exception {
+
+        List<GrantedAuthority> auths = List.of(new SimpleGrantedAuthority("GESTIONNAIRE"));
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("user", "pw", auths);
+        auth.setAuthenticated(true);
+
+        // >> AJOUT CRUCIAL <<
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        doThrow(new RuntimeException("boom"))
+                .when(aiService).answer(anyString(), nullable(String.class));
+
+        ChatRequest req = new ChatRequest("Offer list");
+
+        mockMvc.perform(post("/OSEGestionnaire/chatclient")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Chat error: boom")));
+    }
+
 }
+

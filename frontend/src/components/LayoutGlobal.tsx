@@ -1,6 +1,7 @@
 // src/components/Layout.tsx - Version avec sélecteur flottant
 import { Outlet, useLocation } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
+import ChatBot from './Chatbot/ChatBot.tsx';
 import ThemeSelector from './ThemeSelector';
 
 const LayoutGlobal = () => {
@@ -15,6 +16,7 @@ const LayoutGlobal = () => {
     ];
 
     const showFloatingLanguageSelector = pagesWithoutNavBar.includes(location.pathname);
+    const isGestionnaire = sessionStorage.getItem('authToken') && sessionStorage.getItem('userType') === 'GESTIONNAIRE';
 
     return (
         <div className="min-h-screen bg-white dark:bg-slate-900">
@@ -23,6 +25,13 @@ const LayoutGlobal = () => {
                 <div className="fixed top-4 right-4 z-50 flex gap-2">
                     <LanguageSelector />
                     <ThemeSelector />
+                </div>
+            )}
+
+            {/* ChatBot global pour gestionnaire */}
+            {isGestionnaire && (
+                <div className="fixed right-6 bottom-6 z-50">
+                    <ChatBot />
                 </div>
             )}
 

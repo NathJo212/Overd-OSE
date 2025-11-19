@@ -143,9 +143,8 @@ const DashboardGestionnaire = () => {
     }, [showRefuseModal]);
 
     return (
-        <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
+        <div className="bg-gray-50 dark:bg-slate-900 min-h-screen relative">
             <NavBar />
-
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* En-tête */}
                 <div className="mb-8">
@@ -258,7 +257,7 @@ const DashboardGestionnaire = () => {
                 )}
 
                 {error && (
-                    <div className="mb-6 bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-900/30 rounded-xl p-4">
+                    <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <p className="text-sm font-medium text-red-900 dark:text-red-200">{t(error)}</p>
@@ -457,3 +456,4 @@ const DashboardGestionnaire = () => {
 };
 
 export default DashboardGestionnaire;
+

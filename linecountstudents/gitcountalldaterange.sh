@@ -37,15 +37,15 @@ file_types=("$@")
 echo "Running gitcount.sh for all authors with file types: ${file_types[*]}, since: $start_date" until: $end_date
 echo "========================================================================"
 
-# Get all unique authors and iterate through them
-./linecountstudents/git-authors-uniq.sh | while read -r author; do
+ # Get all unique authors and iterate through them
+./git-authors-uniq.sh | while read -r author; do
     if [ -n "$author" ]; then
         echo "Author: $author"
         
         # Loop through each file type for this author
         for file_type in "${file_types[@]}"; do
             echo "  File type: $file_type"
-            ./linecountstudents/gitcount.sh "$author" "$file_type" "$start_date" "$end_date"
+            ./gitcount.sh "$author" "$file_type" "$start_date" "$end_date"
         done
         
         echo "------------------------------------------------------------------------"
