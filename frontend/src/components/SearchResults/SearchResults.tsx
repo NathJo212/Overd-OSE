@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { User, Building2, GraduationCap, UserCog, Search as SearchIcon, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import NavBar from "./NavBar";
-import searchService from "../services/UtilisateurService.ts";
+import NavBar from "../NavBar.tsx";
+import searchService from "../../services/UtilisateurService.ts";
 
 type UserCategory = "ALL" | "ETUDIANT" | "EMPLOYEUR" | "PROFESSEUR" | "GESTIONNAIRE";
 

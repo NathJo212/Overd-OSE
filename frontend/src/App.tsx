@@ -26,7 +26,7 @@ import GestionnaireAttribueEtudiant from "./components/GestionnaireAttribueEtudi
 import ProfesseurDashboard from './components/DashboardProfesseur.tsx'
 import GestionnaireSigneEntente from "./components/GestionnaireSigneEntente.tsx";
 import ProfesseurEvaluationMilieuStage from "./components/ProfesseurEvaluationMilieuStage.tsx";
-import SearchResults from "./components/SearchResults.tsx";
+import SearchResults from "./components/SearchResults/SearchResults.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(

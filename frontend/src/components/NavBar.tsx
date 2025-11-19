@@ -6,7 +6,7 @@ import LanguageSelector from './LanguageSelector';
 import NotificationEtudiant from './NotificationEtudiant.tsx';
 import { useTranslation } from "react-i18next";
 import NotificationEmployeur from "./NotificationEmployeur.tsx";
-import SearchBar from "./SearchBar.tsx";
+import SearchBar from "./SearchBar/SearchBar.tsx";
 
 const NavBar = () => {
     const navigate = useNavigate();
