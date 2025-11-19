@@ -1027,6 +1027,102 @@ class EmployeurService {
             throw error;
         }
     }
+
+    // ==================== MÉTHODES AVEC FILTRAGE PAR ANNÉE ACADÉMIQUE ====================
+
+    /**
+     * Récupère les candidatures avec filtre d'année académique
+     * @param token Token d'authentification
+     * @param annee Année académique (vide = courante, "toutes" = toutes les années, ou une année spécifique comme "2024")
+     */
+    async getCandidaturesAvecFiltre(token: string, annee: string = ''): Promise<CandidatureRecueDTO[]> {
+        try {
+            let url = `${this.baseUrl}/candidatures`;
+            // Ne pas ajouter le paramètre si annee est vide (= année courante)
+            if (annee && annee.trim() !== '') {
+                url += `?annee=${encodeURIComponent(annee)}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des candidatures');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getCandidaturesAvecFiltre:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les ententes avec filtre d'année académique
+     * @param token Token d'authentification
+     * @param annee Année académique (vide = courante, "toutes" = toutes les années, ou une année spécifique)
+     */
+    async getEntentesAvecFiltre(token: string, annee: string = ''): Promise<any[]> {
+        try {
+            let url = `${this.baseUrl}/ententes`;
+            if (annee && annee.trim() !== '') {
+                url += `?annee=${encodeURIComponent(annee)}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des ententes');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getEntentesAvecFiltre:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les évaluations avec filtre d'année académique
+     * @param token Token d'authentification
+     * @param annee Année académique (vide = courante, "toutes" = toutes les années, ou une année spécifique)
+     */
+    async getEvaluationsAvecFiltre(token: string, annee: string = ''): Promise<any[]> {
+        try {
+            let url = `${this.baseUrl}/evaluations`;
+            if (annee && annee.trim() !== '') {
+                url += `?annee=${encodeURIComponent(annee)}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des évaluations');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getEvaluationsAvecFiltre:', error);
+            return [];
+        }
+    }
 }
 
 export const employeurService = new EmployeurService();

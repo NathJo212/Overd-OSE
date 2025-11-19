@@ -599,6 +599,101 @@ class GestionnaireService {
             throw new Error('Erreur lors du refus de l\'entente');
         }
     }
+
+    // ==================== MÉTHODES AVEC FILTRAGE PAR ANNÉE ACADÉMIQUE ====================
+
+    /**
+     * Récupère toutes les offres avec filtre d'année académique
+     * @param token Token d'authentification
+     * @param annee Année académique (vide = courante, "toutes" = toutes les années, ou une année spécifique)
+     */
+    async getOffresAvecFiltre(token: string, annee: string = ''): Promise<any[]> {
+        try {
+            let url = `${this.baseUrl}/visualiserOffres`;
+            if (annee && annee.trim() !== '') {
+                url += `?annee=${encodeURIComponent(annee)}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des offres');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getOffresAvecFiltre:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Récupère toutes les ententes avec filtre d'année académique
+     * @param token Token d'authentification
+     * @param annee Année académique (vide = courante, "toutes" = toutes les années, ou une année spécifique)
+     */
+    async getEntentesAvecFiltre(token: string, annee: string = ''): Promise<any[]> {
+        try {
+            let url = `${this.baseUrl}/ententes`;
+            if (annee && annee.trim() !== '') {
+                url += `?annee=${encodeURIComponent(annee)}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des ententes');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getEntentesAvecFiltre:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les candidatures éligibles avec filtre d'année académique
+     * @param token Token d'authentification
+     * @param annee Année académique (vide = courante, "toutes" = toutes les années, ou une année spécifique)
+     */
+    async getCandidaturesEligiblesAvecFiltre(token: string, annee: string = ''): Promise<any[]> {
+        try {
+            let url = `${this.baseUrl}/candidaturesEligiblesEntente`;
+            if (annee && annee.trim() !== '') {
+                url += `?annee=${encodeURIComponent(annee)}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des candidatures');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur getCandidaturesEligiblesAvecFiltre:', error);
+            return [];
+        }
+    }
 }
 
 export const gestionnaireService = new GestionnaireService();
