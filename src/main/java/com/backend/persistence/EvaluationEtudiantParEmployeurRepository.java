@@ -1,5 +1,6 @@
 package com.backend.persistence;
 
+import com.backend.modele.AnneeAcademique;
 import com.backend.modele.EvaluationEtudiantParEmployeur;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,4 +12,7 @@ public interface EvaluationEtudiantParEmployeurRepository extends JpaRepository<
     List<EvaluationEtudiantParEmployeur> findAllByEmployeurId(Long employeurId);
 
     boolean existsByEntenteId(Long id);
+
+    // Méthodes avec filtrage par année académique
+    List<EvaluationEtudiantParEmployeur> findAllByEmployeurIdAndAnneeAcademique(Long employeurId, AnneeAcademique anneeAcademique);
 }

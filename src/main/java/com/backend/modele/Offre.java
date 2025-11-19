@@ -60,6 +60,10 @@ public class Offre {
     @OneToMany(mappedBy = "offre", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Candidature> candidatures = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "annee_academique_id")
+    private AnneeAcademique anneeAcademique;
+
     public Offre(String titre, String description, LocalDate date_debut, LocalDate date_fin, Programme progEtude, String lieuStage, String remuneration, LocalDate dateLimite, Employeur employeur) {
         this.titre = titre;
         this.description = description;

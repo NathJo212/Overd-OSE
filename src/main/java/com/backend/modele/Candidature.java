@@ -52,6 +52,10 @@ public class Candidature {
     @OneToOne(mappedBy = "candidature", cascade = CascadeType.ALL)
     private ConvocationEntrevue convocationEntrevue;
 
+    @ManyToOne
+    @JoinColumn(name = "annee_academique_id")
+    private AnneeAcademique anneeAcademique;
+
     public Candidature(Etudiant etudiant, Offre offre, byte[] lettreMotivation) {
         this.etudiant = etudiant;
         this.offre = offre;

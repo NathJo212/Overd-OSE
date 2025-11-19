@@ -1,5 +1,6 @@
 package com.backend.persistence;
 
+import com.backend.modele.AnneeAcademique;
 import com.backend.modele.Candidature;
 import com.backend.modele.Etudiant;
 import com.backend.modele.Offre;
@@ -24,4 +25,13 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
     List<Candidature> findByStatut(Candidature.StatutCandidature statutCandidature);
 
     List<Candidature> findByEtudiantId(Long etudiantId);
+
+    // Méthodes avec filtrage par année académique
+    List<Candidature> findAllByEtudiantAndAnneeAcademique(Etudiant etudiant, AnneeAcademique anneeAcademique);
+
+    List<Candidature> findAllByOffreInAndAnneeAcademique(List<Offre> offres, AnneeAcademique anneeAcademique);
+
+    List<Candidature> findByStatutAndAnneeAcademique(Candidature.StatutCandidature statutCandidature, AnneeAcademique anneeAcademique);
+
+    List<Candidature> findByEtudiantIdAndAnneeAcademique(Long etudiantId, AnneeAcademique anneeAcademique);
 }

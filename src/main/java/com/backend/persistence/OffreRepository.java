@@ -1,5 +1,6 @@
 package com.backend.persistence;
 
+import com.backend.modele.AnneeAcademique;
 import com.backend.modele.Employeur;
 import com.backend.modele.Offre;
 import org.springframework.data.repository.CrudRepository;
@@ -16,5 +17,14 @@ public interface OffreRepository extends CrudRepository<Offre, Long> {
     List<Offre> findAll();
 
     List<Offre> findAllByEmployeur(Employeur employeur);
+
+    // Méthodes avec filtrage par année académique
+    List<Offre> findByStatutApprouveAndAnneeAcademique(Offre.StatutApprouve statutApprouve, AnneeAcademique anneeAcademique);
+
+    List<Offre> findAllByStatutApprouveAndAnneeAcademique(Offre.StatutApprouve statutApprouve, AnneeAcademique anneeAcademique);
+
+    List<Offre> findAllByEmployeurAndAnneeAcademique(Employeur employeur, AnneeAcademique anneeAcademique);
+
+    List<Offre> findAllByAnneeAcademique(AnneeAcademique anneeAcademique);
 
 }

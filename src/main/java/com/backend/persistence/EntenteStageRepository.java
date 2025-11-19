@@ -1,5 +1,6 @@
 package com.backend.persistence;
 
+import com.backend.modele.AnneeAcademique;
 import com.backend.modele.Employeur;
 import com.backend.modele.EntenteStage;
 import com.backend.modele.Etudiant;
@@ -21,4 +22,15 @@ public interface EntenteStageRepository extends JpaRepository<EntenteStage, Long
     List<EntenteStage> findByEmployeurAndArchivedFalse(Employeur employeur);
 
     List<EntenteStage> findByEtudiantId(Long etudiantId);
+
+    // Méthodes avec filtrage par année académique
+    List<EntenteStage> findByEtudiantAndArchivedFalseAndAnneeAcademique(Etudiant etudiant, AnneeAcademique anneeAcademique);
+
+    List<EntenteStage> findByEmployeurAndArchivedFalseAndAnneeAcademique(Employeur employeur, AnneeAcademique anneeAcademique);
+
+    List<EntenteStage> findByArchivedFalseAndAnneeAcademique(AnneeAcademique anneeAcademique);
+
+    List<EntenteStage> findByEtudiantAndEtudiantSignatureAndArchivedFalseAndAnneeAcademique(Etudiant etudiant, EntenteStage.SignatureStatus signatureStatus, AnneeAcademique anneeAcademique);
+
+    List<EntenteStage> findByEmployeurAndEmployeurSignatureAndArchivedFalseAndAnneeAcademique(Employeur employeur, EntenteStage.SignatureStatus signatureStatus, AnneeAcademique anneeAcademique);
 }

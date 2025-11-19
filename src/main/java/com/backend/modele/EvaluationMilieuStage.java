@@ -38,4 +38,8 @@ public class EvaluationMilieuStage {
 
     private LocalDateTime dateEvaluation = LocalDateTime.now();
 
+    @ManyToOne
+    @JoinColumn(name = "annee_academique_id")
+    private AnneeAcademique anneeAcademique;
+
 }
