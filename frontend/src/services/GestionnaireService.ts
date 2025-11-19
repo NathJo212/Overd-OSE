@@ -606,7 +606,7 @@ class GestionnaireService {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
-                'Accept-Language': navigator.language || 'fr',
+                'Accept-Language': localStorage.getItem('i18nextLng') || 'fr',
             },
             body: JSON.stringify({ message }),
         });
