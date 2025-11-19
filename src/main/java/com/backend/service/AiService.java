@@ -355,28 +355,15 @@ public class AiService {
 
     // Détecte si la question ou l'en-tête Accept-Language est en français
     private boolean detectFrench(String q, String acceptLanguage) {
-        if (acceptLanguage != null) {
-            String al = acceptLanguage.toLowerCase();
-            if (al.startsWith("fr")) return true;
-            if (al.startsWith("en")) return false;
+        // Priorité au paramètre explicite reçu (ex: header Accept-Language ou param envoyé par le frontend)
+        if (acceptLanguage != null && !acceptLanguage.isBlank()) {
+            String al = acceptLanguage.toLowerCase(Locale.ROOT);
+            return al.startsWith("fr");
         }
-        String text = q == null ? "" : q.toLowerCase();
-        String[] frWords = {
-            "bonjour","svp","s'il","salut","merci","liste","toutes","tous","offre","stage","entente","candidature","convocation","évaluation","évaluations","evaluation","avec","toutes",
-            "combien","y a-t-il","il y a","nombre","de","d'","affiche","montre","donne","statut","statuts"
-        };
-        String[] enWords = {"hello","please","list","all","every","show","give","want","offer","contract","application","interview","evaluation"};
-        int frHits = 0; int enHits = 0;
-        for (String w : frWords) if (text.matches(".*\\b"+Pattern.quote(w)+"\\b.*")) frHits++;
-        for (String w : enWords) if (text.matches(".*\\b"+Pattern.quote(w)+"\\b.*")) enHits++;
-        boolean hasDiacritics = text.matches(".*[àâäéèêëîïôöùûüç].*");
-        if (hasDiacritics || text.matches(".*\\b(combien|y a-t-il|il y a|offre|stage|entente|candidature|convocation|évaluation|évaluations|statut|statuts|bonjour|salut|merci|svp)\\b.*")) {
-            if (frHits >= enHits) return true;
-        }
-        if (enHits > frHits) return false;
-        if (frHits > enHits) return true;
-        if (text.matches(".*combien.*") || text.matches(".*y a-t-il.*") || text.matches(".*il y a.*")) return true;
-        return frHits > 0 && frHits >= enHits;
+        // Si aucune langue explicite fournie, utiliser un fallback simple basé sur quelques mots-clés
+        if (q == null || q.isBlank()) return true; // par défaut francais si message vide/absent
+        String text = q.toLowerCase(Locale.ROOT);
+        return text.matches(".*\\b(bonjour|salut|merci|svp|offre|stage|entente|candidature|convocation|évaluation|evaluation)\\b.*");
     }
 
     // Classe utilitaire pour les requêtes génériques d'entité
