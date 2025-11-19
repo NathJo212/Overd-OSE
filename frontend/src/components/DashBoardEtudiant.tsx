@@ -300,6 +300,23 @@ const DashBoardEtudiant = () => {
                             {t('cards.ententes.description')}
                         </p>
                     </button>
+
+                    <button
+                        onClick={() => navigate("/historique-etudiant")}
+                        className="cursor-pointer bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 dark:border-slate-700 transition-all duration-200 text-left group"
+                    >
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
+                                <Calendar className="h-7 w-7 text-purple-600" />
+                            </div>
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
+                             Historique
+                        </h2>
+                        <p className="text-gray-600 dark:text-slate-300">
+                            Consultez vos candidatures et ententes par année académique
+                        </p>
+                    </button>
                 </div>
 
                 <div className="mb-8">

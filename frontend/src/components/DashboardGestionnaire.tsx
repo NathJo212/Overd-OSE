@@ -202,6 +202,21 @@ const DashboardGestionnaire = () => {
                         <h3 className="text-xl font-bold mb-2">{t('navbar:assignTeachers')}</h3>
                         <p className="text-indigo-100 text-sm">Associer les professeurs aux étudiants</p>
                     </NavLink>
+
+                    {/* Historique */}
+                    <NavLink
+                        to="/historique-gestionnaire"
+                        className="group bg-gradient-to-br from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-pink-400/50 transition-all duration-300 transform hover:scale-105 p-6"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <Calendar className="w-10 h-10" />
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
+                            </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">Historique</h3>
+                        <p className="text-pink-100 text-sm">Consulter les données par année académique</p>
+                    </NavLink>
                 </div>
 
                 {/* Séparateur */}
