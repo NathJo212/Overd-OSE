@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { gestionnaireService } from '../services/GestionnaireService';
+import { gestionnaireService } from '../../services/GestionnaireService.ts';
 import { useTranslation } from 'react-i18next';
 
 const ChatBot: React.FC = () => {

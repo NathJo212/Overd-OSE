@@ -1,7 +1,7 @@
 // src/components/Layout.tsx - Version avec sélecteur flottant
 import { Outlet, useLocation } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
-import ChatBot from './ChatBot';
+import ChatBot from './Chatbot/ChatBot.tsx';
 
 const LayoutGlobal = () => {
     const location = useLocation();
