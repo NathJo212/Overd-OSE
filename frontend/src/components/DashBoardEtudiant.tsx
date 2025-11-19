@@ -211,7 +211,7 @@ const DashBoardEtudiant = () => {
 
     return (
         <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
-            <NavBar/>
+            <NavBar />
 
             {showNotification && (
                 <div className="fixed top-24 right-4 z-50 max-w-md w-full animate-slide-in">
@@ -311,7 +311,7 @@ const DashBoardEtudiant = () => {
                             </div>
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                             Historique
+                            Historique
                         </h2>
                         <p className="text-gray-600 dark:text-slate-300">
                             Consultez vos candidatures et ententes par année académique
@@ -350,67 +350,67 @@ const DashBoardEtudiant = () => {
                         </button>
                     </div>
 
-                {loadingConvocations ? (
-                    <div className="text-sm text-gray-600 dark:text-slate-300">{t('convocations.loading') || 'Loading convocations...'}</div>
-                ) : convocations.length === 0 ? (
-                    <div className="text-sm text-gray-500 dark:text-slate-400">{t('convocations.empty') || 'No convocations at the moment.'}</div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {convocations.map(c => (
-                            <div
-                                key={c.id}
-                                className={`relative bg-white dark:bg-slate-800 p-6 rounded-2xl border ${c.statut === 'CONVOQUEE' ? 'ring-1 ring-green-100' : c.statut === 'MODIFIE' ? 'ring-1 ring-yellow-100' : c.statut === 'ANNULEE' ? 'ring-1 ring-red-100' : 'ring-1 ring-slate-50'} shadow-sm hover:shadow-lg transform hover:-translate-y-1 transition-all`}
-                            >
-                                <div className="absolute -top-3 left-4">
-                                    <div className={`px-3 py-1 rounded-full text-xs font-semibold ${c.statut === 'CONVOQUEE' ? 'bg-green-50 text-green-700' : c.statut === 'MODIFIE' ? 'bg-yellow-50 text-yellow-700' : c.statut === 'ANNULEE' ? 'bg-red-50 text-red-700' : 'bg-slate-50 text-slate-700'}`}>
-                                        {(t(`convocations.${(c.statut ? c.statut.toLowerCase() : 'unknown')}`))}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4">
-                                    <div className="flex-shrink-0">
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/30 dark:to-slate-800 flex items-center justify-center">
-                                            <Calendar className="w-6 h-6 text-blue-600" />
+                    {loadingConvocations ? (
+                        <div className="text-sm text-gray-600 dark:text-slate-300">{t('convocations.loading') || 'Loading convocations...'}</div>
+                    ) : convocations.length === 0 ? (
+                        <div className="text-sm text-gray-500 dark:text-slate-400">{t('convocations.empty') || 'No convocations at the moment.'}</div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {convocations.map(c => (
+                                <div
+                                    key={c.id}
+                                    className={`relative bg-white dark:bg-slate-800 p-6 rounded-2xl border ${c.statut === 'CONVOQUEE' ? 'ring-1 ring-green-100' : c.statut === 'MODIFIE' ? 'ring-1 ring-yellow-100' : c.statut === 'ANNULEE' ? 'ring-1 ring-red-100' : 'ring-1 ring-slate-50'} shadow-sm hover:shadow-lg transform hover:-translate-y-1 transition-all`}
+                                >
+                                    <div className="absolute -top-3 left-4">
+                                        <div className={`px-3 py-1 rounded-full text-xs font-semibold ${c.statut === 'CONVOQUEE' ? 'bg-green-50 text-green-700' : c.statut === 'MODIFIE' ? 'bg-yellow-50 text-yellow-700' : c.statut === 'ANNULEE' ? 'bg-red-50 text-red-700' : 'bg-slate-50 text-slate-700'}`}>
+                                            {(t(`convocations.${(c.statut ? c.statut.toLowerCase() : 'unknown')}`))}
                                         </div>
                                     </div>
 
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
-                                            <div className="min-w-0">
-                                                <p className="text-sm text-gray-500 dark:text-slate-400">{new Date(c.dateHeure).toLocaleDateString()} · {new Date(c.dateHeure).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                                                {c.offreTitre && <p className="text-md font-semibold text-gray-900 dark:text-slate-100 truncate">{c.offreTitre}</p>}
-                                            </div>
-                                            <div className="ml-4 text-right">
-                                                <button
-                                                    onClick={() => setSelectedConvocation(c)}
-                                                    aria-label={t('convocations.view') || 'Voir la convocation'}
-                                                    className="cursor-pointer inline-flex items-center gap-3 px-4 py-2 bg-blue-600 text-white rounded-xl text-base font-semibold hover:opacity-90 transition transform hover:-translate-y-1"
-                                                >
-                                                    {t('convocations.view') || 'Voir'}
-                                                </button>
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex-shrink-0">
+                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/30 dark:to-slate-800 flex items-center justify-center">
+                                                <Calendar className="w-6 h-6 text-blue-600" />
                                             </div>
                                         </div>
 
-                                        <div className="mt-3 text-sm text-gray-600 dark:text-slate-300 flex flex-col gap-2">
-                                            <div className="flex items-center gap-2">
-                                                <MapPin className="w-4 h-4 text-gray-400" />
-                                                <span className="truncate">{c.lieuOuLien || t('convocations.locationUnknown')}</span>
-                                            </div>
-                                            {c.employeurNom && (
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">{t('convocations.employer') || 'Employeur'}</span>
-                                                    <span className="text-sm text-gray-700 dark:text-slate-200 font-medium truncate">{c.employeurNom}</span>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between">
+                                                <div className="min-w-0">
+                                                    <p className="text-sm text-gray-500 dark:text-slate-400">{new Date(c.dateHeure).toLocaleDateString()} · {new Date(c.dateHeure).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                    {c.offreTitre && <p className="text-md font-semibold text-gray-900 dark:text-slate-100 truncate">{c.offreTitre}</p>}
                                                 </div>
-                                            )}
-                                            {c.message && <p className="text-sm text-gray-700 dark:text-slate-200 max-h-14 overflow-hidden">{c.message}</p>}
+                                                <div className="ml-4 text-right">
+                                                    <button
+                                                        onClick={() => setSelectedConvocation(c)}
+                                                        aria-label={t('convocations.view') || 'Voir la convocation'}
+                                                        className="cursor-pointer inline-flex items-center gap-3 px-4 py-2 bg-blue-600 text-white rounded-xl text-base font-semibold hover:opacity-90 transition transform hover:-translate-y-1"
+                                                    >
+                                                        {t('convocations.view') || 'Voir'}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-3 text-sm text-gray-600 dark:text-slate-300 flex flex-col gap-2">
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin className="w-4 h-4 text-gray-400" />
+                                                    <span className="truncate">{c.lieuOuLien || t('convocations.locationUnknown')}</span>
+                                                </div>
+                                                {c.employeurNom && (
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">{t('convocations.employer') || 'Employeur'}</span>
+                                                        <span className="text-sm text-gray-700 dark:text-slate-200 font-medium truncate">{c.employeurNom}</span>
+                                                    </div>
+                                                )}
+                                                {c.message && <p className="text-sm text-gray-700 dark:text-slate-200 max-h-14 overflow-hidden">{c.message}</p>}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Convocation modal */}

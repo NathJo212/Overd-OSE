@@ -71,7 +71,7 @@ const HistoriqueEmployeur = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
             <NavBar />
             
             <div className="max-w-7xl mx-auto px-4 py-8">
@@ -79,15 +79,15 @@ const HistoriqueEmployeur = () => {
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
                         <History size={32} className="text-blue-600" />
-                        <h1 className="text-3xl font-bold text-gray-900">Historique</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Historique</h1>
                     </div>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-slate-300">
                         Consultez vos candidatures, ententes et évaluations par année académique
                     </p>
                 </div>
 
                 {/* Sélecteur d'année */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-6 border border-transparent dark:border-slate-700">
                     <AnneeAcademiqueSelector 
                         onAnneeChange={handleAnneeChange}
                         includeToutes={false}
@@ -95,15 +95,15 @@ const HistoriqueEmployeur = () => {
                 </div>
 
                 {/* Onglets */}
-                <div className="bg-white rounded-lg shadow-md">
-                    <div className="border-b border-gray-200">
+                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-transparent dark:border-slate-700">
+                    <div className="border-b border-gray-200 dark:border-slate-700">
                         <nav className="flex -mb-px">
                             <button
                                 onClick={() => setOngletActif('candidatures')}
                                 className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
                                     ongletActif === 'candidatures'
                                         ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                        : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
                                 }`}
                             >
                                 <Users size={20} />
@@ -114,7 +114,7 @@ const HistoriqueEmployeur = () => {
                                 className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
                                     ongletActif === 'ententes'
                                         ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                        : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
                                 }`}
                             >
                                 <BookOpen size={20} />
@@ -125,7 +125,7 @@ const HistoriqueEmployeur = () => {
                                 className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
                                     ongletActif === 'evaluations'
                                         ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                        : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
                                 }`}
                             >
                                 <Award size={20} />
@@ -139,7 +139,7 @@ const HistoriqueEmployeur = () => {
                         {loading ? (
                             <div className="text-center py-12">
                                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                                <p className="mt-4 text-gray-600">Chargement...</p>
+                                <p className="mt-4 text-gray-600 dark:text-slate-300">Chargement...</p>
                             </div>
                         ) : (
                             <>
@@ -147,22 +147,22 @@ const HistoriqueEmployeur = () => {
                                 {ongletActif === 'candidatures' && (
                                     <div className="space-y-4">
                                         {candidatures.length === 0 ? (
-                                            <div className="text-center py-12 text-gray-500">
-                                                <FileText size={48} className="mx-auto mb-4 text-gray-300" />
+                                            <div className="text-center py-12 text-gray-500 dark:text-slate-400">
+                                                <FileText size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
                                                 <p>Aucune candidature pour cette période</p>
                                             </div>
                                         ) : (
                                             candidatures.map((cand) => (
-                                                <div key={cand.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                                                <div key={cand.id} className="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition bg-white dark:bg-slate-700">
                                                     <div className="flex justify-between items-start">
                                                         <div className="flex-1">
-                                                            <h3 className="font-semibold text-lg text-gray-900">
+                                                            <h3 className="font-semibold text-lg text-gray-900 dark:text-slate-100">
                                                                 {cand.offreTitre}
                                                             </h3>
-                                                            <p className="text-gray-600 mt-1">
+                                                            <p className="text-gray-600 dark:text-slate-300 mt-1">
                                                                 {cand.etudiantPrenom} {cand.etudiantNom}
                                                             </p>
-                                                            <p className="text-sm text-gray-500 mt-1">
+                                                            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
                                                                 Date: {new Date(cand.dateCandidature).toLocaleDateString('fr-CA')}
                                                             </p>
                                                         </div>
@@ -180,22 +180,22 @@ const HistoriqueEmployeur = () => {
                                 {ongletActif === 'ententes' && (
                                     <div className="space-y-4">
                                         {ententes.length === 0 ? (
-                                            <div className="text-center py-12 text-gray-500">
-                                                <BookOpen size={48} className="mx-auto mb-4 text-gray-300" />
+                                            <div className="text-center py-12 text-gray-500 dark:text-slate-400">
+                                                <BookOpen size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
                                                 <p>Aucune entente pour cette période</p>
                                             </div>
                                         ) : (
                                             ententes.map((entente) => (
-                                                <div key={entente.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                                                <div key={entente.id} className="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition bg-white dark:bg-slate-700">
                                                     <div className="flex justify-between items-start">
                                                         <div className="flex-1">
-                                                            <h3 className="font-semibold text-lg text-gray-900">
+                                                            <h3 className="font-semibold text-lg text-gray-900 dark:text-slate-100">
                                                                 {entente.titre}
                                                             </h3>
-                                                            <p className="text-gray-600 mt-1">
+                                                            <p className="text-gray-600 dark:text-slate-300 mt-1">
                                                                 Étudiant: {entente.etudiantNom}
                                                             </p>
-                                                            <p className="text-sm text-gray-500 mt-1">
+                                                            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
                                                                 Période: {new Date(entente.dateDebut).toLocaleDateString('fr-CA')} - {new Date(entente.dateFin).toLocaleDateString('fr-CA')}
                                                             </p>
                                                         </div>
@@ -213,19 +213,19 @@ const HistoriqueEmployeur = () => {
                                 {ongletActif === 'evaluations' && (
                                     <div className="space-y-4">
                                         {evaluations.length === 0 ? (
-                                            <div className="text-center py-12 text-gray-500">
-                                                <Award size={48} className="mx-auto mb-4 text-gray-300" />
+                                            <div className="text-center py-12 text-gray-500 dark:text-slate-400">
+                                                <Award size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
                                                 <p>Aucune évaluation pour cette période</p>
                                             </div>
                                         ) : (
                                             evaluations.map((evaluation) => (
-                                                <div key={evaluation.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                                                <div key={evaluation.id} className="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition bg-white dark:bg-slate-700">
                                                     <div className="flex justify-between items-start">
                                                         <div className="flex-1">
-                                                            <h3 className="font-semibold text-lg text-gray-900">
+                                                            <h3 className="font-semibold text-lg text-gray-900 dark:text-slate-100">
                                                                 Évaluation - {evaluation.etudiantNom}
                                                             </h3>
-                                                            <p className="text-sm text-gray-500 mt-1">
+                                                            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
                                                                 Date: {new Date(evaluation.dateEvaluation).toLocaleDateString('fr-CA')}
                                                             </p>
                                                         </div>
