@@ -148,7 +148,7 @@ const EntentesStageGestionnaire = () => {
                 {/* En-tête */}
                 <button
                     onClick={() => navigate('/dashboard-gestionnaire')}
-                    className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-4 transition-colors"
+                    className="cursor-pointer flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-4 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     {t('backToDashboard')}
