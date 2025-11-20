@@ -39,6 +39,15 @@
     "startProcess": "Commencer processus entente",
     "viewPdf": "Voir le PDF"
   },
+  "buttons": {
+    "viewPdf": "Voir le PDF",
+    "close": "Fermer"
+  },
+  "modals": {
+    "pdf": {
+      "title": "Entente de stage signée"
+    }
+  },
   "modal": {
     "title": "Détails de l'entente",
     "signatures": "Statut de la signature",

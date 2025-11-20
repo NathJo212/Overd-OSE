@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -452,6 +453,33 @@ public class EtudiantService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public byte[] getEntenteDocument(Long ententeId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EntenteDocumentNonTrouveeException {
+        Etudiant etudiant = getEtudiantConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(EntenteNonTrouveException::new);
+
+        // Vérifier que l'étudiant est bien celui de l'entente
+        if (entente.getEtudiant() == null || !entente.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        // Vérifier que le gestionnaire a signé (donc le PDF est disponible)
+        if (entente.getGestionnaireSignature() != EntenteStage.SignatureStatus.SIGNEE) {
+            throw new EntenteDocumentNonTrouveeException();
+        }
+
+        if (entente.getPdfBase64() != null && !entente.getPdfBase64().isEmpty()) {
+            try {
+                return Base64.getDecoder().decode(entente.getPdfBase64());
+            } catch (IllegalArgumentException e) {
+                // invalid base64
+            }
+        }
+        throw new EntenteDocumentNonTrouveeException();
+    }
 
 
 }

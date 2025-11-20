@@ -83,6 +83,9 @@ public class EntenteStage {
     private SignatureStatus employeurSignature = SignatureStatus.EN_ATTENTE;
 
     @Enumerated(EnumType.STRING)
+    private SignatureStatus gestionnaireSignature = SignatureStatus.EN_ATTENTE;
+
+    @Enumerated(EnumType.STRING)
     private StatutEntente statut = StatutEntente.EN_ATTENTE;
 
     private String messageModificationEtudiant;

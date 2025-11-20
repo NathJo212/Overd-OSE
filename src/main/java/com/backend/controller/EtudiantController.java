@@ -3,7 +3,11 @@ package com.backend.controller;
 import com.backend.Exceptions.*;
 import com.backend.service.DTO.*;
 import com.backend.service.EtudiantService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -385,6 +389,25 @@ public class EtudiantController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null);
+        }
+    }
+
+    @GetMapping("/ententes/{id}/document")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<Resource> getEntenteDocument(@PathVariable Long id) {
+        try {
+            byte[] pdf = etudiantService.getEntenteDocument(id);
+            ByteArrayResource resource = new ByteArrayResource(pdf);
+            String filename = String.format("entente_%d.pdf", id);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                    .body(resource);
+
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 //

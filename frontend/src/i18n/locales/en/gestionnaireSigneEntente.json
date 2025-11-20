@@ -1,12 +1,12 @@
 {
-  "title": "Agreements Ready for Signature",
-  "subtitle": "Sign agreements where both student and employer have already signed",
+  "title": "Agreement Management",
+  "subtitle": "View and sign internship agreements",
   "loading": "Loading agreements...",
   "refresh": "Refresh",
   "backToDashboard": "Back to Dashboard",
 
-  "noEntentes": "No Agreements Ready",
-  "noEntentesSubtitle": "There are currently no agreements waiting for your signature. Agreements will appear here once both the student and employer have signed.",
+  "noEntentes": "No Agreements Available",
+  "noEntentesSubtitle": "There are currently no active agreements. Agreements will appear here once created.",
 
   "ententeCount": "agreement(s) pending",
   "week": "week",
@@ -14,11 +14,19 @@
 
   "cards": {
     "ready": "Ready to sign",
+    "signed": "Signed",
     "waitingBoth": "Waiting for signatures",
     "studentSigned": "Student: Signed",
     "employerSigned": "Employer: Signed",
+    "managerSigned": "Manager: Signed",
     "studentPending": "Student: Pending",
     "employerPending": "Employer: Pending"
+  },
+
+  "filters": {
+    "all": "All",
+    "pending": "To Sign",
+    "signed": "Signed"
   },
 
   "fields": {
@@ -61,7 +69,8 @@
     "close": "Close",
     "signing": "Signing...",
     "refusing": "Refusing...",
-    "viewPdf": "View PDF"
+    "viewPdf": "View PDF",
+    "loading": "Loading..."
   },
 
   "modals": {
@@ -77,6 +86,9 @@
       "title": "Refuse Agreement",
       "message": "Are you sure you want to refuse this internship agreement? The agreement will be cancelled and archived. This action is irreversible.",
       "warning": "The student and employer will be notified of the refusal."
+    },
+    "pdf": {
+      "title": "Signed Internship Agreement"
     }
   },
 

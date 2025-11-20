@@ -311,6 +311,7 @@ public class GestionnaireService {
         // reset signatures if modification before final signature
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente.setGestionnaireSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
         // clear signature dates and previously generated document
         entente.setDateSignatureEtudiant(null);
@@ -434,6 +435,7 @@ public class GestionnaireService {
         }
 
         entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        entente.setGestionnaireSignature(EntenteStage.SignatureStatus.SIGNEE);
         entente.setDateSignatureGestionnaire(LocalDate.now());
 
         // Generate and store the final PDF upon final signature
@@ -477,6 +479,7 @@ public class GestionnaireService {
         }
 
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
+        entente.setGestionnaireSignature(EntenteStage.SignatureStatus.REFUSEE);
         entente.setArchived(true);
         ententeStageRepository.save(entente);
     }

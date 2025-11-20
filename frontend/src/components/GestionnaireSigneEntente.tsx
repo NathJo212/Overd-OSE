@@ -29,6 +29,8 @@ const GestionnaireSigneEntente = () => {
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
     const [showRefuseModal, setShowRefuseModal] = useState(false);
+    const [showPdfModal, setShowPdfModal] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
 
@@ -49,8 +51,8 @@ const GestionnaireSigneEntente = () => {
             setLoading(true);
             setError('');
             if (!token) throw new Error(t('errors.unauthorized'));
-            const data = await gestionnaireService.getEntentesPretes(token);
-            console.log('Ententes prêtes chargées:', data);
+            const data = await gestionnaireService.getAllEntentes(token);
+            console.log('Toutes les ententes chargées:', data);
             setEntentes(data);
         } catch (err: any) {
             console.error('Erreur lors du chargement des ententes:', err);
@@ -73,6 +75,24 @@ const GestionnaireSigneEntente = () => {
         setShowDetailsModal(true);
     };
 
+    const handleViewPdf = async (entente: EntenteStageDTO) => {
+        if (!entente.id || !token) return;
+
+        try {
+            setError('');
+            setActionLoading(true);
+            const pdfBlob = await gestionnaireService.getPdfEntente(entente.id, token);
+            const url = URL.createObjectURL(pdfBlob);
+            setPdfUrl(url);
+            setShowPdfModal(true);
+        } catch (err: any) {
+            console.error('Erreur lors de l\'affichage du PDF:', err);
+            setError(err.message || t('errors.pdfError'));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const handleSignClick = (entente: EntenteStageDTO) => {
         setSelectedEntente(entente);
         setShowDetailsModal(false);
@@ -91,11 +111,14 @@ const GestionnaireSigneEntente = () => {
         try {
             setActionLoading(true);
             setError('');
+            console.log('Signature de l\'entente ID:', selectedEntente.id);
             await gestionnaireService.signerEntente(selectedEntente.id, token);
+            console.log('Signature réussie, rechargement des ententes...');
             setSuccessMessage(t('success.signed'));
             setShowSignModal(false);
             setSelectedEntente(null);
             await loadEntentes();
+            console.log('Ententes rechargées après signature');
             setTimeout(() => setSuccessMessage(''), 5000);
         } catch (err: any) {
             console.error('Erreur lors de la signature:', err);
@@ -145,7 +168,12 @@ const GestionnaireSigneEntente = () => {
         setShowDetailsModal(false);
         setShowSignModal(false);
         setShowRefuseModal(false);
+        setShowPdfModal(false);
         setSelectedEntente(null);
+        if (pdfUrl) {
+            URL.revokeObjectURL(pdfUrl);
+            setPdfUrl(null);
+        }
     };
 
     const getProgrammeLabel = (progEtude?: string) => {
@@ -260,14 +288,21 @@ const GestionnaireSigneEntente = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full">
-                                                <CheckCircle className="w-4 h-4" />
-                                                <span className="font-medium text-sm">{t('cards.ready')}</span>
-                                            </div>
+                                            {entente.gestionnaireSignature === 'SIGNEE' ? (
+                                                <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                                                    <CheckCircle className="w-4 h-4" />
+                                                    <span className="font-medium text-sm">{t('cards.signed')}</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full">
+                                                    <CheckCircle className="w-4 h-4" />
+                                                    <span className="font-medium text-sm">{t('cards.ready')}</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Statut des signatures */}
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
+                                        <div className="grid grid-cols-3 gap-4 mb-4">
                                             <div className="flex items-center gap-2 text-sm">
                                                 <CheckCircle className="w-4 h-4 text-green-600" />
                                                 <span className="text-gray-700 dark:text-slate-300">{t('cards.studentSigned')}</span>
@@ -276,6 +311,12 @@ const GestionnaireSigneEntente = () => {
                                                 <CheckCircle className="w-4 h-4 text-green-600" />
                                                 <span className="text-gray-700 dark:text-slate-300">{t('cards.employerSigned')}</span>
                                             </div>
+                                            {entente.gestionnaireSignature === 'SIGNEE' && (
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <CheckCircle className="w-4 h-4 text-blue-600" />
+                                                    <span className="text-gray-700 dark:text-slate-300">{t('cards.managerSigned')}</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Détails */}
@@ -294,27 +335,39 @@ const GestionnaireSigneEntente = () => {
 
                                         {/* Boutons d'action */}
                                         <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-slate-700">
-                                            <button
-                                                onClick={() => handleViewDetails(entente)}
-                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
-                                            >
-                                                <FileText className="w-4 h-4" />
-                                                {t('buttons.viewDetails')}
-                                            </button>
-                                            <button
-                                                onClick={() => handleSignClick(entente)}
-                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                                            >
-                                                <FileSignature className="w-4 h-4" />
-                                                {t('buttons.sign')}
-                                            </button>
-                                            <button
-                                                onClick={() => handleRefuseClick(entente)}
-                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-800/40 transition-colors"
-                                            >
-                                                <XCircle className="w-4 h-4" />
-                                                {t('buttons.refuse')}
-                                            </button>
+                                            {entente.gestionnaireSignature === 'SIGNEE' ? (
+                                                <button
+                                                    onClick={() => handleViewPdf(entente)}
+                                                    className="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                                >
+                                                    <FileText className="w-4 h-4" />
+                                                    {t('buttons.viewPdf')}
+                                                </button>
+                                            ) : (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleViewDetails(entente)}
+                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
+                                                    >
+                                                        <FileText className="w-4 h-4" />
+                                                        {t('buttons.viewDetails')}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleSignClick(entente)}
+                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                                    >
+                                                        <FileSignature className="w-4 h-4" />
+                                                        {t('buttons.sign')}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleRefuseClick(entente)}
+                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-800/40 transition-colors"
+                                                    >
+                                                        <XCircle className="w-4 h-4" />
+                                                        {t('buttons.refuse')}
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -433,29 +486,12 @@ const GestionnaireSigneEntente = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl flex gap-3">
+                        <div className="p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl">
                             <button
                                 onClick={closeAllModals}
-                                className="flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
+                                className="w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
                             >
                                 {t('buttons.close')}
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setShowDetailsModal(false);
-                                    setShowSignModal(true);
-                                }}
-                                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
-                            >
-                                <FileSignature className="w-5 h-5" />
-                                {t('buttons.sign')}
-                            </button>
-                            <button
-                                onClick={() => handleRefuseClick(selectedEntente)}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-800/40 transition-colors"
-                            >
-                                <XCircle className="w-4 h-4" />
-                                {t('buttons.refuse')}
                             </button>
                         </div>
                     </div>
@@ -548,6 +584,50 @@ const GestionnaireSigneEntente = () => {
                                 ) : (
                                     t('buttons.confirm')
                                 )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal PDF */}
+            {showPdfModal && pdfUrl && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-6xl w-full h-[90vh] flex flex-col">
+                        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl flex justify-between items-center">
+                            <h2 className="text-2xl font-bold">{t('modals.pdf.title')}</h2>
+                            <button
+                                onClick={() => {
+                                    setShowPdfModal(false);
+                                    if (pdfUrl) {
+                                        URL.revokeObjectURL(pdfUrl);
+                                        setPdfUrl(null);
+                                    }
+                                }}
+                                className="cursor-pointer text-white hover:text-gray-200 transition-colors"
+                            >
+                                <XCircle className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                            <iframe
+                                src={pdfUrl}
+                                className="w-full h-full"
+                                title="PDF de l'entente"
+                            />
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-slate-700 rounded-b-2xl">
+                            <button
+                                onClick={() => {
+                                    setShowPdfModal(false);
+                                    if (pdfUrl) {
+                                        URL.revokeObjectURL(pdfUrl);
+                                        setPdfUrl(null);
+                                    }
+                                }}
+                                className="cursor-pointer w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
+                            >
+                                {t('buttons.close')}
                             </button>
                         </div>
                     </div>

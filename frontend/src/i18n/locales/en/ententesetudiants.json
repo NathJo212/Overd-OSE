@@ -66,6 +66,9 @@
     "refuse": {
       "title": "Confirm refusal",
       "message": "Are you sure you want to refuse this internship agreement? This action is irreversible."
+    },
+    "pdf": {
+      "title": "Signed Internship Agreement"
     }
   },
   "modal": {

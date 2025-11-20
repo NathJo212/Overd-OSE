@@ -22,9 +22,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import com.backend.modele.Etudiant;
 
 @Service
 public class EmployeurService {
@@ -519,6 +516,34 @@ public class EmployeurService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid base64 PDF data");
         }
+    }
+
+    @Transactional
+    public byte[] getEntenteDocument(Long ententeId)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EntenteDocumentNonTrouveeException {
+        Employeur employeur = getEmployeurConnecte();
+
+        EntenteStage entente = ententeStageRepository.findById(ententeId)
+                .orElseThrow(EntenteNonTrouveException::new);
+
+        // Vérifier que l'employeur est bien celui de l'entente
+        if (entente.getEmployeur() == null || !entente.getEmployeur().getId().equals(employeur.getId())) {
+            throw new ActionNonAutoriseeException();
+        }
+
+        // Vérifier que le gestionnaire a signé (donc le PDF est disponible)
+        if (entente.getGestionnaireSignature() != EntenteStage.SignatureStatus.SIGNEE) {
+            throw new EntenteDocumentNonTrouveeException();
+        }
+
+        if (entente.getPdfBase64() != null && !entente.getPdfBase64().isEmpty()) {
+            try {
+                return Base64.getDecoder().decode(entente.getPdfBase64());
+            } catch (IllegalArgumentException e) {
+                // invalid base64
+            }
+        }
+        throw new EntenteDocumentNonTrouveeException();
     }
 
 }

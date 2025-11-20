@@ -1,12 +1,12 @@
 {
-  "title": "Ententes prêtes pour signature",
-  "subtitle": "Signez les ententes où l'étudiant et l'employeur ont déjà signé",
+  "title": "Gestion des ententes",
+  "subtitle": "Consultez et signez les ententes de stage",
   "loading": "Chargement des ententes...",
   "refresh": "Actualiser",
   "backToDashboard": "Retour au tableau de bord",
 
-  "noEntentes": "Aucune entente prête",
-  "noEntentesSubtitle": "Il n'y a actuellement aucune entente en attente de votre signature. Les ententes apparaîtront ici une fois que l'étudiant et l'employeur auront signé.",
+  "noEntentes": "Aucune entente disponible",
+  "noEntentesSubtitle": "Il n'y a actuellement aucune entente active. Les ententes apparaîtront ici une fois créées.",
 
   "ententeCount": "entente(s) en attente",
   "week": "semaine",
@@ -14,11 +14,19 @@
 
   "cards": {
     "ready": "Prête à signer",
+    "signed": "Signée",
     "waitingBoth": "En attente des signatures",
     "studentSigned": "Étudiant: Signé",
     "employerSigned": "Employeur: Signé",
+    "managerSigned": "Gestionnaire: Signé",
     "studentPending": "Étudiant: En attente",
     "employerPending": "Employeur: En attente"
+  },
+
+  "filters": {
+    "all": "Toutes",
+    "pending": "À signer",
+    "signed": "Signées"
   },
 
   "fields": {
@@ -61,7 +69,8 @@
     "close": "Fermer",
     "signing": "Signature en cours...",
     "refusing": "Refus en cours...",
-    "viewPdf": "Voir le PDF"
+    "viewPdf": "Voir le PDF",
+    "loading": "Chargement..."
   },
 
   "modals": {
@@ -77,6 +86,9 @@
       "title": "Refuser l'entente",
       "message": "Êtes-vous sûr de vouloir refuser cette entente de stage ? L'entente sera annulée et archivée. Cette action est irréversible.",
       "warning": "L'étudiant et l'employeur seront notifiés du refus."
+    },
+    "pdf": {
+      "title": "Entente de stage signée"
     }
   },
 

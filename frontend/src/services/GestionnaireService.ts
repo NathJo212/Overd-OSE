@@ -115,6 +115,7 @@ export interface EntenteStageDTO {
     // Statuts de signature
     etudiantSignature?: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
     employeurSignature?: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
+    gestionnaireSignature?: 'EN_ATTENTE' | 'SIGNEE' | 'REFUSEE';
     statut?: 'EN_ATTENTE' | 'SIGNEE' | 'ANNULEE';
     archived?: boolean;
 }
@@ -465,6 +466,33 @@ class GestionnaireService {
 
     // ========== GESTION DES ENTENTES - SIGNATURE PAR LE GESTIONNAIRE ==========
     /**
+     * Récupère toutes les ententes actives (prêtes à signer ET déjà signées)
+     * @param token - Token d'authentification
+     * @returns Promise avec la liste de toutes les ententes
+     */
+    async getAllEntentes(token: string): Promise<EntenteStageDTO[]> {
+        try {
+            const response = await fetch(`${this.baseUrl}/ententes`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des ententes');
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération des ententes:', error);
+            throw new Error('Erreur lors de la récupération des ententes');
+        }
+    }
+
+    /**
      * Récupère les ententes prêtes pour la signature du gestionnaire
      * (Où l'étudiant ET l'employeur ont déjà signé)
      * @param token - Token d'authentification
@@ -614,6 +642,32 @@ class GestionnaireService {
             throw new Error(await response.text());
         }
         return await response.text();
+    }
+
+    /**
+     * Télécharge le PDF d'une entente de stage
+     * @param ententeId - L'ID de l'entente dont on veut télécharger le PDF
+     * @param token - Token d'authentification
+     * @returns Promise avec le Blob du PDF
+     */
+    async getPdfEntente(ententeId: number, token: string): Promise<Blob> {
+        try {
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/document`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            return await response.blob();
+        } catch (error: any) {
+            console.error('Erreur getPdfEntente:', error);
+            throw new Error('Erreur lors du téléchargement du PDF de l\'entente');
+        }
     }
 }
 

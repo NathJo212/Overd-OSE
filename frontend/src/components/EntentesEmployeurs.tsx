@@ -11,7 +11,9 @@ import {
     ArrowLeft,
     CheckCircle,
     RefreshCw,
-    X, XCircle
+    X,
+    XCircle,
+    FileText
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
@@ -28,6 +30,8 @@ const EntentesEmployeurs = () => {
     const [selectedEntente, setSelectedEntente] = useState<EntenteStageDTO | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [showRefuseModal, setShowRefuseModal] = useState(false);
+    const [showPdfModal, setShowPdfModal] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [showSignConfirm, setShowSignConfirm] = useState(false);
 
@@ -60,7 +64,12 @@ const EntentesEmployeurs = () => {
 
     const closeModal = () => {
         setShowModal(false);
+        setShowPdfModal(false);
         setSelectedEntente(null);
+        if (pdfUrl) {
+            URL.revokeObjectURL(pdfUrl);
+            setPdfUrl(null);
+        }
     };
 
     const handleSignerClick = async () => {
@@ -96,6 +105,24 @@ const EntentesEmployeurs = () => {
             await loadEntentes();
         } catch (err: any) {
             setError(err.message || t("ententesemployeurs:errors.refuseError"));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleViewPdf = async (entente: EntenteStageDTO) => {
+        if (!entente.id) return;
+
+        try {
+            setError('');
+            setActionLoading(true);
+            const pdfBlob = await employeurService.getPdfEntente(entente.id);
+            const url = URL.createObjectURL(pdfBlob);
+            setPdfUrl(url);
+            setShowPdfModal(true);
+        } catch (err: any) {
+            console.error('Erreur lors de l\'affichage du PDF:', err);
+            setError(t('errors.pdfError'));
         } finally {
             setActionLoading(false);
         }
@@ -322,6 +349,12 @@ const EntentesEmployeurs = () => {
                                         </p>
                                     </div>
                                 </div>
+                                <button
+                                    onClick={closeModal}
+                                    className="cursor-pointer text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100 transition-colors"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
                             </div>
                         </div>
 
@@ -406,7 +439,15 @@ const EntentesEmployeurs = () => {
 
                         {/* Pied du modal avec boutons d'action */}
                         <div className="sticky bottom-0 bg-gray-50 dark:bg-slate-800 px-6 py-4 border-t border-gray-200 dark:border-slate-700 rounded-b-2xl">
-                            {selectedEntente.employeurSignature === 'EN_ATTENTE' ? (
+                            {selectedEntente.gestionnaireSignature === 'SIGNEE' ? (
+                                <button
+                                    onClick={() => handleViewPdf(selectedEntente)}
+                                    className="cursor-pointer w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                >
+                                    <FileText className="w-5 h-5" />
+                                    {t('buttons.viewPdf')}
+                                </button>
+                            ) : selectedEntente.employeurSignature === 'EN_ATTENTE' ? (
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <button
                                         onClick={closeModal}
@@ -504,6 +545,50 @@ const EntentesEmployeurs = () => {
                                     {actionLoading ? t('ententesemployeurs:signModal.loading') : t('ententesemployeurs:signModal.confirm')}
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal PDF */}
+            {showPdfModal && pdfUrl && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-6xl w-full h-[90vh] flex flex-col">
+                        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl flex justify-between items-center">
+                            <h2 className="text-2xl font-bold">{t('modals.pdf.title')}</h2>
+                            <button
+                                onClick={() => {
+                                    setShowPdfModal(false);
+                                    if (pdfUrl) {
+                                        URL.revokeObjectURL(pdfUrl);
+                                        setPdfUrl(null);
+                                    }
+                                }}
+                                className="cursor-pointer text-white hover:text-gray-200 transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                            <iframe
+                                src={pdfUrl}
+                                className="w-full h-full"
+                                title="PDF de l'entente"
+                            />
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-slate-700 rounded-b-2xl">
+                            <button
+                                onClick={() => {
+                                    setShowPdfModal(false);
+                                    if (pdfUrl) {
+                                        URL.revokeObjectURL(pdfUrl);
+                                        setPdfUrl(null);
+                                    }
+                                }}
+                                className="cursor-pointer w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
+                            >
+                                {t('buttons.close')}
+                            </button>
                         </div>
                     </div>
                 </div>

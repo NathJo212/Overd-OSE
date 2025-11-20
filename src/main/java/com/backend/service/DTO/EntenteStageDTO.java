@@ -37,6 +37,7 @@ public class EntenteStageDTO {
     private String pdfBase64;
     private String etudiantSignature; // EN_ATTENTE, SIGNEE, REFUSEE
     private String employeurSignature;
+    private String gestionnaireSignature;
     private String statut; // EN_ATTENTE, SIGNEE, ANNULEE
     private boolean archived;
     private LocalDateTime dateCreation;
@@ -70,6 +71,7 @@ public class EntenteStageDTO {
         dto.setPdfBase64(entente.getPdfBase64());
         dto.setEtudiantSignature(entente.getEtudiantSignature() != null ? entente.getEtudiantSignature().name() : null);
         dto.setEmployeurSignature(entente.getEmployeurSignature() != null ? entente.getEmployeurSignature().name() : null);
+        dto.setGestionnaireSignature(entente.getGestionnaireSignature() != null ? entente.getGestionnaireSignature().name() : null);
         dto.setStatut(entente.getStatut() != null ? entente.getStatut().name() : null);
         dto.setArchived(entente.isArchived());
         dto.setDateCreation(entente.getDateCreation());

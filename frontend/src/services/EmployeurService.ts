@@ -836,6 +836,39 @@ class EmployeurService {
         }
     }
 
+    async getPdfEntente(ententeId: number): Promise<Blob> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) throw new Error('Vous devez être connecté');
+
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/document`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            const contentType = response.headers.get('Content-Type') || '';
+            if (contentType.includes('application/pdf')) {
+                return await response.blob();
+            }
+
+            throw new Error('Contenu PDF non trouvé');
+        } catch (error: any) {
+            console.error('Erreur getPdfEntente (employeur):', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                const networkError: any = new Error('Erreur de connexion au serveur');
+                networkError.code = 'ERR_NETWORK';
+                throw networkError;
+            }
+            throw error;
+        }
+    }
+
     async getEntentes(): Promise<EntenteStageDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');

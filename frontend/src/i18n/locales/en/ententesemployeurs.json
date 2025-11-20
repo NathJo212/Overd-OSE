@@ -39,6 +39,15 @@
     "startProcess": "Start agreement process",
     "viewPdf": "View PDF"
   },
+  "buttons": {
+    "viewPdf": "View PDF",
+    "close": "Close"
+  },
+  "modals": {
+    "pdf": {
+      "title": "Signed Internship Agreement"
+    }
+  },
   "modal": {
     "title": "Agreement Details",
     "signatures": "Signature Status",

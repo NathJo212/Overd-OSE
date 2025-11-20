@@ -66,6 +66,9 @@
     "refuse": {
       "title": "Confirmer le refus",
       "message": "Êtes-vous sûr de vouloir refuser cette entente de stage ? Cette action est irréversible."
+    },
+    "pdf": {
+      "title": "Entente de stage signée"
     }
   },
   "modal": {
