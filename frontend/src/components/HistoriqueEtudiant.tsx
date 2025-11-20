@@ -77,11 +77,16 @@ const HistoriqueEtudiant = () => {
             const term = searchTerm.toLowerCase();
             filtered = filtered.filter(c =>
                 (c.offreTitre && c.offreTitre.toLowerCase().includes(term)) ||
-                (c.employeurNomEntreprise && c.employeurNomEntreprise.toLowerCase().includes(term))
+                (c.employeurNom && c.employeurNom.toLowerCase().includes(term))
             );
         }
 
         setFilteredCandidatures(filtered);
+    };
+
+    const getStatusCount = (status: string) => {
+        if (status === "ALL") return candidatures.length;
+        return candidatures.filter(c => c.statut === status).length;
     };
 
     const handleAnneeChange = (annee: string) => {
@@ -219,12 +224,11 @@ const HistoriqueEtudiant = () => {
                                 {ongletActif === 'candidatures' && (
                                     <div>
                                         {/* Filtres */}
-                                        <div className="mb-6 bg-gray-50 dark:bg-slate-700/50 rounded-xl p-6 border border-gray-200 dark:border-slate-600">
+                                        <div className="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 {/* Barre de recherche */}
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
-                                                        <Search className="inline w-4 h-4 mr-1" />
                                                         Rechercher
                                                     </label>
                                                     <div className="relative">
@@ -234,7 +238,7 @@ const HistoriqueEtudiant = () => {
                                                             value={searchTerm}
                                                             onChange={(e) => setSearchTerm(e.target.value)}
                                                             placeholder="Rechercher par titre ou entreprise..."
-                                                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                                         />
                                                     </div>
                                                 </div>
@@ -248,27 +252,17 @@ const HistoriqueEtudiant = () => {
                                                     <select
                                                         value={statusFilter}
                                                         onChange={(e) => setStatusFilter(e.target.value)}
-                                                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                                        className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                                     >
-                                                        <option value="ALL">Toutes les candidatures ({candidatures.length})</option>
-                                                        <option value="EN_ATTENTE">En attente ({candidatures.filter(c => c.statut === 'EN_ATTENTE').length})</option>
-                                                        <option value="ACCEPTEE">Acceptées par employeur ({candidatures.filter(c => c.statut === 'ACCEPTEE').length})</option>
-                                                        <option value="ACCEPTEE_PAR_ETUDIANT">Acceptées par moi ({candidatures.filter(c => c.statut === 'ACCEPTEE_PAR_ETUDIANT').length})</option>
-                                                        <option value="REFUSEE">Refusées par employeur ({candidatures.filter(c => c.statut === 'REFUSEE').length})</option>
-                                                        <option value="REFUSEE_PAR_ETUDIANT">Refusées par moi ({candidatures.filter(c => c.statut === 'REFUSEE_PAR_ETUDIANT').length})</option>
+                                                        <option value="ALL">Toutes les candidatures ({getStatusCount('ALL')})</option>
+                                                        <option value="EN_ATTENTE">En attente ({getStatusCount('EN_ATTENTE')})</option>
+                                                        <option value="ACCEPTEE">Acceptées par employeur ({getStatusCount('ACCEPTEE')})</option>
+                                                        <option value="ACCEPTEE_PAR_ETUDIANT">Acceptées par moi ({getStatusCount('ACCEPTEE_PAR_ETUDIANT')})</option>
+                                                        <option value="REFUSEE">Refusées par employeur ({getStatusCount('REFUSEE')})</option>
+                                                        <option value="REFUSEE_PAR_ETUDIANT">Refusées par moi ({getStatusCount('REFUSEE_PAR_ETUDIANT')})</option>
                                                     </select>
                                                 </div>
                                             </div>
-
-                                            {/* Compteur de résultats */}
-                                            {(searchTerm || statusFilter !== 'ALL') && (
-                                                <div className="mt-4 text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2">
-                                                    <Filter className="w-4 h-4" />
-                                                    <span>
-                                                        <span className="font-semibold text-gray-900 dark:text-slate-100">{filteredCandidatures.length}</span> candidature(s) trouvée(s)
-                                                    </span>
-                                                </div>
-                                            )}
                                         </div>
 
                                         {/* Liste des candidatures */}
@@ -289,52 +283,48 @@ const HistoriqueEtudiant = () => {
                                         ) : (
                                             <div className="space-y-4">
                                                 {filteredCandidatures.map((cand) => (
-                                                    <div key={cand.id} className="bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200">
-                                                        {/* En-tête avec titre et badge */}
+                                                    <div 
+                                                        key={cand.id}
+                                                        className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6 hover:shadow-md transition-shadow"
+                                                    >
                                                         <div className="flex items-start justify-between mb-4">
                                                             <div className="flex-1">
-                                                                <div className="flex items-start gap-3">
-                                                                    <Briefcase className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
-                                                                    <div>
-                                                                        <h3 className="font-bold text-lg text-gray-900 dark:text-slate-100 mb-1">
-                                                                            {cand.offreTitre}
-                                                                        </h3>
-                                                                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
-                                                                            <Building2 className="w-4 h-4" />
-                                                                            <span>{cand.employeurNomEntreprise}</span>
-                                                                        </div>
-                                                                    </div>
+                                                                <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">
+                                                                    {cand.offreTitre}
+                                                                </h3>
+                                                                <div className="flex items-center text-gray-600 dark:text-slate-300 mb-2">
+                                                                    <Building2 className="w-4 h-4 mr-2" />
+                                                                    {cand.employeurNom}
+                                                                </div>
+                                                                <div className="flex items-center text-gray-500 dark:text-slate-400 text-sm">
+                                                                    <CalendarIcon className="w-4 h-4 mr-2" />
+                                                                    Postulé le {new Date(cand.dateCandidature).toLocaleDateString('fr-CA', {
+                                                                        year: 'numeric',
+                                                                        month: 'long',
+                                                                        day: 'numeric'
+                                                                    })}
                                                                 </div>
                                                             </div>
-                                                            {/* Badge de statut */}
-                                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-4 ${getStatutBadgeClass(cand.statut)}`}>
-                                                                {cand.statut === 'EN_ATTENTE' ? 'En attente' :
-                                                                 cand.statut === 'ACCEPTEE' ? 'Acceptée par employeur' :
-                                                                 cand.statut === 'ACCEPTEE_PAR_ETUDIANT' ? 'Acceptée par moi' :
-                                                                 cand.statut === 'REFUSEE' ? 'Refusée par employeur' :
-                                                                 cand.statut === 'REFUSEE_PAR_ETUDIANT' ? 'Refusée par moi' :
-                                                                 cand.statut}
-                                                            </span>
-                                                        </div>
-
-                                                        {/* Informations supplémentaires */}
-                                                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400 mb-3">
-                                                            <CalendarIcon className="w-4 h-4" />
-                                                            <span>Candidature soumise le {new Date(cand.dateCandidature).toLocaleDateString('fr-CA', {
-                                                                year: 'numeric',
-                                                                month: 'long',
-                                                                day: 'numeric'
-                                                            })}</span>
+                                                            <div className="flex flex-col items-end gap-3">
+                                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatutBadgeClass(cand.statut)}`}>
+                                                                    {cand.statut === 'EN_ATTENTE' ? 'En attente' :
+                                                                     cand.statut === 'ACCEPTEE' ? 'Acceptée par employeur' :
+                                                                     cand.statut === 'ACCEPTEE_PAR_ETUDIANT' ? 'Acceptée par moi' :
+                                                                     cand.statut === 'REFUSEE' ? 'Refusée par employeur' :
+                                                                     cand.statut === 'REFUSEE_PAR_ETUDIANT' ? 'Refusée par moi' :
+                                                                     cand.statut}
+                                                                </span>
+                                                            </div>
                                                         </div>
 
                                                         {/* Message de réponse (si présent) */}
                                                         {cand.messageReponse && (
-                                                            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                                                <p className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">
+                                                            <div className="mt-4 p-4 bg-gray-50 dark:bg-slate-700/40 rounded-lg border border-gray-200 dark:border-slate-600">
+                                                                <p className="text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                                                                     Message de l'employeur :
                                                                 </p>
-                                                                <p className="text-sm text-blue-800 dark:text-blue-300 italic">
-                                                                    "{cand.messageReponse}"
+                                                                <p className="text-sm text-gray-600 dark:text-slate-300">
+                                                                    {cand.messageReponse}
                                                                 </p>
                                                             </div>
                                                         )}

@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from './NavBar';
 import AnneeAcademiqueSelector from './AnneeAcademiqueSelector';
 import { gestionnaireService } from '../services/GestionnaireService';
-import { History, Briefcase, BookOpen, Users, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, AlertCircle, CheckCircle, XCircle, Filter, ArrowLeft, X, User, Clock, FileSignature } from 'lucide-react';
+import { History, Briefcase, BookOpen, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, AlertCircle, CheckCircle, XCircle, Filter, ArrowLeft, X, User, Clock, FileSignature } from 'lucide-react';
 
-type OngletType = 'offres' | 'ententes' | 'candidatures';
+type OngletType = 'offres' | 'ententes';
 type FilterType = 'all' | 'pending' | 'approved' | 'refused' | 'expired';
+type EntenteFilterType = 'all' | 'waiting' | 'signed' | 'refused';
 
 const HistoriqueGestionnaire = () => {
     const navigate = useNavigate();
@@ -14,10 +15,11 @@ const HistoriqueGestionnaire = () => {
     const [anneeSelectionnee, setAnneeSelectionnee] = useState<string>('');
     const [allOffres, setAllOffres] = useState<any[]>([]);
     const [filteredOffres, setFilteredOffres] = useState<any[]>([]);
-    const [ententes, setEntentes] = useState<any[]>([]);
-    const [candidatures, setCandidatures] = useState<any[]>([]);
+    const [allEntentes, setAllEntentes] = useState<any[]>([]);
+    const [filteredEntentes, setFilteredEntentes] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentFilter, setCurrentFilter] = useState<FilterType>('all');
+    const [currentEntenteFilter, setCurrentEntenteFilter] = useState<EntenteFilterType>('all');
     
     // États pour le modal de détails des ententes
     const [selectedEntente, setSelectedEntente] = useState<any | null>(null);
@@ -42,22 +44,26 @@ const HistoriqueGestionnaire = () => {
         filterOffres(currentFilter);
     }, [allOffres]);
 
+    useEffect(() => {
+        // Appliquer le filtre quand les ententes changent
+        filterEntentes(currentEntenteFilter);
+    }, [allEntentes]);
+
     const loadData = async () => {
         setLoading(true);
         const token = sessionStorage.getItem('authToken');
         if (!token) return;
 
         try {
-            const [offresData, entData, candData] = await Promise.all([
+            const [offresData, entData] = await Promise.all([
                 gestionnaireService.getOffresAvecFiltre(token, anneeSelectionnee),
                 gestionnaireService.getEntentesAvecFiltre(token, anneeSelectionnee),
-                gestionnaireService.getCandidaturesEligiblesAvecFiltre(token, anneeSelectionnee),
             ]);
 
             setAllOffres(offresData || []);
             setFilteredOffres(offresData || []);
-            setEntentes(entData || []);
-            setCandidatures(candData || []);
+            setAllEntentes(entData || []);
+            setFilteredEntentes(entData || []);
         } catch (error) {
             console.error('Erreur lors du chargement des données:', error);
         } finally {
@@ -67,6 +73,44 @@ const HistoriqueGestionnaire = () => {
 
     const handleAnneeChange = (annee: string) => {
         setAnneeSelectionnee(annee);
+    };
+
+    const filterEntentes = (filterType: EntenteFilterType) => {
+        setCurrentEntenteFilter(filterType);
+        let filtered = [...allEntentes];
+
+        switch (filterType) {
+            case 'waiting':
+                // Ententes en attente d'au moins une signature
+                filtered = filtered.filter(e => 
+                    e.etudiantSignature === 'EN_ATTENTE' || 
+                    e.employeurSignature === 'EN_ATTENTE' || 
+                    e.gestionnaireSignature === 'EN_ATTENTE'
+                );
+                break;
+            case 'signed':
+                // Ententes complètement signées (toutes les 3 signatures)
+                filtered = filtered.filter(e => 
+                    e.etudiantSignature === 'SIGNEE' && 
+                    e.employeurSignature === 'SIGNEE' && 
+                    e.gestionnaireSignature === 'SIGNEE'
+                );
+                break;
+            case 'refused':
+                // Ententes refusées par au moins une partie
+                filtered = filtered.filter(e => 
+                    e.etudiantSignature === 'REFUSEE' || 
+                    e.employeurSignature === 'REFUSEE' || 
+                    e.gestionnaireSignature === 'REFUSEE'
+                );
+                break;
+            case 'all':
+            default:
+                // Toutes les ententes
+                break;
+        }
+
+        setFilteredEntentes(filtered);
     };
 
     const filterOffres = (filterType: FilterType) => {
@@ -261,18 +305,7 @@ const HistoriqueGestionnaire = () => {
                                 }`}
                             >
                                 <BookOpen size={20} />
-                                Ententes ({ententes.length})
-                            </button>
-                            <button
-                                onClick={() => setOngletActif('candidatures')}
-                                className={`cursor-pointer flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm ${
-                                    ongletActif === 'candidatures'
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
-                                }`}
-                            >
-                                <Users size={20} />
-                                Candidatures Confirmées ({candidatures.length})
+                                Ententes ({allEntentes.length})
                             </button>
                         </nav>
                     </div>
@@ -471,15 +504,77 @@ const HistoriqueGestionnaire = () => {
 
                                 {/* Onglet Ententes */}
                                 {ongletActif === 'ententes' && (
-                                    <div>
-                                        {ententes.length === 0 ? (
+                                    <>
+                                        {/* Filtres pour les ententes */}
+                                        <div className="mb-6 bg-gray-50 dark:bg-slate-700/40 rounded-xl p-4 border border-transparent dark:border-slate-600">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <Filter className="w-5 h-5 text-gray-600 dark:text-slate-300" />
+                                                <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Filtrer par statut de signature</h2>
+                                            </div>
+                                            <div className="flex flex-wrap gap-3">
+                                                <button
+                                                    onClick={() => filterEntentes('all')}
+                                                    className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                                                        currentEntenteFilter === 'all'
+                                                            ? 'bg-blue-600 text-white shadow-lg'
+                                                            : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600'
+                                                    }`}
+                                                >
+                                                    Toutes ({allEntentes.length})
+                                                </button>
+                                                <button
+                                                    onClick={() => filterEntentes('waiting')}
+                                                    className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                                                        currentEntenteFilter === 'waiting'
+                                                            ? 'bg-yellow-500 text-white shadow-lg'
+                                                            : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800'
+                                                    }`}
+                                                >
+                                                    En attente ({allEntentes.filter(e => 
+                                                        e.etudiantSignature === 'EN_ATTENTE' || 
+                                                        e.employeurSignature === 'EN_ATTENTE' || 
+                                                        e.gestionnaireSignature === 'EN_ATTENTE'
+                                                    ).length})
+                                                </button>
+                                                <button
+                                                    onClick={() => filterEntentes('signed')}
+                                                    className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                                                        currentEntenteFilter === 'signed'
+                                                            ? 'bg-green-600 text-white shadow-lg'
+                                                            : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'
+                                                    }`}
+                                                >
+                                                    Signées ({allEntentes.filter(e => 
+                                                        e.etudiantSignature === 'SIGNEE' && 
+                                                        e.employeurSignature === 'SIGNEE' && 
+                                                        e.gestionnaireSignature === 'SIGNEE'
+                                                    ).length})
+                                                </button>
+                                                <button
+                                                    onClick={() => filterEntentes('refused')}
+                                                    className={`cursor-pointer px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                                                        currentEntenteFilter === 'refused'
+                                                            ? 'bg-red-600 text-white shadow-lg'
+                                                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800'
+                                                    }`}
+                                                >
+                                                    Refusées ({allEntentes.filter(e => 
+                                                        e.etudiantSignature === 'REFUSEE' || 
+                                                        e.employeurSignature === 'REFUSEE' || 
+                                                        e.gestionnaireSignature === 'REFUSEE'
+                                                    ).length})
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {filteredEntentes.length === 0 ? (
                                             <div className="text-center py-12 text-gray-500 dark:text-slate-400">
                                                 <BookOpen size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                                                <p>Aucune entente pour cette période</p>
+                                                <p>Aucune entente ne correspond à ce filtre</p>
                                             </div>
                                         ) : (
                                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                                {ententes.map((entente) => (
+                                                {filteredEntentes.map((entente) => (
                                                     <div
                                                         key={entente.id}
                                                         onClick={() => handleEntenteClick(entente)}
@@ -563,48 +658,9 @@ const HistoriqueGestionnaire = () => {
                                                 ))}
                                             </div>
                                         )}
-                                    </div>
+                                    </>
                                 )}
 
-                                {/* Onglet Candidatures Confirmées */}
-                                {ongletActif === 'candidatures' && (
-                                    <div className="space-y-4">
-                                        {candidatures.length === 0 ? (
-                                            <div className="text-center py-12 text-gray-500 dark:text-slate-400">
-                                                <Users size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                                                <p>Aucune candidature confirmée pour cette période</p>
-                                                <p className="text-sm text-gray-400 dark:text-slate-500 mt-2">
-                                                    (Candidatures approuvées par l'employeur ET acceptées par l'étudiant)
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            candidatures.map((cand) => (
-                                                <div key={cand.id} className="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition bg-white dark:bg-slate-700">
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="flex-1">
-                                                            <h3 className="font-semibold text-lg text-gray-900 dark:text-slate-100">
-                                                                {cand.offreTitre}
-                                                            </h3>
-                                                            <p className="text-gray-600 dark:text-slate-300 mt-1">
-                                                                Étudiant: {cand.etudiantPrenom} {cand.etudiantNom}
-                                                            </p>
-                                                            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
-                                                                Date: {new Date(cand.dateCandidature).toLocaleDateString('fr-CA')}
-                                                            </p>
-                                                            <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-200 rounded-full text-xs">
-                                                                <CheckCircle size={14} />
-                                                                Confirmée des deux côtés
-                                                            </div>
-                                                        </div>
-                                                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatutBadgeClass(cand.statut)}`}>
-                                                            {cand.statut}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
                             </>
                         )}
                     </div>

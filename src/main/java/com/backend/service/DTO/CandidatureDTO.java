@@ -34,7 +34,7 @@ public class CandidatureDTO {
         this.id = candidature.getId();
         this.offreId = candidature.getOffre().getId();
         this.offreTitre = candidature.getOffre().getTitre();
-        this.employeurNom = candidature.getOffre().getEmployeur().getContact();
+        this.employeurNom = candidature.getOffre().getEmployeur().getNomEntreprise();
 
         this.etudiantId = candidature.getEtudiant().getId();
         this.etudiantNom = candidature.getEtudiant().getNom();
