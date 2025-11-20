@@ -1,0 +1,100 @@
+{
+  "title": "Historique",
+  "subtitle": "Consultez l'historique des offres et ententes par année académique",
+  "backToDashboard": "Retour au tableau de bord",
+  "loading": "Chargement...",
+  "academicYear": "Année académique",
+  
+  "tabs": {
+    "offers": "Offres",
+    "agreements": "Ententes"
+  },
+  
+  "filters": {
+    "title": "Filtrer par statut",
+    "all": "Toutes",
+    "pending": "En attente",
+    "approved": "Approuvées",
+    "refused": "Refusées",
+    "expired": "Expirées"
+  },
+  
+  "agreementFilters": {
+    "title": "Filtrer par statut de signature",
+    "all": "Toutes",
+    "waiting": "En attente",
+    "signed": "Signées",
+    "refused": "Refusées"
+  },
+  
+  "offers": {
+    "noOffers": "Aucune offre pour cette période",
+    "noFilterMatch": "Aucune offre ne correspond à ce filtre",
+    "company": "Entreprise",
+    "companyNotSpecified": "Entreprise non spécifiée",
+    "contact": "Contact",
+    "start": "Début",
+    "end": "Fin",
+    "location": "Lieu",
+    "salary": "Rémunération",
+    "program": "Programme",
+    "deadline": "Date limite",
+    "refusalReason": "Raison du refus"
+  },
+  
+  "agreements": {
+    "noAgreements": "Aucune entente pour cette période",
+    "noFilterMatch": "Aucune entente ne correspond à ce filtre",
+    "student": "Étudiant",
+    "employer": "Employeur",
+    "emailNotAvailable": "Email non disponible",
+    "viewDetails": "Voir les détails",
+    "createdOn": "Créé le",
+    "hoursPerWeek": "h/semaine",
+    "notSpecified": "Non spécifiée",
+    "notAvailable": "Non disponible"
+  },
+  
+  "agreementModal": {
+    "title": "Détails de l'entente de stage",
+    "close": "Fermer",
+    "student": "Étudiant",
+    "employer": "Employeur",
+    "internshipTitle": "Titre du stage",
+    "period": "Période",
+    "schedule": "Horaire",
+    "duration": "Durée hebdomadaire",
+    "hoursPerWeek": "Heures par semaine",
+    "salary": "Rémunération",
+    "studentResponsibilities": "Responsabilités de l'étudiant",
+    "employerResponsibilities": "Responsabilités de l'employeur",
+    "collegeResponsibilities": "Responsabilités du collège",
+    "objectives": "Objectifs du stage",
+    "signatures": "Signatures",
+    "studentSignature": "Signature de l'étudiant",
+    "employerSignature": "Signature de l'employeur",
+    "managerSignature": "Signature du gestionnaire",
+    "signed": "Signé",
+    "pending": "En attente",
+    "refused": "Refusé",
+    "statusTitle": "Statut de l'entente",
+    "name": "Nom",
+    "email": "Email",
+    "company": "Entreprise",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "program": "Programme",
+    "location": "Lieu",
+    "description": "Description"
+  },
+  
+  "status": {
+    "pending": "En attente",
+    "approved": "Approuvée",
+    "refused": "Refusée",
+    "expired": "Expirée",
+    "signed": "Signée",
+    "waiting": "En attente"
+  }
+}
+

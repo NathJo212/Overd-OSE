@@ -1,0 +1,92 @@
+{
+    "title": "History",
+    "subtitle": "View history of offers and agreements by academic year",
+    "backToDashboard": "Back to dashboard",
+    "loading": "Loading...",
+    "academicYear": "Academic year",
+    "tabs": {
+        "offers": "Offers",
+        "agreements": "Agreements"
+    },
+    "filters": {
+        "title": "Filter by status",
+        "all": "All",
+        "pending": "Pending",
+        "approved": "Approved",
+        "refused": "Refused",
+        "expired": "Expired"
+    },
+    "agreementFilters": {
+        "title": "Filter by signature status",
+        "all": "All",
+        "waiting": "Waiting",
+        "signed": "Signed",
+        "refused": "Refused"
+    },
+    "offers": {
+        "noOffers": "No offers for this period",
+        "noFilterMatch": "No offers match this filter",
+        "company": "Company",
+        "companyNotSpecified": "Company not specified",
+        "contact": "Contact",
+        "start": "Start",
+        "end": "End",
+        "location": "Location",
+        "salary": "Salary",
+        "program": "Program",
+        "deadline": "Deadline",
+        "refusalReason": "Reason for refusal"
+    },
+    "agreements": {
+        "noAgreements": "No agreements for this period",
+        "noFilterMatch": "No agreements match this filter",
+        "student": "Student",
+        "employer": "Employer",
+        "emailNotAvailable": "Email not available",
+        "viewDetails": "View details",
+        "createdOn": "Created on",
+        "hoursPerWeek": "hrs/week",
+        "notSpecified": "Not specified",
+        "notAvailable": "Not available"
+    },
+    "agreementModal": {
+        "title": "Internship Agreement Details",
+        "close": "Close",
+        "student": "Student",
+        "employer": "Employer",
+        "internshipTitle": "Internship Title",
+        "period": "Period",
+        "schedule": "Schedule",
+        "duration": "Weekly Duration",
+        "hoursPerWeek": "Hours per week",
+        "salary": "Compensation",
+        "studentResponsibilities": "Student Responsibilities",
+        "employerResponsibilities": "Employer Responsibilities",
+        "collegeResponsibilities": "College Responsibilities",
+        "objectives": "Internship Objectives",
+        "signatures": "Signatures",
+        "studentSignature": "Student's Signature",
+        "employerSignature": "Employer's Signature",
+        "managerSignature": "Manager's Signature",
+        "signed": "Signed",
+        "pending": "Pending",
+        "refused": "Refused",
+        "statusTitle": "Agreement Status",
+        "name": "Name",
+        "email": "Email",
+        "company": "Company",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "program": "Program",
+        "location": "Location",
+        "description": "Description"
+    },
+    "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "refused": "Refused",
+        "expired": "Expired",
+        "signed": "Signed",
+        "waiting": "Waiting"
+    }
+}

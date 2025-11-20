@@ -1,0 +1,91 @@
+{
+  "title": "Mon Historique",
+  "subtitle": "Consultez l'historique de vos candidatures et ententes par année académique",
+  "backToDashboard": "Retour au tableau de bord",
+  "loading": "Chargement...",
+  "academicYear": "Année académique",
+  
+  "tabs": {
+    "applications": "Mes Candidatures",
+    "agreements": "Mes Ententes"
+  },
+  
+  "applications": {
+    "title": "Mes Candidatures",
+    "noApplications": "Aucune candidature pour cette période",
+    "noFilterMatch": "Aucune candidature ne correspond à vos critères",
+    "tryModifyFilters": "Essayez de modifier vos filtres",
+    "neverApplied": "Vous n'avez pas encore postulé pour cette année académique",
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher par titre ou entreprise...",
+    "filterByStatus": "Filtrer par statut",
+    "allApplications": "Toutes les candidatures",
+    "resultsFound": "candidature(s) trouvée(s)",
+    "appliedOn": "Postulé le",
+    "employerMessage": "Message de l'employeur"
+  },
+  
+  "agreements": {
+    "noAgreements": "Aucune entente pour cette période",
+    "student": "Étudiant",
+    "employer": "Employeur",
+    "emailNotAvailable": "Email non disponible",
+    "viewDetails": "Voir les détails",
+    "createdOn": "Créé le",
+    "hoursPerWeek": "h/semaine",
+    "notSpecified": "Non spécifiée",
+    "notAvailable": "Non disponible",
+    "company": "Entreprise",
+    "email": "Email",
+    "signatureStatus": "Statut de signature",
+    "stageInfo": "Informations du stage",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "schedule": "Horaire",
+    "program": "Programme",
+    "location": "Lieu",
+    "description": "Description"
+  },
+  
+  "agreementModal": {
+    "title": "Détails de l'entente de stage",
+    "close": "Fermer",
+    "student": "Étudiant",
+    "employer": "Employeur",
+    "internshipTitle": "Titre du stage",
+    "period": "Période",
+    "schedule": "Horaire",
+    "duration": "Durée hebdomadaire",
+    "hoursPerWeek": "Heures par semaine",
+    "salary": "Rémunération",
+    "studentResponsibilities": "Responsabilités de l'étudiant",
+    "employerResponsibilities": "Responsabilités de l'employeur",
+    "collegeResponsibilities": "Responsabilités du collège",
+    "objectives": "Objectifs du stage",
+    "signatures": "Signatures",
+    "studentSignature": "Signature de l'étudiant",
+    "employerSignature": "Signature de l'employeur",
+    "managerSignature": "Signature du gestionnaire",
+    "signed": "Vous avez signé",
+    "pending": "En attente",
+    "refused": "Refusée"
+  },
+  
+  "status": {
+    "pending": "En attente",
+    "acceptedByEmployer": "Acceptée par employeur",
+    "acceptedByStudent": "Acceptée par moi",
+    "refusedByEmployer": "Refusée par employeur",
+    "refusedByStudent": "Refusée par moi"
+  },
+  
+  "filters": {
+    "all": "Toutes les candidatures",
+    "pending": "En attente",
+    "acceptedByEmployer": "Acceptées par employeur",
+    "acceptedByStudent": "Acceptées par moi",
+    "refusedByEmployer": "Refusées par employeur",
+    "refusedByStudent": "Refusées par moi"
+  }
+}
+

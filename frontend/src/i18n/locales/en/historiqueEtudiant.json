@@ -1,0 +1,91 @@
+{
+  "title": "My History",
+  "subtitle": "View history of your applications and agreements by academic year",
+  "backToDashboard": "Back to dashboard",
+  "loading": "Loading...",
+  "academicYear": "Academic year",
+  
+  "tabs": {
+    "applications": "My Applications",
+    "agreements": "My Agreements"
+  },
+  
+  "applications": {
+    "title": "My Applications",
+    "noApplications": "No applications for this period",
+    "noFilterMatch": "No applications match your criteria",
+    "tryModifyFilters": "Try modifying your filters",
+    "neverApplied": "You haven't applied yet for this academic year",
+    "search": "Search",
+    "searchPlaceholder": "Search by title or company...",
+    "filterByStatus": "Filter by status",
+    "allApplications": "All applications",
+    "resultsFound": "application(s) found",
+    "appliedOn": "Applied on",
+    "employerMessage": "Employer's message"
+  },
+  
+  "agreements": {
+    "noAgreements": "No agreements for this period",
+    "student": "Student",
+    "employer": "Employer",
+    "emailNotAvailable": "Email not available",
+    "viewDetails": "View details",
+    "createdOn": "Created on",
+    "hoursPerWeek": "hrs/week",
+    "notSpecified": "Not specified",
+    "notAvailable": "Not available",
+    "company": "Company",
+    "email": "Email",
+    "signatureStatus": "Signature Status",
+    "stageInfo": "Internship Information",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "schedule": "Schedule",
+    "program": "Program",
+    "location": "Location",
+    "description": "Description"
+  },
+  
+  "agreementModal": {
+    "title": "Internship Agreement Details",
+    "close": "Close",
+    "student": "Student",
+    "employer": "Employer",
+    "internshipTitle": "Internship Title",
+    "period": "Period",
+    "schedule": "Schedule",
+    "duration": "Weekly Duration",
+    "hoursPerWeek": "Hours per week",
+    "salary": "Compensation",
+    "studentResponsibilities": "Student Responsibilities",
+    "employerResponsibilities": "Employer Responsibilities",
+    "collegeResponsibilities": "College Responsibilities",
+    "objectives": "Internship Objectives",
+    "signatures": "Signatures",
+    "studentSignature": "Student's Signature",
+    "employerSignature": "Employer's Signature",
+    "managerSignature": "Manager's Signature",
+    "signed": "You have signed",
+    "pending": "Pending",
+    "refused": "Refused"
+  },
+  
+  "status": {
+    "pending": "Pending",
+    "acceptedByEmployer": "Accepted by employer",
+    "acceptedByStudent": "Accepted by me",
+    "refusedByEmployer": "Refused by employer",
+    "refusedByStudent": "Refused by me"
+  },
+  
+  "filters": {
+    "all": "All applications",
+    "pending": "Pending",
+    "acceptedByEmployer": "Accepted by employer",
+    "acceptedByStudent": "Accepted by me",
+    "refusedByEmployer": "Refused by employer",
+    "refusedByStudent": "Refused by me"
+  }
+}
+

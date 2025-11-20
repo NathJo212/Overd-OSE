@@ -1,0 +1,11 @@
+{
+  "academicYear": {
+    "label": "Academic year",
+    "loading": "Loading...",
+    "current": "Current year",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "allYears": "All years"
+  }
+}
+

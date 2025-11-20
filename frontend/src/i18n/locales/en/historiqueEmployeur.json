@@ -1,0 +1,154 @@
+{
+  "title": "History",
+  "subtitle": "View history of your applications, agreements and evaluations by academic year",
+  "backToDashboard": "Back to dashboard",
+  "loading": "Loading...",
+  "academicYear": "Academic year",
+  
+  "tabs": {
+    "applications": "Applications",
+    "agreements": "Agreements",
+    "evaluations": "Evaluations"
+  },
+  
+  "applications": {
+    "title": "Applications",
+    "noApplications": "No applications for this period",
+    "noFilterMatch": "No applications match your criteria",
+    "search": "Search",
+    "searchPlaceholder": "Student name, email or offer title...",
+    "filterByStatus": "Status",
+    "filterByOffer": "Offer",
+    "allOffers": "All offers",
+    "resultsFound": "application(s) found",
+    "appliedOn": "Applied on",
+    "refusalReason": "Reason for refusal",
+    "refusalReasonLabel": "Reason for refusal:",
+    "student": "Student",
+    "offer": "Offer",
+    "allStatuses": "All statuses"
+  },
+  
+  "filters": {
+    "all": "All",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "refused": "Refused"
+  },
+  
+  "applicationModal": {
+    "title": "Application Details",
+    "applicationNumber": "Application #",
+    "status": "Status",
+    "internshipOffer": "Internship Offer",
+    "contact": "Contact",
+    "appliedOn": "Applied on",
+    "documents": "Documents",
+    "cv": "Curriculum Vitae",
+    "coverLetter": "Cover Letter",
+    "clickToView": "Click to view",
+    "noDocuments": "No documents available",
+    "responseMessage": "Response message",
+    "close": "Close",
+    "name": "Name",
+    "email": "Email"
+  },
+  
+  "agreements": {
+    "noAgreements": "No agreements for this period",
+    "student": "Student",
+    "employer": "Employer",
+    "emailNotAvailable": "Email not available",
+    "viewDetails": "View details",
+    "createdOn": "Created on",
+    "hoursPerWeek": "hrs/week",
+    "notSpecified": "Not specified",
+    "notAvailable": "Not available",
+    "signatureStatus": "Signature Status",
+    "stageInfo": "Internship Information",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "schedule": "Schedule",
+    "program": "Program",
+    "location": "Location",
+    "description": "Description"
+  },
+  
+  "evaluations": {
+    "noEvaluations": "No evaluations for this period",
+    "intern": "Intern",
+    "internship": "Internship",
+    "evaluationDate": "Evaluation date",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "viewEvaluation": "View evaluation",
+    "internshipInfo": "Internship information"
+  },
+  
+  "agreementModal": {
+    "title": "Internship Agreement Details",
+    "close": "Close",
+    "student": "Student",
+    "employer": "Employer",
+    "internshipTitle": "Internship Information",
+    "period": "Period",
+    "schedule": "Schedule",
+    "duration": "Weekly Duration",
+    "salary": "Compensation",
+    "studentResponsibilities": "Student Responsibilities",
+    "employerResponsibilities": "Employer Responsibilities",
+    "collegeResponsibilities": "College Responsibilities",
+    "objectives": "Internship Objectives",
+    "signatures": "Signatures",
+    "studentSignature": "Student's Signature",
+    "employerSignature": "Employer's Signature",
+    "managerSignature": "Manager's Signature",
+    "signed": "You have signed",
+    "pending": "Pending",
+    "refused": "Refused",
+    "name": "Name",
+    "email": "Email",
+    "signatureStatus": "Signature Status",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "hoursPerWeek": "Hours per week",
+    "program": "Program",
+    "location": "Location",
+    "description": "Description",
+    "notSpecified": "Not specified",
+    "notDefined": "Not defined",
+    "notAvailable": "Not available"
+  },
+
+  "evaluationModal": {
+    "title": "Evaluation Details",
+    "evaluationDate": "Evaluation date",
+    "internInfo": "Intern Information",
+    "name": "Name",
+    "email": "Email",
+    "stageInfo": "Internship Information",
+    "pdfReady": "The PDF of this evaluation is ready to be viewed.",
+    "viewPdf": "View PDF",
+    "close": "Close",
+    "intern": "Intern",
+    "internship": "Internship",
+    "start": "Start",
+    "end": "End"
+  },
+  
+  "status": {
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "refused": "Refused",
+    "acceptedByStudent": "Accepted by student",
+    "refusedByStudent": "Refused by student"
+  },
+  
+  "documents": {
+    "cv": "CV",
+    "coverLetter": "Cover Letter",
+    "available": "Available",
+    "notAvailable": "Not available"
+  }
+}
+

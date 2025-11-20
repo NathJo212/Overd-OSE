@@ -1,0 +1,154 @@
+{
+  "title": "Historique",
+  "subtitle": "Consultez l'historique de vos candidatures, ententes et évaluations par année académique",
+  "backToDashboard": "Retour au tableau de bord",
+  "loading": "Chargement...",
+  "academicYear": "Année académique",
+  
+  "tabs": {
+    "applications": "Candidatures",
+    "agreements": "Ententes",
+    "evaluations": "Évaluations"
+  },
+  
+  "applications": {
+    "title": "Candidatures",
+    "noApplications": "Aucune candidature pour cette période",
+    "noFilterMatch": "Aucune candidature ne correspond à vos critères",
+    "search": "Rechercher",
+    "searchPlaceholder": "Nom d'étudiant, email ou titre d'offre...",
+    "filterByStatus": "Statut",
+    "filterByOffer": "Offre",
+    "allOffers": "Toutes les offres",
+    "resultsFound": "candidature(s) trouvée(s)",
+    "appliedOn": "Postulé le",
+    "refusalReason": "Raison du refus",
+    "refusalReasonLabel": "Raison du refus :",
+    "student": "Étudiant",
+    "offer": "Offre",
+    "allStatuses": "Tous les statuts"
+  },
+  
+  "filters": {
+    "all": "Toutes",
+    "pending": "En attente",
+    "accepted": "Acceptées",
+    "refused": "Refusées"
+  },
+  
+  "applicationModal": {
+    "title": "Détails de la candidature",
+    "applicationNumber": "Candidature #",
+    "status": "Statut",
+    "internshipOffer": "Offre de stage",
+    "contact": "Contact",
+    "appliedOn": "Postulé le",
+    "documents": "Documents",
+    "cv": "Curriculum Vitae",
+    "coverLetter": "Lettre de motivation",
+    "clickToView": "Cliquez pour visualiser",
+    "noDocuments": "Aucun document disponible",
+    "responseMessage": "Message de réponse",
+    "close": "Fermer",
+    "name": "Nom",
+    "email": "Email"
+  },
+  
+  "agreements": {
+    "noAgreements": "Aucune entente pour cette période",
+    "student": "Étudiant",
+    "employer": "Employeur",
+    "emailNotAvailable": "Email non disponible",
+    "viewDetails": "Voir les détails",
+    "createdOn": "Créé le",
+    "hoursPerWeek": "h/semaine",
+    "notSpecified": "Non spécifiée",
+    "notAvailable": "Non disponible",
+    "signatureStatus": "Statut de signature",
+    "stageInfo": "Informations du stage",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "schedule": "Horaire",
+    "program": "Programme",
+    "location": "Lieu",
+    "description": "Description"
+  },
+  
+  "evaluations": {
+    "noEvaluations": "Aucune évaluation pour cette période",
+    "intern": "Stagiaire",
+    "internship": "Stage",
+    "evaluationDate": "Date d'évaluation",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "viewEvaluation": "Regarder l'évaluation",
+    "internshipInfo": "Informations du stage"
+  },
+  
+  "agreementModal": {
+    "title": "Détails de l'entente de stage",
+    "close": "Fermer",
+    "student": "Étudiant",
+    "employer": "Employeur",
+    "internshipTitle": "Informations du stage",
+    "period": "Période",
+    "schedule": "Horaire",
+    "duration": "Durée hebdomadaire",
+    "salary": "Rémunération",
+    "studentResponsibilities": "Responsabilités de l'étudiant",
+    "employerResponsibilities": "Responsabilités de l'employeur",
+    "collegeResponsibilities": "Responsabilités du collège",
+    "objectives": "Objectifs du stage",
+    "signatures": "Signatures",
+    "studentSignature": "Signature de l'étudiant",
+    "employerSignature": "Signature de l'employeur",
+    "managerSignature": "Signature du gestionnaire",
+    "signed": "Vous avez signé",
+    "pending": "En attente",
+    "refused": "Refusée",
+    "name": "Nom",
+    "email": "Email",
+    "signatureStatus": "Statut de signature",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "hoursPerWeek": "Heures par semaine",
+    "program": "Programme",
+    "location": "Lieu",
+    "description": "Description",
+    "notSpecified": "Non spécifié",
+    "notDefined": "Non défini",
+    "notAvailable": "Non disponible"
+  },
+
+  "evaluationModal": {
+    "title": "Détails de l'évaluation",
+    "evaluationDate": "Date d'évaluation",
+    "internInfo": "Informations du stagiaire",
+    "name": "Nom",
+    "email": "Email",
+    "stageInfo": "Informations du stage",
+    "pdfReady": "Le PDF de cette évaluation est prêt à être regardé.",
+    "viewPdf": "Regarder le PDF",
+    "close": "Fermer",
+    "intern": "Stagiaire",
+    "internship": "Stage",
+    "start": "Début",
+    "end": "Fin"
+  },
+  
+  "status": {
+    "pending": "En attente",
+    "accepted": "Acceptée",
+    "refused": "Refusée",
+    "acceptedByStudent": "Acceptée par étudiant",
+    "refusedByStudent": "Refusée par l'étudiant"
+  },
+  
+  "documents": {
+    "cv": "CV",
+    "coverLetter": "Lettre de motivation",
+    "available": "Disponible",
+    "notAvailable": "Non disponible"
+  }
+}
+
