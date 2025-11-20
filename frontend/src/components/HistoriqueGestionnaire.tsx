@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from './NavBar';
 import AnneeAcademiqueSelector from './AnneeAcademiqueSelector';
 import { gestionnaireService } from '../services/GestionnaireService';
-import { History, Briefcase, BookOpen, Users, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, AlertCircle, CheckCircle, XCircle, Filter, ArrowLeft } from 'lucide-react';
+import { History, Briefcase, BookOpen, Users, Building2, Mail, Phone, MapPin, Calendar, DollarSign, GraduationCap, AlertCircle, CheckCircle, XCircle, Filter, ArrowLeft, X, User, Clock, FileSignature } from 'lucide-react';
 
 type OngletType = 'offres' | 'ententes' | 'candidatures';
 type FilterType = 'all' | 'pending' | 'approved' | 'refused' | 'expired';
@@ -18,6 +18,10 @@ const HistoriqueGestionnaire = () => {
     const [candidatures, setCandidatures] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentFilter, setCurrentFilter] = useState<FilterType>('all');
+    
+    // États pour le modal de détails des ententes
+    const [selectedEntente, setSelectedEntente] = useState<any | null>(null);
+    const [showEntenteModal, setShowEntenteModal] = useState(false);
 
     useEffect(() => {
         const role = sessionStorage.getItem('userType');
@@ -145,15 +149,56 @@ const HistoriqueGestionnaire = () => {
 
     const getStatutBadgeClass = (statut: string) => {
         const statusMap: { [key: string]: string } = {
-            'ATTENTE': 'bg-yellow-100 text-yellow-800',
-            'EN_ATTENTE': 'bg-yellow-100 text-yellow-800',
-            'APPROUVE': 'bg-green-100 text-green-800',
-            'REFUSE': 'bg-red-100 text-red-800',
-            'ACCEPTEE': 'bg-green-100 text-green-800',
-            'REFUSEE': 'bg-red-100 text-red-800',
-            'SIGNEE': 'bg-green-100 text-green-800',
+            'ATTENTE': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200',
+            'EN_ATTENTE': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200',
+            'APPROUVE': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
+            'REFUSE': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200',
+            'ACCEPTEE': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
+            'REFUSEE': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200',
+            'SIGNEE': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
         };
-        return statusMap[statut] || 'bg-gray-100 text-gray-800';
+        return statusMap[statut] || 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-200';
+    };
+
+    // Ouvrir le modal de détails d'une entente
+    const handleEntenteClick = (entente: any) => {
+        setSelectedEntente(entente);
+        setShowEntenteModal(true);
+    };
+
+    // Fermer le modal de détails d'une entente
+    const closeEntenteModal = () => {
+        setShowEntenteModal(false);
+        setSelectedEntente(null);
+    };
+
+    // Badge de statut de signature
+    const getSignatureStatusBadge = (statut: string) => {
+        switch (statut) {
+            case 'SIGNEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-200">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Signée
+                    </span>
+                );
+            case 'EN_ATTENTE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-200">
+                        <Clock className="w-3 h-3 mr-1" />
+                        En attente
+                    </span>
+                );
+            case 'REFUSEE':
+                return (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200">
+                        <X className="w-3 h-3 mr-1" />
+                        Refusée
+                    </span>
+                );
+            default:
+                return null;
+        }
     };
 
     return (
@@ -426,36 +471,97 @@ const HistoriqueGestionnaire = () => {
 
                                 {/* Onglet Ententes */}
                                 {ongletActif === 'ententes' && (
-                                    <div className="space-y-4">
+                                    <div>
                                         {ententes.length === 0 ? (
                                             <div className="text-center py-12 text-gray-500 dark:text-slate-400">
                                                 <BookOpen size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
                                                 <p>Aucune entente pour cette période</p>
                                             </div>
                                         ) : (
-                                            ententes.map((entente) => (
-                                                <div key={entente.id} className="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition bg-white dark:bg-slate-700">
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="flex-1">
-                                                            <h3 className="font-semibold text-lg text-gray-900 dark:text-slate-100">
-                                                                {entente.titre}
-                                                            </h3>
-                                                            <p className="text-gray-600 dark:text-slate-300 mt-1">
-                                                                Étudiant: {entente.etudiantNom}
-                                                            </p>
-                                                            <p className="text-gray-600 dark:text-slate-300 mt-1">
-                                                                Employeur: {entente.employeurNomEntreprise}
-                                                            </p>
-                                                            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
-                                                                Période: {new Date(entente.dateDebut).toLocaleDateString('fr-CA')} - {new Date(entente.dateFin).toLocaleDateString('fr-CA')}
+                                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                                {ententes.map((entente) => (
+                                                    <div
+                                                        key={entente.id}
+                                                        onClick={() => handleEntenteClick(entente)}
+                                                        className="bg-white dark:bg-slate-700 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400/40 dark:hover:shadow-blue-900/40 transition-all duration-300 p-6 border border-slate-200 dark:border-slate-600 cursor-pointer group"
+                                                    >
+                                                        {/* Badge et date */}
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            {getSignatureStatusBadge(entente.statut)}
+                                                            <span className="text-xs text-gray-500 dark:text-slate-400">
+                                                                {entente.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Étudiant */}
+                                                        <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-600">
+                                                            <div className="flex items-start gap-3">
+                                                                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                                                                    <User className="w-5 h-5 text-blue-600" />
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-1">
+                                                                        {entente.etudiantNomComplet || entente.etudiantNom || 'Étudiant'}
+                                                                    </h3>
+                                                                    <p className="text-xs text-gray-600 dark:text-slate-300 truncate">
+                                                                        {entente.etudiantEmail || 'Email non disponible'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Employeur */}
+                                                        <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-600">
+                                                            <div className="flex items-start gap-3">
+                                                                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                                                                    <Building2 className="w-5 h-5 text-purple-600" />
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-1">
+                                                                        {entente.employeurNomEntreprise || 'Employeur'}
+                                                                    </h3>
+                                                                    <p className="text-xs text-gray-600 dark:text-slate-300 truncate">
+                                                                        {entente.employeurEmail || 'Email non disponible'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Titre de l'offre */}
+                                                        <div className="mb-3">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <Briefcase className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                                                                <span className="font-semibold text-gray-900 dark:text-slate-100 text-sm truncate">
+                                                                    {entente.titre}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Dates */}
+                                                        <div className="space-y-1 mb-3">
+                                                            <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
+                                                                <Calendar className="w-3 h-3 flex-shrink-0" />
+                                                                <span>{entente.dateDebut} → {entente.dateFin}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
+                                                                <Clock className="w-3 h-3 flex-shrink-0" />
+                                                                <span>{entente.dureeHebdomadaire || 'N/A'} h/semaine</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
+                                                                <DollarSign className="w-3 h-3 flex-shrink-0" />
+                                                                <span>{entente.remuneration || 'Non spécifiée'}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Indicateur hover */}
+                                                        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
+                                                            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium group-hover:text-blue-700 dark:group-hover:text-blue-300 flex items-center gap-2">
+                                                                Voir les détails
                                                             </p>
                                                         </div>
-                                                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatutBadgeClass(entente.statut)}`}>
-                                                            {entente.statut}
-                                                        </span>
                                                     </div>
-                                                </div>
-                                            ))
+                                                ))}
+                                            </div>
                                         )}
                                     </div>
                                 )}
@@ -504,6 +610,145 @@ const HistoriqueGestionnaire = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Modal de détails d'une entente */}
+            {showEntenteModal && selectedEntente && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+                        {/* En-tête du modal */}
+                        <div className="sticky top-0 bg-blue-50 dark:bg-blue-900/30 px-6 py-4 border-b border-blue-100 dark:border-blue-800 rounded-t-2xl">
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800/40 rounded-full flex items-center justify-center">
+                                        <FileSignature className="w-5 h-5 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+                                            Entente de stage
+                                        </h3>
+                                        <p className="text-sm text-blue-700 dark:text-blue-300">
+                                            {selectedEntente.titre}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={closeEntenteModal}
+                                    className="cursor-pointer p-2 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5 text-blue-900 dark:text-blue-100" />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Contenu du modal */}
+                        <div className="p-6 space-y-6">
+                            {/* Statuts de signature */}
+                            <div className="bg-gray-50 dark:bg-slate-700/40 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900 dark:text-slate-100">Statut de l'entente</h4>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {getSignatureStatusBadge(selectedEntente.statut)}
+                                </div>
+                            </div>
+
+                            {/* Informations de l'étudiant */}
+                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
+                                    <User className="w-5 h-5 text-blue-600" />
+                                    Étudiant
+                                </h4>
+                                <div className="space-y-1">
+                                    <p className="text-gray-800 dark:text-slate-200">
+                                        <span className="font-medium">Nom:</span> {selectedEntente.etudiantNomComplet || selectedEntente.etudiantNom || 'Non disponible'}
+                                    </p>
+                                    <p className="text-gray-800 dark:text-slate-200">
+                                        <span className="font-medium">Email:</span> {selectedEntente.etudiantEmail || 'Non disponible'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Informations de l'employeur */}
+                            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
+                                    <Building2 className="w-5 h-5 text-purple-600" />
+                                    Employeur
+                                </h4>
+                                <div className="space-y-1">
+                                    <p className="text-gray-800 dark:text-slate-200">
+                                        <span className="font-medium">Entreprise:</span> {selectedEntente.employeurNomEntreprise || 'Non disponible'}
+                                    </p>
+                                    <p className="text-gray-800 dark:text-slate-200">
+                                        <span className="font-medium">Email:</span> {selectedEntente.employeurEmail || 'Non disponible'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Informations du stage */}
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
+                                    <Briefcase className="w-5 h-5 text-blue-600" />
+                                    Informations du stage
+                                </h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">Date de début</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dateDebut}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">Date de fin</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dateFin}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">Horaire</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.horaire || 'Non spécifié'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">Heures par semaine</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dureeHebdomadaire || 'N/A'} h/semaine</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">Programme</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.progEtude || 'Non spécifié'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">Lieu</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.lieuStage || selectedEntente.lieu || 'Non défini'}</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">Rémunération</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.remuneration || 'Non spécifiée'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            {selectedEntente.description && (
+                                <div>
+                                    <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">
+                                        Description
+                                    </h4>
+                                    <p className="text-gray-700 dark:text-slate-300 whitespace-pre-line bg-gray-50 dark:bg-slate-700/40 p-4 rounded-lg">
+                                        {selectedEntente.description}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Pied du modal */}
+                        <div className="sticky bottom-0 bg-gray-50 dark:bg-slate-700/40 px-6 py-4 border-t border-gray-200 dark:border-slate-600 rounded-b-2xl">
+                            <button
+                                onClick={closeEntenteModal}
+                                className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                            >
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

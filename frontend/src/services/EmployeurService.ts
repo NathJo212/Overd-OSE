@@ -1123,6 +1123,36 @@ class EmployeurService {
             return [];
         }
     }
+
+    /**
+     * Télécharge le PDF d'une entente de stage
+     * @param ententeId L'ID de l'entente
+     * @returns Promise avec le Blob du PDF
+     */
+    async telechargerPdfEntente(ententeId: number): Promise<Blob> {
+        try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Vous devez être connecté');
+            }
+
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/pdf`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du téléchargement du PDF de l\'entente');
+            }
+
+            return await response.blob();
+        } catch (error) {
+            console.error('Erreur telechargerPdfEntente:', error);
+            throw error;
+        }
+    }
 }
 
 export const employeurService = new EmployeurService();

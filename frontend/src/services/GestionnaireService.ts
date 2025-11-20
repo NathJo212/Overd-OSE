@@ -694,6 +694,32 @@ class GestionnaireService {
             return [];
         }
     }
+
+    /**
+     * Télécharge le PDF d'une entente de stage
+     * @param ententeId L'ID de l'entente
+     * @param token Token d'authentification
+     * @returns Promise avec le Blob du PDF
+     */
+    async telechargerPdfEntente(ententeId: number, token: string): Promise<Blob> {
+        try {
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/pdf`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du téléchargement du PDF d\'entente');
+            }
+
+            return await response.blob();
+        } catch (error) {
+            console.error('Erreur telechargerPdfEntente:', error);
+            throw error;
+        }
+    }
 }
 
 export const gestionnaireService = new GestionnaireService();
