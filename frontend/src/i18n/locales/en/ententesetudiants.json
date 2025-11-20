@@ -88,7 +88,8 @@
     "responsabilitesCollege": "College responsibilities",
     "objectives": "Learning objectives",
     "programme": "Program",
-    "location": "Location"
+    "location": "Location",
+    "close": "Close agreement details"
   },
   "success": {
     "signed": "Agreement signed successfully!",

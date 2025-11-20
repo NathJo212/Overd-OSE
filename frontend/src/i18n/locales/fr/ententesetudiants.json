@@ -88,7 +88,8 @@
     "responsabilitesCollege": "Responsabilités du collège",
     "objectives": "Objectifs d'apprentissage",
     "programme": "Programme",
-    "location": "Lieu"
+    "location": "Lieu",
+    "close": "Fermer"
   },
   "success": {
     "signed": "Entente signée avec succès !",
