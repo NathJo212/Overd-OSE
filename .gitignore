@@ -31,4 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+/keystore.jks
 /heures/
