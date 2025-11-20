@@ -42,7 +42,7 @@ const LanguageSelector = () => {
                 </button>
                 <button
                     onClick={() => changeLanguage('en')}
-                    className={`px-3 py-1 text-sm rounded-md font-medium transition-all duration-200 ${
+                    className={`cursor-pointer px-3 py-1 text-sm rounded-md font-medium transition-all duration-200 ${
                         i18n.language === 'en'
                             ? 'bg-blue-600 text-white shadow-sm'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600'
