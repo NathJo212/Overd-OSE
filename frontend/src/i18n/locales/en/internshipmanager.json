@@ -38,5 +38,13 @@
     "reasonLabel": "Reason for refusal",
     "reasonPlaceholder": "Ex: Insufficient information, inconsistent dates, etc.",
     "reasonRequired": "The reason is required."
+  },
+  "offersPendind" : "Offers pending approval",
+  "cards": {
+    "studentResumesDesc": "Validate student resumes",
+    "internshipAgreementsDesc": "Create and manage agreements",
+    "signAgreementsDesc": "Sign finalized agreements",
+    "assignTeachersDesc": "Assign teachers to students",
+    "viewOffersDesc": "Browse all approved offers"
   }
 }

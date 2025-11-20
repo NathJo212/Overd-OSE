@@ -38,5 +38,13 @@
     "reasonLabel": "Raison du refus",
     "reasonPlaceholder": "Ex: Informations insuffisantes, dates incohérentes, etc.",
     "reasonRequired": "La raison est obligatoire."
+  },
+  "offersPendind" : "Offres en attente d'approbation",
+  "cards": {
+    "studentResumesDesc": "Valider les CVs des étudiants",
+    "internshipAgreementsDesc": "Créer et gérer les ententes",
+    "signAgreementsDesc": "Signer les ententes finalisées",
+    "assignTeachersDesc": "Associer les professeurs aux étudiants",
+    "viewOffersDesc": "Consulter toutes les offres approuvées"
   }
 }

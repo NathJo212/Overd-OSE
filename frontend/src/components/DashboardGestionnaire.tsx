@@ -170,7 +170,7 @@ const DashboardGestionnaire = () => {
                             </div>
                         </div>
                         <h3 className="text-xl font-bold mb-2">{t('navbar:studentResumes')}</h3>
-                        <p className="text-green-100 text-sm">Valider les CVs des étudiants</p>
+                        <p className="text-green-100 text-sm">{t('internshipmanager:cards.studentResumesDesc')}</p>
                     </NavLink>
 
                     {/* Ententes de stage */}
@@ -185,7 +185,7 @@ const DashboardGestionnaire = () => {
                             </div>
                         </div>
                         <h3 className="text-xl font-bold mb-2">{t('navbar:internshipAgreements')}</h3>
-                        <p className="text-purple-100 text-sm">Créer et gérer les ententes</p>
+                        <p className="text-purple-100 text-sm">{t('internshipmanager:cards.internshipAgreementsDesc')}</p>
                     </NavLink>
 
                     {/* Signer les ententes */}
@@ -200,7 +200,7 @@ const DashboardGestionnaire = () => {
                             </div>
                         </div>
                         <h3 className="text-xl font-bold mb-2">{t('navbar:signAgreements')}</h3>
-                        <p className="text-orange-100 text-sm">Signer les ententes finalisées</p>
+                        <p className="text-orange-100 text-sm">{t('internshipmanager:cards.signAgreementsDesc')}</p>
                     </NavLink>
 
                     {/* Assigner professeurs */}
@@ -215,7 +215,7 @@ const DashboardGestionnaire = () => {
                             </div>
                         </div>
                         <h3 className="text-xl font-bold mb-2">{t('navbar:assignTeachers')}</h3>
-                        <p className="text-indigo-100 text-sm">Associer les professeurs aux étudiants</p>
+                        <p className="text-indigo-100 text-sm">{t('internshipmanager:cards.assignTeachersDesc')}</p>
                     </NavLink>
 
                     {/* Voir toutes les offres */}
@@ -230,7 +230,7 @@ const DashboardGestionnaire = () => {
                             </div>
                         </div>
                         <h3 className="text-xl font-bold mb-2">{t("internshipmanager:page.buttonVisualize")}</h3>
-                        <p className="text-teal-100 text-sm">Consulter toutes les offres approuvées</p>
+                        <p className="text-teal-100 text-sm">{t('internshipmanager:cards.viewOffersDesc')}</p>
                     </NavLink>
                 </div>
 
@@ -238,7 +238,7 @@ const DashboardGestionnaire = () => {
                 <div className="mb-8">
                     <div className="flex items-center gap-4">
                         <div className="h-px bg-gray-300 dark:bg-slate-700 flex-1"></div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Offres en attente d'approbation</h2>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">{t("offersPendind")}</h2>
                         <div className="h-px bg-gray-300 dark:bg-slate-700 flex-1"></div>
                     </div>
                 </div>

@@ -12,5 +12,11 @@
   "language": "Langue",
   "internshipAgreements": "Ententes de stage",
   "signAgreements": "Signer les ententes",
-  "assignTeachers": "Assigner un professeur"
+  "assignTeachers": "Assigner un professeur",
+  "roles": {
+    "ETUDIANT": "Étudiant",
+    "PROFESSEUR": "Professeur",
+    "GESTIONNAIRE": "Gestionnaire",
+    "EMPLOYEUR": "Employeur"
+  }
 }

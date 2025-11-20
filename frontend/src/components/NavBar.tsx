@@ -24,13 +24,13 @@ const NavBar = () => {
                 if (userData) {
                     const user = JSON.parse(userData);
 
-                    // Fonction pour formater le nom du rôle en français
+                    // Fonction pour formater le nom du rôle en utilisant i18n
                     const getRoleLabel = (role: string) => {
                         switch (role) {
-                            case 'ETUDIANT': return 'Étudiant';
-                            case 'PROFESSEUR': return 'Professeur';
-                            case 'GESTIONNAIRE': return 'Gestionnaire';
-                            case 'EMPLOYEUR': return 'Employeur';
+                            case 'ETUDIANT': return t('navbar:roles.ETUDIANT');
+                            case 'PROFESSEUR': return t('navbar:roles.PROFESSEUR');
+                            case 'GESTIONNAIRE': return t('navbar:roles.GESTIONNAIRE');
+                            case 'EMPLOYEUR': return t('navbar:roles.EMPLOYEUR');
                             default: return role;
                         }
                     };
@@ -55,7 +55,7 @@ const NavBar = () => {
                 console.warn('Unable to parse userData', e);
             }
         }
-    }, [isConnected, role]);
+    }, [isConnected, role, t]);
 
     const handleLogout = async () => {
         await utilisateurService.deconnexion();
