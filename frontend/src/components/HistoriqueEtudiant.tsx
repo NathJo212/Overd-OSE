@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import NavBar from './NavBar';
 import AnneeAcademiqueSelector from './AnneeAcademiqueSelector';
 import { etudiantService } from '../services/EtudiantService';
-import { History, FileText, BookOpen, ArrowLeft, User, Briefcase, Calendar as CalendarIcon, Clock, DollarSign, CheckCircle, X, FileSignature, Building2, Search, Filter } from 'lucide-react';
+import { History, FileText, BookOpen, ArrowLeft, Briefcase, Calendar as CalendarIcon, Clock, DollarSign, CheckCircle, X, FileSignature, Building2, Search, Filter } from 'lucide-react';
 
 type OngletType = 'candidatures' | 'ententes';
 
