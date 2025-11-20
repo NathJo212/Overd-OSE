@@ -379,7 +379,7 @@ class EtudiantService {
             return response.ok;
 
         } catch (error) {
-            console.error('Erreur lors de la vérification du CV:', error);
+            // Erreur silencieuse : 404 est normal si l'étudiant n'a pas encore de CV
             return false;
         }
     }

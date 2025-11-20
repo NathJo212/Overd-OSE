@@ -100,7 +100,8 @@ const TeleversementCv = () => {
             const existe = await etudiantService.verifierCvExiste();
             setCvExistant(existe);
         } catch (error) {
-            console.error('Erreur lors de la vérification du CV:', error);
+            // Erreur silencieuse : normal si aucun CV n'est encore téléversé
+            setCvExistant(false);
         }
     };
 
