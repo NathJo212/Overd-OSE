@@ -23,9 +23,20 @@ const AnneeAcademiqueSelector = ({ onAnneeChange, includeToutes = false }: Annee
             const anneesData = await anneeAcademiqueService.getAllAnnees();
             setAnnees(anneesData);
 
-            // Par défaut, sélectionner l'année courante (qui est vide, donc affichera l'année courante côté backend)
-            setSelectedAnnee('');
-            onAnneeChange('');
+            // Par défaut, sélectionner l'année courante
+            const anneeCourante = anneesData.find(a => a.estCourante);
+            if (anneeCourante) {
+                setSelectedAnnee(anneeCourante.anneeDebut.toString());
+                onAnneeChange(anneeCourante.anneeDebut.toString());
+            } else if (anneesData.length > 0) {
+                // Si aucune année courante, sélectionner la première
+                setSelectedAnnee(anneesData[0].anneeDebut.toString());
+                onAnneeChange(anneesData[0].anneeDebut.toString());
+            } else {
+                // Aucune année disponible
+                setSelectedAnnee('');
+                onAnneeChange('');
+            }
         } catch (error) {
             console.error('Erreur lors du chargement des années:', error);
         } finally {
@@ -48,6 +59,15 @@ const AnneeAcademiqueSelector = ({ onAnneeChange, includeToutes = false }: Annee
         );
     }
 
+    // Trier les années : courante d'abord, puis futures, puis passées (du plus récent au plus ancien)
+    const anneesSorted = [...annees].sort((a, b) => {
+        if (a.estCourante) return -1;
+        if (b.estCourante) return 1;
+        if (a.estFuture && !b.estFuture) return -1;
+        if (!a.estFuture && b.estFuture) return 1;
+        return b.anneeDebut - a.anneeDebut; // Plus récent en premier
+    });
+
     return (
         <div className="flex items-center gap-3">
             <label className="flex items-center gap-2 font-medium text-gray-700 dark:text-slate-300">
@@ -57,26 +77,18 @@ const AnneeAcademiqueSelector = ({ onAnneeChange, includeToutes = false }: Annee
             <select
                 value={selectedAnnee}
                 onChange={handleChange}
-                className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 min-w-[250px]"
             >
-                {/* Option par défaut : Année courante */}
-                <option value="">
-                    Année courante {annees.find(a => a.estCourante) ?
-                        `(${getLibelleAnnee(annees.find(a => a.estCourante)!)})` : ''}
-                </option>
-
-                {/* Années disponibles */}
-                {annees.map(annee => (
+                {/* Années disponibles - courante en premier avec format spécial */}
+                {anneesSorted.map(annee => (
                     <option key={annee.id} value={annee.anneeDebut.toString()}>
-                        {getLibelleAnnee(annee)} {annee.estCourante ? '(Courante)' : ''}
-                        {annee.estFuture ? '(À venir)' : ''}
-                        {annee.estPassee ? '(Passée)' : ''}
+                        {getLibelleAnnee(annee)}{annee.estCourante ? ' (Année courante)' : ''}{annee.estFuture ? ' (À venir)' : ''}
                     </option>
                 ))}
 
                 {/* Option "Toutes" pour le gestionnaire */}
                 {includeToutes && (
-                    <option value="toutes">Toutes les années (Historique complet)</option>
+                    <option value="toutes">Toutes les années</option>
                 )}
             </select>
         </div>

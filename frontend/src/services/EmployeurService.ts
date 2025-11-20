@@ -206,6 +206,16 @@ export interface EvaluationDTO {
     employeurId?: number;
     pdfBase64?: string;
     dateEvaluation?: string;
+    
+    // Informations du stagiaire
+    etudiantNom?: string;
+    etudiantPrenom?: string;
+    etudiantEmail?: string;
+    
+    // Informations du stage
+    offreTitre?: string;
+    dateDebut?: string;
+    dateFin?: string;
 }
 
 // Notification DTO

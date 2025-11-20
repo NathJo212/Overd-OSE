@@ -21,10 +21,17 @@ export const anneeAcademiqueService = {
      */
     async getAnneeCourante(): Promise<AnneeAcademiqueDTO | null> {
         try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                console.error('Token d\'authentification manquant');
+                return null;
+            }
+
             const response = await fetch(`${API_URL}/OSEAnneeAcademique/courante`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
             });
 
@@ -44,10 +51,17 @@ export const anneeAcademiqueService = {
      */
     async getAllAnnees(): Promise<AnneeAcademiqueDTO[]> {
         try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                console.error('Token d\'authentification manquant');
+                return [];
+            }
+
             const response = await fetch(`${API_URL}/OSEAnneeAcademique/all`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
             });
 
@@ -67,10 +81,17 @@ export const anneeAcademiqueService = {
      */
     async getAnneesPassees(): Promise<AnneeAcademiqueDTO[]> {
         try {
+            const token = sessionStorage.getItem('authToken');
+            if (!token) {
+                console.error('Token d\'authentification manquant');
+                return [];
+            }
+
             const response = await fetch(`${API_URL}/OSEAnneeAcademique/passees`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
             });
 
