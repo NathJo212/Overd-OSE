@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     CheckCircle,
@@ -30,46 +30,6 @@ import type {
     AppreciationGlobale,
     EntrepriseProchainStageChoix
 } from '../services/EmployeurService';
-// Local form type allowing null before user selects values
-interface LocalEvaluationForm {
-    nomSuperviseur: string;
-    fonctionSuperviseur: string;
-    telephoneSuperviseur: string;
-    dateSignature: string;
-    prodPlanifierOrganiser: NiveauAccord | null;
-    prodComprendreDirectives: NiveauAccord | null;
-    prodRythmeSoutenu: NiveauAccord | null;
-    prodEtablirPriorites: NiveauAccord | null;
-    prodRespectEcheanciers: NiveauAccord | null;
-    commentairesProductivite: string;
-    qualRespectMandats: NiveauAccord | null;
-    qualAttentionDetails: NiveauAccord | null;
-    qualVerifierTravail: NiveauAccord | null;
-    qualRechercherPerfectionnement: NiveauAccord | null;
-    qualAnalyseProblemes: NiveauAccord | null;
-    commentairesQualiteTravail: string;
-    relEtablirContacts: NiveauAccord | null;
-    relContribuerEquipe: NiveauAccord | null;
-    relAdapterCulture: NiveauAccord | null;
-    relAccepterCritiques: NiveauAccord | null;
-    relEtreRespectueux: NiveauAccord | null;
-    relEcouteActive: NiveauAccord | null;
-    commentairesRelations: string;
-    habInteretMotivation: NiveauAccord | null;
-    habExprimerIdees: NiveauAccord | null;
-    habFairePreuveInitiative: NiveauAccord | null;
-    habTravaillerSecuritaire: NiveauAccord | null;
-    habSensResponsabilites: NiveauAccord | null;
-    habPonctuelAssidu: NiveauAccord | null;
-    commentairesHabiletes: string;
-    appreciationGlobale: AppreciationGlobale | null;
-    precisionAppreciation: string;
-    discussionAvecStagiaire: boolean;
-    heuresEncadrementSemaine: number;
-    entrepriseAccueillirProchainStage: EntrepriseProchainStageChoix | null;
-    formationTechniqueSuffisante: string;
-}
-
 // Composant pour les boutons radio Likert
 interface LikertRadioProps {
     name: string;
