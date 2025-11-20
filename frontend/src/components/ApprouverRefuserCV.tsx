@@ -144,7 +144,7 @@ const ApprouverRefuserCV = () => {
                 <div className="max-w-7xl mx-auto">
                     <button
                         onClick={() => navigate('/dashboard-gestionnaire')}
-                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-4 transition-colors"
+                        className="cursor-pointer flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-4 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         {t('backToDashboard')}
