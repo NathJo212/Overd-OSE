@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from './NavBar';
 import AnneeAcademiqueSelector from './AnneeAcademiqueSelector';
 import { employeurService } from '../services/EmployeurService';
-import { History, FileText, Users, BookOpen, Award, ArrowLeft, Eye, User, Briefcase, MapPin, Calendar as CalendarIcon, X, Clock, DollarSign, CheckCircle, FileSignature, Mail, RefreshCw, Check, XCircle } from 'lucide-react';
+import { History, FileText, Users, BookOpen, Award, ArrowLeft, Eye, User, Briefcase, MapPin, Calendar as CalendarIcon, X, Clock, DollarSign, CheckCircle, FileSignature, Mail, RefreshCw, Check, XCircle, Search, Filter } from 'lucide-react';
 
 type OngletType = 'candidatures' | 'ententes' | 'evaluations';
 
@@ -12,9 +12,23 @@ const HistoriqueEmployeur = () => {
     const [ongletActif, setOngletActif] = useState<OngletType>('candidatures');
     const [anneeSelectionnee, setAnneeSelectionnee] = useState<string>('');
     const [candidatures, setCandidatures] = useState<any[]>([]);
+    const [filteredCandidatures, setFilteredCandidatures] = useState<any[]>([]);
     const [ententes, setEntentes] = useState<any[]>([]);
     const [evaluations, setEvaluations] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    
+    // États pour les filtres de candidatures
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('ALL');
+    const [offerFilter, setOfferFilter] = useState('ALL');
+    
+    // États pour le modal de candidature
+    const [selectedCandidature, setSelectedCandidature] = useState<any | null>(null);
+    const [showCandidatureModal, setShowCandidatureModal] = useState(false);
+    
+    // États pour la visionneuse de documents (CV, lettre)
+    const [selectedDocument, setSelectedDocument] = useState<{prenom: string; nom: string; cv?: string; lettre?: string} | null>(null);
+    const [showDocumentModal, setShowDocumentModal] = useState(false);
     
     // États pour la visionneuse PDF des évaluations
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -45,6 +59,11 @@ const HistoriqueEmployeur = () => {
         loadData();
     }, [anneeSelectionnee]);
 
+    useEffect(() => {
+        // Appliquer les filtres quand les candidatures ou les filtres changent
+        filterCandidatures();
+    }, [candidatures, searchTerm, statusFilter, offerFilter]);
+
     const loadData = async () => {
         setLoading(true);
         const token = sessionStorage.getItem('authToken');
@@ -59,6 +78,7 @@ const HistoriqueEmployeur = () => {
             ]);
 
             setCandidatures(candData || []);
+            setFilteredCandidatures(candData || []);
             setEntentes(entData || []);
             setEvaluations(evalData || []);
         } catch (error) {
@@ -68,8 +88,101 @@ const HistoriqueEmployeur = () => {
         }
     };
 
+    const filterCandidatures = () => {
+        let filtered = [...candidatures];
+
+        // Filtrer par statut
+        if (statusFilter !== 'ALL') {
+            filtered = filtered.filter(c => c.statut === statusFilter);
+        }
+
+        // Filtrer par offre
+        if (offerFilter !== 'ALL') {
+            filtered = filtered.filter(c => c.offreTitre === offerFilter);
+        }
+
+        // Filtrer par recherche (nom d'étudiant, email ou titre d'offre)
+        if (searchTerm.trim()) {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(c =>
+                (c.etudiantPrenom && c.etudiantPrenom.toLowerCase().includes(term)) ||
+                (c.etudiantNom && c.etudiantNom.toLowerCase().includes(term)) ||
+                (c.etudiantEmail && c.etudiantEmail.toLowerCase().includes(term)) ||
+                (c.offreTitre && c.offreTitre.toLowerCase().includes(term))
+            );
+        }
+
+        setFilteredCandidatures(filtered);
+    };
+
     const handleAnneeChange = (annee: string) => {
         setAnneeSelectionnee(annee);
+    };
+
+    // Ouvrir/fermer le modal de candidature
+    const handleOpenCandidatureModal = (candidature: any) => {
+        setSelectedCandidature(candidature);
+        setShowCandidatureModal(true);
+    };
+
+    const handleCloseCandidatureModal = () => {
+        setShowCandidatureModal(false);
+        setSelectedCandidature(null);
+    };
+
+    // Convertir Blob en Base64
+    const blobToBase64 = (blob: Blob): Promise<string> =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const dataUrl = reader.result as string;
+                const base64 = dataUrl.split(',')[1] || '';
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+    // Regarder le CV
+    const handleRegarderCV = async (candidatureId: number) => {
+        try {
+            const blob = await employeurService.telechargerCvCandidature(candidatureId);
+            const base64 = await blobToBase64(blob);
+
+            setSelectedDocument({
+                prenom: selectedCandidature?.etudiantPrenom ?? '',
+                nom: selectedCandidature?.etudiantNom ?? '',
+                cv: base64
+            });
+            setShowDocumentModal(true);
+        } catch (error) {
+            console.error('Erreur affichage CV:', error);
+            alert('Erreur lors du chargement du CV');
+        }
+    };
+
+    // Regarder la lettre de motivation
+    const handleRegarderLettreMotivation = async (candidatureId: number) => {
+        try {
+            const blob = await employeurService.telechargerLettreMotivationCandidature(candidatureId);
+            const base64 = await blobToBase64(blob);
+
+            setSelectedDocument({
+                prenom: selectedCandidature?.etudiantPrenom ?? '',
+                nom: selectedCandidature?.etudiantNom ?? '',
+                lettre: base64
+            });
+            setShowDocumentModal(true);
+        } catch (error) {
+            console.error('Erreur affichage lettre:', error);
+            alert('Erreur lors du chargement de la lettre de motivation');
+        }
+    };
+
+    // Fermer le modal de documents
+    const closeDocumentModal = () => {
+        setShowDocumentModal(false);
+        setSelectedDocument(null);
     };
 
     const getStatutBadgeClass = (statut: string) => {
@@ -269,88 +382,157 @@ const HistoriqueEmployeur = () => {
                             <>
                                 {/* Onglet Candidatures */}
                                 {ongletActif === 'candidatures' && (
-                                    <div className="space-y-4">
-                                        {candidatures.length === 0 ? (
-                                            <div className="text-center py-12 text-gray-500 dark:text-slate-400">
-                                                <FileText size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                                                <p>Aucune candidature pour cette période</p>
-                                            </div>
-                                        ) : (
-                                            candidatures.map((cand) => (
-                                                <div 
-                                                    key={cand.id} 
-                                                    className="border border-gray-200 dark:border-slate-700 rounded-lg p-5 hover:border-blue-300 dark:hover:border-slate-500 hover:shadow-md transition-all duration-200 bg-white dark:bg-slate-700"
-                                                >
-                                                    <div className="flex flex-col lg:flex-row lg:items-start gap-4">
-                                                        <div className="flex-1 space-y-3">
-                                                            {/* Header */}
-                                                            <div className="flex items-start justify-between gap-4">
-                                                                <div>
-                                                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
-                                                                        {cand.etudiantPrenom} {cand.etudiantNom}
-                                                                    </h3>
-                                                                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mt-1 flex items-center gap-1.5">
-                                                                        <FileText className="w-4 h-4" />
-                                                                        {cand.offreTitre}
-                                                                    </p>
-                                                                </div>
-                                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatutBadgeClass(cand.statut)}`}>
-                                                                    {cand.statut === 'EN_ATTENTE' ? 'En attente' : 
-                                                                     cand.statut === 'ACCEPTEE' ? 'Acceptée' : 
-                                                                     cand.statut === 'REFUSEE' ? 'Refusée' :
-                                                                     cand.statut === 'ACCEPTEE_PAR_ETUDIANT' ? 'Acceptée par étudiant' :
-                                                                     cand.statut}
-                                                                </span>
-                                                            </div>
-
-                                                            {/* Details */}
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
-                                                                    <Mail className="w-4 h-4 text-gray-400" />
-                                                                    <span className="truncate">{cand.etudiantEmail}</span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
-                                                                    <CalendarIcon className="w-4 h-4 text-gray-400" />
-                                                                    {new Date(cand.dateCandidature).toLocaleDateString('fr-CA', {
-                                                                        year: 'numeric',
-                                                                        month: 'long',
-                                                                        day: 'numeric'
-                                                                    })}
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Documents */}
-                                                            <div className="flex flex-wrap gap-2">
-                                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium ${
-                                                                    cand.acv
-                                                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800'
-                                                                        : 'bg-gray-100 dark:bg-slate-700/50 text-gray-500 dark:text-slate-300 border border-gray-200 dark:border-slate-600'
-                                                                }`}>
-                                                                    <FileText className="w-3.5 h-3.5" />
-                                                                    CV {cand.acv ? '✓' : '✗'}
-                                                                </span>
-                                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium ${
-                                                                    cand.alettreMotivation
-                                                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800'
-                                                                        : 'bg-gray-100 dark:bg-slate-700/50 text-gray-500 dark:text-slate-300 border border-gray-200 dark:border-slate-600'
-                                                                }`}>
-                                                                    <FileText className="w-3.5 h-3.5" />
-                                                                    Lettre de motivation {cand.alettreMotivation ? '✓' : '✗'}
-                                                                </span>
-                                                            </div>
-
-                                                            {/* Message de réponse si refusée */}
-                                                            {cand.statut === 'REFUSEE' && cand.messageReponse && (
-                                                                <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg p-3">
-                                                                    <p className="text-sm text-rose-800 dark:text-rose-200">
-                                                                        <span className="font-medium">Raison du refus :</span> {cand.messageReponse}
-                                                                    </p>
-                                                                </div>
-                                                            )}
-                                                        </div>
+                                    <div>
+                                        {/* Filtres */}
+                                        <div className="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                {/* Recherche */}
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                                                        Rechercher
+                                                    </label>
+                                                    <div className="relative">
+                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
+                                                        <input
+                                                            type="text"
+                                                            value={searchTerm}
+                                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                                            placeholder="Nom d'étudiant, email ou titre d'offre..."
+                                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                                        />
                                                     </div>
                                                 </div>
-                                            ))
+                                                {/* Filtre par statut */}
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                                                        <Filter className="inline w-4 h-4 mr-1" />
+                                                        Statut
+                                                    </label>
+                                                    <select
+                                                        value={statusFilter}
+                                                        onChange={(e) => setStatusFilter(e.target.value)}
+                                                        className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                                    >
+                                                        <option value="ALL">Tous les statuts ({candidatures.length})</option>
+                                                        <option value="EN_ATTENTE">En attente ({candidatures.filter(c => c.statut === 'EN_ATTENTE').length})</option>
+                                                        <option value="ACCEPTEE">Acceptées ({candidatures.filter(c => c.statut === 'ACCEPTEE').length})</option>
+                                                        <option value="ACCEPTEE_PAR_ETUDIANT">Acceptées par étudiant ({candidatures.filter(c => c.statut === 'ACCEPTEE_PAR_ETUDIANT').length})</option>
+                                                        <option value="REFUSEE">Refusées ({candidatures.filter(c => c.statut === 'REFUSEE').length})</option>
+                                                    </select>
+                                                </div>
+                                                {/* Filtre par offre */}
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                                                        <Briefcase className="inline w-4 h-4 mr-1" />
+                                                        Offre
+                                                    </label>
+                                                    <select
+                                                        value={offerFilter}
+                                                        onChange={(e) => setOfferFilter(e.target.value)}
+                                                        className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                                    >
+                                                        <option value="ALL">Toutes les offres</option>
+                                                        {Array.from(new Set(candidatures.map(c => c.offreTitre))).sort().map((titre) => (
+                                                            <option key={titre} value={titre}>
+                                                                {titre} ({candidatures.filter(c => c.offreTitre === titre).length})
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            {(searchTerm || statusFilter !== 'ALL' || offerFilter !== 'ALL') && (
+                                                <div className="mt-4 flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
+                                                    <Filter className="w-4 h-4 text-gray-500 dark:text-slate-400" />
+                                                    <span className="font-medium text-gray-900 dark:text-slate-100">{filteredCandidatures.length}</span> candidature(s) trouvée(s)
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Liste des candidatures */}
+                                        {filteredCandidatures.length === 0 ? (
+                                            <div className="text-center py-12 text-gray-500 dark:text-slate-400">
+                                                <FileText size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
+                                                <p>{searchTerm || statusFilter !== 'ALL' ? 'Aucune candidature ne correspond à vos critères' : 'Aucune candidature pour cette période'}</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-4">
+                                                {filteredCandidatures.map((cand) => (
+                                                    <div 
+                                                        key={cand.id}
+                                                        onClick={() => handleOpenCandidatureModal(cand)}
+                                                        className="border border-gray-200 dark:border-slate-700 rounded-lg p-5 hover:border-blue-300 dark:hover:border-slate-500 hover:shadow-md transition-all duration-200 cursor-pointer bg-white dark:bg-slate-800"
+                                                    >
+                                                        <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                                                            <div className="flex-1 space-y-3">
+                                                                {/* Header */}
+                                                                <div className="flex items-start justify-between gap-4">
+                                                                    <div>
+                                                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+                                                                            {cand.etudiantPrenom} {cand.etudiantNom}
+                                                                        </h3>
+                                                                        <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mt-1 flex items-center gap-1.5">
+                                                                            <FileText className="w-4 h-4" />
+                                                                            {cand.offreTitre}
+                                                                        </p>
+                                                                    </div>
+                                                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatutBadgeClass(cand.statut)}`}>
+                                                                        {cand.statut === 'EN_ATTENTE' ? 'En attente' : 
+                                                                         cand.statut === 'ACCEPTEE' ? 'Acceptée' : 
+                                                                         cand.statut === 'REFUSEE' ? 'Refusée' :
+                                                                         cand.statut === 'ACCEPTEE_PAR_ETUDIANT' ? 'Acceptée par étudiant' :
+                                                                         cand.statut}
+                                                                    </span>
+                                                                </div>
+
+                                                                {/* Details */}
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
+                                                                        <Mail className="w-4 h-4 text-gray-400 dark:text-slate-400" />
+                                                                        <span className="truncate">{cand.etudiantEmail}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
+                                                                        <CalendarIcon className="w-4 h-4 text-gray-400 dark:text-slate-400" />
+                                                                        {new Date(cand.dateCandidature).toLocaleDateString('fr-CA', {
+                                                                            year: 'numeric',
+                                                                            month: 'long',
+                                                                            day: 'numeric'
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Documents */}
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium ${
+                                                                        cand.acv
+                                                                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800'
+                                                                            : 'bg-gray-100 dark:bg-slate-700/50 text-gray-500 dark:text-slate-300 border border-gray-200 dark:border-slate-600'
+                                                                    }`}>
+                                                                        <FileText className="w-3.5 h-3.5" />
+                                                                        CV {cand.acv ? '✓' : '✗'}
+                                                                    </span>
+                                                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium ${
+                                                                        cand.alettreMotivation
+                                                                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800'
+                                                                            : 'bg-gray-100 dark:bg-slate-700/50 text-gray-500 dark:text-slate-300 border border-gray-200 dark:border-slate-600'
+                                                                    }`}>
+                                                                        <FileText className="w-3.5 h-3.5" />
+                                                                        Lettre de motivation {cand.alettreMotivation ? '✓' : '✗'}
+                                                                    </span>
+                                                                </div>
+
+                                                                {/* Message de réponse si refusée */}
+                                                                {cand.statut === 'REFUSEE' && cand.messageReponse && (
+                                                                    <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg p-3">
+                                                                        <p className="text-sm text-rose-800 dark:text-rose-200">
+                                                                            <span className="font-medium">Raison du refus :</span> {cand.messageReponse}
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         )}
                                     </div>
                                 )}
@@ -754,6 +936,174 @@ const HistoriqueEmployeur = () => {
                                 Fermer
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de détails de candidature */}
+            {showCandidatureModal && selectedCandidature && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        {/* Header Modal */}
+                        <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-6 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+                                    {selectedCandidature.etudiantPrenom} {selectedCandidature.etudiantNom}
+                                </h2>
+                                <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">Candidature #{selectedCandidature.id}</p>
+                            </div>
+                            <button
+                                onClick={handleCloseCandidatureModal}
+                                className="cursor-pointer p-2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Contenu Modal */}
+                        <div className="p-6 space-y-6">
+                            {/* Statut */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">Statut</label>
+                                <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getStatutBadgeClass(selectedCandidature.statut)}`}>
+                                    {selectedCandidature.statut === 'EN_ATTENTE' ? 'En attente' : 
+                                     selectedCandidature.statut === 'ACCEPTEE' ? 'Acceptée' : 
+                                     selectedCandidature.statut === 'REFUSEE' ? 'Refusée' :
+                                     selectedCandidature.statut === 'ACCEPTEE_PAR_ETUDIANT' ? 'Acceptée par étudiant' :
+                                     selectedCandidature.statut}
+                                </span>
+                            </div>
+
+                            {/* Offre */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">Offre de stage</label>
+                                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-center gap-3">
+                                    <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                    <span className="text-blue-900 dark:text-blue-200 font-medium">{selectedCandidature.offreTitre}</span>
+                                </div>
+                            </div>
+
+                            {/* Contact */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">Contact</label>
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-3 text-gray-700 dark:text-slate-200">
+                                        <Mail className="w-5 h-5 text-gray-400 dark:text-slate-400" />
+                                        <span>{selectedCandidature.etudiantEmail}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-gray-700 dark:text-slate-200">
+                                        <CalendarIcon className="w-5 h-5 text-gray-400 dark:text-slate-400" />
+                                        <span>Postulé le {new Date(selectedCandidature.dateCandidature).toLocaleDateString('fr-CA', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        })}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Documents */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-3">Documents</label>
+                                <div className="space-y-3">
+                                    {selectedCandidature.acv && (
+                                        <button
+                                            onClick={() => handleRegarderCV(selectedCandidature.id)}
+                                            className="cursor-pointer w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
+                                                    <FileText className="w-5 h-5 text-blue-600" />
+                                                </div>
+                                                <div className="text-left">
+                                                    <p className="font-medium text-gray-900 dark:text-slate-100">Curriculum Vitae</p>
+                                                    <p className="text-sm text-gray-500 dark:text-slate-300">Cliquez pour visualiser</p>
+                                                </div>
+                                            </div>
+                                            <Eye className="w-5 h-5 text-gray-400" />
+                                        </button>
+                                    )}
+
+                                    {selectedCandidature.alettreMotivation && (
+                                        <button
+                                            onClick={() => handleRegarderLettreMotivation(selectedCandidature.id)}
+                                            className="cursor-pointer w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
+                                                    <FileText className="w-5 h-5 text-purple-600" />
+                                                </div>
+                                                <div className="text-left">
+                                                    <p className="font-medium text-gray-900 dark:text-slate-100">Lettre de motivation</p>
+                                                    <p className="text-sm text-gray-500 dark:text-slate-300">Cliquez pour visualiser</p>
+                                                </div>
+                                            </div>
+                                            <Eye className="w-5 h-5 text-gray-400" />
+                                        </button>
+                                    )}
+
+                                    {!selectedCandidature.acv && !selectedCandidature.alettreMotivation && (
+                                        <p className="text-sm text-gray-500 dark:text-slate-300 text-center py-4">Aucun document disponible</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Message de réponse si existe */}
+                            {selectedCandidature.messageReponse && (
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700 dark:text-slate-200 block mb-2">Message de réponse</label>
+                                    <div className={`rounded-lg p-4 ${
+                                        selectedCandidature.statut === 'REFUSEE'
+                                            ? 'bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800'
+                                            : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
+                                    }`}>
+                                        <p className={`text-sm ${
+                                            selectedCandidature.statut === 'REFUSEE'
+                                                ? 'text-rose-800 dark:text-rose-200'
+                                                : 'text-blue-800 dark:text-blue-200'
+                                        }`}>
+                                            {selectedCandidature.messageReponse}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="border-t border-gray-200 dark:border-slate-700 p-6">
+                            <button
+                                onClick={handleCloseCandidatureModal}
+                                className="cursor-pointer w-full px-6 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-slate-200 font-semibold rounded-xl transition-all"
+                            >
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de visualisation de documents (CV et Lettre de motivation) */}
+            {showDocumentModal && selectedDocument && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700">
+                        {/* En-tête du modal */}
+                        <div className="p-4 border-b border-gray-200 dark:border-slate-600 flex justify-between items-center bg-gray-50 dark:bg-slate-700/50">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
+                                {selectedDocument.cv ? 'CV' : 'Lettre de motivation'} - {selectedDocument.prenom} {selectedDocument.nom}
+                            </h2>
+                            <button
+                                onClick={closeDocumentModal}
+                                className="cursor-pointer p-2 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5 text-gray-700 dark:text-slate-300" />
+                            </button>
+                        </div>
+                        {/* Iframe pour afficher le PDF */}
+                        <iframe
+                            src={`data:application/pdf;base64,${selectedDocument.cv || selectedDocument.lettre}`}
+                            title={selectedDocument.cv ? 'CV' : 'Lettre de motivation'}
+                            className="flex-1 w-full bg-white dark:bg-slate-800"
+                            style={{ border: "none" }}
+                        />
                     </div>
                 </div>
             )}
