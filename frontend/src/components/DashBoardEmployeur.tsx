@@ -219,7 +219,7 @@ const DashBoardEmployeur = () => {
                                 {t("employerdashboard:evaluateInterns")}
                             </NavLink>
                             <NavLink to="/historique-employeur" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
-                                 Historique
+                                {t("employerdashboard:history")}
                             </NavLink>
                         </div>
                     </div>

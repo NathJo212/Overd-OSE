@@ -3,7 +3,9 @@
     "title": "Pending internship offers",
     "manageOffers": "Manage pending internship offers.",
     "titleVisualize": "View all internship offers",
-    "buttonVisualize": "View offers"
+    "buttonVisualize": "View offers",
+    "buttonHistory": "History",
+    "descriptionHistory": "View data by academic year"
   },
   "fields": {
     "employer": "Employer:",

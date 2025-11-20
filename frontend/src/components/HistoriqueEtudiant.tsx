@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import NavBar from './NavBar';
 import AnneeAcademiqueSelector from './AnneeAcademiqueSelector';
 import { etudiantService } from '../services/EtudiantService';
-import { History, FileText, BookOpen, ArrowLeft, User, Briefcase, Calendar as CalendarIcon, Clock, DollarSign, CheckCircle, X, FileSignature, Building2, Search, Filter, XCircle } from 'lucide-react';
+import { History, FileText, BookOpen, ArrowLeft, User, Briefcase, Calendar as CalendarIcon, Clock, DollarSign, CheckCircle, X, FileSignature, Building2, Search, Filter } from 'lucide-react';
 
 type OngletType = 'candidatures' | 'ententes';
 
 const HistoriqueEtudiant = () => {
+    const { t } = useTranslation(['historiqueEtudiant']);
     const navigate = useNavigate();
     const [ongletActif, setOngletActif] = useState<OngletType>('candidatures');
     const [anneeSelectionnee, setAnneeSelectionnee] = useState<string>('');
@@ -125,21 +127,21 @@ const HistoriqueEtudiant = () => {
                 return (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-200">
                         <CheckCircle className="w-3 h-3 mr-1" />
-                        Signée
+                        {t('agreementModal.signed')}
                     </span>
                 );
             case 'EN_ATTENTE':
                 return (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-200">
                         <Clock className="w-3 h-3 mr-1" />
-                        En attente
+                        {t('agreementModal.pending')}
                     </span>
                 );
             case 'REFUSEE':
                 return (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200">
                         <X className="w-3 h-3 mr-1" />
-                        Refusée
+                        {t('agreementModal.refused')}
                     </span>
                 );
             default:
@@ -159,7 +161,7 @@ const HistoriqueEtudiant = () => {
                         className="cursor-pointer flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        <span className="font-medium">Retour au tableau de bord</span>
+                        <span className="font-medium">{t('backToDashboard')}</span>
                     </button>
                 </div>
 
@@ -167,10 +169,10 @@ const HistoriqueEtudiant = () => {
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
                         <History size={32} className="text-blue-600" />
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Mon Historique</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">{t('title')}</h1>
                     </div>
                     <p className="text-gray-600 dark:text-slate-300">
-                        Consultez vos candidatures et ententes par année académique
+                        {t('subtitle')}
                     </p>
                 </div>
 
@@ -195,7 +197,7 @@ const HistoriqueEtudiant = () => {
                                 }`}
                             >
                                 <FileText size={20} />
-                                Mes Candidatures ({candidatures.length})
+                                {t('tabs.applications')} ({candidatures.length})
                             </button>
                             <button
                                 onClick={() => setOngletActif('ententes')}
@@ -206,7 +208,7 @@ const HistoriqueEtudiant = () => {
                                 }`}
                             >
                                 <BookOpen size={20} />
-                                Mes Ententes ({ententes.length})
+                                {t('tabs.agreements')} ({ententes.length})
                             </button>
                         </nav>
                     </div>
@@ -216,7 +218,7 @@ const HistoriqueEtudiant = () => {
                         {loading ? (
                             <div className="text-center py-12">
                                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                                <p className="mt-4 text-gray-600 dark:text-slate-300">Chargement...</p>
+                                <p className="mt-4 text-gray-600 dark:text-slate-300">{t('loading')}</p>
                             </div>
                         ) : (
                             <>
@@ -229,7 +231,7 @@ const HistoriqueEtudiant = () => {
                                                 {/* Barre de recherche */}
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
-                                                        Rechercher
+                                                        {t('applications.search')}
                                                     </label>
                                                     <div className="relative">
                                                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
@@ -237,7 +239,7 @@ const HistoriqueEtudiant = () => {
                                                             type="text"
                                                             value={searchTerm}
                                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                                            placeholder="Rechercher par titre ou entreprise..."
+                                                            placeholder={t('applications.searchPlaceholder')}
                                                             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                                         />
                                                     </div>
@@ -247,19 +249,19 @@ const HistoriqueEtudiant = () => {
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                                                         <Filter className="inline w-4 h-4 mr-1" />
-                                                        Filtrer par statut
+                                                        {t('applications.filterByStatus')}
                                                     </label>
                                                     <select
                                                         value={statusFilter}
                                                         onChange={(e) => setStatusFilter(e.target.value)}
                                                         className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                                                     >
-                                                        <option value="ALL">Toutes les candidatures ({getStatusCount('ALL')})</option>
-                                                        <option value="EN_ATTENTE">En attente ({getStatusCount('EN_ATTENTE')})</option>
-                                                        <option value="ACCEPTEE">Acceptées par employeur ({getStatusCount('ACCEPTEE')})</option>
-                                                        <option value="ACCEPTEE_PAR_ETUDIANT">Acceptées par moi ({getStatusCount('ACCEPTEE_PAR_ETUDIANT')})</option>
-                                                        <option value="REFUSEE">Refusées par employeur ({getStatusCount('REFUSEE')})</option>
-                                                        <option value="REFUSEE_PAR_ETUDIANT">Refusées par moi ({getStatusCount('REFUSEE_PAR_ETUDIANT')})</option>
+                                                        <option value="ALL">{t('filters.all')} ({getStatusCount('ALL')})</option>
+                                                        <option value="EN_ATTENTE">{t('filters.pending')} ({getStatusCount('EN_ATTENTE')})</option>
+                                                        <option value="ACCEPTEE">{t('filters.acceptedByEmployer')} ({getStatusCount('ACCEPTEE')})</option>
+                                                        <option value="ACCEPTEE_PAR_ETUDIANT">{t('filters.acceptedByStudent')} ({getStatusCount('ACCEPTEE_PAR_ETUDIANT')})</option>
+                                                        <option value="REFUSEE">{t('filters.refusedByEmployer')} ({getStatusCount('REFUSEE')})</option>
+                                                        <option value="REFUSEE_PAR_ETUDIANT">{t('filters.refusedByStudent')} ({getStatusCount('REFUSEE_PAR_ETUDIANT')})</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -270,14 +272,14 @@ const HistoriqueEtudiant = () => {
                                             <div className="text-center py-12 text-gray-500 dark:text-slate-400">
                                                 <FileText size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
                                                 <p className="text-lg font-medium mb-2">
-                                                    {searchTerm || statusFilter !== 'ALL' 
-                                                        ? 'Aucune candidature ne correspond à vos critères' 
-                                                        : 'Aucune candidature pour cette période'}
+                                                    {searchTerm || statusFilter !== 'ALL'
+                                                        ? t('applications.noFilterMatch')
+                                                        : t('applications.noApplications')}
                                                 </p>
                                                 <p className="text-sm">
                                                     {searchTerm || statusFilter !== 'ALL'
-                                                        ? 'Essayez de modifier vos filtres'
-                                                        : 'Vous n\'avez pas encore postulé pour cette année académique'}
+                                                        ? t('applications.tryModifyFilters')
+                                                        : t('applications.neverApplied')}
                                                 </p>
                                             </div>
                                         ) : (
@@ -298,7 +300,7 @@ const HistoriqueEtudiant = () => {
                                                                 </div>
                                                                 <div className="flex items-center text-gray-500 dark:text-slate-400 text-sm">
                                                                     <CalendarIcon className="w-4 h-4 mr-2" />
-                                                                    Postulé le {new Date(cand.dateCandidature).toLocaleDateString('fr-CA', {
+                                                                    {t('applications.appliedOn')} {new Date(cand.dateCandidature).toLocaleDateString('fr-CA', {
                                                                         year: 'numeric',
                                                                         month: 'long',
                                                                         day: 'numeric'
@@ -307,11 +309,11 @@ const HistoriqueEtudiant = () => {
                                                             </div>
                                                             <div className="flex flex-col items-end gap-3">
                                                                 <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatutBadgeClass(cand.statut)}`}>
-                                                                    {cand.statut === 'EN_ATTENTE' ? 'En attente' :
-                                                                     cand.statut === 'ACCEPTEE' ? 'Acceptée par employeur' :
-                                                                     cand.statut === 'ACCEPTEE_PAR_ETUDIANT' ? 'Acceptée par moi' :
-                                                                     cand.statut === 'REFUSEE' ? 'Refusée par employeur' :
-                                                                     cand.statut === 'REFUSEE_PAR_ETUDIANT' ? 'Refusée par moi' :
+                                                                    {cand.statut === 'EN_ATTENTE' ? t('status.pending') :
+                                                                     cand.statut === 'ACCEPTEE' ? t('status.acceptedByEmployer') :
+                                                                     cand.statut === 'ACCEPTEE_PAR_ETUDIANT' ? t('status.acceptedByStudent') :
+                                                                     cand.statut === 'REFUSEE' ? t('status.refusedByEmployer') :
+                                                                     cand.statut === 'REFUSEE_PAR_ETUDIANT' ? t('status.refusedByStudent') :
                                                                      cand.statut}
                                                                 </span>
                                                             </div>
@@ -321,7 +323,7 @@ const HistoriqueEtudiant = () => {
                                                         {cand.messageReponse && (
                                                             <div className="mt-4 p-4 bg-gray-50 dark:bg-slate-700/40 rounded-lg border border-gray-200 dark:border-slate-600">
                                                                 <p className="text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
-                                                                    Message de l'employeur :
+                                                                    {t('applications.employerMessage')} :
                                                                 </p>
                                                                 <p className="text-sm text-gray-600 dark:text-slate-300">
                                                                     {cand.messageReponse}
@@ -341,7 +343,7 @@ const HistoriqueEtudiant = () => {
                                         {ententes.length === 0 ? (
                                             <div className="text-center py-12 text-gray-500 dark:text-slate-400">
                                                 <BookOpen size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                                                <p>Aucune entente pour cette période</p>
+                                                <p>{t('agreements.noAgreements')}</p>
                                             </div>
                                         ) : (
                                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -367,10 +369,10 @@ const HistoriqueEtudiant = () => {
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
                                                                     <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-1">
-                                                                        {entente.employeurNomEntreprise || 'Employeur'}
+                                                                        {entente.employeurNomEntreprise || t('agreements.employer')}
                                                                     </h3>
                                                                     <p className="text-xs text-gray-600 dark:text-slate-300 truncate">
-                                                                        {entente.employeurEmail || 'Email non disponible'}
+                                                                        {entente.employeurEmail || t('agreements.emailNotAvailable')}
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -394,18 +396,18 @@ const HistoriqueEtudiant = () => {
                                                             </div>
                                                             <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
                                                                 <Clock className="w-3 h-3 flex-shrink-0" />
-                                                                <span>{entente.dureeHebdomadaire || 'N/A'} h/semaine</span>
+                                                                <span>{entente.dureeHebdomadaire || 'N/A'} {t('agreements.hoursPerWeek')}</span>
                                                             </div>
                                                             <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
                                                                 <DollarSign className="w-3 h-3 flex-shrink-0" />
-                                                                <span>{entente.remuneration || 'Non spécifiée'}</span>
+                                                                <span>{entente.remuneration || t('agreements.notSpecified')}</span>
                                                             </div>
                                                         </div>
 
                                                         {/* Indicateur hover */}
                                                         <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
                                                             <p className="text-sm text-blue-600 dark:text-blue-400 font-medium group-hover:text-blue-700 dark:group-hover:text-blue-300 flex items-center gap-2">
-                                                                Voir les détails
+                                                                {t('agreements.viewDetails')}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -433,7 +435,7 @@ const HistoriqueEtudiant = () => {
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
-                                            Entente de stage
+                                            {t('agreementModal.title')}
                                         </h3>
                                         <p className="text-sm text-blue-700 dark:text-blue-300">
                                             {selectedEntente.titre}
@@ -455,7 +457,7 @@ const HistoriqueEtudiant = () => {
                             <div className="bg-gray-50 dark:bg-slate-700/40 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div className="flex items-center gap-3">
                                     <div>
-                                        <h4 className="font-semibold text-gray-900 dark:text-slate-100">Statut de signature</h4>
+                                        <h4 className="font-semibold text-gray-900 dark:text-slate-100">{t('agreements.signatureStatus')}</h4>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -467,14 +469,14 @@ const HistoriqueEtudiant = () => {
                             <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4">
                                 <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
                                     <Building2 className="w-5 h-5 text-purple-600" />
-                                    Employeur
+                                    {t('agreementModal.employer')}
                                 </h4>
                                 <div className="space-y-1">
                                     <p className="text-gray-800 dark:text-slate-200">
-                                        <span className="font-medium">Entreprise:</span> {selectedEntente.employeurNomEntreprise || 'Non disponible'}
+                                        <span className="font-medium">{t('agreements.company')}:</span> {selectedEntente.employeurNomEntreprise || t('agreements.emailNotAvailable')}
                                     </p>
                                     <p className="text-gray-800 dark:text-slate-200">
-                                        <span className="font-medium">Email:</span> {selectedEntente.employeurEmail || 'Non disponible'}
+                                        <span className="font-medium">{t('agreements.email')}:</span> {selectedEntente.employeurEmail || t('agreements.emailNotAvailable')}
                                     </p>
                                 </div>
                             </div>
@@ -483,36 +485,36 @@ const HistoriqueEtudiant = () => {
                             <div>
                                 <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
                                     <Briefcase className="w-5 h-5 text-blue-600" />
-                                    Informations du stage
+                                    {t('agreements.stageInfo')}
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Date de début</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreements.startDate')}</p>
                                         <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dateDebut}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Date de fin</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreements.endDate')}</p>
                                         <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dateFin}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Horaire</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.horaire || 'Non spécifié'}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreements.schedule')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.horaire || t('agreements.notSpecified')}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Heures par semaine</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dureeHebdomadaire || 'N/A'} h/semaine</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreementModal.hoursPerWeek')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dureeHebdomadaire || 'N/A'} {t('agreements.hoursPerWeek')}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Programme</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.progEtude || 'Non spécifié'}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreements.program')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.progEtude || t('agreements.notSpecified')}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Lieu</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.lieuStage || selectedEntente.lieu || 'Non défini'}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreements.location')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.lieuStage || selectedEntente.lieu || t('agreements.notSpecified')}</p>
                                     </div>
                                     <div className="col-span-2">
                                         <p className="text-sm text-gray-600 dark:text-slate-300">Rémunération</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.remuneration || 'Non spécifiée'}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.remuneration || t('agreements.notSpecified')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -521,7 +523,7 @@ const HistoriqueEtudiant = () => {
                             {selectedEntente.description && (
                                 <div>
                                     <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">
-                                        Description
+                                        {t('agreements.description')}
                                     </h4>
                                     <p className="text-gray-700 dark:text-slate-300 whitespace-pre-line bg-gray-50 dark:bg-slate-700/40 p-4 rounded-lg">
                                         {selectedEntente.description}
@@ -536,7 +538,7 @@ const HistoriqueEtudiant = () => {
                                 onClick={closeEntenteModal}
                                 className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                             >
-                                Fermer
+                                {t('agreementModal.close')}
                             </button>
                         </div>
                     </div>

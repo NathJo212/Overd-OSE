@@ -16,6 +16,10 @@
     "ententes": {
       "title": "Ententes de stage",
       "description": "Consultez toutes vos ententes de stage actives"
+    },
+    "historique": {
+      "title": "Historique",
+      "description": "Consultez vos candidatures et ententes par année académique"
     }
   },
   "offers": {

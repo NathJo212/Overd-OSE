@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { anneeAcademiqueService, getLibelleAnnee } from '../services/AnneeAcademiqueService';
 import type { AnneeAcademiqueDTO } from '../services/AnneeAcademiqueService';
 import { Calendar } from 'lucide-react';
@@ -9,6 +10,7 @@ interface AnneeAcademiqueSelectorProps {
 }
 
 const AnneeAcademiqueSelector = ({ onAnneeChange, includeToutes = false }: AnneeAcademiqueSelectorProps) => {
+    const { t } = useTranslation(['common']);
     const [annees, setAnnees] = useState<AnneeAcademiqueDTO[]>([]);
     const [selectedAnnee, setSelectedAnnee] = useState<string>('');
     const [loading, setLoading] = useState(true);
@@ -54,7 +56,7 @@ const AnneeAcademiqueSelector = ({ onAnneeChange, includeToutes = false }: Annee
         return (
             <div className="flex items-center gap-2 text-gray-500 dark:text-slate-400">
                 <Calendar size={20} />
-                <span>Chargement...</span>
+                <span>{t('academicYear.loading')}</span>
             </div>
         );
     }
@@ -72,7 +74,7 @@ const AnneeAcademiqueSelector = ({ onAnneeChange, includeToutes = false }: Annee
         <div className="flex items-center gap-3">
             <label className="flex items-center gap-2 font-medium text-gray-700 dark:text-slate-300">
                 <Calendar size={20} />
-                Année académique :
+                {t('academicYear.label')} :
             </label>
             <select
                 value={selectedAnnee}
@@ -82,13 +84,15 @@ const AnneeAcademiqueSelector = ({ onAnneeChange, includeToutes = false }: Annee
                 {/* Années disponibles - courante en premier avec format spécial */}
                 {anneesSorted.map(annee => (
                     <option key={annee.id} value={annee.anneeDebut.toString()}>
-                        {getLibelleAnnee(annee)}{annee.estCourante ? ' (Année courante)' : ''}{annee.estFuture ? ' (À venir)' : ''}
+                        {getLibelleAnnee(annee)}
+                        {annee.estCourante ? ` (${t('academicYear.current')})` : ''}
+                        {annee.estFuture ? ` (${t('academicYear.upcoming')})` : ''}
                     </option>
                 ))}
 
                 {/* Option "Toutes" pour le gestionnaire */}
                 {includeToutes && (
-                    <option value="toutes">Toutes les années</option>
+                    <option value="toutes">{t('academicYear.allYears')}</option>
                 )}
             </select>
         </div>

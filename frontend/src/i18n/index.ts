@@ -53,6 +53,14 @@ import gestionnaireSigneEntenteFr from './locales/fr/gestionnaireSigneEntente.js
 import gestionnaireSigneEntenteEn from './locales/en/gestionnaireSigneEntente.json';
 import notificationsFr from './locales/fr/notifications.json';
 import notificationsEn from './locales/en/notifications.json';
+import historiqueGestionnaireFr from './locales/fr/historiqueGestionnaire.json';
+import historiqueGestionnaireEn from './locales/en/historiqueGestionnaire.json';
+import historiqueEmployeurFr from './locales/fr/historiqueEmployeur.json';
+import historiqueEmployeurEn from './locales/en/historiqueEmployeur.json';
+import historiqueEtudiantFr from './locales/fr/historiqueEtudiant.json';
+import historiqueEtudiantEn from './locales/en/historiqueEtudiant.json';
+import commonFr from './locales/fr/common.json';
+import commonEn from './locales/en/common.json';
 
 const resources = {
     fr: {
@@ -81,6 +89,10 @@ const resources = {
         dashboardProfesseur: dashboardProfesseurFr,
         notifications: notificationsFr,
         gestionnaireSigneEntente: gestionnaireSigneEntenteFr,
+        historiqueGestionnaire: historiqueGestionnaireFr,
+        historiqueEmployeur: historiqueEmployeurFr,
+        historiqueEtudiant: historiqueEtudiantFr,
+        common: commonFr,
     },
     en: {
         registration: registrationEn,
@@ -108,6 +120,10 @@ const resources = {
         dashboardProfesseur: dashboardProfesseurEn,
         gestionnaireSigneEntente: gestionnaireSigneEntenteEn,
         notifications: notificationsEn,
+        historiqueGestionnaire: historiqueGestionnaireEn,
+        historiqueEmployeur: historiqueEmployeurEn,
+        historiqueEtudiant: historiqueEtudiantEn,
+        common: commonEn,
     }
 };
 

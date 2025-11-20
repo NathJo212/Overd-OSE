@@ -16,6 +16,10 @@
     "ententes": {
       "title": "Internship agreements",
       "description": "View all your active internship agreements"
+    },
+    "historique": {
+      "title": "History",
+      "description": "View your applications and agreements by academic year"
     }
   },
   "offers": {

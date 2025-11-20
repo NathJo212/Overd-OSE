@@ -311,10 +311,10 @@ const DashBoardEtudiant = () => {
                             </div>
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                            Historique
+                            {t('cards.historique.title')}
                         </h2>
                         <p className="text-gray-600 dark:text-slate-300">
-                            Consultez vos candidatures et ententes par année académique
+                            {t('cards.historique.description')}
                         </p>
                     </button>
                 </div>

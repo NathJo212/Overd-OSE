@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import NavBar from './NavBar';
 import AnneeAcademiqueSelector from './AnneeAcademiqueSelector';
 import { gestionnaireService } from '../services/GestionnaireService';
@@ -10,6 +11,7 @@ type FilterType = 'all' | 'pending' | 'approved' | 'refused' | 'expired';
 type EntenteFilterType = 'all' | 'waiting' | 'signed' | 'refused';
 
 const HistoriqueGestionnaire = () => {
+    const { t } = useTranslation(['historiqueGestionnaire']);
     const navigate = useNavigate();
     const [ongletActif, setOngletActif] = useState<OngletType>('offres');
     const [anneeSelectionnee, setAnneeSelectionnee] = useState<string>('');
@@ -191,18 +193,18 @@ const HistoriqueGestionnaire = () => {
         return new Date(dateString).toLocaleDateString('fr-CA');
     };
 
-    const getStatutBadgeClass = (statut: string) => {
-        const statusMap: { [key: string]: string } = {
-            'ATTENTE': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200',
-            'EN_ATTENTE': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200',
-            'APPROUVE': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
-            'REFUSE': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200',
-            'ACCEPTEE': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
-            'REFUSEE': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200',
-            'SIGNEE': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
-        };
-        return statusMap[statut] || 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-200';
-    };
+    // const getStatutBadgeClass = (statut: string) => {
+    //     const statusMap: { [key: string]: string } = {
+    //         'ATTENTE': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200',
+    //         'EN_ATTENTE': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200',
+    //         'APPROUVE': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
+    //         'REFUSE': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200',
+    //         'ACCEPTEE': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
+    //         'REFUSEE': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200',
+    //         'SIGNEE': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
+    //     };
+    //     return statusMap[statut] || 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-200';
+    // };
 
     // Ouvrir le modal de détails d'une entente
     const handleEntenteClick = (entente: any) => {
@@ -223,21 +225,21 @@ const HistoriqueGestionnaire = () => {
                 return (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-200">
                         <CheckCircle className="w-3 h-3 mr-1" />
-                        Signée
+                        {t('status.signed')}
                     </span>
                 );
             case 'EN_ATTENTE':
                 return (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-200">
                         <Clock className="w-3 h-3 mr-1" />
-                        En attente
+                        {t('status.pending')}
                     </span>
                 );
             case 'REFUSEE':
                 return (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200">
                         <X className="w-3 h-3 mr-1" />
-                        Refusée
+                        {t('status.refused')}
                     </span>
                 );
             default:
@@ -257,7 +259,7 @@ const HistoriqueGestionnaire = () => {
                         className="cursor-pointer flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        <span className="font-medium">Retour au tableau de bord</span>
+                        <span className="font-medium">{t('backToDashboard')}</span>
                     </button>
                 </div>
 
@@ -265,10 +267,10 @@ const HistoriqueGestionnaire = () => {
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
                         <History size={32} className="text-blue-600" />
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Historique - Gestionnaire</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">{t('title')}</h1>
                     </div>
                     <p className="text-gray-600 dark:text-slate-300">
-                        Consultez toutes les offres, ententes et candidatures par année académique
+                        {t('subtitle')}
                     </p>
                 </div>
 
@@ -294,7 +296,7 @@ const HistoriqueGestionnaire = () => {
                                 }`}
                             >
                                 <Briefcase size={20} />
-                                Offres ({allOffres.length})
+                                {t('tabs.offers')} ({allOffres.length})
                             </button>
                             <button
                                 onClick={() => setOngletActif('ententes')}
@@ -305,7 +307,7 @@ const HistoriqueGestionnaire = () => {
                                 }`}
                             >
                                 <BookOpen size={20} />
-                                Ententes ({allEntentes.length})
+                                {t('tabs.agreements')} ({allEntentes.length})
                             </button>
                         </nav>
                     </div>
@@ -315,7 +317,7 @@ const HistoriqueGestionnaire = () => {
                         {loading ? (
                             <div className="text-center py-12">
                                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                                <p className="mt-4 text-gray-600 dark:text-slate-300">Chargement...</p>
+                                <p className="mt-4 text-gray-600 dark:text-slate-300">{t('loading')}</p>
                             </div>
                         ) : (
                             <>
@@ -326,7 +328,7 @@ const HistoriqueGestionnaire = () => {
                                         <div className="mb-6 bg-gray-50 dark:bg-slate-700/40 rounded-xl p-4 border border-transparent dark:border-slate-600">
                                             <div className="flex items-center gap-2 mb-4">
                                                 <Filter className="w-5 h-5 text-gray-600 dark:text-slate-300" />
-                                                <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Filtrer par statut</h2>
+                                                <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{t('filters.title')}</h2>
                                             </div>
                                             <div className="flex flex-wrap gap-3">
                                                 <button
@@ -337,7 +339,7 @@ const HistoriqueGestionnaire = () => {
                                                             : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600'
                                                     }`}
                                                 >
-                                                    Toutes ({allOffres.length})
+                                                    {t('filters.all')} ({allOffres.length})
                                                 </button>
                                                 <button
                                                     onClick={() => filterOffres('pending')}
@@ -347,7 +349,7 @@ const HistoriqueGestionnaire = () => {
                                                             : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800'
                                                     }`}
                                                 >
-                                                    En attente ({allOffres.filter(o => o.statutApprouve === 'ATTENTE').length})
+                                                    {t('filters.pending')} ({allOffres.filter(o => o.statutApprouve === 'ATTENTE').length})
                                                 </button>
                                                 <button
                                                     onClick={() => filterOffres('approved')}
@@ -357,7 +359,7 @@ const HistoriqueGestionnaire = () => {
                                                             : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'
                                                     }`}
                                                 >
-                                                    Approuvées ({allOffres.filter(o => o.statutApprouve === 'APPROUVE').length})
+                                                    {t('filters.approved')} ({allOffres.filter(o => o.statutApprouve === 'APPROUVE').length})
                                                 </button>
                                                 <button
                                                     onClick={() => filterOffres('refused')}
@@ -367,7 +369,7 @@ const HistoriqueGestionnaire = () => {
                                                             : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800'
                                                     }`}
                                                 >
-                                                    Refusées ({allOffres.filter(o => o.statutApprouve === 'REFUSE').length})
+                                                    {t('filters.refused')} ({allOffres.filter(o => o.statutApprouve === 'REFUSE').length})
                                                 </button>
                                                 <button
                                                     onClick={() => filterOffres('expired')}
@@ -377,7 +379,7 @@ const HistoriqueGestionnaire = () => {
                                                             : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-600'
                                                     }`}
                                                 >
-                                                    Expirées ({allOffres.filter(o => o.dateLimite && new Date(o.dateLimite) < new Date()).length})
+                                                    {t('filters.expired')} ({allOffres.filter(o => o.dateLimite && new Date(o.dateLimite) < new Date()).length})
                                                 </button>
                                             </div>
                                         </div>
@@ -386,7 +388,7 @@ const HistoriqueGestionnaire = () => {
                                         {filteredOffres.length === 0 ? (
                                             <div className="text-center py-12 text-gray-500 dark:text-slate-400">
                                                 <Briefcase size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                                                <p>Aucune offre pour cette période</p>
+                                                <p>{t('offers.noOffers')}</p>
                                             </div>
                                         ) : (
                                             <div className="grid gap-6 md:grid-cols-2">
@@ -403,7 +405,7 @@ const HistoriqueGestionnaire = () => {
                                                             <div className="flex items-center gap-2 mb-2">
                                                                 <Building2 className="w-4 h-4 text-gray-600 dark:text-slate-300" />
                                                                 <span className="font-semibold text-gray-900 dark:text-slate-100">
-                                                                    {offre.employeurDTO?.nomEntreprise || 'Entreprise non spécifiée'}
+                                                                    {offre.employeurDTO?.nomEntreprise || t('offers.companyNotSpecified')}
                                                                 </span>
                                                             </div>
                                                             <div className="space-y-1 text-sm text-gray-600 dark:text-slate-300">
@@ -509,7 +511,7 @@ const HistoriqueGestionnaire = () => {
                                         <div className="mb-6 bg-gray-50 dark:bg-slate-700/40 rounded-xl p-4 border border-transparent dark:border-slate-600">
                                             <div className="flex items-center gap-2 mb-4">
                                                 <Filter className="w-5 h-5 text-gray-600 dark:text-slate-300" />
-                                                <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Filtrer par statut de signature</h2>
+                                                <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{t('agreementFilters.title')}</h2>
                                             </div>
                                             <div className="flex flex-wrap gap-3">
                                                 <button
@@ -520,7 +522,7 @@ const HistoriqueGestionnaire = () => {
                                                             : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600'
                                                     }`}
                                                 >
-                                                    Toutes ({allEntentes.length})
+                                                    {t('agreementFilters.all')} ({allEntentes.length})
                                                 </button>
                                                 <button
                                                     onClick={() => filterEntentes('waiting')}
@@ -530,9 +532,9 @@ const HistoriqueGestionnaire = () => {
                                                             : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800'
                                                     }`}
                                                 >
-                                                    En attente ({allEntentes.filter(e => 
-                                                        e.etudiantSignature === 'EN_ATTENTE' || 
-                                                        e.employeurSignature === 'EN_ATTENTE' || 
+                                                    {t('agreementFilters.waiting')} ({allEntentes.filter(e =>
+                                                        e.etudiantSignature === 'EN_ATTENTE' ||
+                                                        e.employeurSignature === 'EN_ATTENTE' ||
                                                         e.gestionnaireSignature === 'EN_ATTENTE'
                                                     ).length})
                                                 </button>
@@ -544,9 +546,9 @@ const HistoriqueGestionnaire = () => {
                                                             : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'
                                                     }`}
                                                 >
-                                                    Signées ({allEntentes.filter(e => 
-                                                        e.etudiantSignature === 'SIGNEE' && 
-                                                        e.employeurSignature === 'SIGNEE' && 
+                                                    {t('agreementFilters.signed')} ({allEntentes.filter(e =>
+                                                        e.etudiantSignature === 'SIGNEE' &&
+                                                        e.employeurSignature === 'SIGNEE' &&
                                                         e.gestionnaireSignature === 'SIGNEE'
                                                     ).length})
                                                 </button>
@@ -558,9 +560,9 @@ const HistoriqueGestionnaire = () => {
                                                             : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800'
                                                     }`}
                                                 >
-                                                    Refusées ({allEntentes.filter(e => 
-                                                        e.etudiantSignature === 'REFUSEE' || 
-                                                        e.employeurSignature === 'REFUSEE' || 
+                                                    {t('agreementFilters.refused')} ({allEntentes.filter(e =>
+                                                        e.etudiantSignature === 'REFUSEE' ||
+                                                        e.employeurSignature === 'REFUSEE' ||
                                                         e.gestionnaireSignature === 'REFUSEE'
                                                     ).length})
                                                 </button>
@@ -570,7 +572,7 @@ const HistoriqueGestionnaire = () => {
                                         {filteredEntentes.length === 0 ? (
                                             <div className="text-center py-12 text-gray-500 dark:text-slate-400">
                                                 <BookOpen size={48} className="mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                                                <p>Aucune entente ne correspond à ce filtre</p>
+                                                <p>{t('agreements.noFilterMatch')}</p>
                                             </div>
                                         ) : (
                                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -599,7 +601,7 @@ const HistoriqueGestionnaire = () => {
                                                                         {entente.etudiantNomComplet || entente.etudiantNom || 'Étudiant'}
                                                                     </h3>
                                                                     <p className="text-xs text-gray-600 dark:text-slate-300 truncate">
-                                                                        {entente.etudiantEmail || 'Email non disponible'}
+                                                                        {entente.etudiantEmail || t('agreements.emailNotAvailable')}
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -613,10 +615,10 @@ const HistoriqueGestionnaire = () => {
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
                                                                     <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-1">
-                                                                        {entente.employeurNomEntreprise || 'Employeur'}
+                                                                        {entente.employeurNomEntreprise || t('agreements.employer')}
                                                                     </h3>
                                                                     <p className="text-xs text-gray-600 dark:text-slate-300 truncate">
-                                                                        {entente.employeurEmail || 'Email non disponible'}
+                                                                        {entente.employeurEmail || t('agreements.emailNotAvailable')}
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -644,14 +646,14 @@ const HistoriqueGestionnaire = () => {
                                                             </div>
                                                             <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
                                                                 <DollarSign className="w-3 h-3 flex-shrink-0" />
-                                                                <span>{entente.remuneration || 'Non spécifiée'}</span>
+                                                                <span>{entente.remuneration || t('agreements.notSpecified')}</span>
                                                             </div>
                                                         </div>
 
                                                         {/* Indicateur hover */}
                                                         <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
                                                             <p className="text-sm text-blue-600 dark:text-blue-400 font-medium group-hover:text-blue-700 dark:group-hover:text-blue-300 flex items-center gap-2">
-                                                                Voir les détails
+                                                                {t('agreements.viewDetails')}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -680,7 +682,7 @@ const HistoriqueGestionnaire = () => {
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
-                                            Entente de stage
+                                            {t('agreementModal.title')}
                                         </h3>
                                         <p className="text-sm text-blue-700 dark:text-blue-300">
                                             {selectedEntente.titre}
@@ -702,7 +704,7 @@ const HistoriqueGestionnaire = () => {
                             <div className="bg-gray-50 dark:bg-slate-700/40 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div className="flex items-center gap-3">
                                     <div>
-                                        <h4 className="font-semibold text-gray-900 dark:text-slate-100">Statut de l'entente</h4>
+                                        <h4 className="font-semibold text-gray-900 dark:text-slate-100">{t('agreementModal.statusTitle')}</h4>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -714,14 +716,14 @@ const HistoriqueGestionnaire = () => {
                             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
                                 <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
                                     <User className="w-5 h-5 text-blue-600" />
-                                    Étudiant
+                                    {t('agreementModal.student')}
                                 </h4>
                                 <div className="space-y-1">
                                     <p className="text-gray-800 dark:text-slate-200">
-                                        <span className="font-medium">Nom:</span> {selectedEntente.etudiantNomComplet || selectedEntente.etudiantNom || 'Non disponible'}
+                                        <span className="font-medium">{t('agreementModal.name')}:</span> {selectedEntente.etudiantNomComplet || selectedEntente.etudiantNom || t('agreements.notAvailable')}
                                     </p>
                                     <p className="text-gray-800 dark:text-slate-200">
-                                        <span className="font-medium">Email:</span> {selectedEntente.etudiantEmail || 'Non disponible'}
+                                        <span className="font-medium">{t('agreementModal.email')}:</span> {selectedEntente.etudiantEmail || t('agreements.notAvailable')}
                                     </p>
                                 </div>
                             </div>
@@ -730,14 +732,14 @@ const HistoriqueGestionnaire = () => {
                             <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4">
                                 <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
                                     <Building2 className="w-5 h-5 text-purple-600" />
-                                    Employeur
+                                    {t('agreementModal.employer')}
                                 </h4>
                                 <div className="space-y-1">
                                     <p className="text-gray-800 dark:text-slate-200">
-                                        <span className="font-medium">Entreprise:</span> {selectedEntente.employeurNomEntreprise || 'Non disponible'}
+                                        <span className="font-medium">{t('agreementModal.company')}:</span> {selectedEntente.employeurNomEntreprise || t('agreements.notAvailable')}
                                     </p>
                                     <p className="text-gray-800 dark:text-slate-200">
-                                        <span className="font-medium">Email:</span> {selectedEntente.employeurEmail || 'Non disponible'}
+                                        <span className="font-medium">{t('agreementModal.email')}:</span> {selectedEntente.employeurEmail || t('agreements.notAvailable')}
                                     </p>
                                 </div>
                             </div>
@@ -746,36 +748,36 @@ const HistoriqueGestionnaire = () => {
                             <div>
                                 <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
                                     <Briefcase className="w-5 h-5 text-blue-600" />
-                                    Informations du stage
+                                    {t('agreementModal.internshipTitle')}
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Date de début</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreementModal.startDate')}</p>
                                         <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dateDebut}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Date de fin</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreementModal.endDate')}</p>
                                         <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dateFin}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Horaire</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.horaire || 'Non spécifié'}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreementModal.schedule')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.horaire || t('agreements.notSpecified')}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Heures par semaine</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dureeHebdomadaire || 'N/A'} h/semaine</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreementModal.hoursPerWeek')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.dureeHebdomadaire || 'N/A'} {t('agreements.hoursPerWeek')}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Programme</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.progEtude || 'Non spécifié'}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreementModal.program')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.progEtude || t('agreements.notSpecified')}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Lieu</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.lieuStage || selectedEntente.lieu || 'Non défini'}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreementModal.location')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.lieuStage || selectedEntente.lieu || t('agreements.notSpecified')}</p>
                                     </div>
                                     <div className="col-span-2">
-                                        <p className="text-sm text-gray-600 dark:text-slate-300">Rémunération</p>
-                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.remuneration || 'Non spécifiée'}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-300">{t('agreementModal.salary')}</p>
+                                        <p className="font-medium text-gray-900 dark:text-slate-100">{selectedEntente.remuneration || t('agreements.notSpecified')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -784,7 +786,7 @@ const HistoriqueGestionnaire = () => {
                             {selectedEntente.description && (
                                 <div>
                                     <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">
-                                        Description
+                                        {t('agreementModal.description')}
                                     </h4>
                                     <p className="text-gray-700 dark:text-slate-300 whitespace-pre-line bg-gray-50 dark:bg-slate-700/40 p-4 rounded-lg">
                                         {selectedEntente.description}
@@ -799,7 +801,7 @@ const HistoriqueGestionnaire = () => {
                                 onClick={closeEntenteModal}
                                 className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                             >
-                                Fermer
+                                {t('agreementModal.close')}
                             </button>
                         </div>
                     </div>

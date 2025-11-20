@@ -245,8 +245,8 @@ const DashboardGestionnaire = () => {
                                 <span className="text-xs font-bold">→</span>
                             </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2">Historique</h3>
-                        <p className="text-pink-100 text-sm">Consulter les données par année académique</p>
+                        <h3 className="text-xl font-bold mb-2">{t("internshipmanager:page.buttonHistory")}</h3>
+                        <p className="text-pink-100 text-sm">{t("internshipmanager:page.descriptionHistory")}</p>
                     </NavLink>
                 </div>
 
