@@ -23,10 +23,8 @@ import EntentesEtudiants from "./components/EntentesEtudiants.tsx";
 import EntentesEmployeurs from "./components/EntentesEmployeurs.tsx";
 import EmployeurEvaluationStagiaire from "./components/EmployeurEvaluationStagiaire.tsx";
 import GestionnaireAttribueEtudiant from "./components/GestionnaireAttribueEtudiant.tsx";
-import ProfesseurDashboard from './components/DashboardProfesseur/DashboardProfesseur.tsx'
+import DashboardProfesseur from './components/DashboardProfesseur/DashboardProfesseur.tsx'
 import GestionnaireSigneEntente from "./components/GestionnaireSigneEntente.tsx";
-import DashboardProfesseur from "./components/DashboardProfesseur/DashboardProfesseur.tsx";
-import ProfesseurEvaluationMilieuStage from "./components/ProfesseurEvaluationMilieuStage.tsx";
 import SearchResults from "./components/SearchResults/SearchResults.tsx";
 
 const router = createBrowserRouter(
@@ -51,9 +49,7 @@ const router = createBrowserRouter(
             <Route path="evaluation-stagiaire" element={<EmployeurEvaluationStagiaire/>}/>
             <Route path="assigner-professeurs" element={<GestionnaireAttribueEtudiant/>}/>
             <Route path="gestionnaire-signe-ententes" element={<GestionnaireSigneEntente/>}/>
-            <Route path="dashboard-professeur" element={<ProfesseurDashboard/>}/>
-            <Route path="evaluation-milieu-stage" element={<DashboardProfesseur/>}/>
-            <Route path="evaluation-milieu-stage" element={<ProfesseurEvaluationMilieuStage/>}/>
+            <Route path="dashboard-professeur" element={<DashboardProfesseur/>}/>
             <Route path="/search" element={<SearchResults />} />
         </Route>
     )

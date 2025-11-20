@@ -405,6 +405,7 @@ public class GestionnaireService {
 
     }
 
+    @Transactional
     public List<ProfesseurDTO> getAllProfesseurs() throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
         List<Professeur> profs = professeurRepository.findAll();
@@ -491,6 +492,4 @@ public class GestionnaireService {
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
-
-
 }
