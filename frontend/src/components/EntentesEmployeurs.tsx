@@ -405,12 +405,12 @@ const EntentesEmployeurs = () => {
                         </div>
 
                         {/* Pied du modal avec boutons d'action */}
-                        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-2xl">
+                        <div className="sticky bottom-0 bg-gray-50 dark:bg-slate-800 px-6 py-4 border-t border-gray-200 dark:border-slate-700 rounded-b-2xl">
                             {selectedEntente.employeurSignature === 'EN_ATTENTE' ? (
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <button
                                         onClick={closeModal}
-                                        className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                        className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                     >
                                         {t("ententesemployeurs:modal.close")}
                                     </button>
