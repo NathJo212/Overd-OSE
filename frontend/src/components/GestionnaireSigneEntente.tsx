@@ -31,6 +31,10 @@ const GestionnaireSigneEntente = () => {
     const [showRefuseModal, setShowRefuseModal] = useState(false);
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [docsUrls, setDocsUrls] = useState<{ contract?: string | null; evalStagiaire?: string | null; evalProf?: string | null }>({});
+    // docsPresence[id] === null  => loading
+    // docsPresence[id] === { ... } => loaded
+    const [docsPresence, setDocsPresence] = useState<Record<number, { contract: boolean; evalStagiaire: boolean; evalProf: boolean } | null>>({});
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [activeTab, setActiveTab] = useState<'toSign' | 'signed'>('toSign');
@@ -65,6 +69,35 @@ const GestionnaireSigneEntente = () => {
             }
 
             setEntentes(data);
+
+            // Charger la présence des documents pour chaque entente (parallèle)
+            if (data && data.length > 0) {
+                // Marquer toutes les ententes comme 'loading' d'abord (afin d'éviter flicker Manquant -> Présent)
+                const initialMap: Record<number, null> = {};
+                data.forEach(e => {
+                    if (e.id != null) initialMap[e.id] = null;
+                });
+                setDocsPresence(prev => ({ ...initialMap, ...prev }));
+
+                const presenceTasks = data.map(async (e) => {
+                    try {
+                        if (e.id == null) return { id: e.id, presence: { contract: false, evalStagiaire: false, evalProf: false } };
+                        const docs = await gestionnaireService.getDocumentsEntente(e.id, token!);
+                        if (!docs) return { id: e.id, presence: { contract: false, evalStagiaire: false, evalProf: false } };
+                        return { id: e.id, presence: { contract: !!docs.contract, evalStagiaire: !!docs.evaluationStagiaire, evalProf: !!docs.evaluationMilieuStage } };
+                    } catch (err) {
+                        return { id: e.id, presence: { contract: false, evalStagiaire: false, evalProf: false } };
+                    }
+                });
+
+                const results = await Promise.all(presenceTasks);
+                const map: Record<number, { contract: boolean; evalStagiaire: boolean; evalProf: boolean }> = {};
+                results.forEach(r => {
+                    if (r && r.id != null) map[r.id] = r.presence;
+                });
+                // Fusionner les résultats sur le state (remplacer les null par les valeurs réelles)
+                setDocsPresence(prev => ({ ...prev, ...map }));
+            }
         } catch (err: any) {
             setError(err.message || t('errors.loadError'));
         } finally {
@@ -74,23 +107,65 @@ const GestionnaireSigneEntente = () => {
     };
 
 
+    // Charge la présence des documents pour une entente spécifique si non déjà connue
+    const loadEntenteDocsPresence = async (ententeId?: number) => {
+        // autoriser ententeId = 0
+        if (ententeId == null || !token) return;
+        try {
+            // si une entrée existe déjà (même null pour loading), ne rien faire
+            if ((docsPresence as any)[ententeId] !== undefined) return; // déjà chargé ou en cours
+            // marquer comme loading
+            setDocsPresence(prev => ({ ...prev, [ententeId]: null }));
+            const docs = await gestionnaireService.getDocumentsEntente(ententeId, token);
+            setDocsPresence(prev => ({
+                ...prev,
+                [ententeId]: { contract: !!docs?.contract, evalStagiaire: !!docs?.evaluationStagiaire, evalProf: !!docs?.evaluationMilieuStage }
+            }));
+        } catch (err) {
+            // en cas d'erreur, mettez false pour éviter de bloquer l'UI
+            setDocsPresence(prev => ({ ...prev, [ententeId]: { contract: false, evalStagiaire: false, evalProf: false } }));
+        }
+    };
+
     const handleViewDetails = (entente: EntenteStageDTO) => {
         setSelectedEntente(entente);
+        // s'assurer que la présence des documents est connue avant d'ouvrir
+        loadEntenteDocsPresence(entente.id);
         setShowDetailsModal(true);
     };
 
-    const handleViewPdf = async (entente: EntenteStageDTO) => {
-        if (!entente.id || !token) return;
 
+    // Ouvre un document spécifique pour une entente (contract | evalStagiaire | evalProf)
+    const handleViewSpecificDocument = async (ententeId?: number, docKey?: 'contract' | 'evalStagiaire' | 'evalProf') => {
+        if (!ententeId || !docKey || !token) return;
         try {
-            setError('');
             setActionLoading(true);
-            const pdfBlob = await gestionnaireService.getPdfEntente(entente.id, token);
-            const url = URL.createObjectURL(pdfBlob);
+            setError('');
+            const docs = await gestionnaireService.getDocumentsEntente(ententeId, token);
+            if (!docs) {
+                setError(t('errors.noDocuments'));
+                return;
+            }
+
+            let blob: Blob | null = null;
+            if (docKey === 'contract') blob = docs.contract ?? null;
+            else if (docKey === 'evalStagiaire') blob = docs.evaluationStagiaire ?? null;
+            else if (docKey === 'evalProf') blob = docs.evaluationMilieuStage ?? null;
+
+            if (!blob) {
+                setError(t('errors.noDocuments'));
+                return;
+            }
+
+            // revoke previous pdfUrl if any
+            if (pdfUrl) {
+                try { URL.revokeObjectURL(pdfUrl); } catch (e) {}
+            }
+            const url = URL.createObjectURL(blob);
             setPdfUrl(url);
             setShowPdfModal(true);
         } catch (err: any) {
-            console.error('Erreur lors de l\'affichage du PDF:', err);
+            console.error('Erreur handleViewSpecificDocument:', err);
             setError(err.message || t('errors.pdfError'));
         } finally {
             setActionLoading(false);
@@ -178,6 +253,17 @@ const GestionnaireSigneEntente = () => {
             URL.revokeObjectURL(pdfUrl);
             setPdfUrl(null);
         }
+        // revoke any docs URLs
+        if (docsUrls.contract) {
+            try { URL.revokeObjectURL(docsUrls.contract); } catch (e) {}
+        }
+        if (docsUrls.evalStagiaire) {
+            try { URL.revokeObjectURL(docsUrls.evalStagiaire); } catch (e) {}
+        }
+        if (docsUrls.evalProf) {
+            try { URL.revokeObjectURL(docsUrls.evalProf); } catch (e) {}
+        }
+        setDocsUrls({});
     };
 
     const getProgrammeLabel = (progEtude?: string) => {
@@ -286,7 +372,7 @@ const GestionnaireSigneEntente = () => {
                         <div className="space-y-6">
                             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-slate-700">
                                 <p className="text-gray-700 dark:text-slate-300 font-medium">
-                                    {ententes.length} {t('ententeCount')}
+                                    {ententes.length} {activeTab === 'toSign' ? t('ententeReadyCount', 'Prêtes à signer') : t('ententeSignedCount', 'Signées')}
                                 </p>
                             </div>
 
@@ -345,6 +431,56 @@ const GestionnaireSigneEntente = () => {
                                             )}
                                         </div>
 
+                                        {activeTab === 'signed' && (
+                                            <div className="mb-4">
+                                                <div className="text-sm text-gray-700 dark:text-slate-300 w-full">
+                                                    <div className="font-semibold text-base mb-2">{t('documents.title')}</div>
+
+                                                    <div className="flex flex-wrap gap-6">
+                                                        {[
+                                                            { key: 'contract', label: t('documents.contract') },
+                                                            { key: 'evalStagiaire', label: t('documents.evalStagiaire') },
+                                                            { key: 'evalProf', label: t('documents.evalProf') }
+                                                        ].map((doc) => {
+                                                            // Entente.id peut valoir 0 -> vérifier contre null/undefined
+                                                            const presenceEntry = entente.id != null ? (docsPresence as any)[entente.id as number] : undefined;
+                                                            const isLoading = presenceEntry == null;
+                                                            const present = !isLoading && !!presenceEntry?.[doc.key];
+
+                                                            return (
+                                                                <div key={doc.key} className="flex items-center gap-3">
+                                                                    <span className="font-medium">{doc.label}</span>
+
+                                                                    {isLoading ? (
+                                                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-gray-600 bg-gray-100 dark:bg-gray-800/30">
+                                                                            {/* petit loader visuel — on garde simple pour éviter d'ajouter une dépendance */}
+                                                                            <svg className="w-4 h-4 animate-spin text-gray-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                                                            </svg>
+                                                                            <span className="ml-1">{t('documents.loading')}</span>
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span
+                                                                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${present ? 'text-green-700 bg-green-100 dark:bg-green-900/20 dark:text-green-300' : 'text-red-700 bg-red-100 dark:bg-red-900/20 dark:text-red-300'}`}
+                                                                            aria-label={present ? t('documents.present') : t('documents.missing')}
+                                                                        >
+                                                                            {present ? (
+                                                                                <CheckCircle className="w-4 h-4" />
+                                                                            ) : (
+                                                                                <XCircle className="w-4 h-4" />
+                                                                            )}
+                                                                            <span className="ml-1">{present ? t('documents.present') : t('documents.missing')}</span>
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* Détails */}
                                         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                                             <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
@@ -362,13 +498,15 @@ const GestionnaireSigneEntente = () => {
                                         {/* Boutons d'action */}
                                         <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-slate-700">
                                             {activeTab === 'signed' ? (
-                                                <button
-                                                    onClick={() => handleViewPdf(entente)}
-                                                    className="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                                                >
-                                                    <FileText className="w-4 h-4" />
-                                                    {t('buttons.viewPdf')}
-                                                </button>
+                                                <div className="flex-1 flex items-center gap-3">
+                                                    <button
+                                                        onClick={() => handleViewDetails(entente)}
+                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
+                                                    >
+                                                        <FileText className="w-4 h-4" />
+                                                        {t('buttons.viewDetails')}
+                                                    </button>
+                                                </div>
                                             ) : (
                                                 <>
                                                     <button
@@ -400,8 +538,8 @@ const GestionnaireSigneEntente = () => {
                              ))}
                          </div>
                      )}
-                </div>
-            </div>
+                 </div>
+             </div>
 
             {/* Modal Détails */}
             {showDetailsModal && selectedEntente && (
@@ -487,19 +625,19 @@ const GestionnaireSigneEntente = () => {
                                     )}
                                     {(selectedEntente as any).responsabilitesEtudiant && (
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('modal.responsabilitesEtudiant')}</p>
+                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('fields.responsabilitesEtudiant')}</p>
                                             <p className="text-gray-700 dark:text-slate-300">{(selectedEntente as any).responsabilitesEtudiant}</p>
                                         </div>
                                     )}
                                     {(selectedEntente as any).responsabilitesEmployeur && (
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('modal.responsabilitesEmployeur')}</p>
+                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('fields.responsabilitesEmployeur')}</p>
                                             <p className="text-gray-700 dark:text-slate-300">{(selectedEntente as any).responsabilitesEmployeur}</p>
                                         </div>
                                     )}
                                     {(selectedEntente as any).responsabilitesCollege && (
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('modal.responsabilitesCollege')}</p>
+                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('fields.responsabilitesCollege')}</p>
                                             <p className="text-gray-700 dark:text-slate-300">{(selectedEntente as any).responsabilitesCollege}</p>
                                         </div>
                                     )}
@@ -509,9 +647,49 @@ const GestionnaireSigneEntente = () => {
                                             <p className="text-gray-700 dark:text-slate-300">{selectedEntente.objectifs}</p>
                                         </div>
                                     )}
-                                </div>
-                            </div>
-                        </div>
+                                    {/* Section documents: uniquement visible si le gestionnaire a signé l'entente */}
+                                    {selectedEntente.gestionnaireSignature === 'SIGNEE' && (
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900 dark:text-slate-100 mb-3">{t('documents.title')}</h3>
+                                            <div className="flex gap-3 flex-wrap">
+                                                { (docsPresence[selectedEntente.id ?? -1] == null) ? (
+                                                    <p className="text-gray-600 dark:text-slate-300">{t('documents.loading')}</p>
+                                                ) : (
+                                                    <>
+                                                        {/* Contrat */}
+                                                        <button
+                                                            onClick={() => docsPresence[selectedEntente.id ?? -1]?.contract && handleViewSpecificDocument(selectedEntente.id, 'contract')}
+                                                            disabled={!docsPresence[selectedEntente.id ?? -1]?.contract}
+                                                            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${docsPresence[selectedEntente.id ?? -1]?.contract ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                                                        >
+                                                            {docsPresence[selectedEntente.id ?? -1]?.contract ? <><CheckCircle className="w-4 h-4" /> <span>{t('documents.contract')}</span></> : <><XCircle className="w-4 h-4" /> <span>{t('documents.missing')}</span></>}
+                                                        </button>
+
+                                                        {/* Evaluation stagiaire */}
+                                                        <button
+                                                            onClick={() => docsPresence[selectedEntente.id ?? -1]?.evalStagiaire && handleViewSpecificDocument(selectedEntente.id, 'evalStagiaire')}
+                                                            disabled={!docsPresence[selectedEntente.id ?? -1]?.evalStagiaire}
+                                                            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${docsPresence[selectedEntente.id ?? -1]?.evalStagiaire ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                                                        >
+                                                            {docsPresence[selectedEntente.id ?? -1]?.evalStagiaire ? <><CheckCircle className="w-4 h-4" /> <span>{t('documents.evalStagiaire')}</span></> : <><XCircle className="w-4 h-4" /> <span>{t('documents.missing')}</span></>}
+                                                        </button>
+
+                                                        {/* Evaluation professeur */}
+                                                        <button
+                                                            onClick={() => docsPresence[selectedEntente.id ?? -1]?.evalProf && handleViewSpecificDocument(selectedEntente.id, 'evalProf')}
+                                                            disabled={!docsPresence[selectedEntente.id ?? -1]?.evalProf}
+                                                            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${docsPresence[selectedEntente.id ?? -1]?.evalProf ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                                                        >
+                                                            {docsPresence[selectedEntente.id ?? -1]?.evalProf ? <><CheckCircle className="w-4 h-4" /> <span>{t('documents.evalProf')}</span></> : <><XCircle className="w-4 h-4" /> <span>{t('documents.missing')}</span></>}
+                                                        </button>
+                                                    </>
+                                                )}
+                                             </div>
+                                         </div>
+                                     )}
+                                 </div>
+                             </div>
+                         </div>
                         <div className="p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl">
                             <button
                                 onClick={closeAllModals}
@@ -643,18 +821,20 @@ const GestionnaireSigneEntente = () => {
                             />
                         </div>
                         <div className="p-4 bg-gray-50 dark:bg-slate-700 rounded-b-2xl">
-                            <button
-                                onClick={() => {
-                                    setShowPdfModal(false);
-                                    if (pdfUrl) {
-                                        URL.revokeObjectURL(pdfUrl);
-                                        setPdfUrl(null);
-                                    }
-                                }}
-                                className="cursor-pointer w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
-                            >
-                                {t('buttons.close')}
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowPdfModal(false);
+                                        if (pdfUrl) {
+                                            URL.revokeObjectURL(pdfUrl);
+                                            setPdfUrl(null);
+                                        }
+                                    }}
+                                    className="flex-1 cursor-pointer px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
+                                >
+                                    {t('buttons.close')}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

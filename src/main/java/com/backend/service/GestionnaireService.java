@@ -38,9 +38,23 @@ public class GestionnaireService {
     private final CandidatureRepository candidatureRepository;
     private final ProfesseurRepository professeurRepository;
     private final EmployeurRepository employeurRepository;
+    private final EvaluationEtudiantParEmployeurRepository evaluationEtudiantParEmployeurRepository;
+    private final EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository;
 
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, EmployeurRepository employeurRepository) {
+    public GestionnaireService(OffreRepository offreRepository,
+                              GestionnaireRepository gestionnaireRepository,
+                              PasswordEncoder passwordEncoder,
+                              EtudiantRepository etudiantRepository,
+                              UtilisateurRepository utilisateurRepository,
+                              EncryptageCV encryptageCV,
+                              EntenteStageRepository ententeStageRepository,
+                              NotificationRepository notificationRepository,
+                              CandidatureRepository candidatureRepository,
+                              ProfesseurRepository professeurRepository,
+                              EmployeurRepository employeurRepository,
+                              EvaluationEtudiantParEmployeurRepository evaluationEtudiantParEmployeurRepository,
+                              EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
@@ -52,6 +66,8 @@ public class GestionnaireService {
         this.candidatureRepository = candidatureRepository;
         this.professeurRepository = professeurRepository;
         this.employeurRepository = employeurRepository;
+        this.evaluationEtudiantParEmployeurRepository = evaluationEtudiantParEmployeurRepository;
+        this.evaluationMilieuStageParProfesseurRepository = evaluationMilieuStageParProfesseurRepository;
     }
 
     @Transactional
@@ -506,5 +522,62 @@ public class GestionnaireService {
                         && e.getStatut() == EntenteStage.StatutEntente.SIGNEE)
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public DocumentsEntenteDTO getDocumentsEntente(Long id) throws ActionNonAutoriseeException, EntenteNonTrouveException {
+        verifierGestionnaireConnecte();
+
+        // récupérer l'entente
+        EntenteStage ententeStage = ententeStageRepository.findById(id)
+                .orElseThrow(EntenteNonTrouveException::new);
+
+        DocumentsEntenteDTO documentsEntenteDTO = new DocumentsEntenteDTO();
+
+        boolean any = false;
+
+        // Contrat (entente) PDF s'il existe
+        if (ententeStage.getPdfBase64() != null && !ententeStage.getPdfBase64().isEmpty()) {
+            try {
+                documentsEntenteDTO.setContractEntentepdf(Base64.getDecoder().decode(ententeStage.getPdfBase64()));
+                any = true;
+            } catch (IllegalArgumentException ignored) {
+                // invalid base64, ignore
+            }
+        }
+
+        // Évaluation faite par l'employeur (évaluation du stagiaire)
+        try {
+            var evalEmpOpt = evaluationEtudiantParEmployeurRepository.findAll().stream()
+                    .filter(e -> e.getEntente() != null && e.getEntente().getId() != null && e.getEntente().getId().equals(id))
+                    .findFirst();
+            if (evalEmpOpt.isPresent()) {
+                String b64 = evalEmpOpt.get().getPdfBase64();
+                if (b64 != null && !b64.isEmpty()) {
+                    try {
+                        documentsEntenteDTO.setEvaluationStagiairepdf(Base64.getDecoder().decode(b64));
+                        any = true;
+                    } catch (IllegalArgumentException ignored) {}
+                }
+            }
+        } catch (Exception ignored) {}
+
+        // Évaluation milieu de stage faite par le professeur
+        try {
+            var evalProfOpt = evaluationMilieuStageParProfesseurRepository.findAll().stream()
+                    .filter(e -> e.getEntente() != null && e.getEntente().getId() != null && e.getEntente().getId().equals(id))
+                    .findFirst();
+            if (evalProfOpt.isPresent()) {
+                String b64 = evalProfOpt.get().getPdfBase64();
+                if (b64 != null && !b64.isEmpty()) {
+                    try {
+                        documentsEntenteDTO.setEvaluationMilieuStagepdf(Base64.getDecoder().decode(b64));
+                        any = true;
+                    } catch (IllegalArgumentException ignored) {}
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return any ? documentsEntenteDTO : null;
     }
 }

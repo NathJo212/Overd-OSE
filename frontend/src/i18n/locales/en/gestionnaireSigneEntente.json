@@ -8,7 +8,8 @@
   "noEntentes": "No Agreements Available",
   "noEntentesSubtitle": "There are currently no active agreements. Agreements will appear here once created.",
 
-  "ententeCount": "agreement(s) pending",
+  "ententeReadyCount": "agreement(s) pending",
+  "ententeSignedCount": "agreement(s) signed",
   "week": "week",
   "hourShort": "h",
 
@@ -58,6 +59,18 @@
     "pending": "Pending",
     "refused": "Refused",
     "waitingForOthers": "Waiting for other parties"
+  },
+
+  "documents": {
+    "title": "Agreement Documents",
+    "ententeDocument": "Agreement document",
+    "contract": "Contract",
+    "evalStagiaire": "Student evaluation",
+    "evalProf": "Workplace evaluation",
+    "present": "Present",
+    "missing": "Missing",
+    "loading": "Loading documents...",
+    "noDocuments": "No documents available"
   },
 
   "buttons": {

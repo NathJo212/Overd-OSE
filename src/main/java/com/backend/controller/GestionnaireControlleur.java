@@ -44,7 +44,7 @@ public class GestionnaireControlleur {
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (OffreNonExistantException e){
+        } catch (OffreNonExistantException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (OffreDejaVerifieException e) {
@@ -67,7 +67,7 @@ public class GestionnaireControlleur {
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (OffreNonExistantException e){
+        } catch (OffreNonExistantException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (OffreDejaVerifieException e) {
@@ -116,7 +116,7 @@ public class GestionnaireControlleur {
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (CVNonExistantException e){
+        } catch (CVNonExistantException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (CVDejaVerifieException e) {
@@ -139,7 +139,7 @@ public class GestionnaireControlleur {
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (CVNonExistantException e){
+        } catch (CVNonExistantException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
         } catch (CVDejaVerifieException e) {
@@ -164,7 +164,7 @@ public class GestionnaireControlleur {
     @GetMapping("/candidaturesEligiblesEntente")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<CandidatureDTO>> getCandidaturesEligiblesEntente() {
-        try{
+        try {
             List<CandidatureDTO> candidaturesEligiblesEntente = gestionnaireService.getCandidaturesEligiblesEntente();
             return ResponseEntity.ok(candidaturesEligiblesEntente);
         } catch (ActionNonAutoriseeException e) {
@@ -389,6 +389,21 @@ public class GestionnaireControlleur {
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/ententes/{id}/documents")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<DocumentsEntenteDTO> getDocumentsEntente(@PathVariable Long id) {
+        try {
+            DocumentsEntenteDTO documents = gestionnaireService.getDocumentsEntente(id);
+            return ResponseEntity.ok(documents);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (EntenteNonTrouveException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

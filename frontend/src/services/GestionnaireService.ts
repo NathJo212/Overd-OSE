@@ -132,6 +132,18 @@ interface MessageRetourDTO {
     erreur: ErrorResponse | null;
 }
 
+export interface DocumentsEntenteBackendDTO {
+    contractEntentepdf?: string | null;
+    evaluationStagiairepdf?: string | null;
+    evaluationMilieuStagepdf?: string | null;
+}
+
+export interface DocumentsEntenteBlobs {
+    contract?: Blob | null;
+    evaluationStagiaire?: Blob | null;
+    evaluationMilieuStage?: Blob | null;
+}
+
 class GestionnaireService {
     private readonly baseUrl: string;
 
@@ -667,6 +679,56 @@ class GestionnaireService {
         } catch (error: any) {
             console.error('Erreur getPdfEntente:', error);
             throw new Error('Erreur lors du téléchargement du PDF de l\'entente');
+        }
+    }
+
+    /**
+     * Récupère les 3 documents possibles d'une entente (contract, éval stagiaire, éval prof).
+     * Retourne null si aucun document trouvé (backend retourne null).
+     */
+    async getDocumentsEntente(ententeId: number, token: string): Promise<DocumentsEntenteBlobs | null> {
+        try {
+            const response = await fetch(`${this.baseUrl}/ententes/${ententeId}/documents`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) return null;
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            // backend peut renvoyer `null` (JSON null) si aucun document
+            const json: DocumentsEntenteBackendDTO | null = await response.json().catch(() => null);
+            if (!json) return null;
+
+            const toBlob = (b64: string | null | undefined): Blob | null => {
+                if (!b64) return null;
+                try {
+                    const binary = atob(b64);
+                    const len = binary.length;
+                    const bytes = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                        bytes[i] = binary.charCodeAt(i);
+                    }
+                    return new Blob([bytes], { type: 'application/pdf' });
+                } catch (e) {
+                    console.error('Erreur décodage base64 PDF', e);
+                    return null;
+                }
+            };
+
+            return {
+                contract: toBlob(json.contractEntentepdf ?? null),
+                evaluationStagiaire: toBlob(json.evaluationStagiairepdf ?? null),
+                evaluationMilieuStage: toBlob(json.evaluationMilieuStagepdf ?? null),
+            };
+        } catch (error: any) {
+            console.error('Erreur getDocumentsEntente:', error);
+            throw new Error('Erreur lors de la récupération des documents de l\'entente');
         }
     }
 }

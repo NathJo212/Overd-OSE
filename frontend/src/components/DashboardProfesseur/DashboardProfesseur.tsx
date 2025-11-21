@@ -585,7 +585,7 @@ const DashboardProfesseur = () => {
                     <div className="mb-8 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div>
-                                <h1 className="text-3xl font-bold text-indigo-900 flex items-center gap-3">
+                                <h1 className="text-3xl font-bold text-indigo-900 dark:text-blue-500 flex items-center gap-3">
                                     {t("title")}
                                 </h1>
                             </div>
