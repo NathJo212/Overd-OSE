@@ -112,5 +112,10 @@
   "notifications": {
     "finalSignature": "Final signature completed",
     "partiesNotified": "All parties have been notified"
+  },
+
+  "tabs": {
+    "toSign": "Ready to sign",
+    "signed": "Signed"
   }
 }

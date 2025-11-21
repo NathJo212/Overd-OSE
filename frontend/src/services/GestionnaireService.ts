@@ -466,13 +466,13 @@ class GestionnaireService {
 
     // ========== GESTION DES ENTENTES - SIGNATURE PAR LE GESTIONNAIRE ==========
     /**
-     * Récupère toutes les ententes actives (prêtes à signer ET déjà signées)
+     * Récupère toutes les ententes actives (déjà signées)
      * @param token - Token d'authentification
      * @returns Promise avec la liste de toutes les ententes
      */
-    async getAllEntentes(token: string): Promise<EntenteStageDTO[]> {
+    async getEntentesFini(token: string): Promise<EntenteStageDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/ententes`, {
+            const response = await fetch(`${this.baseUrl}/ententes/fini`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

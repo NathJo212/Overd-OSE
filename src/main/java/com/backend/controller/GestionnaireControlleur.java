@@ -381,6 +381,19 @@ public class GestionnaireControlleur {
         }
     }
 
+    @GetMapping("/ententes/fini")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<List<EntenteStageDTO>> getEntentesFini() {
+        try {
+            List<EntenteStageDTO> ententes = gestionnaireService.getEntentesFini();
+            return ResponseEntity.ok(ententes);
+        } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PostMapping("/chatclient")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<String> exchange(@RequestBody ChatRequest request,

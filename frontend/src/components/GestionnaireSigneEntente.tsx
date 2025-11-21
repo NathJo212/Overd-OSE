@@ -33,6 +33,8 @@ const GestionnaireSigneEntente = () => {
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [activeTab, setActiveTab] = useState<'toSign' | 'signed'>('toSign');
+    const [initialLoading, setInitialLoading] = useState(true);
 
     const token = UtilisateurService.getToken();
 
@@ -43,32 +45,34 @@ const GestionnaireSigneEntente = () => {
             return;
         }
 
-        loadEntentes().then();
-    }, [navigate, token]);
+        // premier chargement
+        loadEntentes(activeTab, true);
+    }, []);
 
-    const loadEntentes = async () => {
+    const loadEntentes = async (tab: 'toSign' | 'signed' = 'toSign', isInitial = false) => {
         try {
-            setLoading(true);
+            if (isInitial) setInitialLoading(true);
             setError('');
+
             if (!token) throw new Error(t('errors.unauthorized'));
-            const data = await gestionnaireService.getAllEntentes(token);
-            console.log('Toutes les ententes chargées:', data);
+
+            let data: EntenteStageDTO[] = [];
+
+            if (tab === 'toSign') {
+                data = await gestionnaireService.getEntentesPretes(token);
+            } else {
+                data = await gestionnaireService.getEntentesFini(token);
+            }
+
             setEntentes(data);
         } catch (err: any) {
-            console.error('Erreur lors du chargement des ententes:', err);
-            const responseData = err.response?.data;
-            if (responseData?.erreur) {
-                setError(t('errors.errorCode', {
-                    code: responseData.erreur.errorCode,
-                    message: responseData.erreur.message
-                }));
-            } else {
-                setError(err.message || t('errors.loadError'));
-            }
+            setError(err.message || t('errors.loadError'));
         } finally {
+            if (isInitial) setInitialLoading(false);
             setLoading(false);
         }
     };
+
 
     const handleViewDetails = (entente: EntenteStageDTO) => {
         setSelectedEntente(entente);
@@ -187,15 +191,12 @@ const GestionnaireSigneEntente = () => {
         return date.toLocaleDateString('fr-CA');
     };
 
-    if (loading) {
+    if (initialLoading) {
         return (
             <>
                 <NavBar />
                 <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-                    <div className="text-center">
-                        <RefreshCw className="w-16 h-16 text-blue-600 animate-spin mx-auto mb-4" />
-                        <p className="text-gray-600 text-lg">{t('loading')}</p>
-                    </div>
+                    <RefreshCw className="w-16 h-16 animate-spin text-blue-600" />
                 </div>
             </>
         );
@@ -223,12 +224,29 @@ const GestionnaireSigneEntente = () => {
                                 <p className="text-gray-600 dark:text-slate-300 text-lg">{t('subtitle')}</p>
                             </div>
                             <button
-                                onClick={loadEntentes}
+                                onClick={() => loadEntentes(activeTab)}
                                 className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors shadow-md border border-gray-200 dark:border-slate-700"
                             >
                                 <RefreshCw className="w-4 h-4" />
                                 {t('refresh')}
                             </button>
+                        </div>
+                        <div className="flex items-center gap-4 mt-4">
+                            {/* Toggle onglets */}
+                            <div className="flex w-full rounded-md shadow-sm bg-white dark:bg-slate-800 p-1 border border-gray-200 dark:border-slate-700">
+                                <button
+                                    onClick={() => { setActiveTab('toSign'); loadEntentes('toSign'); }}
+                                    className={`flex-1 first:rounded-l-md last:rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'toSign' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-slate-300'}`}
+                                >
+                                    {t('tabs.toSign', 'Prêtes à signer')}
+                                </button>
+                                <button
+                                    onClick={() => { setActiveTab('signed'); loadEntentes('signed'); }}
+                                    className={`flex-1 first:rounded-l-md last:rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'signed' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-slate-300'}`}
+                                >
+                                    {t('tabs.signed', 'Signées')}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -246,6 +264,12 @@ const GestionnaireSigneEntente = () => {
                         </div>
                     )}
 
+                    {loading && !initialLoading && (
+                        <div className="flex justify-center py-4">
+                            <RefreshCw className="w-5 h-5 text-blue-600 animate-spin" />
+                        </div>
+                    )}
+
                     {/* Liste des ententes */}
                     {ententes.length === 0 ? (
                         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-12 text-center border border-gray-200 dark:border-slate-700">
@@ -258,6 +282,7 @@ const GestionnaireSigneEntente = () => {
                             </p>
                         </div>
                     ) : (
+
                         <div className="space-y-6">
                             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-slate-700">
                                 <p className="text-gray-700 dark:text-slate-300 font-medium">
@@ -288,7 +313,8 @@ const GestionnaireSigneEntente = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {entente.gestionnaireSignature === 'SIGNEE' ? (
+                                            {/* Indicateur d'état adapté à l'onglet */}
+                                            {activeTab === 'signed' || entente.gestionnaireSignature === 'SIGNEE' ? (
                                                 <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
                                                     <CheckCircle className="w-4 h-4" />
                                                     <span className="font-medium text-sm">{t('cards.signed')}</span>
@@ -335,7 +361,7 @@ const GestionnaireSigneEntente = () => {
 
                                         {/* Boutons d'action */}
                                         <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-slate-700">
-                                            {entente.gestionnaireSignature === 'SIGNEE' ? (
+                                            {activeTab === 'signed' ? (
                                                 <button
                                                     onClick={() => handleViewPdf(entente)}
                                                     className="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -368,12 +394,12 @@ const GestionnaireSigneEntente = () => {
                                                     </button>
                                                 </>
                                             )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                         </div>
+                                     </div>
+                                 </div>
+                             ))}
+                         </div>
+                     )}
                 </div>
             </div>
 

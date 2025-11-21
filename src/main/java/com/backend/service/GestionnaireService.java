@@ -495,4 +495,16 @@ public class GestionnaireService {
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public List<EntenteStageDTO> getEntentesFini() throws ActionNonAutoriseeException {
+        verifierGestionnaireConnecte();
+        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+        return ententes.stream()
+                .filter(e -> e.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE
+                        && e.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE
+                        && e.getStatut() == EntenteStage.StatutEntente.SIGNEE)
+                .map(e -> new EntenteStageDTO().toDTO(e))
+                .collect(Collectors.toList());
+    }
 }
