@@ -11,7 +11,7 @@ import {
     RefreshCw,
     Users,
     Building2,
-    GraduationCap
+    GraduationCap, Eye
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
@@ -656,32 +656,35 @@ const GestionnaireSigneEntente = () => {
                                                     <p className="text-gray-600 dark:text-slate-300">{t('documents.loading')}</p>
                                                 ) : (
                                                     <>
-                                                        {/* Contrat */}
-                                                        <button
-                                                            onClick={() => docsPresence[selectedEntente.id ?? -1]?.contract && handleViewSpecificDocument(selectedEntente.id, 'contract')}
-                                                            disabled={!docsPresence[selectedEntente.id ?? -1]?.contract}
-                                                            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${docsPresence[selectedEntente.id ?? -1]?.contract ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
-                                                        >
-                                                            {docsPresence[selectedEntente.id ?? -1]?.contract ? <><CheckCircle className="w-4 h-4" /> <span>{t('documents.contract')}</span></> : <><XCircle className="w-4 h-4" /> <span>{t('documents.missing')}</span></>}
-                                                        </button>
+                                                        {docsPresence[selectedEntente.id ?? -1]?.contract && (
+                                                            <button
+                                                                onClick={() => handleViewSpecificDocument(selectedEntente.id, 'contract')}
+                                                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white"
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                                <span>{t('documents.voirContract')}</span>
+                                                            </button>
+                                                        )}
 
-                                                        {/* Evaluation stagiaire */}
-                                                        <button
-                                                            onClick={() => docsPresence[selectedEntente.id ?? -1]?.evalStagiaire && handleViewSpecificDocument(selectedEntente.id, 'evalStagiaire')}
-                                                            disabled={!docsPresence[selectedEntente.id ?? -1]?.evalStagiaire}
-                                                            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${docsPresence[selectedEntente.id ?? -1]?.evalStagiaire ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
-                                                        >
-                                                            {docsPresence[selectedEntente.id ?? -1]?.evalStagiaire ? <><CheckCircle className="w-4 h-4" /> <span>{t('documents.evalStagiaire')}</span></> : <><XCircle className="w-4 h-4" /> <span>{t('documents.missing')}</span></>}
-                                                        </button>
+                                                        {docsPresence[selectedEntente.id ?? -1]?.evalStagiaire && (
+                                                            <button
+                                                                onClick={() => handleViewSpecificDocument(selectedEntente.id, 'evalStagiaire')}
+                                                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white"
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                                <span>{t('documents.voirEvalStagiaire')}</span>
+                                                            </button>
+                                                        )}
 
-                                                        {/* Evaluation professeur */}
-                                                        <button
-                                                            onClick={() => docsPresence[selectedEntente.id ?? -1]?.evalProf && handleViewSpecificDocument(selectedEntente.id, 'evalProf')}
-                                                            disabled={!docsPresence[selectedEntente.id ?? -1]?.evalProf}
-                                                            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${docsPresence[selectedEntente.id ?? -1]?.evalProf ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
-                                                        >
-                                                            {docsPresence[selectedEntente.id ?? -1]?.evalProf ? <><CheckCircle className="w-4 h-4" /> <span>{t('documents.evalProf')}</span></> : <><XCircle className="w-4 h-4" /> <span>{t('documents.missing')}</span></>}
-                                                        </button>
+                                                        {docsPresence[selectedEntente.id ?? -1]?.evalProf && (
+                                                            <button
+                                                                onClick={() => handleViewSpecificDocument(selectedEntente.id, 'evalProf')}
+                                                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white"
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                                <span>{t('documents.voirEvalProf')}</span>
+                                                            </button>
+                                                        )}
                                                     </>
                                                 )}
                                              </div>
