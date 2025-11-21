@@ -263,7 +263,7 @@ const EntentesEtudiants = () => {
                                     tabIndex={0}
                                     className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400/40 transition-all duration-300 p-6 border border-slate-200 dark:border-slate-700 cursor-pointer group"
                                 >
-                                    <div className="flex items-center justify-between mb-4">
+                                    <div className="flex flex-col items-start mb-4 gap-1">
                                         {getSignatureStatusBadge(entente.etudiantSignature)}
                                         <span className="text-xs text-gray-500 dark:text-slate-400">{t('fields.createdOn')}: {entente?.dateCreation ? new Date(entente.dateCreation).toLocaleDateString('fr-CA') : ''}</span>
                                     </div>
@@ -311,7 +311,7 @@ const EntentesEtudiants = () => {
             {selectedEntente && !showSignModal && !showRefuseModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-blue-50 dark:bg-blue-900/30 px-6 py-4 border-b border-blue-100 dark:border-blue-800 rounded-t-2xl">
+                        <div className="sticky top-0 bg-blue-50 dark:bg-blue-900 px-6 py-4 border-b border-blue-100 dark:border-blue-800 rounded-t-2xl">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800/40 rounded-full flex items-center justify-center">
@@ -434,20 +434,24 @@ const EntentesEtudiants = () => {
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <button
                                         onClick={() => { setSelectedEntente(null); }}
-                                        className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                        className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                                     >
                                         {t('buttons.close')}
                                     </button>
+
                                     <button
                                         onClick={() => { setShowRefuseModal(true); }}
-                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                                     >
+                                        <XCircle className="w-5 h-5" />
                                         {t('buttons.refuse')}
                                     </button>
+
                                     <button
                                         onClick={() => { setShowSignModal(true); }}
-                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                                     >
+                                        <FileSignature className="w-5 h-5" />
                                         {t('buttons.sign')}
                                     </button>
                                 </div>
@@ -464,31 +468,51 @@ const EntentesEtudiants = () => {
                 </div>
             )}
 
-            {/* Modals confirmation */}
+            {/* Modal SIGN */}
             {showSignModal && selectedEntente && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-md w-full p-6">
-                        <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto mb-4">
-                            <FileSignature className="w-8 h-8 text-green-600" />
+                <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6 shadow-xl">
+
+                        {/* Icon Circle */}
+                        <div className="flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full mx-auto mb-4">
+                            <FileSignature className="w-8 h-8 text-green-600 dark:text-green-400" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">
+
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
                             {t('modals.sign.title')}
                         </h3>
-                        <p className="text-gray-700 mb-6 text-center">
+                        <p className="text-gray-700 dark:text-gray-300 mb-6 text-center">
                             {t('modals.sign.message')}
                         </p>
+
                         <div className="flex gap-3">
+                            {/* Cancel */}
                             <button
                                 onClick={closeAllModals}
                                 disabled={actionLoading}
-                                className="cursor-pointer flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                                className="
+                        cursor-pointer flex-1 px-4 py-2
+                        bg-gray-200 text-gray-700
+                        hover:bg-gray-300
+                        dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600
+                        rounded-lg transition-colors disabled:opacity-50
+                    "
                             >
                                 {t('buttons.cancel')}
                             </button>
+
+                            {/* Confirm Sign */}
                             <button
                                 onClick={handleSignEntente}
                                 disabled={actionLoading}
-                                className="cursor-pointer flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="
+                        cursor-pointer flex-1 px-4 py-2
+                        bg-green-600 text-white
+                        hover:bg-green-700
+                        dark:bg-green-700 dark:hover:bg-green-600
+                        rounded-lg transition-colors disabled:opacity-50
+                        flex items-center justify-center gap-2
+                    "
                             >
                                 {actionLoading ? (
                                     <>
@@ -504,30 +528,51 @@ const EntentesEtudiants = () => {
                 </div>
             )}
 
+            {/* Modal REFUSE */}
             {showRefuseModal && selectedEntente && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-md w-full p-6">
-                        <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
-                            <XCircle className="w-8 h-8 text-red-600" />
+                <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6 shadow-xl">
+
+                        {/* Icon Circle */}
+                        <div className="flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full mx-auto mb-4">
+                            <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">
+
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
                             {t('modals.refuse.title')}
                         </h3>
-                        <p className="text-gray-700 mb-6 text-center">
+                        <p className="text-gray-700 dark:text-gray-300 mb-6 text-center">
                             {t('modals.refuse.message')}
                         </p>
+
                         <div className="flex gap-3">
+                            {/* Cancel */}
                             <button
                                 onClick={closeAllModals}
                                 disabled={actionLoading}
-                                className="cursor-pointer flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                                className="
+                        cursor-pointer flex-1 px-4 py-2
+                        bg-gray-200 text-gray-700
+                        hover:bg-gray-300
+                        dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600
+                        rounded-lg transition-colors disabled:opacity-50
+                    "
                             >
                                 {t('buttons.cancel')}
                             </button>
+
+                            {/* Confirm Refuse */}
                             <button
                                 onClick={handleRefuseEntente}
                                 disabled={actionLoading}
-                                className="cursor-pointer flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="
+                        cursor-pointer flex-1 px-4 py-2
+                        bg-red-600 text-white
+                        hover:bg-red-700
+                        dark:bg-red-700 dark:hover:bg-red-600
+                        rounded-lg transition-colors disabled:opacity-50
+                        flex items-center justify-center gap-2
+                    "
                             >
                                 {actionLoading ? (
                                     <>
@@ -542,6 +587,7 @@ const EntentesEtudiants = () => {
                     </div>
                 </div>
             )}
+
 
             {/* Modal PDF */}
             {showPdfModal && pdfUrl && (
