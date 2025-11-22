@@ -490,9 +490,13 @@ class GestionnaireService {
      * @param token - Token d'authentification
      * @returns Promise avec la liste de toutes les ententes
      */
-    async getEntentesFini(token: string): Promise<EntenteStageDTO[]> {
+    async getEntentesFini(token: string, annee?: number): Promise<EntenteStageDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/ententes/fini`, {
+            const url = annee
+                ? `${this.baseUrl}/ententes/fini?annee=${annee}`
+                : `${this.baseUrl}/ententes/fini`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -518,9 +522,13 @@ class GestionnaireService {
      * @param token - Token d'authentification
      * @returns Promise avec la liste des ententes prêtes
      */
-    async getEntentesPretes(token: string): Promise<EntenteStageDTO[]> {
+    async getEntentesPretes(token: string, annee?: number): Promise<EntenteStageDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/ententes/pretes`, {
+            const url = annee
+                ? `${this.baseUrl}/ententes/pretes?annee=${annee}`
+                : `${this.baseUrl}/ententes/pretes`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

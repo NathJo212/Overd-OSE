@@ -528,9 +528,17 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesEnAttente() throws ActionNonAutoriseeException {
+    public List<EntenteStageDTO> getEntentesEnAttente(Integer annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
-        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+
+        List<EntenteStage> ententes;
+
+        if (annee != null) {
+            ententes = ententeStageRepository.findByArchivedFalseAndOffre_Annee(annee);
+        } else {
+            ententes = ententeStageRepository.findByArchivedFalse();
+        }
+
         return ententes.stream()
                 .filter(e -> e.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE
                         && e.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE
@@ -540,9 +548,17 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesFini() throws ActionNonAutoriseeException {
+    public List<EntenteStageDTO> getEntentesFini(Integer annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
-        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+
+        List<EntenteStage> ententes;
+
+        if (annee != null) {
+            ententes = ententeStageRepository.findByArchivedFalseAndOffre_Annee(annee);
+        } else {
+            ententes = ententeStageRepository.findByArchivedFalse();
+        }
+
         return ententes.stream()
                 .filter(e -> e.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE
                         && e.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE
