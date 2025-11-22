@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useYear } from "./YearContext";
 import { useNavigate } from "react-router-dom";
 import {
     CheckCircle,
@@ -41,6 +42,7 @@ const GestionnaireSigneEntente = () => {
     const [initialLoading, setInitialLoading] = useState(true);
 
     const token = UtilisateurService.getToken();
+    const { selectedYear } = useYear();
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -51,7 +53,7 @@ const GestionnaireSigneEntente = () => {
 
         // premier chargement
         loadEntentes(activeTab, true);
-    }, []);
+    }, [selectedYear]);
 
     const loadEntentes = async (tab: 'toSign' | 'signed' = 'toSign', isInitial = false) => {
         try {
@@ -63,9 +65,9 @@ const GestionnaireSigneEntente = () => {
             let data: EntenteStageDTO[] = [];
 
             if (tab === 'toSign') {
-                data = await gestionnaireService.getEntentesPretes(token);
+                data = await gestionnaireService.getEntentesPretes(token, selectedYear);
             } else {
-                data = await gestionnaireService.getEntentesFini(token);
+                data = await gestionnaireService.getEntentesFini(token, selectedYear);
             }
 
             setEntentes(data);
