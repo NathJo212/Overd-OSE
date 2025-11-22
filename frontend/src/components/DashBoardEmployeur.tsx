@@ -4,6 +4,8 @@ import { NavLink } from "react-router";
 import { employeurService } from "../services/EmployeurService";
 import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap, Clock, Edit, Trash2, RefreshCw } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
+import SessionSelector from "./SessionSelector.tsx";
+import { useSession } from "../context/SessionContext.tsx";
 import { useTranslation } from "react-i18next";
 
 interface ConvocationEntrevueDTO {
@@ -23,6 +25,7 @@ const DashBoardEmployeur = () => {
     const { t, i18n } = useTranslation(["employerdashboard"]);
     const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
+    const { selectedSession } = useSession();
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState("");
     const [offres, setOffres] = useState<any[]>([]);
@@ -34,17 +37,24 @@ const DashBoardEmployeur = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [editForm, setEditForm] = useState({ dateHeure: '', lieuOuLien: '', message: '' });
 
+    const loadOffres = async () => {
+        const token = sessionStorage.getItem("authToken");
+        if (token) {
+            try {
+                const offres = await employeurService.getOffresParEmployeur(token, selectedSession || undefined);
+                setOffres(offres);
+            } catch (error) {
+                setNotificationMessage(t("employerdashboard:errors.loadOffers"));
+            }
+        }
+    };
+
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
         if (role !== "EMPLOYEUR") {
             navigate("/login");
         } else {
-            const token = sessionStorage.getItem("authToken");
-            if (token) {
-                employeurService.getOffresParEmployeur(token)
-                    .then(offres => setOffres(offres))
-                    .catch(() => setNotificationMessage(t("employerdashboard:errors.loadOffers")));
-            }
+            loadOffres().then();
             loadConvocations().then();
             return;
         }
@@ -69,7 +79,7 @@ const DashBoardEmployeur = () => {
 
             return () => clearTimeout(timer);
         }
-    }, [navigate, showNotification, t]);
+    }, [navigate, showNotification, t, selectedSession]);
 
     const loadConvocations = async () => {
         try {
@@ -199,9 +209,12 @@ const DashBoardEmployeur = () => {
                                 <Building className="w-8 h-8 text-blue-600" />
                             </div>
                         </div>
-                        <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100 mb-6">
+                        <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100 mb-4">
                             {t("employerdashboard:title")}
                         </h1>
+                        <div className="flex justify-center mb-6">
+                            <SessionSelector />
+                        </div>
                         <div className="flex flex-wrap gap-4 justify-center">
                             <NavLink
                                 to="/offre-stage"

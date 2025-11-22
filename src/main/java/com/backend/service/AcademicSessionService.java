@@ -41,13 +41,14 @@ public class AcademicSessionService {
     }
 
     /**
-     * Retourne la liste de toutes les sessions académiques disponibles
-     * Format: Automne 2024, Hiver 2025, Été 2025, etc.
+     * Retourne la liste de toutes les sessions HIVER disponibles
+     * Les stages ont lieu uniquement en hiver, donc on ne montre que ces sessions
+     * Format: Hiver 2025, Hiver 2024, Hiver 2023, etc.
      * Ordre: Plus récent en premier
      */
     public List<AcademicSessionDTO> getAvailableSessions() {
         List<AcademicSessionDTO> sessions = new ArrayList<>();
-        
+
         // On commence en 2022 et on va jusqu'à l'année courante + 1
         int startYear = 2022;
         int currentYear = LocalDate.now().getYear();
@@ -55,15 +56,11 @@ public class AcademicSessionService {
 
         String currentSessionKey = getCurrentSessionKey();
 
-        // Générer toutes les sessions de startYear à endYear
+        // Générer uniquement les sessions HIVER (car les stages sont en hiver)
         for (int year = startYear; year <= endYear; year++) {
-            // Pour chaque année, ajouter les 3 sessions (Hiver, Été, Automne)
-            // Ordre chronologique : Hiver (jan-mai), Été (juin-juil), Automne (août-déc)
-            for (Session session : new Session[]{Session.HIVER, Session.ETE, Session.AUTOMNE}) {
-                String sessionKey = session.name() + "_" + year;
-                boolean isCurrent = sessionKey.equals(currentSessionKey);
-                sessions.add(AcademicSessionDTO.fromSessionAndYear(session, year, isCurrent));
-            }
+            String sessionKey = Session.HIVER.name() + "_" + year;
+            boolean isCurrent = sessionKey.equals(currentSessionKey);
+            sessions.add(AcademicSessionDTO.fromSessionAndYear(Session.HIVER, year, isCurrent));
         }
 
         // Inverser pour avoir les plus récentes en premier
@@ -75,12 +72,13 @@ public class AcademicSessionService {
     /**
      * Retourne la session à utiliser selon le rôle et le paramètre fourni
      * 
-     * @param requestedSession La session demandée (null pour la session courante)
+     * @param requestedSession  La session demandée (null pour la session courante)
      * @param allowPastSessions Si true, autorise l'accès aux sessions passées
      * @return La clé de session à utiliser
      */
     public String getSessionForRole(String requestedSession, boolean allowPastSessions) {
-        // Si l'accès aux sessions passées n'est pas autorisé, on retourne toujours la session courante
+        // Si l'accès aux sessions passées n'est pas autorisé, on retourne toujours la
+        // session courante
         if (!allowPastSessions) {
             return getCurrentSessionKey();
         }
@@ -94,5 +92,3 @@ public class AcademicSessionService {
         return requestedSession;
     }
 }
-
-

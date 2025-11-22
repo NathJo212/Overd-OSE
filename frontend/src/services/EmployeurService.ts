@@ -363,9 +363,14 @@ class EmployeurService {
         }
     }
 
-    async getOffresParEmployeur(token: string): Promise<any[]> {
+    async getOffresParEmployeur(token: string, sessionAcademique?: string): Promise<any[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/OffresParEmployeur`, {
+            let url = `${this.baseUrl}/OffresParEmployeur`;
+            if (sessionAcademique) {
+                url += `?sessionAcademique=${encodeURIComponent(sessionAcademique)}`;
+            }
+
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -397,14 +402,19 @@ class EmployeurService {
         }
     }
 
-    async getCandidaturesRecues(): Promise<CandidatureRecueDTO[]> {
+    async getCandidaturesRecues(sessionAcademique?: string): Promise<CandidatureRecueDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/candidatures`, {
+            let url = `${this.baseUrl}/candidatures`;
+            if (sessionAcademique) {
+                url += `?sessionAcademique=${encodeURIComponent(sessionAcademique)}`;
+            }
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -869,14 +879,19 @@ class EmployeurService {
         }
     }
 
-    async getEntentes(): Promise<EntenteStageDTO[]> {
+    async getEntentes(sessionAcademique?: string): Promise<EntenteStageDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/ententes`, {
+            let url = `${this.baseUrl}/ententes`;
+            if (sessionAcademique) {
+                url += `?sessionAcademique=${encodeURIComponent(sessionAcademique)}`;
+            }
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -961,16 +976,22 @@ class EmployeurService {
 
     /**
      * Récupère toutes les évaluations de l'employeur connecté
+     * @param sessionAcademique - Session académique à filtrer (optionnel)
      * @returns Liste des évaluations (id, ententeId, etudiantId, dateEvaluation)
      */
-    async getEvaluations(): Promise<EvaluationDTO[]> {
+    async getEvaluations(sessionAcademique?: string): Promise<EvaluationDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/evaluations`, {
+            let url = `${this.baseUrl}/evaluations`;
+            if (sessionAcademique) {
+                url += `?sessionAcademique=${encodeURIComponent(sessionAcademique)}`;
+            }
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

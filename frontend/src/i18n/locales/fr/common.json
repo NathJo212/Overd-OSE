@@ -7,7 +7,11 @@
   "edit": "Modifier",
   "confirm": "Confirmer",
   "error": "Erreur",
-  "success": "Succès"
+  "success": "Succès",
+  "selectInternshipSession": "Sélectionner la session de stage",
+  "errors": {
+    "failedToLoadSessions": "Échec du chargement des sessions"
+  }
 }
 
 
