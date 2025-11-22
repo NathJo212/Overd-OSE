@@ -24,4 +24,15 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
     List<Candidature> findByStatut(Candidature.StatutCandidature statutCandidature);
 
     List<Candidature> findByEtudiantId(Long etudiantId);
+
+    // Méthodes avec filtrage par session académique
+    List<Candidature> findAllByEtudiantAndSessionAcademique(Etudiant etudiant, String sessionAcademique);
+
+    List<Candidature> findAllByOffreInAndSessionAcademique(List<Offre> offres, String sessionAcademique);
+
+    List<Candidature> findByStatutAndSessionAcademique(Candidature.StatutCandidature statutCandidature, String sessionAcademique);
+
+    List<Candidature> findByEtudiantIdAndSessionAcademique(Long etudiantId, String sessionAcademique);
+
+    List<Candidature> findAllBySessionAcademique(String sessionAcademique);
 }

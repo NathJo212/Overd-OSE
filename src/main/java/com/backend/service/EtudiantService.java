@@ -36,8 +36,9 @@ public class EtudiantService {
     private final ProfesseurRepository professeurRepository;
     private final EmployeurRepository employeurRepository;
     private final GestionnaireRepository gestionnaireRepository;
+    private final AcademicSessionService academicSessionService;
 
-    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, ProfesseurRepository professeurRepository, EmployeurRepository employeurRepository, GestionnaireRepository gestionnaireRepository) {
+    public EtudiantService(PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, OffreRepository offreRepository, UtilisateurRepository  utilisateurRepository, EncryptageCV encryptageCV, CandidatureRepository candidatureRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, ProfesseurRepository professeurRepository, EmployeurRepository employeurRepository, GestionnaireRepository gestionnaireRepository, AcademicSessionService academicSessionService) {
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.offreRepository = offreRepository;
@@ -49,6 +50,7 @@ public class EtudiantService {
         this.professeurRepository = professeurRepository;
         this.employeurRepository = employeurRepository;
         this.gestionnaireRepository = gestionnaireRepository;
+        this.academicSessionService = academicSessionService;
     }
 
     @Transactional
@@ -114,7 +116,9 @@ public class EtudiantService {
 
     @Transactional
     public List<OffreDTO> getOffresApprouves() {
-        List<Offre> offres = offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE);
+        // Les étudiants voient uniquement les offres de la session académique courante
+        String currentSession = academicSessionService.getCurrentSessionKey();
+        List<Offre> offres = offreRepository.findAllByStatutApprouveAndSessionAcademique(Offre.StatutApprouve.APPROUVE, currentSession);
         return offres.stream()
                 .map(offre -> new OffreDTO().toDTO(offre))
                 .toList();
@@ -186,7 +190,9 @@ public class EtudiantService {
     @Transactional
     public List<CandidatureDTO> getMesCandidatures() throws Exception {
         Etudiant etudiant = getEtudiantConnecte();
-        List<Candidature> candidatures = candidatureRepository.findAllByEtudiant(etudiant);
+        // Les étudiants voient uniquement leurs candidatures de la session académique courante
+        String currentSession = academicSessionService.getCurrentSessionKey();
+        List<Candidature> candidatures = candidatureRepository.findAllByEtudiantAndSessionAcademique(etudiant, currentSession);
 
         List<CandidatureDTO> candidatureDTOs = new ArrayList<>();
         for (Candidature candidature : candidatures) {
@@ -446,7 +452,9 @@ public class EtudiantService {
             throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Etudiant etudiant = getEtudiantConnecte();
 
-        List<EntenteStage> ententes = ententeStageRepository.findByEtudiantAndArchivedFalse(etudiant);
+        // Les étudiants voient uniquement leurs ententes de la session académique courante
+        String currentSession = academicSessionService.getCurrentSessionKey();
+        List<EntenteStage> ententes = ententeStageRepository.findByEtudiantAndArchivedFalseAndSessionAcademique(etudiant, currentSession);
 
         return ententes.stream()
                 .map(e -> new EntenteStageDTO().toDTO(e))

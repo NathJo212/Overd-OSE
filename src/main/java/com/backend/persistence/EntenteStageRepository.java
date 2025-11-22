@@ -21,4 +21,25 @@ public interface EntenteStageRepository extends JpaRepository<EntenteStage, Long
     List<EntenteStage> findByEmployeurAndArchivedFalse(Employeur employeur);
 
     List<EntenteStage> findByEtudiantId(Long etudiantId);
+
+    // Méthodes avec filtrage par session académique
+    List<EntenteStage> findByArchivedFalseAndSessionAcademique(String sessionAcademique);
+
+    List<EntenteStage> findByEtudiantAndArchivedFalseAndSessionAcademique(Etudiant etudiant, String sessionAcademique);
+
+    List<EntenteStage> findByEtudiantAndEtudiantSignatureAndArchivedFalseAndSessionAcademique(
+            Etudiant etudiant,
+            EntenteStage.SignatureStatus etudiantSignature,
+            String sessionAcademique
+    );
+
+    List<EntenteStage> findByEmployeurAndArchivedFalseAndSessionAcademique(Employeur employeur, String sessionAcademique);
+
+    List<EntenteStage> findByEmployeurAndEmployeurSignatureAndArchivedFalseAndSessionAcademique(
+            Employeur employeur, 
+            EntenteStage.SignatureStatus signatureStatus,
+            String sessionAcademique
+    );
+
+    List<EntenteStage> findByEtudiantIdAndSessionAcademique(Long etudiantId, String sessionAcademique);
 }

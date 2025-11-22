@@ -97,6 +97,9 @@ public class EntenteStage {
     private LocalDateTime dateCreation = LocalDateTime.now();
     private LocalDateTime dateModification = LocalDateTime.now();
 
+    // Session académique de l'entente (héritée de l'offre)
+    private String sessionAcademique;
+
     public EntenteStage(Etudiant etudiant, Employeur employeur, Offre offre) {
         this.etudiant = etudiant;
         this.employeur = employeur;
@@ -118,5 +121,13 @@ public class EntenteStage {
         this.archived = false;
         this.dateCreation = LocalDateTime.now();
         this.dateModification = LocalDateTime.now();
+        // Hériter la session académique de l'offre
+        if (offre != null && offre.getSessionAcademique() != null) {
+            this.sessionAcademique = offre.getSessionAcademique();
+        } else {
+            AcademicSession.Session currentSession = AcademicSession.getCurrentSession();
+            int currentYear = java.time.LocalDate.now().getYear();
+            this.sessionAcademique = currentSession.name() + "_" + currentYear;
+        }
     }
 }

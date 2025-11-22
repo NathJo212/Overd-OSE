@@ -38,9 +38,10 @@ public class GestionnaireService {
     private final CandidatureRepository candidatureRepository;
     private final ProfesseurRepository professeurRepository;
     private final EmployeurRepository employeurRepository;
+    private final AcademicSessionService academicSessionService;
 
 
-    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, EmployeurRepository employeurRepository) {
+    public GestionnaireService(OffreRepository offreRepository, GestionnaireRepository gestionnaireRepository, PasswordEncoder passwordEncoder, EtudiantRepository etudiantRepository, UtilisateurRepository utilisateurRepository, EncryptageCV encryptageCV, EntenteStageRepository ententeStageRepository, NotificationRepository notificationRepository, CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, EmployeurRepository employeurRepository, AcademicSessionService academicSessionService) {
         this.offreRepository = offreRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.passwordEncoder = passwordEncoder;
@@ -52,6 +53,7 @@ public class GestionnaireService {
         this.candidatureRepository = candidatureRepository;
         this.professeurRepository = professeurRepository;
         this.employeurRepository = employeurRepository;
+        this.academicSessionService = academicSessionService;
     }
 
     @Transactional
@@ -118,8 +120,20 @@ public class GestionnaireService {
 
     @Transactional
     public List<OffreDTO> getOffresAttente() throws ActionNonAutoriseeException {
+        return getOffresAttente(null);
+    }
+
+    @Transactional
+    public List<OffreDTO> getOffresAttente(String sessionAcademique) throws ActionNonAutoriseeException {
         checkGestionnaireStageRole();
-        List<Offre> offresEnAttente = offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE);
+        
+        // Si pas de session spécifiée, utiliser la session courante
+        String sessionToUse = academicSessionService.getSessionForRole(sessionAcademique, true);
+        
+        List<Offre> offresEnAttente = offreRepository.findByStatutApprouveAndSessionAcademique(
+            Offre.StatutApprouve.ATTENTE, 
+            sessionToUse
+        );
 
         return offresEnAttente.stream()
                 .filter(offre -> {
@@ -133,8 +147,16 @@ public class GestionnaireService {
 
     @Transactional
     public List<OffreDTO> getAllOffres() throws ActionNonAutoriseeException {
+        return getAllOffres(null);
+    }
+
+    @Transactional
+    public List<OffreDTO> getAllOffres(String sessionAcademique) throws ActionNonAutoriseeException {
         checkGestionnaireStageRole();
-        List<Offre> toutesLesOffres = offreRepository.findAll();
+        
+        // Si pas de session spécifiée, utiliser la session courante
+        String sessionToUse = academicSessionService.getSessionForRole(sessionAcademique, true);
+        List<Offre> toutesLesOffres = offreRepository.findAllBySessionAcademique(sessionToUse);
 
         return toutesLesOffres.stream()
                 .map(offre -> new OffreDTO().toDTO(offre))
@@ -352,8 +374,16 @@ public class GestionnaireService {
 
     @Transactional
     public List<EntenteStageDTO> getEntentesActives() throws ActionNonAutoriseeException {
+        return getEntentesActives(null);
+    }
+
+    public List<EntenteStageDTO> getEntentesActives(String sessionAcademique) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
-        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+        
+        // Si pas de session spécifiée, utiliser la session courante
+        String sessionToUse = academicSessionService.getSessionForRole(sessionAcademique, true);
+        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalseAndSessionAcademique(sessionToUse);
+        
         return ententes.stream().map(e -> new EntenteStageDTO().toDTO(e)).collect(Collectors.toList());
     }
 

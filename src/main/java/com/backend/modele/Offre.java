@@ -60,6 +60,9 @@ public class Offre {
     @OneToMany(mappedBy = "offre", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Candidature> candidatures = new ArrayList<>();
 
+    // Session académique de l'offre (ex: "HIVER_2025", "AUTOMNE_2024", "ETE_2025")
+    private String sessionAcademique;
+
     public Offre(String titre, String description, LocalDate date_debut, LocalDate date_fin, Programme progEtude, String lieuStage, String remuneration, LocalDate dateLimite, Employeur employeur) {
         this.titre = titre;
         this.description = description;
@@ -77,6 +80,16 @@ public class Offre {
         this.responsabilitesEtudiant = null;
         this.responsabilitesEmployeur = null;
         this.objectifs = null;
+        // Initialiser la session académique basée sur la date de début
+        if (date_debut != null) {
+            AcademicSession.Session session = AcademicSession.getSessionForDate(date_debut);
+            int year = date_debut.getYear();
+            this.sessionAcademique = session.name() + "_" + year;
+        } else {
+            AcademicSession.Session currentSession = AcademicSession.getCurrentSession();
+            int currentYear = java.time.LocalDate.now().getYear();
+            this.sessionAcademique = currentSession.name() + "_" + currentYear;
+        }
     }
 
     public Offre(String titre, String description, LocalDate date_debut, LocalDate date_fin, Programme progEtude, String lieuStage, String remuneration, LocalDate dateLimite, Employeur employeur, String horaire, Integer dureeHebdomadaire, String responsabilitesEtudiant, String responsabilitesEmployeur,String responsabilitesCollege, String objectifs) {
@@ -96,6 +109,16 @@ public class Offre {
         this.responsabilitesEmployeur = responsabilitesEmployeur;
         this.responsabilitesCollege = responsabilitesCollege;
         this.objectifs = objectifs;
+        // Initialiser la session académique basée sur la date de début
+        if (date_debut != null) {
+            AcademicSession.Session session = AcademicSession.getSessionForDate(date_debut);
+            int year = date_debut.getYear();
+            this.sessionAcademique = session.name() + "_" + year;
+        } else {
+            AcademicSession.Session currentSession = AcademicSession.getCurrentSession();
+            int currentYear = java.time.LocalDate.now().getYear();
+            this.sessionAcademique = currentSession.name() + "_" + currentYear;
+        }
     }
 
 }

@@ -17,4 +17,15 @@ public interface OffreRepository extends CrudRepository<Offre, Long> {
 
     List<Offre> findAllByEmployeur(Employeur employeur);
 
+    // Méthodes avec filtrage par session académique
+    List<Offre> findByStatutApprouveAndSessionAcademique(Offre.StatutApprouve statutApprouve, String sessionAcademique);
+
+    List<Offre> findAllByStatutApprouveAndSessionAcademique(Offre.StatutApprouve statutApprouve, String sessionAcademique);
+
+    List<Offre> findAllBySessionAcademique(String sessionAcademique);
+
+    List<Offre> findOffreByEmployeurIdAndSessionAcademique(Long employeurId, String sessionAcademique);
+
+    List<Offre> findAllByEmployeurAndSessionAcademique(Employeur employeur, String sessionAcademique);
+
 }

@@ -27,6 +27,7 @@ public class CandidatureDTO {
     private boolean aCv;
     private boolean aLettreMotivation;
     private String messageReponse;
+    private String sessionAcademique;
 
     private ConvocationEntrevueDTO convocation;
 
@@ -46,6 +47,7 @@ public class CandidatureDTO {
         this.aCv = candidature.getEtudiant().getCv() != null && candidature.getEtudiant().getCv().length > 0;
         this.aLettreMotivation = candidature.getLettreMotivation() != null && candidature.getLettreMotivation().length > 0;
         this.messageReponse = candidature.getMessageReponse();
+        this.sessionAcademique = candidature.getSessionAcademique();
 
         try {
             ConvocationEntrevue conv = candidature.getConvocationEntrevue();

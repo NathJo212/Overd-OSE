@@ -140,8 +140,12 @@ class GestionnaireService {
     }
 
     // ========== GESTION DES OFFRES ==========
-    async getAllOffresDeStages(token: string): Promise<OffreDTO[]> {
-        const response = await fetch(`${this.baseUrl}/offresEnAttente`, {
+    async getAllOffresDeStages(token: string, sessionAcademique?: string): Promise<OffreDTO[]> {
+        const url = sessionAcademique 
+            ? `${this.baseUrl}/offresEnAttente?sessionAcademique=${sessionAcademique}`
+            : `${this.baseUrl}/offresEnAttente`;
+            
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -156,8 +160,12 @@ class GestionnaireService {
         return await response.json();
     }
 
-    async getAllOffres(token: string): Promise<OffreDTO[]> {
-        const response = await fetch(`${this.baseUrl}/visualiserOffres`, {
+    async getAllOffres(token: string, sessionAcademique?: string): Promise<OffreDTO[]> {
+        const url = sessionAcademique 
+            ? `${this.baseUrl}/visualiserOffres?sessionAcademique=${sessionAcademique}`
+            : `${this.baseUrl}/visualiserOffres`;
+            
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -468,11 +476,16 @@ class GestionnaireService {
     /**
      * Récupère toutes les ententes actives (prêtes à signer ET déjà signées)
      * @param token - Token d'authentification
+     * @param sessionAcademique - Session académique optionnelle pour filtrer les ententes
      * @returns Promise avec la liste de toutes les ententes
      */
-    async getAllEntentes(token: string): Promise<EntenteStageDTO[]> {
+    async getAllEntentes(token: string, sessionAcademique?: string): Promise<EntenteStageDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/ententes`, {
+            const url = sessionAcademique 
+                ? `${this.baseUrl}/ententes?sessionAcademique=${sessionAcademique}`
+                : `${this.baseUrl}/ententes`;
+                
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

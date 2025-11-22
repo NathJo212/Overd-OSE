@@ -78,9 +78,9 @@ public class GestionnaireControlleur {
 
     @GetMapping("/offresEnAttente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<OffreDTO>> offreEnAttente() {
+    public ResponseEntity<List<OffreDTO>> offreEnAttente(@RequestParam(required = false) String sessionAcademique) {
         try {
-            List<OffreDTO> offresEnAttente = gestionnaireService.getOffresAttente();
+            List<OffreDTO> offresEnAttente = gestionnaireService.getOffresAttente(sessionAcademique);
             return ResponseEntity.ok(offresEnAttente);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -91,9 +91,9 @@ public class GestionnaireControlleur {
 
     @GetMapping("/visualiserOffres")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<OffreDTO>> getAllOffres() {
+    public ResponseEntity<List<OffreDTO>> getAllOffres(@RequestParam(required = false) String sessionAcademique) {
         try {
-            List<OffreDTO> toutesLesOffres = gestionnaireService.getAllOffres();
+            List<OffreDTO> toutesLesOffres = gestionnaireService.getAllOffres(sessionAcademique);
             return ResponseEntity.ok(toutesLesOffres);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -239,9 +239,9 @@ public class GestionnaireControlleur {
 
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentes() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentes(@RequestParam(required = false) String sessionAcademique) {
         try {
-            return ResponseEntity.ok(gestionnaireService.getEntentesActives());
+            return ResponseEntity.ok(gestionnaireService.getEntentesActives(sessionAcademique));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {

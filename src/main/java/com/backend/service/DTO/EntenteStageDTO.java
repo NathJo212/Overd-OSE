@@ -41,6 +41,7 @@ public class EntenteStageDTO {
     private String statut; // EN_ATTENTE, SIGNEE, ANNULEE
     private boolean archived;
     private LocalDateTime dateCreation;
+    private String sessionAcademique;
 
     public EntenteStageDTO toDTO(EntenteStage entente) {
         EntenteStageDTO dto = new EntenteStageDTO();
@@ -75,6 +76,7 @@ public class EntenteStageDTO {
         dto.setStatut(entente.getStatut() != null ? entente.getStatut().name() : null);
         dto.setArchived(entente.isArchived());
         dto.setDateCreation(entente.getDateCreation());
+        dto.setSessionAcademique(entente.getSessionAcademique());
         return dto;
     }
 }

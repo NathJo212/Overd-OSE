@@ -76,9 +76,11 @@ public class EmployeurController {
 
     @PostMapping("/OffresParEmployeur")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<OffreDTO>> getAllOffresParEmployeur(@RequestBody AuthResponseDTO utilisateur) {
+    public ResponseEntity<List<OffreDTO>> getAllOffresParEmployeur(
+            @RequestBody AuthResponseDTO utilisateur,
+            @RequestParam(required = false) String sessionAcademique) {
         try {
-            List<OffreDTO> offres = employeurService.OffrePourEmployeur(utilisateur);
+            List<OffreDTO> offres = employeurService.OffrePourEmployeur(utilisateur, sessionAcademique);
             return ResponseEntity.ok(offres);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -87,9 +89,9 @@ public class EmployeurController {
 
     @GetMapping("/candidatures")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<CandidatureDTO>> getAllCandidatures() {
+    public ResponseEntity<List<CandidatureDTO>> getAllCandidatures(@RequestParam(required = false) String sessionAcademique) {
         try {
-            List<CandidatureDTO> candidatures = employeurService.getCandidaturesPourEmployeur();
+            List<CandidatureDTO> candidatures = employeurService.getCandidaturesPourEmployeur(sessionAcademique);
             return ResponseEntity.ok(candidatures);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -325,9 +327,9 @@ public class EmployeurController {
 
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentes() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentes(@RequestParam(required = false) String sessionAcademique) {
         try {
-            List<EntenteStageDTO> ententes = employeurService.getEntentesPourEmployeur();
+            List<EntenteStageDTO> ententes = employeurService.getEntentesPourEmployeur(sessionAcademique);
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

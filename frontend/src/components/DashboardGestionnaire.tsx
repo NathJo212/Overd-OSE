@@ -20,12 +20,15 @@ import {
 } from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
+import SessionSelector from "./SessionSelector.tsx";
+import { useSession } from "../context/SessionContext.tsx";
 import { useTranslation } from "react-i18next";
 
 const DashboardGestionnaire = () => {
     const { t } = useTranslation(["internshipmanager"]);
     const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
+    const { selectedSession } = useSession();
     const [offres, setOffres] = useState<OffreDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
@@ -40,7 +43,7 @@ const DashboardGestionnaire = () => {
     const chargerOffres = async () => {
         try {
             setLoading(true);
-            const data = await gestionnaireService.getAllOffresDeStages(token);
+            const data = await gestionnaireService.getAllOffresDeStages(token, selectedSession || undefined);
             setOffres(data);
         } catch (e: any) {
             setError(e.message || 'Erreur inconnue');
@@ -60,7 +63,7 @@ const DashboardGestionnaire = () => {
             return;
         }
         chargerOffres().then();
-    }, [navigate, token]);
+    }, [navigate, token, selectedSession]);
 
     const handleApprove = async (id: number) => {
         setProcessingId(id);
@@ -148,12 +151,17 @@ const DashboardGestionnaire = () => {
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* En-tête */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                        {t('internshipmanager:page.title')}
-                    </h1>
-                    <p className="text-gray-600 dark:text-slate-300">
-                        {t('internshipmanager:page.manageOffers')}
-                    </p>
+                    <div className="flex justify-between items-center mb-4">
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
+                                {t('internshipmanager:page.title')}
+                            </h1>
+                            <p className="text-gray-600 dark:text-slate-300">
+                                {t('internshipmanager:page.manageOffers')}
+                            </p>
+                        </div>
+                        <SessionSelector />
+                    </div>
                 </div>
 
                 {/* Navigation en cartes */}

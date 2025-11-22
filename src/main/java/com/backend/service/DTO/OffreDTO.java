@@ -30,6 +30,7 @@ public class OffreDTO {
     private String messageRefus;
     private String statutApprouve;
     private EmployeurDTO employeurDTO;
+    private String sessionAcademique;
 
     public OffreDTO toDTO(Offre offre) {
         OffreDTO dto = new OffreDTO();
@@ -52,6 +53,7 @@ public class OffreDTO {
         dto.setMessageRefus(offre.getMessageRefus());
         dto.setStatutApprouve(offre.getStatutApprouve() != null ? offre.getStatutApprouve().toString() : "ATTENTE");
         dto.setEmployeurDTO(new EmployeurDTO().toDTO(offre.getEmployeur()));
+        dto.setSessionAcademique(offre.getSessionAcademique());
         return dto;
     }
 }

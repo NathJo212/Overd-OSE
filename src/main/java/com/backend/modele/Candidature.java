@@ -52,10 +52,21 @@ public class Candidature {
     @OneToOne(mappedBy = "candidature", cascade = CascadeType.ALL)
     private ConvocationEntrevue convocationEntrevue;
 
+    // Session académique de la candidature (héritée de l'offre)
+    private String sessionAcademique;
+
     public Candidature(Etudiant etudiant, Offre offre, byte[] lettreMotivation) {
         this.etudiant = etudiant;
         this.offre = offre;
         this.lettreMotivation = lettreMotivation;
         this.dateCandidature = LocalDateTime.now();
+        // Hériter la session académique de l'offre
+        if (offre != null && offre.getSessionAcademique() != null) {
+            this.sessionAcademique = offre.getSessionAcademique();
+        } else {
+            AcademicSession.Session currentSession = AcademicSession.getCurrentSession();
+            int currentYear = java.time.LocalDate.now().getYear();
+            this.sessionAcademique = currentSession.name() + "_" + currentYear;
+        }
     }
 }

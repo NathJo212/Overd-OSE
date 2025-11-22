@@ -26,6 +26,7 @@ import GestionnaireAttribueEtudiant from "./components/GestionnaireAttribueEtudi
 import DashboardProfesseur from './components/DashboardProfesseur/DashboardProfesseur.tsx'
 import GestionnaireSigneEntente from "./components/GestionnaireSigneEntente.tsx";
 import SearchResults from "./components/SearchResults/SearchResults.tsx";
+import { SessionProvider } from "./context/SessionContext.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -57,9 +58,9 @@ const router = createBrowserRouter(
 
 function App() {
     return (
-        <>
+        <SessionProvider>
             <RouterProvider router={router} />
-        </>
+        </SessionProvider>
     )
 }
 

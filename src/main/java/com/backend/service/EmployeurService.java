@@ -41,9 +41,10 @@ public class EmployeurService {
     private final EtudiantRepository etudiantRepository;
     private final ProfesseurRepository professeurRepository;
     private final GestionnaireRepository gestionnaireRepository;
+    private final AcademicSessionService academicSessionService;
 
     @Autowired
-    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationEtudiantParEmployeurRepository evaluationRepository, PdfGenerationEvaluation pdfGenerationEvaluation, EtudiantRepository etudiantRepository, ProfesseurRepository professeurRepository, GestionnaireRepository gestionnaireRepository) {
+    public EmployeurService(PasswordEncoder passwordEncoder, EmployeurRepository employeurRepository, OffreRepository offreRepository, JwtTokenProvider jwtTokenProvider, UtilisateurRepository utilisateurRepository, CandidatureRepository candidatureRepository, EncryptageCV encryptageCV, ConvocationEntrevueRepository convocationEntrevueRepository, NotificationRepository notificationRepository, EntenteStageRepository ententeStageRepository, EvaluationEtudiantParEmployeurRepository evaluationRepository, PdfGenerationEvaluation pdfGenerationEvaluation, EtudiantRepository etudiantRepository, ProfesseurRepository professeurRepository, GestionnaireRepository gestionnaireRepository, AcademicSessionService academicSessionService) {
         this.passwordEncoder = passwordEncoder;
         this.employeurRepository = employeurRepository;
         this.offreRepository = offreRepository;
@@ -59,6 +60,7 @@ public class EmployeurService {
         this.etudiantRepository = etudiantRepository;
         this.professeurRepository = professeurRepository;
         this.gestionnaireRepository = gestionnaireRepository;
+        this.academicSessionService = academicSessionService;
     }
 
     @Transactional
@@ -97,6 +99,11 @@ public class EmployeurService {
 
     @Transactional
     public List<OffreDTO> OffrePourEmployeur(AuthResponseDTO utilisateur) throws ActionNonAutoriseeException {
+        return OffrePourEmployeur(utilisateur, null);
+    }
+
+    @Transactional
+    public List<OffreDTO> OffrePourEmployeur(AuthResponseDTO utilisateur, String sessionAcademique) throws ActionNonAutoriseeException {
         String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
@@ -104,7 +111,11 @@ public class EmployeurService {
         }
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
-        List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
+        
+        // Si pas de session spécifiée, utiliser la session courante
+        String sessionToUse = academicSessionService.getSessionForRole(sessionAcademique, true);
+        List<Offre> offres = offreRepository.findOffreByEmployeurIdAndSessionAcademique(employeur.getId(), sessionToUse);
+        
         OffreDTO offreDTO = new OffreDTO();
         return offres.stream().map(offreDTO::toDTO).toList();
     }
@@ -132,8 +143,17 @@ public class EmployeurService {
     @Transactional
     public List<CandidatureDTO> getCandidaturesPourEmployeur()
             throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        return getCandidaturesPourEmployeur(null);
+    }
+
+    @Transactional
+    public List<CandidatureDTO> getCandidaturesPourEmployeur(String sessionAcademique)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
-        List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
+        
+        // Si pas de session spécifiée, utiliser la session courante
+        String sessionToUse = academicSessionService.getSessionForRole(sessionAcademique, true);
+        List<Offre> offres = offreRepository.findOffreByEmployeurIdAndSessionAcademique(employeur.getId(), sessionToUse);
 
         List<Candidature> candidatures = new ArrayList<>();
         for (Offre offre : offres) {
@@ -383,9 +403,15 @@ public class EmployeurService {
 
     @Transactional
     public List<EntenteStageDTO> getEntentesPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        return getEntentesPourEmployeur(null);
+    }
+
+    public List<EntenteStageDTO> getEntentesPourEmployeur(String sessionAcademique) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
-        List<EntenteStage> ententes = ententeStageRepository.findByEmployeurAndArchivedFalse(employeur);
+        // Si pas de session spécifiée, utiliser la session courante
+        String sessionToUse = academicSessionService.getSessionForRole(sessionAcademique, true);
+        List<EntenteStage> ententes = ententeStageRepository.findByEmployeurAndArchivedFalseAndSessionAcademique(employeur, sessionToUse);
 
         return ententes.stream()
                 .map(entente -> new EntenteStageDTO().toDTO(entente))
