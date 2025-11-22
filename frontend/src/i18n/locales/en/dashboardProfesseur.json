@@ -38,7 +38,16 @@
 
   "candidatures": {
     "title": "Student applications",
-    "noData": "No applications found"
+    "noData": "No applications found",
+    "dateLabel": "Date"
+  },
+
+  "likert": {
+    "totallyAgree": "Totally agree",
+    "agree": "Rather agree",
+    "disagree": "Rather disagree",
+    "totallyDisagree": "Totally disagree",
+    "notApplicable": "Unable to say"
   },
 
   "ententes": {
@@ -71,6 +80,7 @@
 
     "section": {
       "entente": "Agreement",
+      "ententeSubtitle": "Agreement information",
       "company": "Company information",
       "student": "Student information",
       "evaluation": "Evaluation",
@@ -134,20 +144,28 @@
       "volumeTravailAcceptable": "The workload is acceptable."
     },
 
+    "hoursAndSalary": {
+      "title": "Hours & Salary"
+    },
+
     "hours": {
       "label": "Specify number of hours/week:",
-      "month1": "1st month",
-      "month2": "2nd month",
-      "month3": "3rd month"
+      "firstMonth": "1st month",
+      "secondMonth": "2nd month",
+      "thirdMonth": "3rd month",
+      "placeholder": "E.g. 35"
     },
 
     "salary": {
-      "label": "Specify (salary): /hour"
+      "label": "Specify (salary): /hour",
+      "amountPerHour": "Amount per hour",
+      "placeholder": "E.g. 15.00"
     },
 
     "comments": {
       "label": "Comments",
-      "requiredMsg": "A comment is required if you answered \"Rather disagree\" or \"Totally disagree\" to a question."
+      "requiredMsg": "A comment is required if you answered \"Rather disagree\" or \"Totally disagree\" to a question.",
+      "helper": "Add details if necessary."
     },
 
     "observations": {
@@ -227,6 +245,7 @@
   },
 
   "errors": {
+    "formErrorsTitle": "Please correct the following errors:",
     "selectEntente": "Please select an agreement",
     "selectStageNumber": "Please choose a stage number",
     "answerEvaluationQuestions": "Please answer the evaluation questions",

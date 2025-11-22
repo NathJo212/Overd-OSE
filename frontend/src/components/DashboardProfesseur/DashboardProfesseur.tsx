@@ -39,13 +39,13 @@ const DashboardProfesseur = () => {
     // States
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
-    const [errorModal, setErrorModal] = useState<string>("");
+    const [, setErrorModal] = useState<string>("");
     const [success, setSuccess] = useState<string>("");
     const [evaluations, setEvaluations] = useState<EvaluationMilieuStageDTO[]>([]);
     const [ententesDisponibles, setEntentesDisponibles] = useState<EntenteStageDTO[]>([]);
     const [loadingEntentesDisponibles, setLoadingEntentesDisponibles] = useState(false);
     const [submittingEvaluation, setSubmittingEvaluation] = useState(false);
-    const [evaluationForm, setEvaluationForm] = useState<CreerEvaluationMilieuStageDTO>({
+    const initialEvaluationForm: CreerEvaluationMilieuStageDTO = {
         ententeId: 0,
         // entreprise
         nomEntreprise: '', personneContact: '', adresse: '', ville: '', codePostal: '', telephone: '', telecopieur: '',
@@ -59,7 +59,8 @@ const DashboardProfesseur = () => {
         // commentaires / observations
         commentaires: '', milieuAPrivilegier: '', accueillirStagiairesNb: '', desireAccueillirMemeStagiaire: '', offreQuartsVariables: '',
         quartsADe: '', quartsAFin: '', quartsBDe: '', quartsBFin: '', quartsCDe: '', quartsCFin: '', dateSignature: ''
-    });
+    };
+    const [evaluationForm, setEvaluationForm] = useState<CreerEvaluationMilieuStageDTO>({...initialEvaluationForm});
     const [selectedEvaluation, setSelectedEvaluation] = useState<EvaluationMilieuStageDTO | null>(null);
     const [etudiants, setEtudiants] = useState<EtudiantDTO[]>([]);
     const [downloadingCV, setDownloadingCV] = useState<number | null>(null);
@@ -73,19 +74,12 @@ const DashboardProfesseur = () => {
     const [statutsStage, setStatutsStage] = useState<Record<number, StatutStageDTO>>({});
     const [downloadingLettre, setDownloadingLettre] = useState<number | null>(null);
     const [selectedEtudiant, setSelectedEtudiant] = useState<EtudiantDTO | null>(null);
+    const [formErrors, setFormErrors] = useState<string[]>([]);
 
     // Options pour enums (cohérents avec EvaluationEnumsDTO.java) - libellés traduits
     const stageNumeroOptions = [
         { value: 'STAGE_1', label: t('options.stageNumero.STAGE_1') },
         { value: 'STAGE_2', label: t('options.stageNumero.STAGE_2') },
-    ];
-
-    const niveauAccordOptions = [
-        { value: 'TOTALEMENT_EN_ACCORD', label: t('options.niveauAccord.TOTALEMENT_EN_ACCORD') },
-        { value: 'PLUTOT_EN_ACCORD', label: t('options.niveauAccord.PLUTOT_EN_ACCORD') },
-        { value: 'PLUTOT_DESACCORD', label: t('options.niveauAccord.PLUTOT_DESACCORD') },
-        { value: 'TOTALEMENT_DESACCORD', label: t('options.niveauAccord.TOTALEMENT_DESACCORD') },
-        { value: 'IMPOSSIBLE_DE_SE_PRONONCER', label: t('options.niveauAccord.IMPOSSIBLE_DE_SE_PRONONCER') },
     ];
 
     const ouiNonOptions = [
@@ -131,6 +125,45 @@ const DashboardProfesseur = () => {
             </div>
         );
     };
+
+    const msg = (key: string, defaultValue?: string) => {
+        // Use i18next defaultValue fallback only; remove any localFallback usage
+        return t(key, { defaultValue: defaultValue ?? key });
+    };
+
+    // Composant Likert local pour les choix colorés (vert -> rouge)
+    interface LikertOption { value: string; label: string; colorClass: string; bgClass: string }
+    const LikertRadio: React.FC<{ name: string; value: string | undefined; onChange: (v:string) => void; label: string; required?: boolean }> = ({ name, value, onChange, label, required }) => {
+        // Order: green (totally agree) -> teal (agree) -> yellow (rather disagree) -> red (totally disagree) -> gray (impossible) at right
+        const options: LikertOption[] = [
+            { value: 'TOTALEMENT_EN_ACCORD', label: msg('likert.totallyAgree', 'Totalement en accord'), colorClass: 'border-green-500 ring-green-500 dark:border-green-400 dark:ring-green-400', bgClass: 'bg-green-50 dark:bg-slate-800/40' },
+            { value: 'PLUTOT_EN_ACCORD', label: msg('likert.agree', 'Plutôt en accord'), colorClass: 'border-teal-500 ring-teal-500 dark:border-teal-400 dark:ring-teal-400', bgClass: 'bg-teal-50 dark:bg-slate-800/35' },
+            { value: 'PLUTOT_DESACCORD', label: msg('likert.disagree', 'Plutôt en désaccord'), colorClass: 'border-yellow-500 ring-yellow-500 dark:border-yellow-400 dark:ring-yellow-400', bgClass: 'bg-yellow-50 dark:bg-slate-800/30' },
+            { value: 'TOTALEMENT_DESACCORD', label: msg('likert.totallyDisagree', 'Totalement en désaccord'), colorClass: 'border-red-500 ring-red-500 dark:border-red-400 dark:ring-red-400', bgClass: 'bg-red-50 dark:bg-slate-800/30' },
+            { value: 'IMPOSSIBLE_DE_SE_PRONONCER', label: msg('likert.notApplicable', 'Impossible de se prononcer'), colorClass: 'border-gray-500 ring-gray-500 dark:border-slate-600 dark:ring-slate-600', bgClass: 'bg-gray-50 dark:bg-slate-800' },
+        ];
+
+         return (
+             <div className="mb-6">
+                 <p className="text-sm font-medium text-gray-800 dark:text-slate-100 mb-3 flex items-start">
+                     <span className="mr-2">•</span>
+                     <span>{label}</span>
+                     {required && <span className="text-red-500 ml-1">*</span>}
+                 </p>
+                 <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                     {options.map(opt => {
+                         const selected = value === opt.value;
+                         return (
+                             <label key={opt.value} className={`relative flex items-center justify-center cursor-pointer border-2 rounded-lg p-3 transition-all ${selected ? `${opt.colorClass} ${opt.bgClass} ring-2 ring-offset-2 dark:ring-offset-slate-800` : 'border-gray-200 hover:border-gray-300 bg-white dark:border-slate-700 dark:hover:border-slate-600 dark:bg-slate-800'}`}>
+                                 <input type="radio" name={name} value={opt.value} checked={selected} onChange={() => onChange(opt.value)} className="sr-only" />
+                                 <span className={`text-xs font-medium text-center ${selected ? 'text-gray-900 dark:text-slate-100' : 'text-gray-600 dark:text-slate-300'}`}>{opt.label}</span>
+                             </label>
+                         );
+                     })}
+                 </div>
+             </div>
+         );
+     };
 
     // Ouvre le formulaire d'évaluation pour un étudiant précis
     const openFormForStudent = async (etudiant: EtudiantDTO) => {
@@ -222,16 +255,15 @@ const DashboardProfesseur = () => {
     };
 
     const validateForm = (): boolean => {
-        setErrorModal("");
-        const missing: Record<string, string> = {};
+        // Build a list of readable error messages similar to the employer evaluation modal
+        const errors: string[] = [];
 
-        // Vérification des champs obligatoires
         if (!evaluationForm.ententeId || evaluationForm.ententeId === 0) {
-            missing['entente'] = t('errors.selectEntente');
+            errors.push(t('errors.selectEntente'));
         }
 
         if (!evaluationForm.stageNumero || evaluationForm.stageNumero === '') {
-            missing['stageNumero'] = t('errors.selectStageNumber');
+            errors.push(t('errors.selectStageNumber'));
         }
 
         const evaluationFields: (keyof CreerEvaluationMilieuStageDTO)[] = [
@@ -242,98 +274,59 @@ const DashboardProfesseur = () => {
 
         const hasAnyEvaluation = evaluationFields.some(f => !!((evaluationForm as any)[f]));
         if (!hasAnyEvaluation) {
-            missing['evaluation'] = t('errors.answerEvaluationQuestions');
+            errors.push(t('errors.answerEvaluationQuestions'));
         }
 
         if (commentaireRequired) {
             if (!evaluationForm.commentaires || (evaluationForm.commentaires || '').trim() === '') {
-                missing['commentaires'] = t('errors.commentRequired');
+                errors.push(t('errors.commentRequired'));
             }
         }
 
-        // Vérification des champs spécifiques supplémentaires
+        // Some basic required fields
         if (!evaluationForm.nomEntreprise || evaluationForm.nomEntreprise.trim() === '') {
-            missing['nomEntreprise'] = t('errors.nomEntrepriseRequired');
+            errors.push(t('errors.nomEntrepriseRequired'));
         }
-
         if (!evaluationForm.nomStagiaire || evaluationForm.nomStagiaire.trim() === '') {
-            missing['nomStagiaire'] = t('errors.nomStagiaireRequired');
+            errors.push(t('errors.nomStagiaireRequired'));
         }
 
         if (!evaluationForm.dateDuStage || evaluationForm.dateDuStage.trim() === '') {
-            missing['dateDuStage'] = t('errors.dateDuStageRequired');
+            errors.push(t('errors.dateDuStageRequired'));
         }
 
-        // Ajout de vérifications supplémentaires pour les champs obligatoires
         if (!evaluationForm.personneContact || evaluationForm.personneContact.trim() === '') {
-            missing['personneContact'] = t('errors.personneContactRequired');
+            errors.push(t('errors.personneContactRequired'));
         }
 
-        if (!evaluationForm.adresse || evaluationForm.adresse.trim() === '') {
-            missing['adresse'] = t('errors.adresseRequired');
-        }
-
-        if (!evaluationForm.ville || evaluationForm.ville.trim() === '') {
-            missing['ville'] = t('errors.villeRequired');
-        }
-
-
-        // Ajout de vérifications pour les heures et le salaire
+        // Hours/salary checks
         if (!evaluationForm.heuresPremierMois || isNaN(Number(evaluationForm.heuresPremierMois))) {
-            missing['heuresPremierMois'] = t('errors.heuresPremierMoisRequired');
+            errors.push(t('errors.heuresPremierMoisRequired'));
         }
-
         if (!evaluationForm.heuresDeuxiemeMois || isNaN(Number(evaluationForm.heuresDeuxiemeMois))) {
-            missing['heuresDeuxiemeMois'] = t('errors.heuresDeuxiemeMoisRequired');
+            errors.push(t('errors.heuresDeuxiemeMoisRequired'));
         }
-
         if (!evaluationForm.heuresTroisiemeMois || isNaN(Number(evaluationForm.heuresTroisiemeMois))) {
-            missing['heuresTroisiemeMois'] = t('errors.heuresTroisiemeMoisRequired');
+            errors.push(t('errors.heuresTroisiemeMoisRequired'));
         }
-
         if (!evaluationForm.salaireMontantHeure || isNaN(Number(evaluationForm.salaireMontantHeure))) {
-            missing['salaireMontantHeure'] = t('errors.salaireMontantHeureRequired');
+            errors.push(t('errors.salaireMontantHeureRequired'));
         }
 
-        // Ajout de vérifications pour les champs obligatoires supplémentaires
-        if (!evaluationForm.telecopieur || evaluationForm.telecopieur.trim() === '') {
-            missing['telecopieur'] = t('errors.telecopieurRequired');
-        }
-
-        if (!evaluationForm.dateSignature || evaluationForm.dateSignature.trim() === '') {
-            missing['dateSignature'] = t('errors.dateSignatureRequired');
-        }
-
-        // Ajout de vérifications pour les champs de quarts de travail
+        // Quarts de travail
         if (evaluationForm.offreQuartsVariables === 'OUI') {
-            if (!evaluationForm.quartsADe || !evaluationForm.quartsAFin) {
-                missing['quartsA'] = t('errors.quartsARequired');
-            }
-
-            if (!evaluationForm.quartsBDe || !evaluationForm.quartsBFin) {
-                missing['quartsB'] = t('errors.quartsBRequired');
-            }
-
-            if (!evaluationForm.quartsCDe || !evaluationForm.quartsCFin) {
-                missing['quartsC'] = t('errors.quartsCRequired');
-            }
+            if (!evaluationForm.quartsADe || !evaluationForm.quartsAFin) errors.push(t('errors.quartsARequired'));
+            if (!evaluationForm.quartsBDe || !evaluationForm.quartsBFin) errors.push(t('errors.quartsBRequired'));
+            if (!evaluationForm.quartsCDe || !evaluationForm.quartsCFin) errors.push(t('errors.quartsCRequired'));
         }
 
-        const priority = ['stageNumero', 'evaluation', 'entente', 'commentaires', 'nomEntreprise', 'nomStagiaire', 'dateDuStage'];
-        for (const key of priority) {
-            if (missing[key]) {
-                setErrorModal(missing[key]);
-                return false;
-            }
+        setFormErrors(errors);
+        // Also set a short modal message for backward compatibility UX
+        if (errors.length > 0) {
+            setErrorModal(errors[0]);
+            return false;
         }
-
-        // Validation des champs NiveauAccordMilieuStage
-        evaluationFields.forEach(field => {
-            if (!evaluationForm[field] || evaluationForm[field] === '') {
-                missing[field] = t('errors.answerEvaluationQuestions');
-            }
-        });
-
+        setErrorModal('');
         return true;
     };
 
@@ -514,11 +507,29 @@ const DashboardProfesseur = () => {
         }
     };
 
-    const closeModal = () => {
+    // Reset all modal-related state so that closing any modal forgets the in-modal changes
+    const resetModalState = () => {
         setViewMode(null);
         setCandidatures([]);
         setEntentesStudent([]);
+        setEntentesDisponibles([]);
         setStatutsStage({});
+        setSelectedEtudiant(null);
+        setSelectedEvaluation(null);
+        setFormErrors([]);
+        setEvaluationForm({...initialEvaluationForm});
+        setPdfUrl(null);
+        setPdfTitle("");
+        setDownloadingCV(null);
+        setDownloadingLettre(null);
+        setErrorModal("");
+        setSubmittingEvaluation(false);
+        // leave success/error messages as-is (optional)
+    };
+
+    // closeModal remplacé par resetModalState
+    const closeModal = () => {
+        resetModalState();
     };
 
     const renderCVColumn = (etudiant: EtudiantDTO) => {
@@ -642,7 +653,7 @@ const DashboardProfesseur = () => {
                                     <thead className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-slate-700 dark:to-slate-800">
                                         <tr>
                                             <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-white min-w-[200px]">{t("list.student")}</th>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-white min-w-[120px]">CV</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-white min-w-[120px]">{t('list.cv')}</th>
                                             <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 dark:text-white min-w-[180px]">{t("list.actions")}</th>
                                         </tr>
                                     </thead>
@@ -691,7 +702,7 @@ const DashboardProfesseur = () => {
                                                         <button
                                                             onClick={() => etudiant.id && handleViewCandidatures(etudiant.id)}
                                                             className="cursor-pointer flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-purple-600 dark:bg-purple-700 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-purple-800 transition-colors text-xs font-medium"
-                                                            title="Candidatures"
+                                                            title={t('actions.candidatures')}
                                                         >
                                                             <FileText className="w-4 h-4 flex-shrink-0" />
                                                             <span>{t("actions.candidatures")}</span>
@@ -699,7 +710,7 @@ const DashboardProfesseur = () => {
                                                         <button
                                                             onClick={() => etudiant.id && handleViewEntentes(etudiant.id)}
                                                             className="cursor-pointer flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-800 transition-colors text-xs font-medium"
-                                                            title="Ententes"
+                                                            title={t('actions.ententes')}
                                                         >
                                                             <Briefcase className="w-4 h-4 flex-shrink-0" />
                                                             <span>{t("actions.ententes")}</span>
@@ -723,7 +734,7 @@ const DashboardProfesseur = () => {
                                                                 <button
                                                                     onClick={() => openFormForStudent(etudiant)}
                                                                     className="cursor-pointer flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors text-xs font-medium"
-                                                                    title="Évaluer"
+                                                                    title={t('actions.evaluate')}
                                                                 >
                                                                     <CheckCircle className="w-4 h-4 flex-shrink-0" />
                                                                     <span>{t("actions.evaluate")}</span>
@@ -749,8 +760,9 @@ const DashboardProfesseur = () => {
                         <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-indigo-700 dark:from-indigo-700 dark:to-indigo-800 p-6 flex items-center justify-between">
                             <h3 className="text-2xl font-bold text-white">{t("details.title")}</h3>
                             <button
-                                onClick={() => setSelectedEvaluation(null)}
+                                onClick={() => resetModalState()}
                                 className="cursor-pointer text-white/80 hover:text-white transition-colors"
+                                aria-label={t('details.close')}
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -821,7 +833,7 @@ const DashboardProfesseur = () => {
 
                             <div className="pt-4 flex justify-end">
                                 <button
-                                    onClick={() => setSelectedEvaluation(null)}
+                                    onClick={() => resetModalState()}
                                     className="px-6 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-slate-100 rounded-lg font-medium transition-colors"
                                 >
                                     {t("details.close")}
@@ -841,7 +853,7 @@ const DashboardProfesseur = () => {
                                 <FileText className="w-6 h-6 text-purple-600" />
                                 {t("candidatures.title")}
                             </h3>
-                            <button onClick={closeModal} className="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                            <button onClick={closeModal} className="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors" aria-label={t('details.close')}>
                                 <X className="w-6 h-6 text-gray-900 dark:text-slate-100" />
                             </button>
                         </div>
@@ -861,7 +873,7 @@ const DashboardProfesseur = () => {
                                                     <h4 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{candidature.offreTitre}</h4>
                                                     <p className="text-sm text-gray-600 dark:text-slate-300">{t("ententes.employer")} : {candidature.employeurNom}</p>
                                                     <p className="text-sm text-gray-500 dark:text-slate-400">
-                                                        Date: {new Date(candidature.dateCandidature).toLocaleDateString()}
+                                                        {t('candidatures.dateLabel')}: {new Date(candidature.dateCandidature).toLocaleDateString()}
                                                     </p>
                                                 </div>
                                             </div>
@@ -903,7 +915,7 @@ const DashboardProfesseur = () => {
                                 <Briefcase className="w-6 h-6 text-green-600" />
                                 {t("actions.ententes")}
                             </h3>
-                            <button onClick={closeModal} className="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                            <button onClick={closeModal} className="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors" aria-label={t('details.close')}>
                                 <X className="w-6 h-6 text-gray-900 dark:text-slate-100" />
                             </button>
                         </div>
@@ -999,8 +1011,7 @@ const DashboardProfesseur = () => {
             {viewMode === 'evaluation' && selectedEtudiant && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-                        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex justify-between items-center">
-
+                        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex justify-between items-center">
                             <div>
                                 <h3 className="text-2xl font-bold flex items-center gap-2">
                                     <ClipboardList className="w-6 h-6" />
@@ -1009,29 +1020,32 @@ const DashboardProfesseur = () => {
                                 <p className="text-indigo-100 mt-1 text-sm">{t("form.headerStudent")} {selectedEtudiant.prenom} {selectedEtudiant.nom}</p>
                             </div>
                             <button
-                                onClick={() => { setSelectedEtudiant(null); setViewMode(null); setEntentesDisponibles([]); }}
+                                onClick={() => resetModalState()}
                                 className="cursor-pointer p-2 hover:bg-white/20 rounded-lg transition-colors"
-                                aria-label="Fermer"
+                                aria-label={t('details.close')}
                             >
                                 <X className="w-6 h-6 text-white" />
                             </button>
                         </div>
 
                         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-                            {errorModal && (
-                                <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
-                                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-300 mt-0.5 flex-shrink-0" />
-                                    <div className="flex-1">
-                                        <p className="text-red-800 dark:text-red-200 font-medium">{errorModal}</p>
+                            {/* Affiche la liste d'erreurs si présente */}
+                            {formErrors && formErrors.length > 0 && (
+                                <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                                    <div className="flex items-start gap-3">
+                                        <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-300 mt-0.5 flex-shrink-0" />
+                                        <div className="flex-1">
+                                            <p className="text-red-800 dark:text-red-200 font-semibold">{t('errors.formErrorsTitle') || 'Veuillez corriger les erreurs suivantes :'}</p>
+                                            <ul className="mt-2 list-disc pl-5 text-sm text-red-700 dark:text-red-200">
+                                                {formErrors.map((err, idx) => (
+                                                    <li key={idx}>{err}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <button
-                                        onClick={() => setErrorModal("")}
-                                        className="cursor-pointer text-red-400 dark:text-red-300 hover:text-red-600 dark:hover:text-red-100 transition-colors"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
                                 </div>
                             )}
+
                             {loadingEntentesDisponibles ? (
                                 <div className="flex justify-center items-center py-12">
                                     <div className="h-16 w-16 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-600" />
@@ -1045,31 +1059,39 @@ const DashboardProfesseur = () => {
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-6">
 
-                                    {/* Entente sélectionnée */}
-                                    <section className="bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-700 rounded-lg p-4">
-                                        <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">{t("form.section.entente")}</h4>
-                                         {selectedEntente ? (
-                                             <div className="flex items-center justify-between gap-4">
-                                                 <div className="min-w-0">
-                                                     <div className="text-lg font-semibold text-gray-900 dark:text-slate-100 truncate">{selectedEntente.titre}</div>
-                                                     <div className="text-sm text-indigo-700 font-medium truncate">{selectedEntente.nomEntreprise}</div>
-                                                     <div className="text-sm text-gray-500 dark:text-slate-400 mt-1 flex items-center gap-2 truncate">
-                                                         <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                                         <span className="truncate">{selectedEntente.employeurContact}</span>
-                                                     </div>
-                                                 </div>
-                                                 <div className="text-sm text-gray-600 dark:text-slate-300 text-right">
-                                                     <div>{new Date(selectedEntente.dateDebut).toLocaleDateString()} — {new Date(selectedEntente.dateFin).toLocaleDateString()}</div>
-                                                     {selectedEntente.lieu && <div className="mt-1">{selectedEntente.lieu}</div>}
-                                                 </div>
-                                             </div>
-                                         ) : (
+                                    {/* Entente sélectionnée - section stylisée */}
+                                    <section className="rounded-2xl p-6 border-2 border-blue-200 dark:border-slate-700 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow">
+                                                <Briefcase className="w-6 h-6 text-white" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-lg font-bold text-gray-900 dark:text-slate-100">{t('form.section.entente')}</h4>
+                                                <p className="text-sm text-gray-600 dark:text-slate-300">{t('form.section.ententeSubtitle') || ''}</p>
+                                            </div>
+                                        </div>
+                                        {selectedEntente ? (
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div className="min-w-0">
+                                                    <div className="text-lg font-semibold text-gray-900 dark:text-slate-100 truncate">{selectedEntente.titre}</div>
+                                                    <div className="text-sm text-indigo-700 font-medium truncate">{selectedEntente.nomEntreprise}</div>
+                                                    <div className="text-sm text-gray-500 dark:text-slate-400 mt-1 flex items-center gap-2 truncate">
+                                                        <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                                        <span className="truncate">{selectedEntente.employeurContact}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="text-sm text-gray-600 dark:text-slate-300 text-right">
+                                                    <div>{new Date(selectedEntente.dateDebut).toLocaleDateString()} — {new Date(selectedEntente.dateFin).toLocaleDateString()}</div>
+                                                    {selectedEntente.lieu && <div className="mt-1">{selectedEntente.lieu}</div>}
+                                                </div>
+                                            </div>
+                                        ) : (
                                             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-800">{t("status.noEntente")}</div>
-                                         )}
-                                     </section>
+                                        )}
+                                    </section>
 
-                                     {/* Entreprise */}
-                                     <section className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-lg p-4 shadow-sm">
+                                    {/* Entreprise */}
+                                    <section className="rounded-2xl p-6 border-2 border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800">
                                         <div className="flex items-center justify-between mb-4">
                                             <h4 className="text-sm font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
                                                 <Building2 className="w-4 h-4 text-indigo-600" /> {t("form.company.title")}
@@ -1108,7 +1130,7 @@ const DashboardProfesseur = () => {
                                     </section>
 
                                      {/* Stagiaire */}
-                                     <section className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-lg p-4 shadow-sm">
+                                     <section className="rounded-2xl p-6 border-2 border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800">
                                         <h4 className="text-sm font-semibold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2"><GraduationCap className="w-4 h-4 text-indigo-600" /> {t("form.section.student")}</h4>
                                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                              <div>
@@ -1125,197 +1147,170 @@ const DashboardProfesseur = () => {
                                          </div>
                                      </section>
 
-                                     {/* Évaluation */}
-                                     <section className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-lg p-4 shadow-sm">
-                                         <h4 className="text-sm font-semibold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2"><ClipboardList className="w-4 h-4 text-indigo-600" /> Évaluation</h4>
-                                         <div className="space-y-4">
-                                             <div className="grid grid-cols-1 gap-4">
-                                                <div>{renderRadioGroup('tachesConformes', niveauAccordOptions, t("form.questions.tachesConformes"))}</div>
-                                                <div>{renderRadioGroup('mesuresAccueil', niveauAccordOptions, t("form.questions.mesuresAccueil"))}</div>
-                                                    <div>{renderRadioGroup('tempsEncadrementSuffisant', niveauAccordOptions, t("form.questions.tempsEncadrementSuffisant"))}</div>
-
-                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t("form.hours.label")}</label>
-                                                     <div className="grid grid-cols-1 gap-2">
-                                                         <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-                                                             <div>
-                                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">{t("form.hours.month1")}</label>
-                                                                <input type="number" value={evaluationForm.heuresPremierMois || ''} onChange={(e) => handleFormChange('heuresPremierMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600" />
-                                                             </div>
-                                                             <div>
-                                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">{t("form.hours.month2")}</label>
-                                                                <input type="number" value={evaluationForm.heuresDeuxiemeMois || ''} onChange={(e) => handleFormChange('heuresDeuxiemeMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600" />
-                                                             </div>
-                                                             <div>
-                                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">{t("form.hours.month3")}</label>
-                                                                <input type="number" value={evaluationForm.heuresTroisiemeMois || ''} onChange={(e) => handleFormChange('heuresTroisiemeMois', e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600" />
-                                                             </div>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-
-                                        <div>{renderRadioGroup('environnementSecurite', niveauAccordOptions, t("form.questions.environnementSecurite"))}</div>
-                                        <div>{renderRadioGroup('climatTravail', niveauAccordOptions, t("form.questions.climatTravail"))}</div>
-                                        <div>{renderRadioGroup('milieuAccessible', niveauAccordOptions, t("form.questions.milieuAccessible"))}</div>
-                                        <div>{renderRadioGroup('salaireInteressant', niveauAccordOptions, t("form.questions.salaireInteressant"))}</div>
-
-                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t("form.salary.label")}</label>
-                                            <input type="number" value={evaluationForm.salaireMontantHeure || ''} onChange={(e) => handleFormChange('salaireMontantHeure', e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600" />
-                                         </div>
-
-                                        <div>{renderRadioGroup('communicationSuperviseur', niveauAccordOptions, t("form.questions.communicationSuperviseur"))}</div>
-                                        <div>{renderRadioGroup('equipementAdequat', niveauAccordOptions, t("form.questions.equipementAdequat"))}</div>
-                                        <div>{renderRadioGroup('volumeTravailAcceptable', niveauAccordOptions, t("form.questions.volumeTravailAcceptable"))}</div>
-                                     </div>
-                                 </div>
-                                 </section>
-
-                                 {/* Commentaires */}
-                                 <section className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-lg p-4 shadow-sm">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
-                                        {t("form.comments.label")}
-                                        {commentaireRequired && (<span className="text-red-600 ml-2">*</span>)}
-                                    </label>
-                                    <textarea value={evaluationForm.commentaires || ''} onChange={(e) => handleFormChange('commentaires', e.target.value)} rows={4} className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${commentaireRequired && !(evaluationForm.commentaires || '').trim() ? 'border-red-300 bg-red-50 dark:bg-red-900/20' : ''}`} />
-                                    {commentaireRequired && (
-                                        <p className="text-sm text-red-600 mt-1">{t("form.comments.requiredMsg")}</p>
-                                    )}
-                                 </section>
-                                     {/* Observations & Quarts */}
-                                <section className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-lg p-4 shadow-sm">
-                                    {/* --- Partie haute : observations générales --- */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                        <div>
-                                            {renderRadioGroup('milieuAPrivilegier', stageNumeroOptions, t("form.observations.milieuAPrivilegier"))}
-                                        </div>
-                                        <div>
-                                            {renderRadioGroup('accueillirStagiairesNb', stagiairesNbOptions, t("form.observations.accueillirStagiairesNb"))}
-                                        </div>
-                                        <div>
-                                            {renderRadioGroup('desireAccueillirMemeStagiaire', ouiNonOptions, t("form.observations.desireAccueillirMemeStagiaire"))}
-                                        </div>
-                                    </div>
-
-                                    {/* --- Offre de quarts variables --- */}
-                                    <div className="mb-4">
-                                        {renderRadioGroup('offreQuartsVariables', ouiNonOptions, t("form.observations.offreQuartsVariables"))}
-                                    </div>
-
-                                    {/* --- Si "OUI" : affichage des quarts A, B, C sur des lignes distinctes --- */}
-                                    {evaluationForm.offreQuartsVariables === 'OUI' && (
+                                    {/* Évaluation */}
+                                    <section className="rounded-2xl p-6 border-2 border-indigo-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                        <h4 className="text-sm font-semibold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2"><ClipboardList className="w-4 h-4 text-indigo-600" /> {t('form.section.evaluation') || t('form.section.evaluation')}</h4>
                                         <div className="space-y-4">
-                                            {/* Quart A */}
-                                            <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
-                                                <div className="md:col-span-1">
-                                                    <label className="block text-sm font-semibold text-gray-800 dark:text-slate-100">{t("form.observations.quart.A")}</label>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm text-gray-600 dark:text-slate-300">{t("form.observations.quart.from")}</label>
-                                                    <input
-                                                        type="time"
-                                                        value={evaluationForm.quartsADe || ''}
-                                                        onChange={(e) => handleFormChange('quartsADe', e.target.value)}
-                                                        className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600 focus:ring-2 focus:ring-indigo-200"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm text-gray-600 dark:text-slate-300">{t("form.observations.quart.to")}</label>
-                                                    <input
-                                                        type="time"
-                                                        value={evaluationForm.quartsAFin || ''}
-                                                        onChange={(e) => handleFormChange('quartsAFin', e.target.value)}
-                                                        className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600 focus:ring-2 focus:ring-indigo-200"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Quart B */}
-                                            <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
-                                                <div className="md:col-span-1">
-                                                    <label className="block text-sm font-semibold text-gray-800 dark:text-slate-100">{t("form.observations.quart.B")}</label>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm text-gray-600 dark:text-slate-300">{t("form.observations.quart.from")}</label>
-                                                    <input
-                                                        type="time"
-                                                        value={evaluationForm.quartsBDe || ''}
-                                                        onChange={(e) => handleFormChange('quartsBDe', e.target.value)}
-                                                        className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600 focus:ring-2 focus:ring-indigo-200"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm text-gray-600 dark:text-slate-300">{t("form.observations.quart.to")}</label>
-                                                    <input
-                                                        type="time"
-                                                        value={evaluationForm.quartsBFin || ''}
-                                                        onChange={(e) => handleFormChange('quartsBFin', e.target.value)}
-                                                        className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600 focus:ring-2 focus:ring-indigo-200"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Quart C */}
-                                            <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
-                                                <div className="md:col-span-1">
-                                                    <label className="block text-sm font-semibold text-gray-800 dark:text-slate-100">{t("form.observations.quart.C")}</label>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm text-gray-600 dark:text-slate-300">{t("form.observations.quart.from")}</label>
-                                                    <input
-                                                        type="time"
-                                                        value={evaluationForm.quartsCDe || ''}
-                                                        onChange={(e) => handleFormChange('quartsCDe', e.target.value)}
-                                                        className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600 focus:ring-2 focus:ring-indigo-200"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm text-gray-600 dark:text-slate-300">{t("form.observations.quart.to")}</label>
-                                                    <input
-                                                        type="time"
-                                                        value={evaluationForm.quartsCFin || ''}
-                                                        onChange={(e) => handleFormChange('quartsCFin', e.target.value)}
-                                                        className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600 focus:ring-2 focus:ring-indigo-200"
-                                                    />
-                                                </div>
-                                            </div>
+                                            <LikertRadio name="tachesConformes" value={(evaluationForm.tachesConformes || undefined)} onChange={(v) => handleFormChange('tachesConformes', v)} label={t("form.questions.tachesConformes")} required />
+                                            <LikertRadio name="mesuresAccueil" value={(evaluationForm.mesuresAccueil || undefined)} onChange={(v) => handleFormChange('mesuresAccueil', v)} label={t("form.questions.mesuresAccueil")} required />
+                                            <LikertRadio name="tempsEncadrementSuffisant" value={(evaluationForm.tempsEncadrementSuffisant || undefined)} onChange={(v) => handleFormChange('tempsEncadrementSuffisant', v)} label={t("form.questions.tempsEncadrementSuffisant")} required />
+                                            <LikertRadio name="environnementSecurite" value={(evaluationForm.environnementSecurite || undefined)} onChange={(v) => handleFormChange('environnementSecurite', v)} label={t("form.questions.environnementSecurite")} required />
+                                            <LikertRadio name="climatTravail" value={(evaluationForm.climatTravail || undefined)} onChange={(v) => handleFormChange('climatTravail', v)} label={t("form.questions.climatTravail")} required />
+                                            <LikertRadio name="milieuAccessible" value={(evaluationForm.milieuAccessible || undefined)} onChange={(v) => handleFormChange('milieuAccessible', v)} label={t("form.questions.milieuAccessible")} required />
+                                            <LikertRadio name="salaireInteressant" value={(evaluationForm.salaireInteressant || undefined)} onChange={(v) => handleFormChange('salaireInteressant', v)} label={t("form.questions.salaireInteressant")} required />
+                                            <LikertRadio name="communicationSuperviseur" value={(evaluationForm.communicationSuperviseur || undefined)} onChange={(v) => handleFormChange('communicationSuperviseur', v)} label={t("form.questions.communicationSuperviseur")} required />
+                                            <LikertRadio name="equipementAdequat" value={(evaluationForm.equipementAdequat || undefined)} onChange={(v) => handleFormChange('equipementAdequat', v)} label={t("form.questions.equipementAdequat")} required />
+                                            <LikertRadio name="volumeTravailAcceptable" value={(evaluationForm.volumeTravailAcceptable || undefined)} onChange={(v) => handleFormChange('volumeTravailAcceptable', v)} label={t("form.questions.volumeTravailAcceptable")} required />
                                         </div>
-                                    )}
+                                    </section>
 
-                                    {/* --- Date de signature (toujours visible) --- */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                    {/* Commentaires (nouvelle section réintégrée) */}
+                                    <section className="rounded-2xl p-6 border-2 border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                        <h4 className="text-sm font-semibold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+                                            <FileText className="w-4 h-4 text-indigo-600" /> {t('form.comments.label')}
+                                        </h4>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">{t("form.observations.dateSignature")}</label>
-                                            <input
-                                                type="date"
-                                                value={evaluationForm.dateSignature || ''}
-                                                onChange={(e) => handleFormChange('dateSignature', e.target.value)}
-                                                className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600 focus:ring-2 focus:ring-indigo-200"
+                                            <textarea
+                                                value={evaluationForm.commentaires || ''}
+                                                onChange={(e) => handleFormChange('commentaires', e.target.value)}
+                                                rows={5}
+                                                className={`w-full px-3 py-2 border rounded-lg resize-y bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600 focus:outline-none ${commentaireRequired && (!evaluationForm.commentaires || evaluationForm.commentaires.trim() === '') ? 'ring-2 ring-red-400' : ''}`}
+                                                placeholder={t('form.comments.label')}
                                             />
+
+                                            {/* Hint / obligatoire */}
+                                            <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">
+                                                {commentaireRequired ? (
+                                                    <span className="text-red-600">* {t('form.comments.requiredMsg')}</span>
+                                                ) : (
+                                                    <span>{t('form.comments.helper') || ''}</span>
+                                                )}
+                                            </p>
+
+                                            {/* Inline error si présent dans formErrors */}
+                                            {formErrors && formErrors.includes(t('errors.commentRequired')) && (
+                                                <p className="mt-2 text-sm text-red-700 dark:text-red-300">{t('errors.commentRequired')}</p>
+                                            )}
                                         </div>
-                                    </div>
-                                </section>
+                                    </section>
+
+
+                                    {/* Heures & Salaire (nouvelle section) */}
+                                    <section className="rounded-2xl p-6 border-2 border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                        <h4 className="text-sm font-semibold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+                                            <Clock className="w-4 h-4 text-indigo-600" /> {t("form.hoursAndSalary.title")}
+                                        </h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">{t("form.hours.firstMonth")}</label>
+                                                <input
+                                                    type="number"
+                                                    value={evaluationForm.heuresPremierMois || ''}
+                                                    onChange={(e) => handleFormChange('heuresPremierMois', e.target.value)}
+                                                    className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600"
+                                                    placeholder={t("form.hours.placeholder")}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">{t("form.hours.secondMonth")}</label>
+                                                <input
+                                                    type="number"
+                                                    value={evaluationForm.heuresDeuxiemeMois || ''}
+                                                    onChange={(e) => handleFormChange('heuresDeuxiemeMois', e.target.value)}
+                                                    className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600"
+                                                    placeholder={t("form.hours.placeholder")}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">{t("form.hours.thirdMonth")}</label>
+                                                <input
+                                                    type="number"
+                                                    value={evaluationForm.heuresTroisiemeMois || ''}
+                                                    onChange={(e) => handleFormChange('heuresTroisiemeMois', e.target.value)}
+                                                    className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600"
+                                                    placeholder={t("form.hours.placeholder")}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">{t("form.salary.amountPerHour")}</label>
+                                                <input
+                                                    type="number"
+                                                    value={evaluationForm.salaireMontantHeure || ''}
+                                                    onChange={(e) => handleFormChange('salaireMontantHeure', e.target.value)}
+                                                    className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600"
+                                                    placeholder={t("form.salary.placeholder")}
+                                                />
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    {/* Observations & Quarts (styled) */}
+                                    <section className="rounded-2xl p-6 border-2 border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                            <div>
+                                                {renderRadioGroup('milieuAPrivilegier', stageNumeroOptions, t("form.observations.milieuAPrivilegier"))}
+                                            </div>
+                                            <div>
+                                                {renderRadioGroup('accueillirStagiairesNb', stagiairesNbOptions, t("form.observations.accueillirStagiairesNb"))}
+                                            </div>
+                                            <div>
+                                                {renderRadioGroup('desireAccueillirMemeStagiaire', ouiNonOptions, t("form.observations.desireAccueillirMemeStagiaire"))}
+                                            </div>
+                                        </div>
+
+                                        <div className="mb-4">{renderRadioGroup('offreQuartsVariables', ouiNonOptions, t('form.observations.offreQuartsVariables'))}</div>
+
+                                        {evaluationForm.offreQuartsVariables === 'OUI' && (
+                                            <div className="space-y-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
+                                                    <div className="md:col-span-1"><label className="block text-sm font-semibold text-gray-800 dark:text-slate-100">{t('form.observations.quart.A')}</label></div>
+                                                    <div>
+                                                        <label className="block text-sm text-gray-600 dark:text-slate-300">{t('form.observations.quart.from')}</label>
+                                                        <input type="time" value={evaluationForm.quartsADe || ''} onChange={(e) => handleFormChange('quartsADe', e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm text-gray-600 dark:text-slate-300">{t('form.observations.quart.to')}</label>
+                                                        <input type="time" value={evaluationForm.quartsAFin || ''} onChange={(e) => handleFormChange('quartsAFin', e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600" />
+                                                    </div>
+                                                </div>
+                                                {/* Quart B & C similar structure */}
+                                                <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
+                                                    <div className="md:col-span-1"><label className="block text-sm font-semibold text-gray-800 dark:text-slate-100">{t('form.observations.quart.B')}</label></div>
+                                                    <div><label className="block text-sm text-gray-600 dark:text-slate-300">{t('form.observations.quart.from')}</label><input type="time" value={evaluationForm.quartsBDe || ''} onChange={(e) => handleFormChange('quartsBDe', e.target.value)} className="w-full px-3 py-2 border rounded-lg" /></div>
+                                                    <div><label className="block text-sm text-gray-600 dark:text-slate-300">{t('form.observations.quart.to')}</label><input type="time" value={evaluationForm.quartsBFin || ''} onChange={(e) => handleFormChange('quartsBFin', e.target.value)} className="w-full px-3 py-2 border rounded-lg" /></div>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
+                                                    <div className="md:col-span-1"><label className="block text-sm font-semibold text-gray-800 dark:text-slate-100">{t('form.observations.quart.C')}</label></div>
+                                                    <div><label className="block text-sm text-gray-600 dark:text-slate-300">{t('form.observations.quart.from')}</label><input type="time" value={evaluationForm.quartsCDe || ''} onChange={(e) => handleFormChange('quartsCDe', e.target.value)} className="w-full px-3 py-2 border rounded-lg" /></div>
+                                                    <div><label className="block text-sm text-gray-600 dark:text-slate-300">{t('form.observations.quart.to')}</label><input type="time" value={evaluationForm.quartsCFin || ''} onChange={(e) => handleFormChange('quartsCFin', e.target.value)} className="w-full px-3 py-2 border rounded-lg" /></div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">{t('form.observations.dateSignature')}</label>
+                                                <input type="date" value={evaluationForm.dateSignature || ''} onChange={(e) => handleFormChange('dateSignature', e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" />
+                                            </div>
+                                        </div>
+                                    </section>
 
                                     <div className="flex gap-4 pt-2">
-                                <button
-                                    type="submit"
-                                    disabled={submittingEvaluation}
-                                    className="cursor-pointer  flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg"
-                                >
-                                    {submittingEvaluation ? (
-                                        <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> {t("form.submitting")}</span>
-                                    ) : (
-                                        t("form.submit")
-                                    )}
-                                </button>
-                                <button type="button" onClick={() => { setSelectedEtudiant(null); setViewMode(null); setEntentesDisponibles([]); }} className="cursor-pointer px-6 py-3 border rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-100">{t("form.cancel")}</button>
-                            </div>
-                                 </form>
-                         )}
-                     </div>
-                 </div>
+                                        <button type="submit" disabled={submittingEvaluation} className="cursor-pointer  flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg">
+                                            {submittingEvaluation ? (
+                                                <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> {t('form.submitting')}</span>
+                                            ) : (
+                                                t('form.submit')
+                                            )}
+                                        </button>
+                                        <button type="button" onClick={() => resetModalState()} className="cursor-pointer px-6 py-3 border rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-100">{t('form.cancel')}</button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    </div>
                 </div>
-                 )}
+            )}
 
             {/* PDF Viewer Modal (pour CV / lettre) */}
             {pdfUrl && (
@@ -1329,6 +1324,7 @@ const DashboardProfesseur = () => {
                                     setPdfUrl(null);
                                 }}
                                 className="p-2 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg"
+                                aria-label={t('details.close')}
                             >
                                 <X className="w-5 h-5 text-gray-700 dark:text-slate-300" />
                             </button>
