@@ -21,4 +21,7 @@ public interface EntenteStageRepository extends JpaRepository<EntenteStage, Long
     List<EntenteStage> findByEmployeurAndArchivedFalse(Employeur employeur);
 
     List<EntenteStage> findByEtudiantId(Long etudiantId);
+
+    List<EntenteStage> findByArchivedFalseAndOffre_Annee(int annee);
+
 }

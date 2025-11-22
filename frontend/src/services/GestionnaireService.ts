@@ -339,9 +339,13 @@ class GestionnaireService {
         }
     }
 
-    async getCandidaturesEligiblesEntente(token: string): Promise<CandidatureEligibleDTO[]> {
+    async getCandidaturesEligiblesEntente(token: string, annee?: number): Promise<CandidatureEligibleDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/candidaturesEligiblesEntente`, {
+            const url = annee
+                ? `${this.baseUrl}/candidaturesEligiblesEntente?annee=${annee}`
+                : `${this.baseUrl}/candidaturesEligiblesEntente`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -735,6 +739,40 @@ class GestionnaireService {
             throw new Error('Erreur lors de la récupération des documents de l\'entente');
         }
     }
+
+    /**
+     * Récupère toutes les ententes actives, optionnellement filtrées par année
+     * @param token - Token d'authentification
+     * @param annee - Année optionnelle pour filtrer les ententes
+     * @returns Promise avec la liste de toutes les ententes
+     */
+    async getEntentesActives(token: string, annee?: number): Promise<EntenteStageDTO[]> {
+        try {
+            const url = annee
+                ? `${this.baseUrl}/ententes?annee=${annee}`
+                : `${this.baseUrl}/ententes`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des ententes');
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération des ententes:', error);
+            throw new Error('Erreur lors de la récupération des ententes');
+        }
+    }
+
+
 }
 
 export const gestionnaireService = new GestionnaireService();

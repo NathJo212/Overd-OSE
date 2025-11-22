@@ -11,6 +11,7 @@ import NavBar from "./NavBar.tsx";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO, type OffreDTO } from "../services/GestionnaireService";
+import { useYear } from "./YearContext";
 
 const EntentesStageGestionnaire = () => {
     const { t } = useTranslation(['ententesStageGestionnaire' , 'programmes']);
@@ -24,13 +25,15 @@ const EntentesStageGestionnaire = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const token = sessionStorage.getItem("authToken") || "";
+    const { selectedYear } = useYear();
 
     useEffect(() => {
         const fetchCandidaturesEligibles = async () => {
             try {
                 setLoading(true);
                 setError("");
-                const data = await gestionnaireService.getCandidaturesEligiblesEntente(token);
+                // Passer l'année sélectionnée
+                const data = await gestionnaireService.getCandidaturesEligiblesEntente(token, selectedYear);
                 setCandidatures(data);
             } catch (err: any) {
                 setError(err.message || t('errors.loading'));
@@ -41,14 +44,14 @@ const EntentesStageGestionnaire = () => {
         };
 
         fetchCandidaturesEligibles().then();
-    }, [token]);
+    }, [token, selectedYear]);
 
     const handleCandidatureClick = (candidature: CandidatureEligibleDTO) => {
         setSelectedCandidature(candidature);
         // attempt to fetch offer details to show richer entente info in the modal
         (async () => {
             try {
-                const offres = await gestionnaireService.getAllOffres(token);
+                const offres = await gestionnaireService.getAllOffres(token, selectedYear);
                 const found = offres.find(o => o.id === candidature.offreId);
                 setOfferDetails(found || null);
             } catch (e) {
@@ -81,7 +84,7 @@ const EntentesStageGestionnaire = () => {
             // Attempt to fetch the full offer details to enrich the entente payload
             let offerDetails: OffreDTO | undefined;
             try {
-                const offres = await gestionnaireService.getAllOffres(token);
+                const offres = await gestionnaireService.getAllOffres(token, selectedYear);
                 offerDetails = offres.find(o => o.id === selectedCandidature!.offreId);
             } catch (e) {
                 // Fetching offer details is optional; continue with minimal data if it fails
@@ -113,7 +116,8 @@ const EntentesStageGestionnaire = () => {
 
             setSuccessMessage(t('success.created'));
             closeModal();
-            gestionnaireService.getCandidaturesEligiblesEntente(token)
+            // Passer selectedYear ici aussi
+            gestionnaireService.getCandidaturesEligiblesEntente(token, selectedYear)
                 .then(data => setCandidatures(data))
                 .catch(err => setError(err.message));
 
@@ -201,7 +205,7 @@ const EntentesStageGestionnaire = () => {
                         </div>
                     </div>
                 ) : candidatures.length === 0 ? (
-                    /* Message : Aucune candidature éligible */
+                    /* Message : Aucune candidature éligible */
                     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center">
                         <div className="flex justify-center mb-4">
                             <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">

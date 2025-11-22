@@ -247,13 +247,23 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<CandidatureDTO> getCandidaturesEligiblesEntente() throws ActionNonAutoriseeException {
+    public List<CandidatureDTO> getCandidaturesEligiblesEntente(Integer annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
 
-        // Récupérer les candidatures acceptées par l'étudiant
-        List<Candidature> candidatures = candidatureRepository.findByStatut(
-                Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT
-        );
+        List<Candidature> candidatures;
+
+        if (annee != null) {
+            // Filtrer par année de l'offre si fournie
+            candidatures = candidatureRepository.findByStatutAndOffre_Annee(
+                    Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT,
+                    annee
+            );
+        } else {
+            // Récupérer toutes les candidatures acceptées
+            candidatures = candidatureRepository.findByStatut(
+                    Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT
+            );
+        }
 
         // Filtrer celles qui n'ont pas encore d'entente non archivée
         return candidatures.stream()
@@ -374,9 +384,19 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesActives() throws ActionNonAutoriseeException {
+    public List<EntenteStageDTO> getEntentesActives(Integer annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
-        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+
+        List<EntenteStage> ententes;
+
+        if (annee != null) {
+            // Filtrer par année si fournie
+            ententes = ententeStageRepository.findByArchivedFalseAndOffre_Annee(annee);
+        } else {
+            // Récupérer toutes les ententes non archivées
+            ententes = ententeStageRepository.findByArchivedFalse();
+        }
+
         return ententes.stream().map(e -> new EntenteStageDTO().toDTO(e)).collect(Collectors.toList());
     }
 

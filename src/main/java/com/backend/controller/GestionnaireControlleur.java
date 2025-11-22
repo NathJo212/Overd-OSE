@@ -163,10 +163,11 @@ public class GestionnaireControlleur {
 
     @GetMapping("/candidaturesEligiblesEntente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEligiblesEntente() {
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEligiblesEntente(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<CandidatureDTO> candidaturesEligiblesEntente = gestionnaireService.getCandidaturesEligiblesEntente();
-            return ResponseEntity.ok(candidaturesEligiblesEntente);
+            List<CandidatureDTO> candidatures = gestionnaireService.getCandidaturesEligiblesEntente(annee);
+            return ResponseEntity.ok(candidatures);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
@@ -239,9 +240,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentes() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentes(
+            @RequestParam(required = false) Integer annee) {
         try {
-            return ResponseEntity.ok(gestionnaireService.getEntentesActives());
+            return ResponseEntity.ok(gestionnaireService.getEntentesActives(annee));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
