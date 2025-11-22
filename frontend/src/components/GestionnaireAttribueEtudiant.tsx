@@ -199,8 +199,8 @@ export default function GestionnaireAttribueEtudiant() {
                             onClick={() => setAlert(null)}
                             className={`p-1 rounded-lg transition-colors ${
                                 alert.type === 'success'
-                                    ? 'hover:bg-green-100 dark:hover:bg-green-800/30'
-                                    : 'hover:bg-red-100 dark:hover:bg-red-800/30'
+                                    ? 'cursor-pointer hover:bg-green-100 dark:hover:bg-green-800/30'
+                                    : 'cursor-pointerhover:bg-red-100 dark:hover:bg-red-800/30'
                             }`}
                         >
                             <X className="w-4 h-4" />
@@ -222,7 +222,7 @@ export default function GestionnaireAttribueEtudiant() {
                         {studentSearch && (
                             <button
                                 onClick={() => setStudentSearch("")}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200"
+                                className="cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -331,8 +331,8 @@ export default function GestionnaireAttribueEtudiant() {
                                                 disabled={assigning === etudiant.id}
                                                 className={`${
                                                     hasTeacher
-                                                        ? 'bg-orange-600 hover:bg-orange-700'
-                                                        : 'bg-blue-600 hover:bg-blue-700'
+                                                        ? 'cursor-pointer bg-orange-600 hover:bg-orange-700'
+                                                        : 'cursor-pointer bg-blue-600 hover:bg-blue-700'
                                                 } disabled:bg-gray-400 dark:disabled:bg-slate-600 text-white px-4 py-2 rounded-xl shadow transition-all duration-200 flex items-center gap-2 mx-auto`}
                                             >
                                                 {assigning === etudiant.id ? (

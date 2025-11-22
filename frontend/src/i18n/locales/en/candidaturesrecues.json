@@ -120,7 +120,9 @@
   },
   "convocation": {
     "date": "Date and time",
-    "location": "Location / link"
+    "location": "Location / link",
+    "defaultLocation": "To be confirmed",
+    "autoMessage": "Interview for {{prenom}} {{nom}} - Offer: {{offre}}"
   },
   "placeholders": {
     "lieu": "Ex: Room 301, Building A or https://meet.google.com/...",

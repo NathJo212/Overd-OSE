@@ -91,7 +91,7 @@ const NotificationEmployeur = () => {
         <div className="relative">
             <button
                 onClick={toggleOpen}
-                className="relative p-2 rounded-full text-white hover:bg-white/20 dark:hover:bg-slate-700/40 transition-all"
+                className="cursor-pointer relative p-2 rounded-full text-white hover:bg-white/20 dark:hover:bg-slate-700/40 transition-all"
                 aria-label={t('title')}
             >
                 <Bell className="w-5 h-5" />

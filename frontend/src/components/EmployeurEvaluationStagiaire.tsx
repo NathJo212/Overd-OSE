@@ -1094,8 +1094,8 @@ const EmployeurEvaluationStagiaire = () => {
                             onClick={() => setActiveTab('toEvaluate')}
                             className={`px-6 py-4 rounded-xl font-semibold transition-all ${
                                 activeTab === 'toEvaluate'
-                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
-                                    : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700'
+                                    ? 'cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
+                                    : 'cursor-pointer text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700'
                             }`}
                         >
                             <div className="flex items-center justify-center gap-2">
@@ -1112,8 +1112,8 @@ const EmployeurEvaluationStagiaire = () => {
                             onClick={() => setActiveTab('evaluated')}
                             className={`px-6 py-4 rounded-xl font-semibold transition-all ${
                                 activeTab === 'evaluated'
-                                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg transform scale-105'
-                                    : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700'
+                                    ? 'cursor-pointer bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg transform scale-105'
+                                    : 'cursor-pointer text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700'
                             }`}
                         >
                             <div className="flex items-center justify-center gap-2">
@@ -1584,7 +1584,7 @@ const EmployeurEvaluationStagiaire = () => {
                             </div>
                             <button
                                 onClick={closePdfModal}
-                                className="px-6 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-slate-200 font-semibold rounded-xl transition-all"
+                                className="cursor-pointer px-6 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-slate-200 font-semibold rounded-xl transition-all"
                             >
                                 {t('detailsModal.close')}
                             </button>

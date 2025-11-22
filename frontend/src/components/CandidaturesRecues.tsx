@@ -410,8 +410,12 @@ const CandidaturesRecues = () => {
         setConvocationFormData({
             dateEntrevue: dateStr,
             heureDebut: timeStr,
-            lieu: 'À confirmer',
-            message: `Convocation pour ${candidature.etudiantPrenom} ${candidature.etudiantNom} - Offre: ${candidature.offreTitre}`
+            lieu: t('convocation.defaultLocation'),
+            message: t('convocation.autoMessage', {
+                prenom: candidature.etudiantPrenom,
+                nom: candidature.etudiantNom,
+                offre: candidature.offreTitre
+            })
         });
 
         setShowConvocationModal(true);
@@ -430,9 +434,6 @@ const CandidaturesRecues = () => {
         setCreatingConvocationId(selectedCandidature.id);
 
         try {
-            console.log('=== Début de la création de convocation ===');
-            console.log('Candidature sélectionnée:', selectedCandidature);
-            console.log('ID de la candidature:', selectedCandidature.id);
 
             // Validate form
             if (!convocationFormData.dateEntrevue || !convocationFormData.heureDebut || !convocationFormData.lieu.trim()) {
@@ -1167,14 +1168,14 @@ const CandidaturesRecues = () => {
                                                 name="dateEntrevue"
                                                 value={convocationFormData.dateEntrevue}
                                                 onChange={handleConvocationFormChange}
-                                                className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                             <input
                                                 type="time"
                                                 name="heureDebut"
                                                 value={convocationFormData.heureDebut}
                                                 onChange={handleConvocationFormChange}
-                                                className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
                                     </div>
@@ -1186,7 +1187,7 @@ const CandidaturesRecues = () => {
                                             name="lieu"
                                             value={convocationFormData.lieu}
                                             onChange={handleConvocationFormChange}
-                                            className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                                            className="px-4 py-2.5 border border-gray-300 dark:border-slate-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
                                             placeholder={t("candidaturesrecues:placeholders.lieu")}
                                         />
                                     </div>
@@ -1197,7 +1198,7 @@ const CandidaturesRecues = () => {
                                             name="message"
                                             value={convocationFormData.message}
                                             onChange={handleConvocationFormChange}
-                                            className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                                            className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
                                             rows={4}
                                             placeholder={t('candidaturesrecues:placeholders.messageTemplate', { prenom: selectedCandidature.etudiantPrenom, offre: selectedCandidature.offreTitre })}
                                         />
@@ -1207,14 +1208,14 @@ const CandidaturesRecues = () => {
                                     <div className="sticky bottom-0 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 p-6 flex justify-end gap-3">
                                         <button
                                             onClick={handleCloseConvocationModal}
-                                            className="px-6 py-2.5 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-200 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                                            className="cursor-pointer px-6 py-2.5 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-200 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                                         >
                                             {t("candidaturesrecues:labels.cancel")}
                                         </button>
                                         <button
                                             onClick={handleSubmitConvocation}
                                             disabled={creatingConvocationId !== null}
-                                            className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+                                            className="cursor-pointer px-6 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
                                         >
                                             {creatingConvocationId !== null ? t("candidaturesrecues:creating") : t("candidaturesrecues:create")}
                                         </button>

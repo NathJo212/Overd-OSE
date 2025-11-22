@@ -115,7 +115,9 @@
   },
   "convocation": {
     "date": "Date et heure",
-    "location": "Lieu / lien"
+    "location": "Lieu / lien",
+    "defaultLocation": "À confirmer",
+    "autoMessage": "Convocation pour {{prenom}} {{nom}} - Offre : {{offre}}"
   },
   "placeholders": {
     "lieu": "Ex: Salle 301, Bâtiment A ou https://meet.google.com/...",

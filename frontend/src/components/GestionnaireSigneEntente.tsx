@@ -311,7 +311,7 @@ const GestionnaireSigneEntente = () => {
                             </div>
                             <button
                                 onClick={() => loadEntentes(activeTab)}
-                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors shadow-md border border-gray-200 dark:border-slate-700"
+                                className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors shadow-md border border-gray-200 dark:border-slate-700"
                             >
                                 <RefreshCw className="w-4 h-4" />
                                 {t('refresh')}
@@ -322,13 +322,13 @@ const GestionnaireSigneEntente = () => {
                             <div className="flex w-full rounded-md shadow-sm bg-white dark:bg-slate-800 p-1 border border-gray-200 dark:border-slate-700">
                                 <button
                                     onClick={() => { setActiveTab('toSign'); loadEntentes('toSign'); }}
-                                    className={`flex-1 first:rounded-l-md last:rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'toSign' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-slate-300'}`}
+                                    className={`cursor-pointer flex-1 first:rounded-l-md last:rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'toSign' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-slate-300'}`}
                                 >
                                     {t('tabs.toSign', 'Prêtes à signer')}
                                 </button>
                                 <button
                                     onClick={() => { setActiveTab('signed'); loadEntentes('signed'); }}
-                                    className={`flex-1 first:rounded-l-md last:rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'signed' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-slate-300'}`}
+                                    className={`cursor-pointer flex-1 first:rounded-l-md last:rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'signed' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-slate-300'}`}
                                 >
                                     {t('tabs.signed', 'Signées')}
                                 </button>
@@ -659,7 +659,7 @@ const GestionnaireSigneEntente = () => {
                                                         {docsPresence[selectedEntente.id ?? -1]?.contract && (
                                                             <button
                                                                 onClick={() => handleViewSpecificDocument(selectedEntente.id, 'contract')}
-                                                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white"
+                                                                className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white"
                                                             >
                                                                 <Eye className="w-4 h-4" />
                                                                 <span>{t('documents.voirContract')}</span>
@@ -669,7 +669,7 @@ const GestionnaireSigneEntente = () => {
                                                         {docsPresence[selectedEntente.id ?? -1]?.evalStagiaire && (
                                                             <button
                                                                 onClick={() => handleViewSpecificDocument(selectedEntente.id, 'evalStagiaire')}
-                                                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white"
+                                                                className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white"
                                                             >
                                                                 <Eye className="w-4 h-4" />
                                                                 <span>{t('documents.voirEvalStagiaire')}</span>
@@ -679,7 +679,7 @@ const GestionnaireSigneEntente = () => {
                                                         {docsPresence[selectedEntente.id ?? -1]?.evalProf && (
                                                             <button
                                                                 onClick={() => handleViewSpecificDocument(selectedEntente.id, 'evalProf')}
-                                                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white"
+                                                                className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white"
                                                             >
                                                                 <Eye className="w-4 h-4" />
                                                                 <span>{t('documents.voirEvalProf')}</span>
@@ -696,7 +696,7 @@ const GestionnaireSigneEntente = () => {
                         <div className="p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl">
                             <button
                                 onClick={closeAllModals}
-                                className="w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
+                                className="cursor-pointer w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
                             >
                                 {t('buttons.close')}
                             </button>
@@ -728,14 +728,14 @@ const GestionnaireSigneEntente = () => {
                             <button
                                 onClick={() => setShowSignModal(false)}
                                 disabled={actionLoading}
-                                className="flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium disabled:opacity-50"
+                                className="cursor-pointer flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium disabled:opacity-50"
                             >
                                 {t('buttons.cancel')}
                             </button>
                             <button
                                 onClick={handleConfirmSign}
                                 disabled={actionLoading}
-                                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="cursor-pointer flex-1 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {actionLoading ? (
                                     <>
@@ -774,14 +774,14 @@ const GestionnaireSigneEntente = () => {
                             <button
                                 onClick={() => setShowRefuseModal(false)}
                                 disabled={actionLoading}
-                                className="flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium disabled:opacity-50"
+                                className="cursor-pointer flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium disabled:opacity-50"
                             >
                                 {t('buttons.cancel')}
                             </button>
                             <button
                                 onClick={handleConfirmRefuse}
                                 disabled={actionLoading}
-                                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="cursor-pointer flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {actionLoading ? (
                                     <>
@@ -833,7 +833,7 @@ const GestionnaireSigneEntente = () => {
                                             setPdfUrl(null);
                                         }
                                     }}
-                                    className="flex-1 cursor-pointer px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
+                                    className="cursor-pointer flex-1 cursor-pointer px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
                                 >
                                     {t('buttons.close')}
                                 </button>
