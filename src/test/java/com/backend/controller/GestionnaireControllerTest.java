@@ -1033,5 +1033,47 @@ class GestionnaireControllerTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Chat error: boom")));
     }
 
-}
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/{id}/documents retourne 200 et DTO")
+    void getDocumentsEntente_success() throws Exception {
+        com.backend.service.DTO.DocumentsEntenteDTO dto = new com.backend.service.DTO.DocumentsEntenteDTO();
+        dto.setContractEntentepdf("contract".getBytes());
+        dto.setEvaluationStagiairepdf("evalEmp".getBytes());
 
+        when(gestionnaireService.getDocumentsEntente(100L)).thenReturn(dto);
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/100/documents"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.contractEntentepdf").value(java.util.Base64.getEncoder().encodeToString("contract".getBytes())))
+                .andExpect(jsonPath("$.evaluationStagiairepdf").value(java.util.Base64.getEncoder().encodeToString("evalEmp".getBytes())));
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/{id}/documents retourne 401 si non autorisé")
+    void getDocumentsEntente_unauthorized() throws Exception {
+        when(gestionnaireService.getDocumentsEntente(1L)).thenThrow(new ActionNonAutoriseeException());
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/1/documents"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/{id}/documents retourne 404 si entente non trouvée")
+    void getDocumentsEntente_notFound() throws Exception {
+        when(gestionnaireService.getDocumentsEntente(2L)).thenThrow(new EntenteNonTrouveException());
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/2/documents"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/{id}/documents retourne 500 si erreur interne")
+    void getDocumentsEntente_internalError() throws Exception {
+        when(gestionnaireService.getDocumentsEntente(3L)).thenThrow(new RuntimeException("boom"));
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/3/documents"))
+                .andExpect(status().isInternalServerError());
+    }
+
+}

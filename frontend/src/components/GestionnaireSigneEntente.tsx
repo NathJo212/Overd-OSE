@@ -417,7 +417,7 @@ const GestionnaireSigneEntente = () => {
                                         <div className="grid grid-cols-3 gap-4 mb-4">
                                             <div className="flex items-center gap-2 text-sm">
                                                 <CheckCircle className="w-4 h-4 text-green-600" />
-                                                <span className="text-gray-700 dark:text-slate-300">{t('cards.studentSigned')}</span>
+                                                <span className="text-gray-700 dark:text-white">{t('cards.studentSigned')}</span>
                                             </div>
                                             <div className="flex items-center gap-2 text-sm">
                                                 <CheckCircle className="w-4 h-4 text-green-600" />
@@ -558,11 +558,11 @@ const GestionnaireSigneEntente = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="w-5 h-5 text-green-600" />
-                                        <span className="text-sm">{t('signatureStatus.studentSignature')}: {t('signatureStatus.signed')}</span>
+                                        <span className="text-sm dark:text-white">{t('signatureStatus.studentSignature')}: {t('signatureStatus.signed')}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="w-5 h-5 text-green-600" />
-                                        <span className="text-sm">{t('signatureStatus.employerSignature')}: {t('signatureStatus.signed')}</span>
+                                        <span className="text-sm dark:text-white">{t('signatureStatus.employerSignature')}: {t('signatureStatus.signed')}</span>
                                     </div>
                                 </div>
                             </div>
