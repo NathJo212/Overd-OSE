@@ -334,7 +334,6 @@ class ProfesseurService {
             }
 
             const data = await response.json();
-            console.log('Raw statut response:', data);
 
             // If backend returns string directly
             if (typeof data === 'string') {
@@ -342,11 +341,34 @@ class ProfesseurService {
             }
 
             // If backend returns object with code/label
-            if (data && typeof data === 'object' && 'code' in data) {
-                return data.code as StatutStageDTO;
+            if (data && typeof data === 'object') {
+                if ('code' in data && typeof (data as any).code === 'string') {
+                    return (data as any).code as StatutStageDTO;
+                }
+
+                // Try to map from label if present (support FR/EN common values)
+                if ('label' in data && typeof (data as any).label === 'string') {
+                    const label: string = (data as any).label;
+                    const normalized = label.trim().toLowerCase();
+                    // mapping known translations to codes
+                    if (['pas commencé', 'pas commence', 'not started'].includes(normalized)) {
+                        return 'PAS_COMMENCE';
+                    }
+                    if (['en cours', 'in progress', 'in progress '].includes(normalized)) {
+                        return 'EN_COURS';
+                    }
+                    if (['terminé', 'termine', 'completed'].includes(normalized)) {
+                        return 'TERMINE';
+                    }
+
+                    console.warn(`Unrecognized statut label returned from backend: "${label}" - returning label as fallback`);
+                    // fallback: return the label (cast) so UI can still display something
+                    return label as unknown as StatutStageDTO;
+                }
             }
 
-            return data;
+            // If structure unrecognized, throw to surface the issue
+            throw new Error('Format de réponse inattendu pour le statut');
 
         } catch (error: any) {
             console.error('Erreur lors de la récupération du statut:', error);

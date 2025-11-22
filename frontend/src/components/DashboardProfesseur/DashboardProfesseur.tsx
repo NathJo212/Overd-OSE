@@ -980,7 +980,7 @@ const DashboardProfesseur = () => {
                                                         <div className="px-4 py-2 bg-blue-50 dark:bg-slate-700 rounded-lg">
                                                             <div className="text-sm font-semibold text-gray-700 dark:text-slate-200">{t("ententes.statusLabel")}</div>
                                                             <div className="mt-1 text-sm text-gray-700 dark:text-slate-200">
-                                                                {statut ? statut : t('ententes.unknown')}
+                                                                {statut ? t(`ententes.status.${statut}`, { defaultValue: statut }) : t('ententes.unknown')}
                                                             </div>
                                                         </div>
                                                     )}
