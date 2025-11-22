@@ -525,7 +525,7 @@ const GestionnaireSigneEntente = () => {
                                                     </button>
                                                     <button
                                                         onClick={() => handleRefuseClick(entente)}
-                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-800/40 transition-colors"
+                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                                                     >
                                                         <XCircle className="w-4 h-4" />
                                                         {t('buttons.refuse')}
@@ -544,10 +544,16 @@ const GestionnaireSigneEntente = () => {
             {/* Modal Détails */}
             {showDetailsModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl">
-                            <h2 className="text-2xl font-bold">{t('modals.details.title')}</h2>
-                        </div>
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"><div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl flex items-center justify-between">
+                        <h2 className="text-2xl font-bold">{t('modals.details.title')}</h2>
+                        <button
+                            onClick={closeAllModals}
+                            aria-label={t('buttons.close')}
+                            className="cursor-pointer ml-4 text-white hover:text-gray-200 transition-colors rounded-full p-1"
+                        >
+                            <XCircle className="w-6 h-6" />
+                        </button>
+                    </div>
                         <div className="p-6 space-y-6">
                             {/* Statut des signatures */}
                             <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4">
@@ -693,7 +699,7 @@ const GestionnaireSigneEntente = () => {
                                  </div>
                              </div>
                          </div>
-                        <div className="p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl">
+                        <div className="sticky bottom-0 p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl z-10">
                             <button
                                 onClick={closeAllModals}
                                 className="cursor-pointer w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
