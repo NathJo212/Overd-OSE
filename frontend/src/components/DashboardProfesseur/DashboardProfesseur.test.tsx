@@ -134,7 +134,8 @@ describe('DashboardProfesseur - comportements principaux', () => {
         const stageBtns = within(formEl as HTMLElement).queryAllByText(/STAGE[_\s]?1|Stage\s*1|options\.stageNumero\.STAGE_1/i);
         expect(stageBtns.length).toBeGreaterThan(0);
 
-        const accordBtns = within(formEl as HTMLElement).queryAllByText(/TOTALEMENT[_\s]?EN[_\s]?ACCORD|Totalement en accord|options\.niveauAccord\.TOTALEMENT_EN_ACCORD/i);
+        // Likert labels are now resolved via i18n keys (likert.*) or options.niveauAccord; accept both
+        const accordBtns = within(formEl as HTMLElement).queryAllByText(/likert\.totallyAgree|TOTALEMENT[_\s]?EN[_\s]?ACCORD|Totalement en accord|options\.niveauAccord\.TOTALEMENT_EN_ACCORD/i);
         expect(accordBtns.length).toBeGreaterThan(0);
 
         // Submit and cancel buttons labels
@@ -156,7 +157,7 @@ describe('DashboardProfesseur - comportements principaux', () => {
         (professeurService.getCandidaturesPourEtudiant as any).mockResolvedValue([candid]);
         wrap(<DashboardProfesseur />);
         await waitFor(() => expect(screen.queryByText('status.loading')).toBeNull());
-        fireEvent.click(screen.getAllByTitle('Candidatures')[0]);
+        fireEvent.click(screen.getAllByTitle('actions.candidatures')[0]);
         await waitFor(() => expect(screen.getByText('candidatures.title')).toBeInTheDocument());
         expect(screen.getByText('Stage Dev')).toBeInTheDocument();
         fireEvent.click(screen.getByText('actions.viewLetter'));
@@ -184,7 +185,7 @@ describe('DashboardProfesseur - comportements principaux', () => {
         (professeurService.getStatutStage as any).mockResolvedValue('STATUT_OK');
         wrap(<DashboardProfesseur />);
         await waitFor(() => expect(screen.queryByText('status.loading')).toBeNull());
-        fireEvent.click(screen.getAllByTitle('Ententes')[0]);
+        fireEvent.click(screen.getAllByTitle('actions.ententes')[0]);
         await waitFor(() => expect(screen.getAllByText('actions.ententes').length).toBeGreaterThan(0));
         expect(screen.getByText('Entente Y')).toBeInTheDocument();
         await waitFor(() => expect(screen.getByText('ententes.statusLabel')).toBeInTheDocument());

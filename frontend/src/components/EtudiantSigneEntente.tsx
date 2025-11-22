@@ -91,23 +91,6 @@ const EtudiantSigneEntente = () => {
         }
     };
 
-    // View/download PDF of the entente (if available)
-    const handleViewPdf = async () => {
-        if (!selectedEntente) return;
-        setActionLoading(true);
-        try {
-            const blob = await etudiantService.telechargerPdfEntente(selectedEntente.id);
-            const url = URL.createObjectURL(blob);
-            window.open(url, '_blank');
-            setTimeout(() => URL.revokeObjectURL(url), 10000);
-        } catch (err: any) {
-            console.error('Erreur lors du téléchargement du PDF:', err);
-            setError(err.response?.data?.erreur?.message || t('errors.pdfError'));
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
     const closeAllModals = () => {
         setShowSignModal(false);
         setShowRefuseModal(false);

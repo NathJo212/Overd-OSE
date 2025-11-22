@@ -44,6 +44,12 @@ public class GestionnaireServiceTest {
     @Mock
     private ProfesseurRepository professeurRepository;
 
+    @Mock
+    private EvaluationEtudiantParEmployeurRepository evaluationEtudiantParEmployeurRepository;
+
+    @Mock
+    private EvaluationMilieuStageParProfesseurRepository evaluationMilieuStageParProfesseurRepository;
+
     @BeforeEach
     public void setupSecurityContext() {
         Authentication auth = mock(Authentication.class);
@@ -1073,6 +1079,126 @@ public class GestionnaireServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getEntentesEnAttente());
+    }
+
+    @Test
+    public void getDocumentsEntente_tousDocuments_present() throws Exception {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(100L);
+        entente.setPdfBase64(Base64.getEncoder().encodeToString("contract".getBytes()));
+        when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
+
+        EvaluationEtudiantParEmployeur evalEmp = new EvaluationEtudiantParEmployeur();
+        evalEmp.setEntente(entente);
+        evalEmp.setPdfBase64(Base64.getEncoder().encodeToString("evalEmp".getBytes()));
+        when(evaluationEtudiantParEmployeurRepository.findAll()).thenReturn(asList(evalEmp));
+
+        EvaluationMilieuStage evalProf = new EvaluationMilieuStage();
+        evalProf.setEntente(entente);
+        evalProf.setPdfBase64(Base64.getEncoder().encodeToString("evalProf".getBytes()));
+        when(evaluationMilieuStageParProfesseurRepository.findAll()).thenReturn(asList(evalProf));
+
+        com.backend.service.DTO.DocumentsEntenteDTO dto = gestionnaireService.getDocumentsEntente(100L);
+        assertNotNull(dto);
+        assertArrayEquals("contract".getBytes(), dto.getContractEntentepdf());
+        assertArrayEquals("evalEmp".getBytes(), dto.getEvaluationStagiairepdf());
+        assertArrayEquals("evalProf".getBytes(), dto.getEvaluationMilieuStagepdf());
+    }
+
+    @Test
+    public void getDocumentsEntente_seulContrat_present() throws Exception {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(101L);
+        entente.setPdfBase64(Base64.getEncoder().encodeToString("contract".getBytes()));
+        when(ententeStageRepository.findById(101L)).thenReturn(Optional.of(entente));
+
+        when(evaluationEtudiantParEmployeurRepository.findAll()).thenReturn(Collections.emptyList());
+        when(evaluationMilieuStageParProfesseurRepository.findAll()).thenReturn(Collections.emptyList());
+
+        com.backend.service.DTO.DocumentsEntenteDTO dto = gestionnaireService.getDocumentsEntente(101L);
+        assertNotNull(dto);
+        assertArrayEquals("contract".getBytes(), dto.getContractEntentepdf());
+        assertNull(dto.getEvaluationStagiairepdf());
+        assertNull(dto.getEvaluationMilieuStagepdf());
+    }
+
+    @Test
+    public void getDocumentsEntente_evalEmployeurSeul_present() throws Exception {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(102L);
+        when(ententeStageRepository.findById(102L)).thenReturn(Optional.of(entente));
+
+        EvaluationEtudiantParEmployeur evalEmp = new EvaluationEtudiantParEmployeur();
+        evalEmp.setEntente(entente);
+        evalEmp.setPdfBase64(Base64.getEncoder().encodeToString("evalEmp".getBytes()));
+        when(evaluationEtudiantParEmployeurRepository.findAll()).thenReturn(asList(evalEmp));
+
+        when(evaluationMilieuStageParProfesseurRepository.findAll()).thenReturn(Collections.emptyList());
+
+        com.backend.service.DTO.DocumentsEntenteDTO dto = gestionnaireService.getDocumentsEntente(102L);
+        assertNotNull(dto);
+        assertNull(dto.getContractEntentepdf());
+        assertArrayEquals("evalEmp".getBytes(), dto.getEvaluationStagiairepdf());
+        assertNull(dto.getEvaluationMilieuStagepdf());
+    }
+
+    @Test
+    public void getDocumentsEntente_aucunDocument_retourneNull() throws Exception {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(103L);
+        when(ententeStageRepository.findById(103L)).thenReturn(Optional.of(entente));
+
+        when(evaluationEtudiantParEmployeurRepository.findAll()).thenReturn(Collections.emptyList());
+        when(evaluationMilieuStageParProfesseurRepository.findAll()).thenReturn(Collections.emptyList());
+
+        com.backend.service.DTO.DocumentsEntenteDTO dto = gestionnaireService.getDocumentsEntente(103L);
+        assertNull(dto);
+    }
+
+    @Test
+    public void getDocumentsEntente_base64Invalide_estIgnore() throws Exception {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(104L);
+        entente.setPdfBase64("not-base64");
+        when(ententeStageRepository.findById(104L)).thenReturn(Optional.of(entente));
+
+        when(evaluationEtudiantParEmployeurRepository.findAll()).thenReturn(Collections.emptyList());
+        when(evaluationMilieuStageParProfesseurRepository.findAll()).thenReturn(Collections.emptyList());
+
+        com.backend.service.DTO.DocumentsEntenteDTO dto = gestionnaireService.getDocumentsEntente(104L);
+        assertNull(dto);
+    }
+
+    @Test
+    public void getDocumentsEntente_findAllThrows_exceptionIsIgnored() throws Exception {
+        EntenteStage entente = new EntenteStage();
+        entente.setId(105L);
+        entente.setPdfBase64(Base64.getEncoder().encodeToString("contract".getBytes()));
+        when(ententeStageRepository.findById(105L)).thenReturn(Optional.of(entente));
+
+        when(evaluationEtudiantParEmployeurRepository.findAll()).thenThrow(new RuntimeException("db error"));
+        when(evaluationMilieuStageParProfesseurRepository.findAll()).thenThrow(new RuntimeException("db error2"));
+
+        com.backend.service.DTO.DocumentsEntenteDTO dto = gestionnaireService.getDocumentsEntente(105L);
+        assertNotNull(dto);
+        assertArrayEquals("contract".getBytes(), dto.getContractEntentepdf());
+    }
+
+    @Test
+    public void getDocumentsEntente_ententeNonTrouvee_lance() {
+        when(ententeStageRepository.findById(999L)).thenReturn(Optional.empty());
+        assertThrows(EntenteNonTrouveException.class, () -> gestionnaireService.getDocumentsEntente(999L));
+    }
+
+    @Test
+    public void getDocumentsEntente_accesNonAutorise() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getDocumentsEntente(1L));
     }
 
 }

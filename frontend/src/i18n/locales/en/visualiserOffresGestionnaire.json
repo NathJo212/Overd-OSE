@@ -11,7 +11,7 @@
   },
   "noOffers": "No offers available",
   "noOffersFiltered": "No {{status}} offer found",
-  "back": "Back to pending internship offers page",
+  "back": "Back to Dashboard",
   "status": {
     "approved": "approved",
     "refused": "refused",

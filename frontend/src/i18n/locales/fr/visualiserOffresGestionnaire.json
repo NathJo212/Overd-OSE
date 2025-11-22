@@ -11,7 +11,7 @@
   },
   "noOffers": "Aucune offre disponible",
   "noOffersFiltered": "Aucune offre {{status}} trouvée",
-  "back": "Retourner à la page des offres de stage en attentes",
+  "back": "Retour au tableau de bord",
   "status": {
     "approved": "approuvée",
     "refused": "refusée",

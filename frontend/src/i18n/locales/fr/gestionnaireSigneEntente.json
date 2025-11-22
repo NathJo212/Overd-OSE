@@ -8,7 +8,8 @@
   "noEntentes": "Aucune entente disponible",
   "noEntentesSubtitle": "Il n'y a actuellement aucune entente active. Les ententes apparaîtront ici une fois créées.",
 
-  "ententeCount": "entente(s) en attente",
+  "ententeReadyCount": "entente(s) en attente",
+  "ententeSignedCount": "entente(s) signées",
   "week": "semaine",
   "hourShort": "h",
 
@@ -58,6 +59,21 @@
     "pending": "En attente",
     "refused": "Refusée",
     "waitingForOthers": "En attente des autres parties"
+  },
+
+  "documents": {
+    "title": "Documents de l'entente",
+    "ententeDocument": "Document d'entente",
+    "contract": "Contrat",
+    "voirContract" :  "Voir le contrat",
+    "evalStagiaire": "Évaluation stagiaire",
+    "voirEvalStagiaire": "Voir l'évaluation du stagiaire",
+    "evalProf": "Évaluation milieu de stage",
+    "voirEvalProf": "Voir l'évaluation du milieu de stage",
+    "present": "Présent",
+    "missing": "Manquant",
+    "loading": "Chargement des documents...",
+    "noDocuments": "Aucun document disponible"
   },
 
   "buttons": {
@@ -112,5 +128,10 @@
   "notifications": {
     "finalSignature": "Signature finale effectuée",
     "partiesNotified": "Toutes les parties ont été notifiées"
+  },
+
+  "tabs": {
+    "toSign": "Prêtes à signer",
+    "signed": "Signées"
   }
 }

@@ -11,7 +11,7 @@ import {
     RefreshCw,
     Users,
     Building2,
-    GraduationCap
+    GraduationCap, Eye
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
@@ -31,8 +31,14 @@ const GestionnaireSigneEntente = () => {
     const [showRefuseModal, setShowRefuseModal] = useState(false);
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [docsUrls, setDocsUrls] = useState<{ contract?: string | null; evalStagiaire?: string | null; evalProf?: string | null }>({});
+    // docsPresence[id] === null  => loading
+    // docsPresence[id] === { ... } => loaded
+    const [docsPresence, setDocsPresence] = useState<Record<number, { contract: boolean; evalStagiaire: boolean; evalProf: boolean } | null>>({});
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [activeTab, setActiveTab] = useState<'toSign' | 'signed'>('toSign');
+    const [initialLoading, setInitialLoading] = useState(true);
 
     const token = UtilisateurService.getToken();
 
@@ -43,50 +49,123 @@ const GestionnaireSigneEntente = () => {
             return;
         }
 
-        loadEntentes().then();
-    }, [navigate, token]);
+        // premier chargement
+        loadEntentes(activeTab, true);
+    }, []);
 
-    const loadEntentes = async () => {
+    const loadEntentes = async (tab: 'toSign' | 'signed' = 'toSign', isInitial = false) => {
         try {
-            setLoading(true);
+            if (isInitial) setInitialLoading(true);
             setError('');
+
             if (!token) throw new Error(t('errors.unauthorized'));
-            const data = await gestionnaireService.getAllEntentes(token);
-            console.log('Toutes les ententes chargées:', data);
-            setEntentes(data);
-        } catch (err: any) {
-            console.error('Erreur lors du chargement des ententes:', err);
-            const responseData = err.response?.data;
-            if (responseData?.erreur) {
-                setError(t('errors.errorCode', {
-                    code: responseData.erreur.errorCode,
-                    message: responseData.erreur.message
-                }));
+
+            let data: EntenteStageDTO[] = [];
+
+            if (tab === 'toSign') {
+                data = await gestionnaireService.getEntentesPretes(token);
             } else {
-                setError(err.message || t('errors.loadError'));
+                data = await gestionnaireService.getEntentesFini(token);
             }
+
+            setEntentes(data);
+
+            // Charger la présence des documents pour chaque entente (parallèle)
+            if (data && data.length > 0) {
+                // Marquer toutes les ententes comme 'loading' d'abord (afin d'éviter flicker Manquant -> Présent)
+                const initialMap: Record<number, null> = {};
+                data.forEach(e => {
+                    if (e.id != null) initialMap[e.id] = null;
+                });
+                setDocsPresence(prev => ({ ...initialMap, ...prev }));
+
+                const presenceTasks = data.map(async (e) => {
+                    try {
+                        if (e.id == null) return { id: e.id, presence: { contract: false, evalStagiaire: false, evalProf: false } };
+                        const docs = await gestionnaireService.getDocumentsEntente(e.id, token!);
+                        if (!docs) return { id: e.id, presence: { contract: false, evalStagiaire: false, evalProf: false } };
+                        return { id: e.id, presence: { contract: !!docs.contract, evalStagiaire: !!docs.evaluationStagiaire, evalProf: !!docs.evaluationMilieuStage } };
+                    } catch (err) {
+                        return { id: e.id, presence: { contract: false, evalStagiaire: false, evalProf: false } };
+                    }
+                });
+
+                const results = await Promise.all(presenceTasks);
+                const map: Record<number, { contract: boolean; evalStagiaire: boolean; evalProf: boolean }> = {};
+                results.forEach(r => {
+                    if (r && r.id != null) map[r.id] = r.presence;
+                });
+                // Fusionner les résultats sur le state (remplacer les null par les valeurs réelles)
+                setDocsPresence(prev => ({ ...prev, ...map }));
+            }
+        } catch (err: any) {
+            setError(err.message || t('errors.loadError'));
         } finally {
+            if (isInitial) setInitialLoading(false);
             setLoading(false);
+        }
+    };
+
+
+    // Charge la présence des documents pour une entente spécifique si non déjà connue
+    const loadEntenteDocsPresence = async (ententeId?: number) => {
+        // autoriser ententeId = 0
+        if (ententeId == null || !token) return;
+        try {
+            // si une entrée existe déjà (même null pour loading), ne rien faire
+            if ((docsPresence as any)[ententeId] !== undefined) return; // déjà chargé ou en cours
+            // marquer comme loading
+            setDocsPresence(prev => ({ ...prev, [ententeId]: null }));
+            const docs = await gestionnaireService.getDocumentsEntente(ententeId, token);
+            setDocsPresence(prev => ({
+                ...prev,
+                [ententeId]: { contract: !!docs?.contract, evalStagiaire: !!docs?.evaluationStagiaire, evalProf: !!docs?.evaluationMilieuStage }
+            }));
+        } catch (err) {
+            // en cas d'erreur, mettez false pour éviter de bloquer l'UI
+            setDocsPresence(prev => ({ ...prev, [ententeId]: { contract: false, evalStagiaire: false, evalProf: false } }));
         }
     };
 
     const handleViewDetails = (entente: EntenteStageDTO) => {
         setSelectedEntente(entente);
+        // s'assurer que la présence des documents est connue avant d'ouvrir
+        loadEntenteDocsPresence(entente.id);
         setShowDetailsModal(true);
     };
 
-    const handleViewPdf = async (entente: EntenteStageDTO) => {
-        if (!entente.id || !token) return;
 
+    // Ouvre un document spécifique pour une entente (contract | evalStagiaire | evalProf)
+    const handleViewSpecificDocument = async (ententeId?: number, docKey?: 'contract' | 'evalStagiaire' | 'evalProf') => {
+        if (!ententeId || !docKey || !token) return;
         try {
-            setError('');
             setActionLoading(true);
-            const pdfBlob = await gestionnaireService.getPdfEntente(entente.id, token);
-            const url = URL.createObjectURL(pdfBlob);
+            setError('');
+            const docs = await gestionnaireService.getDocumentsEntente(ententeId, token);
+            if (!docs) {
+                setError(t('errors.noDocuments'));
+                return;
+            }
+
+            let blob: Blob | null = null;
+            if (docKey === 'contract') blob = docs.contract ?? null;
+            else if (docKey === 'evalStagiaire') blob = docs.evaluationStagiaire ?? null;
+            else if (docKey === 'evalProf') blob = docs.evaluationMilieuStage ?? null;
+
+            if (!blob) {
+                setError(t('errors.noDocuments'));
+                return;
+            }
+
+            // revoke previous pdfUrl if any
+            if (pdfUrl) {
+                try { URL.revokeObjectURL(pdfUrl); } catch (e) {}
+            }
+            const url = URL.createObjectURL(blob);
             setPdfUrl(url);
             setShowPdfModal(true);
         } catch (err: any) {
-            console.error('Erreur lors de l\'affichage du PDF:', err);
+            console.error('Erreur handleViewSpecificDocument:', err);
             setError(err.message || t('errors.pdfError'));
         } finally {
             setActionLoading(false);
@@ -174,6 +253,17 @@ const GestionnaireSigneEntente = () => {
             URL.revokeObjectURL(pdfUrl);
             setPdfUrl(null);
         }
+        // revoke any docs URLs
+        if (docsUrls.contract) {
+            try { URL.revokeObjectURL(docsUrls.contract); } catch (e) {}
+        }
+        if (docsUrls.evalStagiaire) {
+            try { URL.revokeObjectURL(docsUrls.evalStagiaire); } catch (e) {}
+        }
+        if (docsUrls.evalProf) {
+            try { URL.revokeObjectURL(docsUrls.evalProf); } catch (e) {}
+        }
+        setDocsUrls({});
     };
 
     const getProgrammeLabel = (progEtude?: string) => {
@@ -187,15 +277,12 @@ const GestionnaireSigneEntente = () => {
         return date.toLocaleDateString('fr-CA');
     };
 
-    if (loading) {
+    if (initialLoading) {
         return (
             <>
                 <NavBar />
                 <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-                    <div className="text-center">
-                        <RefreshCw className="w-16 h-16 text-blue-600 animate-spin mx-auto mb-4" />
-                        <p className="text-gray-600 text-lg">{t('loading')}</p>
-                    </div>
+                    <RefreshCw className="w-16 h-16 animate-spin text-blue-600" />
                 </div>
             </>
         );
@@ -223,12 +310,29 @@ const GestionnaireSigneEntente = () => {
                                 <p className="text-gray-600 dark:text-slate-300 text-lg">{t('subtitle')}</p>
                             </div>
                             <button
-                                onClick={loadEntentes}
-                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors shadow-md border border-gray-200 dark:border-slate-700"
+                                onClick={() => loadEntentes(activeTab)}
+                                className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors shadow-md border border-gray-200 dark:border-slate-700"
                             >
                                 <RefreshCw className="w-4 h-4" />
                                 {t('refresh')}
                             </button>
+                        </div>
+                        <div className="flex items-center gap-4 mt-4">
+                            {/* Toggle onglets */}
+                            <div className="flex w-full rounded-md shadow-sm bg-white dark:bg-slate-800 p-1 border border-gray-200 dark:border-slate-700">
+                                <button
+                                    onClick={() => { setActiveTab('toSign'); loadEntentes('toSign'); }}
+                                    className={`cursor-pointer flex-1 first:rounded-l-md last:rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'toSign' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-slate-300'}`}
+                                >
+                                    {t('tabs.toSign', 'Prêtes à signer')}
+                                </button>
+                                <button
+                                    onClick={() => { setActiveTab('signed'); loadEntentes('signed'); }}
+                                    className={`cursor-pointer flex-1 first:rounded-l-md last:rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'signed' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-slate-300'}`}
+                                >
+                                    {t('tabs.signed', 'Signées')}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -246,6 +350,12 @@ const GestionnaireSigneEntente = () => {
                         </div>
                     )}
 
+                    {loading && !initialLoading && (
+                        <div className="flex justify-center py-4">
+                            <RefreshCw className="w-5 h-5 text-blue-600 animate-spin" />
+                        </div>
+                    )}
+
                     {/* Liste des ententes */}
                     {ententes.length === 0 ? (
                         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-12 text-center border border-gray-200 dark:border-slate-700">
@@ -258,10 +368,11 @@ const GestionnaireSigneEntente = () => {
                             </p>
                         </div>
                     ) : (
+
                         <div className="space-y-6">
                             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-slate-700">
                                 <p className="text-gray-700 dark:text-slate-300 font-medium">
-                                    {ententes.length} {t('ententeCount')}
+                                    {ententes.length} {activeTab === 'toSign' ? t('ententeReadyCount', 'Prêtes à signer') : t('ententeSignedCount', 'Signées')}
                                 </p>
                             </div>
 
@@ -288,7 +399,8 @@ const GestionnaireSigneEntente = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {entente.gestionnaireSignature === 'SIGNEE' ? (
+                                            {/* Indicateur d'état adapté à l'onglet */}
+                                            {activeTab === 'signed' || entente.gestionnaireSignature === 'SIGNEE' ? (
                                                 <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
                                                     <CheckCircle className="w-4 h-4" />
                                                     <span className="font-medium text-sm">{t('cards.signed')}</span>
@@ -305,7 +417,7 @@ const GestionnaireSigneEntente = () => {
                                         <div className="grid grid-cols-3 gap-4 mb-4">
                                             <div className="flex items-center gap-2 text-sm">
                                                 <CheckCircle className="w-4 h-4 text-green-600" />
-                                                <span className="text-gray-700 dark:text-slate-300">{t('cards.studentSigned')}</span>
+                                                <span className="text-gray-700 dark:text-white">{t('cards.studentSigned')}</span>
                                             </div>
                                             <div className="flex items-center gap-2 text-sm">
                                                 <CheckCircle className="w-4 h-4 text-green-600" />
@@ -318,6 +430,56 @@ const GestionnaireSigneEntente = () => {
                                                 </div>
                                             )}
                                         </div>
+
+                                        {activeTab === 'signed' && (
+                                            <div className="mb-4">
+                                                <div className="text-sm text-gray-700 dark:text-slate-300 w-full">
+                                                    <div className="font-semibold text-base mb-2">{t('documents.title')}</div>
+
+                                                    <div className="flex flex-wrap gap-6">
+                                                        {[
+                                                            { key: 'contract', label: t('documents.contract') },
+                                                            { key: 'evalStagiaire', label: t('documents.evalStagiaire') },
+                                                            { key: 'evalProf', label: t('documents.evalProf') }
+                                                        ].map((doc) => {
+                                                            // Entente.id peut valoir 0 -> vérifier contre null/undefined
+                                                            const presenceEntry = entente.id != null ? (docsPresence as any)[entente.id as number] : undefined;
+                                                            const isLoading = presenceEntry == null;
+                                                            const present = !isLoading && !!presenceEntry?.[doc.key];
+
+                                                            return (
+                                                                <div key={doc.key} className="flex items-center gap-3">
+                                                                    <span className="font-medium">{doc.label}</span>
+
+                                                                    {isLoading ? (
+                                                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-gray-600 bg-gray-100 dark:bg-gray-800/30">
+                                                                            {/* petit loader visuel — on garde simple pour éviter d'ajouter une dépendance */}
+                                                                            <svg className="w-4 h-4 animate-spin text-gray-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                                                            </svg>
+                                                                            <span className="ml-1">{t('documents.loading')}</span>
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span
+                                                                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${present ? 'text-green-700 bg-green-100 dark:bg-green-900/20 dark:text-green-300' : 'text-red-700 bg-red-100 dark:bg-red-900/20 dark:text-red-300'}`}
+                                                                            aria-label={present ? t('documents.present') : t('documents.missing')}
+                                                                        >
+                                                                            {present ? (
+                                                                                <CheckCircle className="w-4 h-4" />
+                                                                            ) : (
+                                                                                <XCircle className="w-4 h-4" />
+                                                                            )}
+                                                                            <span className="ml-1">{present ? t('documents.present') : t('documents.missing')}</span>
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
 
                                         {/* Détails */}
                                         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
@@ -335,14 +497,16 @@ const GestionnaireSigneEntente = () => {
 
                                         {/* Boutons d'action */}
                                         <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-slate-700">
-                                            {entente.gestionnaireSignature === 'SIGNEE' ? (
-                                                <button
-                                                    onClick={() => handleViewPdf(entente)}
-                                                    className="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                                                >
-                                                    <FileText className="w-4 h-4" />
-                                                    {t('buttons.viewPdf')}
-                                                </button>
+                                            {activeTab === 'signed' ? (
+                                                <div className="flex-1 flex items-center gap-3">
+                                                    <button
+                                                        onClick={() => handleViewDetails(entente)}
+                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
+                                                    >
+                                                        <FileText className="w-4 h-4" />
+                                                        {t('buttons.viewDetails')}
+                                                    </button>
+                                                </div>
                                             ) : (
                                                 <>
                                                     <button
@@ -361,29 +525,35 @@ const GestionnaireSigneEntente = () => {
                                                     </button>
                                                     <button
                                                         onClick={() => handleRefuseClick(entente)}
-                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-800/40 transition-colors"
+                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                                                     >
                                                         <XCircle className="w-4 h-4" />
                                                         {t('buttons.refuse')}
                                                     </button>
                                                 </>
                                             )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             ))}
+                         </div>
+                     )}
+                 </div>
+             </div>
 
             {/* Modal Détails */}
             {showDetailsModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl">
-                            <h2 className="text-2xl font-bold">{t('modals.details.title')}</h2>
-                        </div>
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"><div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl flex items-center justify-between">
+                        <h2 className="text-2xl font-bold">{t('modals.details.title')}</h2>
+                        <button
+                            onClick={closeAllModals}
+                            aria-label={t('buttons.close')}
+                            className="cursor-pointer ml-4 text-white hover:text-gray-200 transition-colors rounded-full p-1"
+                        >
+                            <XCircle className="w-6 h-6" />
+                        </button>
+                    </div>
                         <div className="p-6 space-y-6">
                             {/* Statut des signatures */}
                             <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4">
@@ -394,11 +564,11 @@ const GestionnaireSigneEntente = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="w-5 h-5 text-green-600" />
-                                        <span className="text-sm">{t('signatureStatus.studentSignature')}: {t('signatureStatus.signed')}</span>
+                                        <span className="text-sm dark:text-white">{t('signatureStatus.studentSignature')}: {t('signatureStatus.signed')}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="w-5 h-5 text-green-600" />
-                                        <span className="text-sm">{t('signatureStatus.employerSignature')}: {t('signatureStatus.signed')}</span>
+                                        <span className="text-sm dark:text-white">{t('signatureStatus.employerSignature')}: {t('signatureStatus.signed')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -461,19 +631,19 @@ const GestionnaireSigneEntente = () => {
                                     )}
                                     {(selectedEntente as any).responsabilitesEtudiant && (
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('modal.responsabilitesEtudiant')}</p>
+                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('fields.responsabilitesEtudiant')}</p>
                                             <p className="text-gray-700 dark:text-slate-300">{(selectedEntente as any).responsabilitesEtudiant}</p>
                                         </div>
                                     )}
                                     {(selectedEntente as any).responsabilitesEmployeur && (
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('modal.responsabilitesEmployeur')}</p>
+                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('fields.responsabilitesEmployeur')}</p>
                                             <p className="text-gray-700 dark:text-slate-300">{(selectedEntente as any).responsabilitesEmployeur}</p>
                                         </div>
                                     )}
                                     {(selectedEntente as any).responsabilitesCollege && (
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('modal.responsabilitesCollege')}</p>
+                                            <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">{t('fields.responsabilitesCollege')}</p>
                                             <p className="text-gray-700 dark:text-slate-300">{(selectedEntente as any).responsabilitesCollege}</p>
                                         </div>
                                     )}
@@ -483,13 +653,56 @@ const GestionnaireSigneEntente = () => {
                                             <p className="text-gray-700 dark:text-slate-300">{selectedEntente.objectifs}</p>
                                         </div>
                                     )}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl">
+                                    {/* Section documents: uniquement visible si le gestionnaire a signé l'entente */}
+                                    {selectedEntente.gestionnaireSignature === 'SIGNEE' && (
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900 dark:text-slate-100 mb-3">{t('documents.title')}</h3>
+                                            <div className="flex gap-3 flex-wrap">
+                                                { (docsPresence[selectedEntente.id ?? -1] == null) ? (
+                                                    <p className="text-gray-600 dark:text-slate-300">{t('documents.loading')}</p>
+                                                ) : (
+                                                    <>
+                                                        {docsPresence[selectedEntente.id ?? -1]?.contract && (
+                                                            <button
+                                                                onClick={() => handleViewSpecificDocument(selectedEntente.id, 'contract')}
+                                                                className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white"
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                                <span>{t('documents.voirContract')}</span>
+                                                            </button>
+                                                        )}
+
+                                                        {docsPresence[selectedEntente.id ?? -1]?.evalStagiaire && (
+                                                            <button
+                                                                onClick={() => handleViewSpecificDocument(selectedEntente.id, 'evalStagiaire')}
+                                                                className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white"
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                                <span>{t('documents.voirEvalStagiaire')}</span>
+                                                            </button>
+                                                        )}
+
+                                                        {docsPresence[selectedEntente.id ?? -1]?.evalProf && (
+                                                            <button
+                                                                onClick={() => handleViewSpecificDocument(selectedEntente.id, 'evalProf')}
+                                                                className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white"
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                                <span>{t('documents.voirEvalProf')}</span>
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                )}
+                                             </div>
+                                         </div>
+                                     )}
+                                 </div>
+                             </div>
+                         </div>
+                        <div className="sticky bottom-0 p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl z-10">
                             <button
                                 onClick={closeAllModals}
-                                className="w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
+                                className="cursor-pointer w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
                             >
                                 {t('buttons.close')}
                             </button>
@@ -521,14 +734,14 @@ const GestionnaireSigneEntente = () => {
                             <button
                                 onClick={() => setShowSignModal(false)}
                                 disabled={actionLoading}
-                                className="flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium disabled:opacity-50"
+                                className="cursor-pointer flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium disabled:opacity-50"
                             >
                                 {t('buttons.cancel')}
                             </button>
                             <button
                                 onClick={handleConfirmSign}
                                 disabled={actionLoading}
-                                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="cursor-pointer flex-1 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {actionLoading ? (
                                     <>
@@ -567,14 +780,14 @@ const GestionnaireSigneEntente = () => {
                             <button
                                 onClick={() => setShowRefuseModal(false)}
                                 disabled={actionLoading}
-                                className="flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium disabled:opacity-50"
+                                className="cursor-pointer flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium disabled:opacity-50"
                             >
                                 {t('buttons.cancel')}
                             </button>
                             <button
                                 onClick={handleConfirmRefuse}
                                 disabled={actionLoading}
-                                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="cursor-pointer flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {actionLoading ? (
                                     <>
@@ -617,18 +830,20 @@ const GestionnaireSigneEntente = () => {
                             />
                         </div>
                         <div className="p-4 bg-gray-50 dark:bg-slate-700 rounded-b-2xl">
-                            <button
-                                onClick={() => {
-                                    setShowPdfModal(false);
-                                    if (pdfUrl) {
-                                        URL.revokeObjectURL(pdfUrl);
-                                        setPdfUrl(null);
-                                    }
-                                }}
-                                className="cursor-pointer w-full px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
-                            >
-                                {t('buttons.close')}
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowPdfModal(false);
+                                        if (pdfUrl) {
+                                            URL.revokeObjectURL(pdfUrl);
+                                            setPdfUrl(null);
+                                        }
+                                    }}
+                                    className="cursor-pointer flex-1 cursor-pointer px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
+                                >
+                                    {t('buttons.close')}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

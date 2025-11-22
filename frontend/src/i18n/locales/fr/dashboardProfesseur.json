@@ -37,7 +37,8 @@
 
   "candidatures": {
     "title": "Candidatures de l'étudiant",
-    "noData": "Aucune candidature trouvée"
+    "noData": "Aucune candidature trouvée",
+    "dateLabel": "Date"
   },
 
   "ententes": {
@@ -71,6 +72,7 @@
 
     "section": {
       "entente": "Entente de stage",
+      "ententeSubtitle": "Informations sur l'entente de stage",
       "company": "Identification de l'entreprise",
       "student": "Identification du stagiaire",
       "evaluation": "Évaluation",
@@ -134,20 +136,28 @@
       "volumeTravailAcceptable": "Le volume de travail est acceptable."
     },
 
+    "hoursAndSalary": {
+      "title": "Heures & Salaire"
+    },
+
     "hours": {
       "label": "Préciser le nombre d'heures/semaine :",
-      "month1": "1er mois",
-      "month2": "2e mois",
-      "month3": "3e mois"
+      "firstMonth": "1er mois",
+      "secondMonth": "2e mois",
+      "thirdMonth": "3e mois",
+      "placeholder": "Ex: 35"
     },
 
     "salary": {
-      "label": "Préciser (salaire) : /l'heure."
+      "label": "Préciser (salaire) : /l'heure.",
+      "amountPerHour": "Montant horaire",
+      "placeholder": "Ex: 15.00"
     },
 
     "comments": {
       "label": "Commentaires",
-      "requiredMsg": "Un commentaire est requis si vous avez répondu \"Plutôt en désaccord\" ou \"Totalement en désaccord\" à une question."
+      "requiredMsg": "Un commentaire est requis si vous avez répondu \"Plutôt en désaccord\" ou \"Totalement en désaccord\" à une question.",
+      "helper": "Ajoutez des détails si nécessaire."
     },
 
     "observations": {
@@ -228,6 +238,7 @@
   },
 
   "errors": {
+    "formErrorsTitle": "Veuillez corriger les erreurs suivantes :",
     "selectEntente": "Veuillez sélectionner une entente",
     "selectStageNumber": "Veuillez choisir le numéro de stage",
     "answerEvaluationQuestions": "Veuillez répondre aux questions d'évaluation",
@@ -258,5 +269,13 @@
     "cvTitle": "CV de {{name}}",
     "letterTitle": "Lettre de motivation #{{id}}",
     "evaluationTitle": "Évaluation du milieu de stage"
+  },
+
+  "likert": {
+    "totallyAgree": "Totalement en accord",
+    "agree": "Plutôt en accord",
+    "disagree": "Plutôt en désaccord",
+    "totallyDisagree": "Totalement en désaccord",
+    "notApplicable": "Impossible de se prononcer"
   }
 }
