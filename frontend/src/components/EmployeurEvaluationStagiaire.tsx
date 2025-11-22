@@ -46,32 +46,32 @@ const LikertRadio: React.FC<LikertRadioProps> = ({ name, value, onChange, label,
         {
             value: 'TOTALEMENT_EN_ACCORD',
             labelKey: 'likertScale.totallyAgree',
-            colorClass: 'border-green-500 ring-green-500',
-            bgClass: 'bg-green-50'
+            colorClass: 'border-green-500 ring-green-500 dark:border-green-400 dark:ring-green-400',
+            bgClass: 'bg-green-50 dark:bg-slate-800/40'
         },
         {
             value: 'PLUTOT_EN_ACCORD',
             labelKey: 'likertScale.agree',
-            colorClass: 'border-blue-500 ring-blue-500',
-            bgClass: 'bg-blue-50'
+            colorClass: 'border-blue-500 ring-blue-500 dark:border-blue-400 dark:ring-blue-400',
+            bgClass: 'bg-blue-50 dark:bg-slate-800/35'
         },
         {
             value: 'PLUTOT_EN_DESACCORD',
             labelKey: 'likertScale.disagree',
-            colorClass: 'border-yellow-500 ring-yellow-500',
-            bgClass: 'bg-yellow-50'
+            colorClass: 'border-yellow-500 ring-yellow-500 dark:border-yellow-400 dark:ring-yellow-400',
+            bgClass: 'bg-yellow-50 dark:bg-slate-800/30'
         },
         {
             value: 'TOTALEMENT_EN_DESACCORD',
             labelKey: 'likertScale.totallyDisagree',
-            colorClass: 'border-red-500 ring-red-500',
-            bgClass: 'bg-red-50'
+            colorClass: 'border-red-500 ring-red-500 dark:border-red-400 dark:ring-red-400',
+            bgClass: 'bg-red-50 dark:bg-slate-800/30'
         },
         {
             value: 'NON_APPLICABLE',
             labelKey: 'likertScale.notApplicable',
-            colorClass: 'border-gray-500 ring-gray-500',
-            bgClass: 'bg-gray-50'
+            colorClass: 'border-gray-500 ring-gray-500 dark:border-slate-600 dark:ring-slate-600',
+            bgClass: 'bg-gray-50 dark:bg-slate-800'
         }
     ];
 
