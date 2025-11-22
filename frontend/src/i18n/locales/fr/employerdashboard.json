@@ -1,10 +1,15 @@
 {
-  "title": "Tableau de bord Employeur",
+  "title": "Bienvenue sur votre espace employeur",
+  "subtitle": "Gérez vos offres, convocations et ententes depuis cet espace.",
   "createOffer": "Créer une nouvelle offre de stage",
+  "createOfferSubtitle": "Publiez une offre pour attirer des candidats qualifiés.",
   "myOffers": "Mes offres de stage",
   "myApplications": "Voir les candidatures de mes offres",
+  "applicationsSubtitle": "Consultez et gérez les candidatures reçues.",
   "myAgreements": "Mes ententes de stage",
+  "agreementsSubtitle": "Gérez vos ententes de stage signées.",
   "evaluateInterns": "Évaluer mes stagiaires",
+  "evaluateSubtitle": "Évaluez les stagiaires et suivez leur progression.",
   "noOffers": {
     "title": "Aucune offre de stage trouvée",
     "subtitle": "Commencez par créer votre première offre"
@@ -31,11 +36,13 @@
   },
   "convocations": {
     "title": "Mes convocations",
+    "subtitle": "Consultez et gérez vos convocations",
     "refresh": "Actualiser",
     "loading": "Chargement...",
     "noneTitle": "Aucune convocation à venir",
     "defaultTitle": "Convocation",
     "student": "Étudiant",
+    "locationUnknown": "Lieu inconnu",
     "edit": "Modifier",
     "delete": "Annuler",
     "confirmDelete": "Êtes-vous sûr de vouloir annuler cette convocation?",

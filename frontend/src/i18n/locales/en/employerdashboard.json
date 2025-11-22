@@ -1,10 +1,15 @@
 {
-  "title": "Employer Dashboard",
+  "title": "Welcome to your employer dashboard",
+  "subtitle": "Manage your offers, interviews and agreements from this space.",
   "createOffer": "Create a new internship offer",
+  "createOfferSubtitle": "Publish an offer to attract qualified candidates.",
   "myOffers": "My internship offers",
   "myApplications": "View applications for my offers",
+  "applicationsSubtitle": "Review and manage received applications.",
   "myAgreements": "My internship agreements",
-  "evaluateInterns": "Evaluate my Interns",
+  "agreementsSubtitle": "Manage your signed internship agreements.",
+  "evaluateInterns": "Evaluate my interns",
+  "evaluateSubtitle": "Evaluate interns and track their progress.",
   "noOffers": {
     "title": "No internship offers found",
     "subtitle": "Start by creating your first offer"
@@ -12,7 +17,7 @@
   "status": {
     "refused": "Refused",
     "approved": "Approved",
-    "pending": "Pending for approval"
+    "pending": "Pending approval"
   },
   "clickToSeeRefuseReason": "Click to see the reason for refusal",
   "start": "Start",
@@ -31,11 +36,13 @@
   },
   "convocations": {
     "title": "My Interviews",
+    "subtitle": "View and manage your interview invitations",
     "refresh": "Refresh",
     "loading": "Loading...",
     "noneTitle": "No upcoming interviews",
     "defaultTitle": "Interview",
     "student": "Student",
+    "locationUnknown": "Location unknown",
     "edit": "Edit",
     "delete": "Cancel",
     "confirmDelete": "Are you sure you want to cancel this interview?",

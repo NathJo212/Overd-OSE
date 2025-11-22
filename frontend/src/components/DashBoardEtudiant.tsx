@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import { CheckCircle, X, Upload, FileText, Calendar, MapPin, Bell, FileSignature } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
@@ -177,10 +177,6 @@ const DashBoardEtudiant = () => {
         }
     };
 
-    const handleNavigateToCv = () => {
-        navigate("/televersement-cv");
-    };
-
     const getConvocationStatusBadge = (statut?: string) => {
         switch (statut) {
             case 'CONVOQUEE':
@@ -250,56 +246,49 @@ const DashBoardEtudiant = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                    <button
-                        onClick={handleNavigateToCv}
-                        className="cursor-pointer bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 dark:border-slate-700 transition-all duration-200 text-left group"
+                    <NavLink
+                        to="/televersement-cv"
+                        className="group bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-blue-400/50 transition-all duration-300 transform hover:scale-105 p-6"
                     >
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
-                                <Upload className="h-7 w-7 text-blue-600" />
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="bg-white/20 rounded-xl p-3 flex items-center justify-center">
+                                <Upload className="w-8 h-8" />
+                            </div>
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
                             </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                            {t('cards.cv.title')}
-                        </h2>
-                        <p className="text-gray-600 dark:text-slate-300">
-                            {t('cards.cv.description')}
-                        </p>
-                    </button>
+                        <h3 className="text-xl font-bold mb-2">{t('cards.cv.title')}</h3>
+                        <p className="text-blue-100 text-sm">{t('cards.cv.description')}</p>
+                    </NavLink>
 
-                    <button
-                        onClick={() => navigate("/mes-candidatures")}
-                        className="cursor-pointer bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 dark:border-slate-700 transition-all duration-200 text-left group"
+                    <NavLink
+                        to="/mes-candidatures"
+                        className="group bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-purple-400/50 transition-all duration-300 transform hover:scale-105 p-6"
                     >
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
-                                <FileText className="h-7 w-7 text-purple-600" />
+                        <div className="flex items-center justify-between mb-4">
+                            <FileText className="w-10 h-10" />
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
                             </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                            {t('cards.applications.title')}
-                        </h2>
-                        <p className="text-gray-600 dark:text-slate-300">
-                            {t('cards.applications.description')}
-                        </p>
-                    </button>
+                        <h3 className="text-xl font-bold mb-2">{t('cards.applications.title')}</h3>
+                        <p className="text-purple-100 text-sm">{t('cards.applications.description')}</p>
+                    </NavLink>
 
-                    <button
-                        onClick={() => navigate("/mes-ententes-stage")}
-                        className="cursor-pointer bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 border border-slate-200 dark:border-slate-700 transition-all duration-200 text-left group"
+                    <NavLink
+                        to="/mes-ententes-stage"
+                        className="group bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-green-400/50 transition-all duration-300 transform hover:scale-105 p-6"
                     >
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl group-hover:bg-green-100 dark:group-hover:bg-green-900/40 transition-colors">
-                                <FileSignature className="h-7 w-7 text-green-600" />
+                        <div className="flex items-center justify-between mb-4">
+                            <FileSignature className="w-10 h-10" />
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">→</span>
                             </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                            {t('cards.ententes.title')}
-                        </h2>
-                        <p className="text-gray-600 dark:text-slate-300">
-                            {t('cards.ententes.description')}
-                        </p>
-                    </button>
+                        <h3 className="text-xl font-bold mb-2">{t('cards.ententes.title')}</h3>
+                        <p className="text-green-100 text-sm">{t('cards.ententes.description')}</p>
+                    </NavLink>
                 </div>
 
                 <div className="mb-8">
