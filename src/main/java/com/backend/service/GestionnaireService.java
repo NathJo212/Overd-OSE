@@ -148,9 +148,16 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<OffreDTO> getAllOffres() throws ActionNonAutoriseeException {
+    public List<OffreDTO> getAllOffres(Integer annee) throws ActionNonAutoriseeException {
         checkGestionnaireStageRole();
-        List<Offre> toutesLesOffres = offreRepository.findAll();
+
+        List<Offre> toutesLesOffres;
+
+        if (annee != null) {
+            toutesLesOffres = offreRepository.findAllByAnnee(annee);
+        } else {
+            toutesLesOffres = offreRepository.findAll();
+        }
 
         return toutesLesOffres.stream()
                 .map(offre -> new OffreDTO().toDTO(offre))

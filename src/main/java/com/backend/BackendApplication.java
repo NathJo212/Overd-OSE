@@ -84,7 +84,7 @@ public class BackendApplication {
                     utilisateurTest,
                     "Mon stage",
                     "Stage react",
-                    LocalDate.now().plusWeeks(1),
+                    LocalDate.now().plusWeeks(10),
                     LocalDate.now().plusMonths(6),
                     ProgrammeDTO.P420_B0,
                     "Montréal",

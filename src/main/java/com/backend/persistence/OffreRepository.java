@@ -17,4 +17,6 @@ public interface OffreRepository extends CrudRepository<Offre, Long> {
 
     List<Offre> findAllByEmployeur(Employeur employeur);
 
+    List<Offre> findAllByAnnee(int annee);
+
 }

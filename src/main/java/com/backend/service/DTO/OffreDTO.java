@@ -17,6 +17,7 @@ public class OffreDTO {
     private String description;
     private LocalDate date_debut;
     private LocalDate date_fin;
+    private int annee;
     private ProgrammeDTO progEtude;
     private String lieuStage;
     private String remuneration;
@@ -39,6 +40,7 @@ public class OffreDTO {
         dto.setDescription(offre.getDescription());
         dto.setDate_debut(offre.getDate_debut());
         dto.setDate_fin(offre.getDate_fin());
+        dto.setAnnee(offre.getAnnee());
         dto.setProgEtude(ProgrammeDTO.toDTO(offre.getProgEtude()));
         dto.setLieuStage(offre.getLieuStage());
         dto.setRemuneration(offre.getRemuneration());

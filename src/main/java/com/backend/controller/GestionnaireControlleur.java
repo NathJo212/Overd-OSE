@@ -91,9 +91,9 @@ public class GestionnaireControlleur {
 
     @GetMapping("/visualiserOffres")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<OffreDTO>> getAllOffres() {
+    public ResponseEntity<List<OffreDTO>> getAllOffres(@RequestParam(required = false) Integer annee) {
         try {
-            List<OffreDTO> toutesLesOffres = gestionnaireService.getAllOffres();
+            List<OffreDTO> toutesLesOffres = gestionnaireService.getAllOffres(annee);
             return ResponseEntity.ok(toutesLesOffres);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

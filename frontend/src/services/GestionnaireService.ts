@@ -168,8 +168,12 @@ class GestionnaireService {
         return await response.json();
     }
 
-    async getAllOffres(token: string): Promise<OffreDTO[]> {
-        const response = await fetch(`${this.baseUrl}/visualiserOffres`, {
+    async getAllOffres(token: string, annee?: number): Promise<OffreDTO[]> {
+        const url = annee
+            ? `${this.baseUrl}/visualiserOffres?annee=${annee}`
+            : `${this.baseUrl}/visualiserOffres`;
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
