@@ -78,9 +78,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/offresEnAttente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<OffreDTO>> offreEnAttente() {
+    public ResponseEntity<List<OffreDTO>> offreEnAttente(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<OffreDTO> offresEnAttente = gestionnaireService.getOffresAttente();
+            List<OffreDTO> offresEnAttente = gestionnaireService.getOffresAttente(annee);
             return ResponseEntity.ok(offresEnAttente);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -150,9 +151,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/CVsEnAttente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EtudiantDTO>> getCVsEnAttente() {
+    public ResponseEntity<List<EtudiantDTO>> getCVsEnAttente(
+            @RequestParam(required = false) String annee) {
         try {
-            List<EtudiantDTO> cvsEnAttente = gestionnaireService.getCVsEnAttente();
+            List<EtudiantDTO> cvsEnAttente = gestionnaireService.getCVsEnAttente(annee);
             return ResponseEntity.ok(cvsEnAttente);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -304,9 +306,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/etudiants")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EtudiantDTO>> getAllEtudiants() {
+    public ResponseEntity<List<EtudiantDTO>> getAllEtudiants(
+            @RequestParam(required = false) String annee) {
         try {
-            List<EtudiantDTO> etudiants = gestionnaireService.getAllEtudiants();
+            List<EtudiantDTO> etudiants = gestionnaireService.getAllEtudiants(annee);
             return ResponseEntity.ok(etudiants);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

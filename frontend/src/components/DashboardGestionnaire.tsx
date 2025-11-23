@@ -21,6 +21,7 @@ import {
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
+import { useYear } from "./YearContext";
 
 const DashboardGestionnaire = () => {
     const { t } = useTranslation(["internshipmanager"]);
@@ -36,11 +37,12 @@ const DashboardGestionnaire = () => {
     const [refuseTargetId, setRefuseTargetId] = useState<number | null>(null);
     const [refuseError, setRefuseError] = useState("");
     const token = sessionStorage.getItem("authToken") || "";
+    const { selectedYear } = useYear();
 
     const chargerOffres = async () => {
         try {
             setLoading(true);
-            const data = await gestionnaireService.getAllOffresDeStages(token);
+            const data = await gestionnaireService.getAllOffresDeStages(token, selectedYear); // Passer l'année
             setOffres(data);
         } catch (e: any) {
             setError(e.message || 'Erreur inconnue');
@@ -60,7 +62,7 @@ const DashboardGestionnaire = () => {
             return;
         }
         chargerOffres().then();
-    }, [navigate, token]);
+    }, [navigate, token, selectedYear]);
 
     const handleApprove = async (id: number) => {
         setProcessingId(id);

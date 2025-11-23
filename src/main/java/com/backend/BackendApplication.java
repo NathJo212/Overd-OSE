@@ -36,9 +36,8 @@ public class BackendApplication {
                     "987-654-3210",
                     "Martin",
                     "Durand",
-                    ProgrammeDTO.P420_B0,
-                    "Automne",
-                    "3ème année"
+                    ProgrammeDTO.P420_B0
+//                    "3ème année"
             );
 
 
@@ -48,9 +47,8 @@ public class BackendApplication {
                     "987-654-3210",
                     "George",
                     "Dubois",
-                    ProgrammeDTO.P221_A0,
-                    "Automne",
-                    "3ème année"
+                    ProgrammeDTO.P221_A0
+//                    "3ème année"
             );
 
             gestionnaireService.creerGestionnaire(

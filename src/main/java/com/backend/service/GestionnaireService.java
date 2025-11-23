@@ -133,9 +133,16 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<OffreDTO> getOffresAttente() throws ActionNonAutoriseeException {
+    public List<OffreDTO> getOffresAttente(Integer annee) throws ActionNonAutoriseeException {
         checkGestionnaireStageRole();
-        List<Offre> offresEnAttente = offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE);
+
+        List<Offre> offresEnAttente;
+
+        if (annee != null) {
+            offresEnAttente = offreRepository.findByStatutApprouveAndAnnee(Offre.StatutApprouve.ATTENTE, annee);
+        } else {
+            offresEnAttente = offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE);
+        }
 
         return offresEnAttente.stream()
                 .filter(offre -> {
@@ -215,10 +222,17 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<EtudiantDTO> getCVsEnAttente() throws ActionNonAutoriseeException {
+    public List<EtudiantDTO> getCVsEnAttente(String annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
 
-        List<Etudiant> etudiants = etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE);
+        List<Etudiant> etudiants;
+
+        if (annee != null && !annee.isEmpty()) {
+            etudiants = etudiantRepository.findAllByStatutCVAndAnnee(Etudiant.StatutCV.ATTENTE, annee);
+        } else {
+            etudiants = etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE);
+        }
+
         return etudiants.stream()
                 .map(etudiant -> {
                     EtudiantDTO dto = new EtudiantDTO().toDTO(etudiant);
@@ -437,11 +451,11 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<EtudiantDTO> getAllEtudiants() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<EtudiantDTO> getAllEtudiants(String annee) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         verifierGestionnaireConnecte();
 
         List<EtudiantDTO> etudiants = new ArrayList<>();
-        for (Etudiant etudiant : etudiantRepository.findAll()) {
+        for (Etudiant etudiant : etudiantRepository.findAllByAnnee(annee)) {
             etudiants.add(new EtudiantDTO().toDTO(etudiant));
         }
 

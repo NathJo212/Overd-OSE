@@ -53,7 +53,7 @@ public class EtudiantService {
 
     @Transactional
     public void creerEtudiant(String email, String password, String telephone,
-                              String prenom, String nom, ProgrammeDTO progEtude, String session, String annee) throws MotPasseInvalideException, EmailDejaUtiliseException {
+                              String prenom, String nom, ProgrammeDTO progEtude) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean etudiantExistant = utilisateurRepository.existsByEmail(email);
         if (etudiantExistant) {
             throw new EmailDejaUtiliseException();
@@ -63,7 +63,7 @@ public class EtudiantService {
             throw new MotPasseInvalideException();
         }
         String hashedPassword = passwordEncoder.encode(password);
-        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, prenom, nom, Programme.toModele(progEtude), session, annee);
+        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, prenom, nom, Programme.toModele(progEtude));
         etudiantRepository.save(etudiant);
     }
 

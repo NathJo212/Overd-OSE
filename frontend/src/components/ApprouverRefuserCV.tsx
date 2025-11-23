@@ -16,6 +16,7 @@ import {
 import { gestionnaireService, type EtudiantDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
+import { useYear } from "./YearContext";
 
 const ApprouverRefuserCV = () => {
     const { t } = useTranslation(["cvmanager", "errors"]);
@@ -33,11 +34,13 @@ const ApprouverRefuserCV = () => {
     const [selectedCV, setSelectedCV] = useState<EtudiantDTO | null>(null);
     const [showCVModal, setShowCVModal] = useState(false);
     const token = sessionStorage.getItem("authToken") || "";
+    const { selectedYear } = useYear();
+
 
     const chargerCVs = async () => {
         try {
             setLoading(true);
-            const data = await gestionnaireService.getAllCVsEnAttente(token);
+            const data = await gestionnaireService.getAllCVsEnAttente(token, String(selectedYear)); // Passer l'année
             setEtudiants(data);
         } catch (e: any) {
             setError(e.message || 'Erreur inconnue');
@@ -57,7 +60,7 @@ const ApprouverRefuserCV = () => {
             return;
         }
         chargerCVs().then();
-    }, [navigate, token]);
+    }, [navigate, token, selectedYear]);
 
     const handleApprove = async (id: number) => {
         setProcessingId(id);

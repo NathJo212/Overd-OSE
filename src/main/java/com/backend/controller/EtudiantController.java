@@ -31,7 +31,7 @@ public class EtudiantController {
         try {
             etudiantService.creerEtudiant(etudiantDTO.getEmail(), etudiantDTO.getPassword(),
                     etudiantDTO.getTelephone(), etudiantDTO.getPrenom(), etudiantDTO.getNom(),
-                    etudiantDTO.getProgEtude(), etudiantDTO.getSession(), etudiantDTO.getAnnee());
+                    etudiantDTO.getProgEtude());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageRetourDTO("Étudiant créé avec succès", null));
         } catch (EmailDejaUtiliseException e) {

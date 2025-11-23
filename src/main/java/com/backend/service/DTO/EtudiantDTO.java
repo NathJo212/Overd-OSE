@@ -19,7 +19,7 @@ public class EtudiantDTO {
     private String nom;
     private String prenom;
     private ProgrammeDTO progEtude;
-    private String session;
+//    private String session;
     private String annee;
     private byte[] cv;
     private String statutCV;
@@ -39,7 +39,7 @@ public class EtudiantDTO {
             dto.setProgEtude(ProgrammeDTO.toDTO(etudiant.getProgEtude()));
         }
 
-        dto.setSession(etudiant.getSession());
+//        dto.setSession(etudiant.getSession());
         dto.setAnnee(etudiant.getAnnee());
         dto.setCv(etudiant.getCv());
 

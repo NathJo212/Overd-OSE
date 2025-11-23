@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import UtilisateurService from "../services/UtilisateurService.ts";
 import {UserCheck, Users, GraduationCap, Search, X, CheckCircle, AlertCircle, UserCog, ArrowLeft} from "lucide-react";
 import NavBar from "./NavBar.tsx";
+import { useYear } from "./YearContext";
 
 export default function GestionnaireAttribueEtudiant() {
     const { t } = useTranslation(["gestionnaireAttribueEtudiant"]);
@@ -15,6 +16,7 @@ export default function GestionnaireAttribueEtudiant() {
     const [selectedProf, setSelectedProf] = useState<Record<number, number>>({});
     const [loading, setLoading] = useState(true);
     const [assigning, setAssigning] = useState<number | null>(null);
+    const { selectedYear } = useYear();
 
     // Alert states
     const [alert, setAlert] = useState<{
@@ -45,7 +47,7 @@ export default function GestionnaireAttribueEtudiant() {
 
             try {
                 const [etudiantsData, profsData] = await Promise.all([
-                    gestionnaireService.getAllEtudiants(token),
+                    gestionnaireService.getAllEtudiants(token, String(selectedYear)), // Passer l'année ici
                     gestionnaireService.getAllProfesseurs(token),
                 ]);
                 setEtudiants(etudiantsData);
@@ -61,7 +63,7 @@ export default function GestionnaireAttribueEtudiant() {
             }
         };
         fetchData();
-    }, [token, t, navigate]);
+    }, [token, t, navigate, selectedYear]);
 
     const handleAssign = async (etudiantId: number) => {
         const professeurId = selectedProf[etudiantId];
@@ -91,8 +93,8 @@ export default function GestionnaireAttribueEtudiant() {
                 message: t("assignSuccess") || "Professeur assigné avec succès!"
             });
 
-            // Refresh the students list
-            const updatedEtudiants = await gestionnaireService.getAllEtudiants(token);
+            // Refresh the students list with the selected year
+            const updatedEtudiants = await gestionnaireService.getAllEtudiants(token, String(selectedYear)); // Passer l'année ici aussi
             setEtudiants(updatedEtudiants);
         } catch (error: any) {
             console.error("Assignment error:", error);
@@ -113,6 +115,7 @@ export default function GestionnaireAttribueEtudiant() {
             setAssigning(null);
         }
     };
+
 
     // Filter students based on search
     const filteredEtudiants = etudiants.filter(etudiant => {

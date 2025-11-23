@@ -152,8 +152,12 @@ class GestionnaireService {
     }
 
     // ========== GESTION DES OFFRES ==========
-    async getAllOffresDeStages(token: string): Promise<OffreDTO[]> {
-        const response = await fetch(`${this.baseUrl}/offresEnAttente`, {
+    async getAllOffresDeStages(token: string, annee?: number): Promise<OffreDTO[]> {
+        const url = annee
+            ? `${this.baseUrl}/offresEnAttente?annee=${annee}`
+            : `${this.baseUrl}/offresEnAttente`;
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -253,9 +257,13 @@ class GestionnaireService {
     }
 
     // ========== GESTION DES CVs ==========
-    async getAllCVsEnAttente(token: string): Promise<EtudiantDTO[]> {
+    async getAllCVsEnAttente(token: string, annee?: string): Promise<EtudiantDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/CVsEnAttente`, {
+            const url = annee
+                ? `${this.baseUrl}/CVsEnAttente?annee=${annee}`
+                : `${this.baseUrl}/CVsEnAttente`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -413,9 +421,13 @@ class GestionnaireService {
     }
 
     // ========== GESTION DES ETUDIANTS ET PROFESSEURS ==========
-    async getAllEtudiants(token: string): Promise<EtudiantDTO[]> {
+    async getAllEtudiants(token: string, annee?: string): Promise<EtudiantDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/etudiants`, {
+            const url = annee
+                ? `${this.baseUrl}/etudiants?annee=${annee}`
+                : `${this.baseUrl}/etudiants`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
