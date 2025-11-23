@@ -59,6 +59,8 @@ import searchResultFr from './locales/fr/searchresult.json'
 import searchResultEn from './locales/en/searchresult.json'
 import searchbarFr from './locales/fr/searchbar.json'
 import searchbarEn from './locales/en/searchbar.json'
+import yearBannerFr from './locales/fr/yearBanner.json'
+import yearBannerEn from './locales/en/yearBanner.json'
 
 const resources = {
     fr: {
@@ -90,6 +92,7 @@ const resources = {
         searchresult: searchResultFr,
         searchbar: searchbarFr,
         chatbot: chatbotFr,
+        yearBanner: yearBannerFr,
     },
     en: {
         registration: registrationEn,
@@ -120,6 +123,7 @@ const resources = {
         chatbot: chatbotEn,
         searchresult: searchResultEn,
         searchbar: searchbarEn,
+        yearBanner: yearBannerEn,
     }
 };
 

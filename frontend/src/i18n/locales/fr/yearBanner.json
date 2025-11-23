@@ -1,0 +1,5 @@
+{
+  "warning": "Vous consultez actuellement des données d'années antérieures. Vous ne pouvez pas modifier ces données.",
+  "viewingYear": "Année consultée : {{year}}",
+  "currentYear": "Année actuelle : {{year}}"
+}
