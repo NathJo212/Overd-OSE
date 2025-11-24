@@ -536,20 +536,7 @@ const CandidaturesRecues = () => {
                         <span className="font-medium">{t('candidaturesrecues:backToDashboard')}</span>
                     </button>
 
-                    {/* Statistics Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* ... existing statistics cards ... */}
-                    </div>
 
-                    {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
-                    <YearBanner />
-
-                    {/* Error Message */}
-                    {error && (
-                        <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                            {/* ... */}
-                        </div>
-                    )}
 
                     {/* Header */}
                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
@@ -636,6 +623,9 @@ const CandidaturesRecues = () => {
                             </div>
                         </div>
                     </div>
+
+
+                    <YearBanner />
 
                     {/* Error Message */}
                     {error && (

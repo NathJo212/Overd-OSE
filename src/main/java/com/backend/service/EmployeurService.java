@@ -392,18 +392,25 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<EntenteStageDTO> getEntentesPourEmployeur(int annee)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
         List<EntenteStage> ententes = ententeStageRepository.findByEmployeurAndArchivedFalse(employeur);
 
-        return ententes.stream()
+        // Filter by year through the Offre
+        List<EntenteStage> ententesParAnnee = ententes.stream()
+                .filter(entente -> entente.getOffre() != null && entente.getOffre().getAnnee() == annee)
+                .toList();
+
+        return ententesParAnnee.stream()
                 .map(entente -> new EntenteStageDTO().toDTO(entente))
                 .toList();
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesEnAttente() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<EntenteStageDTO> getEntentesEnAttente(int annee)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
         List<EntenteStage> ententes = ententeStageRepository.findByEmployeurAndEmployeurSignatureAndArchivedFalse(
@@ -411,7 +418,12 @@ public class EmployeurService {
                 EntenteStage.SignatureStatus.EN_ATTENTE
         );
 
-        return ententes.stream()
+        // Filter by year through the Offre
+        List<EntenteStage> ententesParAnnee = ententes.stream()
+                .filter(entente -> entente.getOffre() != null && entente.getOffre().getAnnee() == annee)
+                .toList();
+
+        return ententesParAnnee.stream()
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .toList();
     }

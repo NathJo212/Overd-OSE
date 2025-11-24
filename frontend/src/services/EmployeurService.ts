@@ -873,14 +873,18 @@ class EmployeurService {
         }
     }
 
-    async getEntentes(): Promise<EntenteStageDTO[]> {
+    async getEntentes(year?: number): Promise<EntenteStageDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/ententes`, {
+            const url = year
+                ? `${this.baseUrl}/ententes?annee=${year}`
+                : `${this.baseUrl}/ententes`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

@@ -332,9 +332,11 @@ public class EmployeurController {
 
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentes() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentes(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<EntenteStageDTO> ententes = employeurService.getEntentesPourEmployeur();
+            int year = (annee != null) ? annee : LocalDate.now().getYear();
+            List<EntenteStageDTO> ententes = employeurService.getEntentesPourEmployeur(year);
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -345,9 +347,11 @@ public class EmployeurController {
 
     @GetMapping("/ententes/en-attente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentesEnAttente() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentesEnAttente(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<EntenteStageDTO> ententes = employeurService.getEntentesEnAttente();
+            int year = (annee != null) ? annee : LocalDate.now().getYear();
+            List<EntenteStageDTO> ententes = employeurService.getEntentesEnAttente(year);
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
