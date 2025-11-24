@@ -12,10 +12,12 @@ import {
     RefreshCw,
     Users,
     Building2,
-    GraduationCap, Eye
+    GraduationCap,
+    Eye
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
+import YearBanner from "./YearBanner.tsx";
 import { gestionnaireService } from '../services/GestionnaireService.ts';
 import type { EntenteStageDTO } from '../services/GestionnaireService.ts';
 import UtilisateurService from "../services/UtilisateurService.ts";
@@ -33,8 +35,6 @@ const GestionnaireSigneEntente = () => {
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const [docsUrls, setDocsUrls] = useState<{ contract?: string | null; evalStagiaire?: string | null; evalProf?: string | null }>({});
-    // docsPresence[id] === null  => loading
-    // docsPresence[id] === { ... } => loaded
     const [docsPresence, setDocsPresence] = useState<Record<number, { contract: boolean; evalStagiaire: boolean; evalProf: boolean } | null>>({});
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
@@ -44,6 +44,19 @@ const GestionnaireSigneEntente = () => {
     const token = UtilisateurService.getToken();
     const { selectedYear } = useYear();
 
+    // Calculer l'année actuelle (année académique)
+    const getCurrentYear = (): number => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth(); // 0-11 (0 = janvier, 7 = août)
+
+        // Si nous sommes en août (mois 7) ou après, retourner l'année suivante
+        return currentMonth >= 7 ? currentYear + 1 : currentYear;
+    };
+
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
+
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
         if (role !== "GESTIONNAIRE") {
@@ -51,7 +64,6 @@ const GestionnaireSigneEntente = () => {
             return;
         }
 
-        // premier chargement
         loadEntentes(activeTab, true);
     }, [selectedYear]);
 
@@ -72,9 +84,7 @@ const GestionnaireSigneEntente = () => {
 
             setEntentes(data);
 
-            // Charger la présence des documents pour chaque entente (parallèle)
             if (data && data.length > 0) {
-                // Marquer toutes les ententes comme 'loading' d'abord (afin d'éviter flicker Manquant -> Présent)
                 const initialMap: Record<number, null> = {};
                 data.forEach(e => {
                     if (e.id != null) initialMap[e.id] = null;
@@ -97,7 +107,6 @@ const GestionnaireSigneEntente = () => {
                 results.forEach(r => {
                     if (r && r.id != null) map[r.id] = r.presence;
                 });
-                // Fusionner les résultats sur le state (remplacer les null par les valeurs réelles)
                 setDocsPresence(prev => ({ ...prev, ...map }));
             }
         } catch (err: any) {
@@ -108,15 +117,10 @@ const GestionnaireSigneEntente = () => {
         }
     };
 
-
-    // Charge la présence des documents pour une entente spécifique si non déjà connue
     const loadEntenteDocsPresence = async (ententeId?: number) => {
-        // autoriser ententeId = 0
         if (ententeId == null || !token) return;
         try {
-            // si une entrée existe déjà (même null pour loading), ne rien faire
-            if ((docsPresence as any)[ententeId] !== undefined) return; // déjà chargé ou en cours
-            // marquer comme loading
+            if ((docsPresence as any)[ententeId] !== undefined) return;
             setDocsPresence(prev => ({ ...prev, [ententeId]: null }));
             const docs = await gestionnaireService.getDocumentsEntente(ententeId, token);
             setDocsPresence(prev => ({
@@ -124,20 +128,16 @@ const GestionnaireSigneEntente = () => {
                 [ententeId]: { contract: !!docs?.contract, evalStagiaire: !!docs?.evaluationStagiaire, evalProf: !!docs?.evaluationMilieuStage }
             }));
         } catch (err) {
-            // en cas d'erreur, mettez false pour éviter de bloquer l'UI
             setDocsPresence(prev => ({ ...prev, [ententeId]: { contract: false, evalStagiaire: false, evalProf: false } }));
         }
     };
 
     const handleViewDetails = (entente: EntenteStageDTO) => {
         setSelectedEntente(entente);
-        // s'assurer que la présence des documents est connue avant d'ouvrir
         loadEntenteDocsPresence(entente.id);
         setShowDetailsModal(true);
     };
 
-
-    // Ouvre un document spécifique pour une entente (contract | evalStagiaire | evalProf)
     const handleViewSpecificDocument = async (ententeId?: number, docKey?: 'contract' | 'evalStagiaire' | 'evalProf') => {
         if (!ententeId || !docKey || !token) return;
         try {
@@ -159,7 +159,6 @@ const GestionnaireSigneEntente = () => {
                 return;
             }
 
-            // revoke previous pdfUrl if any
             if (pdfUrl) {
                 try { URL.revokeObjectURL(pdfUrl); } catch (e) {}
             }
@@ -175,12 +174,14 @@ const GestionnaireSigneEntente = () => {
     };
 
     const handleSignClick = (entente: EntenteStageDTO) => {
+        if (isViewingPastYear) return; // Empêcher l'action si on regarde une année passée
         setSelectedEntente(entente);
         setShowDetailsModal(false);
         setShowSignModal(true);
     };
 
     const handleRefuseClick = (entente: EntenteStageDTO) => {
+        if (isViewingPastYear) return; // Empêcher l'action si on regarde une année passée
         setSelectedEntente(entente);
         setShowDetailsModal(false);
         setShowRefuseModal(true);
@@ -255,7 +256,6 @@ const GestionnaireSigneEntente = () => {
             URL.revokeObjectURL(pdfUrl);
             setPdfUrl(null);
         }
-        // revoke any docs URLs
         if (docsUrls.contract) {
             try { URL.revokeObjectURL(docsUrls.contract); } catch (e) {}
         }
@@ -338,6 +338,9 @@ const GestionnaireSigneEntente = () => {
                         </div>
                     </div>
 
+                    {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
+                    <YearBanner />
+
                     {/* Messages */}
                     {successMessage && (
                         <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 flex items-start gap-3">
@@ -370,7 +373,6 @@ const GestionnaireSigneEntente = () => {
                             </p>
                         </div>
                     ) : (
-
                         <div className="space-y-6">
                             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-slate-700">
                                 <p className="text-gray-700 dark:text-slate-300 font-medium">
@@ -401,7 +403,6 @@ const GestionnaireSigneEntente = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {/* Indicateur d'état adapté à l'onglet */}
                                             {activeTab === 'signed' || entente.gestionnaireSignature === 'SIGNEE' ? (
                                                 <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
                                                     <CheckCircle className="w-4 h-4" />
@@ -444,7 +445,6 @@ const GestionnaireSigneEntente = () => {
                                                             { key: 'evalStagiaire', label: t('documents.evalStagiaire') },
                                                             { key: 'evalProf', label: t('documents.evalProf') }
                                                         ].map((doc) => {
-                                                            // Entente.id peut valoir 0 -> vérifier contre null/undefined
                                                             const presenceEntry = entente.id != null ? (docsPresence as any)[entente.id as number] : undefined;
                                                             const isLoading = presenceEntry == null;
                                                             const present = !isLoading && !!presenceEntry?.[doc.key];
@@ -455,7 +455,6 @@ const GestionnaireSigneEntente = () => {
 
                                                                     {isLoading ? (
                                                                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-gray-600 bg-gray-100 dark:bg-gray-800/30">
-                                                                            {/* petit loader visuel — on garde simple pour éviter d'ajouter une dépendance */}
                                                                             <svg className="w-4 h-4 animate-spin text-gray-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                                                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
@@ -520,42 +519,47 @@ const GestionnaireSigneEntente = () => {
                                                     </button>
                                                     <button
                                                         onClick={() => handleSignClick(entente)}
-                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                                        disabled={isViewingPastYear}
+                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+                                                        title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                                     >
                                                         <FileSignature className="w-4 h-4" />
                                                         {t('buttons.sign')}
                                                     </button>
                                                     <button
                                                         onClick={() => handleRefuseClick(entente)}
-                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                                                        disabled={isViewingPastYear}
+                                                        className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+                                                        title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                                     >
                                                         <XCircle className="w-4 h-4" />
                                                         {t('buttons.refuse')}
                                                     </button>
                                                 </>
                                             )}
-                                         </div>
-                                     </div>
-                                 </div>
-                             ))}
-                         </div>
-                     )}
-                 </div>
-             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
 
             {/* Modal Détails */}
             {showDetailsModal && selectedEntente && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"><div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl flex items-center justify-between">
-                        <h2 className="text-2xl font-bold">{t('modals.details.title')}</h2>
-                        <button
-                            onClick={closeAllModals}
-                            aria-label={t('buttons.close')}
-                            className="cursor-pointer ml-4 text-white hover:text-gray-200 transition-colors rounded-full p-1"
-                        >
-                            <XCircle className="w-6 h-6" />
-                        </button>
-                    </div>
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl flex items-center justify-between">
+                            <h2 className="text-2xl font-bold">{t('modals.details.title')}</h2>
+                            <button
+                                onClick={closeAllModals}
+                                aria-label={t('buttons.close')}
+                                className="cursor-pointer ml-4 text-white hover:text-gray-200 transition-colors rounded-full p-1"
+                            >
+                                <XCircle className="w-6 h-6" />
+                            </button>
+                        </div>
                         <div className="p-6 space-y-6">
                             {/* Statut des signatures */}
                             <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4">
@@ -655,7 +659,7 @@ const GestionnaireSigneEntente = () => {
                                             <p className="text-gray-700 dark:text-slate-300">{selectedEntente.objectifs}</p>
                                         </div>
                                     )}
-                                    {/* Section documents: uniquement visible si le gestionnaire a signé l'entente */}
+                                    {/* Section documents */}
                                     {selectedEntente.gestionnaireSignature === 'SIGNEE' && (
                                         <div>
                                             <h3 className="font-semibold text-gray-900 dark:text-slate-100 mb-3">{t('documents.title')}</h3>
@@ -695,12 +699,12 @@ const GestionnaireSigneEntente = () => {
                                                         )}
                                                     </>
                                                 )}
-                                             </div>
-                                         </div>
-                                     )}
-                                 </div>
-                             </div>
-                         </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                         <div className="sticky bottom-0 p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl z-10">
                             <button
                                 onClick={closeAllModals}
@@ -841,7 +845,7 @@ const GestionnaireSigneEntente = () => {
                                             setPdfUrl(null);
                                         }
                                     }}
-                                    className="cursor-pointer flex-1 cursor-pointer px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
+                                    className="cursor-pointer flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors font-medium"
                                 >
                                     {t('buttons.close')}
                                 </button>

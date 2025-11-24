@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
+import YearBanner from "./YearBanner.tsx";
 import { useTranslation } from "react-i18next";
 import { useYear } from "./YearContext";
 
@@ -39,10 +40,23 @@ const DashboardGestionnaire = () => {
     const token = sessionStorage.getItem("authToken") || "";
     const { selectedYear } = useYear();
 
+    // Calculer l'année actuelle (année académique)
+    const getCurrentYear = (): number => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth(); // 0-11 (0 = janvier, 7 = août)
+
+        // Si nous sommes en août (mois 7) ou après, retourner l'année suivante
+        return currentMonth >= 7 ? currentYear + 1 : currentYear;
+    };
+
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
+
     const chargerOffres = async () => {
         try {
             setLoading(true);
-            const data = await gestionnaireService.getAllOffresDeStages(token, selectedYear); // Passer l'année
+            const data = await gestionnaireService.getAllOffresDeStages(token, selectedYear);
             setOffres(data);
         } catch (e: any) {
             setError(e.message || 'Erreur inconnue');
@@ -65,6 +79,8 @@ const DashboardGestionnaire = () => {
     }, [navigate, token, selectedYear]);
 
     const handleApprove = async (id: number) => {
+        if (isViewingPastYear) return; // Empêcher l'action si on regarde une année passée
+
         setProcessingId(id);
         setActionMessage("");
         setError("");
@@ -121,6 +137,8 @@ const DashboardGestionnaire = () => {
     };
 
     const handleRefuseClick = (id: number) => {
+        if (isViewingPastYear) return; // Empêcher l'action si on regarde une année passée
+
         setRefuseTargetId(id);
         setRefuseReason("");
         setRefuseError("");
@@ -158,7 +176,7 @@ const DashboardGestionnaire = () => {
                     </p>
                 </div>
 
-                {/* Navigation en cartes */}
+                {/* Navigation en cartes - Ces cartes ne sont PAS affectées par l'année */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {/* CVs des étudiants */}
                     <NavLink
@@ -244,6 +262,9 @@ const DashboardGestionnaire = () => {
                         <div className="h-px bg-gray-300 dark:bg-slate-700 flex-1"></div>
                     </div>
                 </div>
+
+                {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
+                <YearBanner />
 
                 {/* Messages */}
                 {actionMessage && (
@@ -362,20 +383,22 @@ const DashboardGestionnaire = () => {
                                     )}
                                 </div>
 
-                                {/* Actions */}
+                                {/* Actions - ONLY these buttons are affected by year */}
                                 <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                                     <button
                                         onClick={() => handleApprove(offre.id)}
-                                        disabled={processingId === offre.id}
-                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-green-400 disabled:shadow-none flex items-center justify-center gap-2"
+                                        disabled={processingId === offre.id || isViewingPastYear}
+                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-green-400 disabled:shadow-none flex items-center justify-center gap-2"
+                                        title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                     >
                                         <CheckCircle className="w-4 h-4" />
                                         {processingId === offre.id ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.approve')}
                                     </button>
                                     <button
                                         onClick={() => handleRefuseClick(offre.id)}
-                                        disabled={processingId === offre.id}
-                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-red-400 disabled:shadow-none flex items-center justify-center gap-2"
+                                        disabled={processingId === offre.id || isViewingPastYear}
+                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-red-400 disabled:shadow-none flex items-center justify-center gap-2"
+                                        title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                     >
                                         <XCircle className="w-4 h-4" />
                                         {processingId === offre.id ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.refuse')}
@@ -458,4 +481,3 @@ const DashboardGestionnaire = () => {
 };
 
 export default DashboardGestionnaire;
-

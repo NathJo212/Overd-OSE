@@ -5,9 +5,11 @@ import {
     Building2,
     AlertCircle,
     Briefcase,
-    X, ArrowLeft,
+    X,
+    ArrowLeft,
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
+import YearBanner from "./YearBanner.tsx";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO, type OffreDTO } from "../services/GestionnaireService";
@@ -27,12 +29,24 @@ const EntentesStageGestionnaire = () => {
     const token = sessionStorage.getItem("authToken") || "";
     const { selectedYear } = useYear();
 
+    // Calculer l'année actuelle (année académique)
+    const getCurrentYear = (): number => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth(); // 0-11 (0 = janvier, 7 = août)
+
+        // Si nous sommes en août (mois 7) ou après, retourner l'année suivante
+        return currentMonth >= 7 ? currentYear + 1 : currentYear;
+    };
+
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
+
     useEffect(() => {
         const fetchCandidaturesEligibles = async () => {
             try {
                 setLoading(true);
                 setError("");
-                // Passer l'année sélectionnée
                 const data = await gestionnaireService.getCandidaturesEligiblesEntente(token, selectedYear);
                 setCandidatures(data);
             } catch (err: any) {
@@ -47,8 +61,9 @@ const EntentesStageGestionnaire = () => {
     }, [token, selectedYear]);
 
     const handleCandidatureClick = (candidature: CandidatureEligibleDTO) => {
+        if (isViewingPastYear) return; // Empêcher l'ouverture du modal si on regarde une année passée
+
         setSelectedCandidature(candidature);
-        // attempt to fetch offer details to show richer entente info in the modal
         (async () => {
             try {
                 const offres = await gestionnaireService.getAllOffres(token, selectedYear);
@@ -81,13 +96,11 @@ const EntentesStageGestionnaire = () => {
         setSuccessMessage("");
 
         try {
-            // Attempt to fetch the full offer details to enrich the entente payload
             let offerDetails: OffreDTO | undefined;
             try {
                 const offres = await gestionnaireService.getAllOffres(token, selectedYear);
                 offerDetails = offres.find(o => o.id === selectedCandidature!.offreId);
             } catch (e) {
-                // Fetching offer details is optional; continue with minimal data if it fails
                 console.warn('Could not fetch offer details for entente enrichment', e);
             }
 
@@ -95,7 +108,6 @@ const EntentesStageGestionnaire = () => {
                 etudiantId: selectedCandidature.etudiantId,
                 offreId: selectedCandidature.offreId,
                 titre: selectedCandidature.offreTitre,
-                // enrich with whatever we can obtain from the offer and candidature
                 dateDebut: offerDetails?.date_debut || undefined,
                 dateFin: offerDetails?.date_fin || undefined,
                 description: offerDetails?.description || undefined,
@@ -116,7 +128,6 @@ const EntentesStageGestionnaire = () => {
 
             setSuccessMessage(t('success.created'));
             closeModal();
-            // Passer selectedYear ici aussi
             gestionnaireService.getCandidaturesEligiblesEntente(token, selectedYear)
                 .then(data => setCandidatures(data))
                 .catch(err => setError(err.message));
@@ -172,6 +183,9 @@ const EntentesStageGestionnaire = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
+                <YearBanner />
 
                 {/* Erreur */}
                 {error && (
@@ -233,7 +247,12 @@ const EntentesStageGestionnaire = () => {
                                 <div
                                     key={candidature.id}
                                     onClick={() => handleCandidatureClick(candidature)}
-                                    className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400/40 transition-all duration-300 p-6 border border-slate-200 dark:border-slate-700 cursor-pointer group"
+                                    className={`bg-white dark:bg-slate-800 rounded-2xl shadow-lg transition-all duration-300 p-6 border border-slate-200 dark:border-slate-700 ${
+                                        isViewingPastYear
+                                            ? 'opacity-50 cursor-not-allowed'
+                                            : 'hover:shadow-xl hover:shadow-blue-400/40 cursor-pointer group'
+                                    }`}
+                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                 >
                                     {/* Badge statut */}
                                     <div className="flex items-center justify-between mb-4">
@@ -278,9 +297,13 @@ const EntentesStageGestionnaire = () => {
 
                                     {/* Indicateur hover */}
                                     <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                        <p className="text-sm text-blue-600 font-medium group-hover:text-blue-700 flex items-center gap-2">
+                                        <p className={`text-sm font-medium flex items-center gap-2 ${
+                                            isViewingPastYear
+                                                ? 'text-gray-400 dark:text-slate-500'
+                                                : 'text-blue-600 group-hover:text-blue-700'
+                                        }`}>
                                             <FileSignature className="w-4 h-4" />
-                                            {t('list.clickToCreate')}
+                                            {isViewingPastYear ? t('yearBanner:warning') : t('list.clickToCreate')}
                                         </p>
                                     </div>
                                 </div>
@@ -345,7 +368,7 @@ const EntentesStageGestionnaire = () => {
                                 </div>
                             </div>
 
-                            {/* Offer details (attempt to show fields if available on the entente payload) */}
+                            {/* Offer details */}
                             <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
                                 <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">{t('modal.ententeDetails.title')}</h4>
                                 <div className="grid gap-3 text-sm">
@@ -362,10 +385,18 @@ const EntentesStageGestionnaire = () => {
 
                             {/* Actions */}
                             <div className="flex items-center gap-3 justify-end">
-                                <button onClick={closeModal} disabled={isSubmitting} className="cursor-pointer px-6 py-3 border rounded-lg text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700">
+                                <button
+                                    onClick={closeModal}
+                                    disabled={isSubmitting}
+                                    className="cursor-pointer px-6 py-3 border rounded-lg text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-50"
+                                >
                                     {t('buttons.cancel')}
                                 </button>
-                                <button onClick={handleStartEntente} disabled={isSubmitting} className="cursor-pointer px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                                <button
+                                    onClick={handleStartEntente}
+                                    disabled={isSubmitting}
+                                    className="cursor-pointer px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
                                     {isSubmitting ? t('buttons.creating') : t('buttons.startEntenteProcess')}
                                 </button>
                             </div>
