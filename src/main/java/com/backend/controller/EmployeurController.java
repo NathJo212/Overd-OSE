@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -76,9 +77,13 @@ public class EmployeurController {
 
     @PostMapping("/OffresParEmployeur")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<OffreDTO>> getAllOffresParEmployeur(@RequestBody AuthResponseDTO utilisateur) {
+    public ResponseEntity<List<OffreDTO>> getAllOffresParEmployeur(
+            @RequestBody AuthResponseDTO utilisateur,
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<OffreDTO> offres = employeurService.OffrePourEmployeur(utilisateur);
+            // Use current year if no year is provided
+            int year = (annee != null) ? annee : LocalDate.now().getYear();
+            List<OffreDTO> offres = employeurService.OffrePourEmployeur(utilisateur, year);
             return ResponseEntity.ok(offres);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -87,9 +92,11 @@ public class EmployeurController {
 
     @GetMapping("/candidatures")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<CandidatureDTO>> getAllCandidatures() {
+    public ResponseEntity<List<CandidatureDTO>> getAllCandidatures(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<CandidatureDTO> candidatures = employeurService.getCandidaturesPourEmployeur();
+            int year = (annee != null) ? annee : LocalDate.now().getYear();
+            List<CandidatureDTO> candidatures = employeurService.getCandidaturesPourEmployeur(year);
             return ResponseEntity.ok(candidatures);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

@@ -96,7 +96,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<OffreDTO> OffrePourEmployeur(AuthResponseDTO utilisateur) throws ActionNonAutoriseeException {
+    public List<OffreDTO> OffrePourEmployeur(AuthResponseDTO utilisateur, int annee) throws ActionNonAutoriseeException {
         String token = utilisateur.getToken();
         boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
         if (!isEmployeur) {
@@ -105,8 +105,13 @@ public class EmployeurService {
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
         List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
+
+        // Filter by year
         OffreDTO offreDTO = new OffreDTO();
-        return offres.stream().map(offreDTO::toDTO).toList();
+        return offres.stream()
+                .filter(offre -> offre.getAnnee() == annee)
+                .map(offreDTO::toDTO)
+                .toList();
     }
 
     public Employeur getEmployeurConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
@@ -130,13 +135,18 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<CandidatureDTO> getCandidaturesPourEmployeur()
+    public List<CandidatureDTO> getCandidaturesPourEmployeur(int annee)
             throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
         List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
 
+        // Filter offers by year
+        List<Offre> offresParAnnee = offres.stream()
+                .filter(offre -> offre.getAnnee() == annee)
+                .toList();
+
         List<Candidature> candidatures = new ArrayList<>();
-        for (Offre offre : offres) {
+        for (Offre offre : offresParAnnee) {
             candidatures.addAll(offre.getCandidatures());
         }
 

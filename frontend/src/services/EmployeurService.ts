@@ -397,14 +397,18 @@ class EmployeurService {
         }
     }
 
-    async getCandidaturesRecues(): Promise<CandidatureRecueDTO[]> {
+    async getCandidaturesRecues(year?: number): Promise<CandidatureRecueDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/candidatures`, {
+            const url = year
+                ? `${this.baseUrl}/candidatures?annee=${year}`
+                : `${this.baseUrl}/candidatures`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

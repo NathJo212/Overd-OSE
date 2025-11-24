@@ -22,6 +22,8 @@ import {
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
+import YearBanner from "./YearBanner.tsx";
+import { useYear } from "./YearContext";
 
 interface CandidatureRecue {
     id: number;
@@ -81,6 +83,21 @@ const CandidaturesRecues = () => {
     const [refuseReason, setRefuseReason] = useState("");
     const [candidatureToAction, setCandidatureToAction] = useState<CandidatureRecue | null>(null);
 
+    const { selectedYear } = useYear();
+
+    // Calculer l'année actuelle (année académique)
+    const getCurrentYear = (): number => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth(); // 0-11 (0 = janvier, 7 = août)
+
+        // Si nous sommes en août (mois 7) ou après, retourner l'année suivante
+        return currentMonth >= 7 ? currentYear + 1 : currentYear;
+    };
+
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
+
     // Modal state for convocation creation
     const [showConvocationModal, setShowConvocationModal] = useState(false);
     const [convocationFormData, setConvocationFormData] = useState({
@@ -97,15 +114,13 @@ const CandidaturesRecues = () => {
         } else {
             localStorage.removeItem('convocationError');
         }
-    }, [convocationError]);
 
-    useEffect(() => {
         if (convocationSuccess) {
             localStorage.setItem('convocationSuccess', convocationSuccess);
         } else {
             localStorage.removeItem('convocationSuccess');
         }
-    }, [convocationSuccess]);
+    }, [convocationError, convocationSuccess]);
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -115,7 +130,11 @@ const CandidaturesRecues = () => {
         }
 
         loadCandidatures().then();
-    }, [navigate]);
+    }, [navigate, selectedYear]); // Add selectedYear dependency
+
+    useEffect(() => {
+        filterCandidatures();
+    }, [searchTerm, statusFilter, offreFilter, candidatures]);
 
     useEffect(() => {
         filterCandidatures();
@@ -125,7 +144,7 @@ const CandidaturesRecues = () => {
         try {
             setLoading(true);
             setError("");
-            const data = await employeurService.getCandidaturesRecues();
+            const data = await employeurService.getCandidaturesRecues(selectedYear);
             setCandidatures(data);
         } catch (err) {
             setError(t("candidaturesrecues:errors.loadCandidatures"));
@@ -517,9 +536,27 @@ const CandidaturesRecues = () => {
                         <span className="font-medium">{t('candidaturesrecues:backToDashboard')}</span>
                     </button>
 
+                    {/* Statistics Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* ... existing statistics cards ... */}
+                    </div>
+
+                    {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
+                    <YearBanner />
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                            {/* ... */}
+                        </div>
+                    )}
+
                     {/* Header */}
                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
                         <div className="flex items-center gap-4">
+
+
+
                             <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
                                 <Users className="w-6 h-6 text-white" />
                             </div>
@@ -801,15 +838,19 @@ const CandidaturesRecues = () => {
                                                     {t("candidaturesrecues:viewDetails")}
                                                 </button>
 
-                                                {/* Boutons Approuver/Refuser - Visible seulement si EN_ATTENTE */}
-                                                {candidature.statut === 'EN_ATTENTE' && (
+                                                {/* Boutons Approuver/Refuser - Visible seulement si EN_ATTENTE et année actuelle */}
+                                                {candidature.statut === 'EN_ATTENTE' && !isViewingPastYear && (
                                                     <>
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 handleApprove(candidature);
                                                             }}
-                                                            className="cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                            disabled={isViewingPastYear}
+                                                            className={`cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors ${
+                                                                isViewingPastYear ? 'opacity-50 cursor-not-allowed' : ''
+                                                            }`}
+                                                            title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                                         >
                                                             <Check className="w-4 h-4" />
                                                             {t("candidaturesrecues:actions.approve")}
@@ -819,27 +860,32 @@ const CandidaturesRecues = () => {
                                                                 e.stopPropagation();
                                                                 handleRefuse(candidature);
                                                             }}
-                                                            className="cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                                            disabled={isViewingPastYear}
+                                                            className={`cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors ${
+                                                                isViewingPastYear ? 'opacity-50 cursor-not-allowed' : ''
+                                                            }`}
+                                                            title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                                         >
                                                             <X className="w-4 h-4" />
                                                             {t("candidaturesrecues:actions.refuse")}
                                                         </button>
-
                                                     </>
                                                 )}
 
-                                                {/* Create convocation button */}
-                                                {!candidature.convocation && candidature.statut === 'EN_ATTENTE' && (
+                                                {/* Create convocation button - seulement année actuelle */}
+                                                {!candidature.convocation && candidature.statut === 'EN_ATTENTE' && !isViewingPastYear && (
                                                     <button
                                                         onClick={(e) => handleCreerConvocation(candidature, e)}
-                                                        disabled={creatingConvocationId === candidature.id}
-                                                        className="cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                                                        disabled={creatingConvocationId === candidature.id || isViewingPastYear}
+                                                        className={`cursor-pointer flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors ${
+                                                            isViewingPastYear ? 'opacity-50' : ''
+                                                        }`}
+                                                        title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                                     >
                                                         <Calendar className="w-4 h-4" />
                                                         {creatingConvocationId === candidature.id ? t('candidaturesrecues:creating') : t('candidaturesrecues:createConvocation')}
                                                     </button>
                                                 )}
-
                                             </div>
                                         </div>
                                     </div>
