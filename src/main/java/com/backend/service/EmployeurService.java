@@ -296,12 +296,17 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<ConvocationEntrevueDTO> getConvocationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<ConvocationEntrevueDTO> getConvocationsPourEmployeur(int annee) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
         List<Offre> offres = offreRepository.findAllByEmployeur(employeur);
 
-        List<Candidature> candidatures = candidatureRepository.findAllByOffreIn(offres);
+        // Filter offers by year
+        List<Offre> offresParAnnee = offres.stream()
+                .filter(offre -> offre.getAnnee() == annee)
+                .toList();
+
+        List<Candidature> candidatures = candidatureRepository.findAllByOffreIn(offresParAnnee);
 
         List<ConvocationEntrevueDTO> convocations = new ArrayList<>();
         for (Candidature candidature : candidatures) {
@@ -511,10 +516,19 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<EvaluationDTO> getEvaluationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<EvaluationDTO> getEvaluationsPourEmployeur(int annee) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
         List<EvaluationEtudiantParEmployeur> evaluations = evaluationRepository.findAllByEmployeurId(employeur.getId());
-        return evaluations.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
+
+        // Filter evaluations by year through the Entente's Offre
+        List<EvaluationEtudiantParEmployeur> evaluationsParAnnee = evaluations.stream()
+                .filter(evaluation -> {
+                    EntenteStage entente = evaluation.getEntente();
+                    return entente != null && entente.getOffre() != null && entente.getOffre().getAnnee() == annee;
+                })
+                .toList();
+
+        return evaluationsParAnnee.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
     }
 
     @Transactional

@@ -629,12 +629,16 @@ class EmployeurService {
         }
     }
 
-    async getConvocations(): Promise<ConvocationEntrevueDTO[]> {
+    async getConvocations(year?: number): Promise<ConvocationEntrevueDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) return [];
 
-            const response = await fetch(`${this.baseUrl}/convocations`, {
+            const url = year
+                ? `${this.baseUrl}/convocations?annee=${year}`
+                : `${this.baseUrl}/convocations`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -971,14 +975,18 @@ class EmployeurService {
      * Récupère toutes les évaluations de l'employeur connecté
      * @returns Liste des évaluations (id, ententeId, etudiantId, dateEvaluation)
      */
-    async getEvaluations(): Promise<EvaluationDTO[]> {
+    async getEvaluations(year?: number): Promise<EvaluationDTO[]> {
         try {
             const token = sessionStorage.getItem('authToken');
             if (!token) {
                 throw new Error('Vous devez être connecté');
             }
 
-            const response = await fetch(`${this.baseUrl}/evaluations`, {
+            const url = year
+                ? `${this.baseUrl}/evaluations?annee=${year}`
+                : `${this.baseUrl}/evaluations`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

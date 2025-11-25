@@ -221,9 +221,11 @@ public class EmployeurController {
 
     @GetMapping("/convocations")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<ConvocationEntrevueDTO>> getConvocationsPourEmployeur() {
+    public ResponseEntity<List<ConvocationEntrevueDTO>> getConvocationsPourEmployeur(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<ConvocationEntrevueDTO> convocations = employeurService.getConvocationsPourEmployeur();
+            int year = (annee != null) ? annee : LocalDate.now().getYear();
+            List<ConvocationEntrevueDTO> convocations = employeurService.getConvocationsPourEmployeur(year);
             return ResponseEntity.ok(convocations);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -447,9 +449,11 @@ public class EmployeurController {
 
     @GetMapping("/evaluations")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EvaluationDTO>> getEvaluations() {
+    public ResponseEntity<List<EvaluationDTO>> getEvaluations(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<EvaluationDTO> dtos = employeurService.getEvaluationsPourEmployeur();
+            int year = (annee != null) ? annee : LocalDate.now().getYear();
+            List<EvaluationDTO> dtos = employeurService.getEvaluationsPourEmployeur(year);
             return ResponseEntity.ok(dtos);
         } catch (ActionNonAutoriseeException | UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

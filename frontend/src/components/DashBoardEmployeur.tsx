@@ -5,6 +5,16 @@ import { employeurService } from "../services/EmployeurService";
 import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap, Clock, Edit, Trash2, RefreshCw } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
+import { useYear } from "./YearContext";
+import YearBanner from "./YearBanner";
+
+// Helper function to determine academic year
+const getCurrentYear = (): number => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    return currentMonth >= 7 ? currentYear + 1 : currentYear;
+};
 
 interface ConvocationEntrevueDTO {
     id?: number;
@@ -33,6 +43,11 @@ const DashBoardEmployeur = () => {
     const [selectedConvocation, setSelectedConvocation] = useState<ConvocationEntrevueDTO | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editForm, setEditForm] = useState({ dateHeure: '', lieuOuLien: '', message: '' });
+
+    // Year context
+    const { selectedYear } = useYear();
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -69,12 +84,12 @@ const DashBoardEmployeur = () => {
 
             return () => clearTimeout(timer);
         }
-    }, [navigate, showNotification, t]);
+    }, [navigate, showNotification, t, selectedYear]);
 
     const loadConvocations = async () => {
         try {
             setLoadingConvocations(true);
-            const convs = await employeurService.getConvocations();
+            const convs = await employeurService.getConvocations(selectedYear);
             setConvocations(convs || []);
         } catch (e) {
             console.error('Erreur chargement convocations:', e);
@@ -123,6 +138,8 @@ const DashBoardEmployeur = () => {
     };
 
     const handleEditConvocation = (conv: ConvocationEntrevueDTO) => {
+        if (isViewingPastYear) return; // Don't allow editing for past years
+
         setSelectedConvocation(conv);
         setEditForm({
             dateHeure: conv.dateHeure,
@@ -133,7 +150,7 @@ const DashBoardEmployeur = () => {
     };
 
     const handleSaveEdit = async () => {
-        if (!selectedConvocation) return;
+        if (!selectedConvocation || isViewingPastYear) return;
 
         try {
             await employeurService.modifierConvocation(selectedConvocation.candidatureId, editForm);
@@ -148,6 +165,8 @@ const DashBoardEmployeur = () => {
     };
 
     const handleDeleteConvocation = async (conv: ConvocationEntrevueDTO) => {
+        if (isViewingPastYear) return; // Don't allow deleting for past years
+
         if (!window.confirm(t('employerdashboard:convocations.confirmDelete'))) return;
 
         try {
@@ -158,6 +177,13 @@ const DashBoardEmployeur = () => {
         } catch (error: any) {
             setNotificationMessage(error.message || t('employerdashboard:convocations.messages.deleteError'));
             setShowNotification(true);
+        }
+    };
+
+    const handleCreateOfferClick = (e: React.MouseEvent) => {
+        if (isViewingPastYear) {
+            e.preventDefault();
+            return;
         }
     };
 
@@ -191,7 +217,15 @@ const DashBoardEmployeur = () => {
                         </div>
                     </div>
                 )}
+
                 <div className="max-w-4xl mx-auto">
+                    {/* Year Banner */}
+                    {isViewingPastYear && (
+                        <div className="mb-6">
+                            <YearBanner />
+                        </div>
+                    )}
+
                     {/* Header */}
                     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 mb-8 text-center border border-transparent dark:border-slate-700">
                         <div className="flex justify-center mb-4">
@@ -204,8 +238,14 @@ const DashBoardEmployeur = () => {
                         </h1>
                         <div className="flex flex-wrap gap-4 justify-center">
                             <NavLink
-                                to="/offre-stage"
-                                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105"
+                                to={isViewingPastYear ? "#" : "/offre-stage"}
+                                onClick={handleCreateOfferClick}
+                                className={`inline-block font-semibold py-3 px-8 rounded-lg transition-colors duration-300 ${
+                                    isViewingPastYear
+                                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed opacity-50'
+                                        : 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105'
+                                }`}
+                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                             >
                                 {t("employerdashboard:createOffer")}
                             </NavLink>
@@ -245,7 +285,9 @@ const DashBoardEmployeur = () => {
                         ) : (
                             <div className="space-y-4">
                                 {convocations.map(conv => (
-                                    <div key={conv.id} className="border-2 border-blue-200 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6">
+                                    <div key={conv.id} className={`border-2 rounded-xl p-6 ${
+                                        isViewingPastYear ? 'border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700/50 opacity-75' : 'border-blue-200 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/20'
+                                    }`}>
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <div className="flex items-center mb-2">
@@ -271,7 +313,7 @@ const DashBoardEmployeur = () => {
                                                 )}
                                                 <p className="text-sm text-gray-700 dark:text-slate-200 mt-3">{conv.message}</p>
                                             </div>
-                                            {conv.statut != "ANNULEE" && (
+                                            {conv.statut != "ANNULEE" && !isViewingPastYear && (
                                                 <div className="flex flex-col gap-2 ml-4">
                                                     <button
                                                         onClick={() => handleEditConvocation(conv)}
@@ -283,6 +325,26 @@ const DashBoardEmployeur = () => {
                                                     <button
                                                         onClick={() => handleDeleteConvocation(conv)}
                                                         className="cursor-pointer px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                        {t('employerdashboard:convocations.delete')}
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {conv.statut != "ANNULEE" && isViewingPastYear && (
+                                                <div className="flex flex-col gap-2 ml-4">
+                                                    <button
+                                                        disabled
+                                                        className="px-3 py-2 bg-gray-400 text-gray-200 rounded-md text-sm cursor-not-allowed opacity-50 flex items-center gap-1"
+                                                        title={t('yearBanner:warning')}
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                        {t('employerdashboard:convocations.edit')}
+                                                    </button>
+                                                    <button
+                                                        disabled
+                                                        className="px-3 py-2 bg-gray-400 text-gray-200 rounded-md text-sm cursor-not-allowed opacity-50 flex items-center gap-1"
+                                                        title={t('yearBanner:warning')}
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                         {t('employerdashboard:convocations.delete')}
@@ -483,4 +545,3 @@ const DashBoardEmployeur = () => {
 };
 
 export default DashBoardEmployeur;
-
