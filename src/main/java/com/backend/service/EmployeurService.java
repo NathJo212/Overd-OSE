@@ -61,6 +61,26 @@ public class EmployeurService {
         this.gestionnaireRepository = gestionnaireRepository;
     }
 
+    private int getAnneeAcademiqueCourante() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        if (now.getMonthValue() >= 8) {
+            return year + 1;
+        }
+        return year;
+    }
+
+    private void verifierOffreAnneeCourante(Offre offre) throws ActionNonAutoriseeException {
+        if (offre == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        int anneeOffre = offre.getAnnee();
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+        if (anneeOffre != anneeAcademiqueCourante) {
+            throw new ActionNonAutoriseeException();
+        }
+    }
+
     @Transactional
     public void creerEmployeur(String email, String password, String telephone, String nomEntreprise, String contact) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean employeurExistant = utilisateurRepository.existsByEmail(email);
@@ -460,6 +480,8 @@ public class EmployeurService {
             throw new ActionNonAutoriseeException();
         }
 
+        verifierOffreAnneeCourante(entente.getOffre());
+
         if (entente.getEmployeurSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
             throw new StatutEntenteInvalideException();
         }
@@ -480,6 +502,8 @@ public class EmployeurService {
             throw new ActionNonAutoriseeException();
         }
 
+        verifierOffreAnneeCourante(entente.getOffre());
+
         if (entente.getEmployeurSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
             throw new StatutEntenteInvalideException();
         }
@@ -494,6 +518,8 @@ public class EmployeurService {
     public void creerEvaluation(CreerEvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException, IOException {
         Employeur employeur = getEmployeurConnecte();
         EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
+
+        verifierOffreAnneeCourante(entente.getOffre());
 
         if(entente.getStatut() != EntenteStage.StatutEntente.SIGNEE){
             throw new EntenteNonFinaliseeException();
