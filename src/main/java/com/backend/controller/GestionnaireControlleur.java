@@ -207,24 +207,6 @@ public class GestionnaireControlleur {
         }
     }
 
-    @PutMapping("/ententes/{id}")
-    @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> modifierEntente(@PathVariable Long id, @RequestBody EntenteStageDTO ententeDTO) {
-        try {
-            gestionnaireService.modifierEntente(id, ententeDTO);
-            return ResponseEntity.status(HttpStatus.OK).body(new MessageRetourDTO("Entente modifiée avec succès", null));
-        } catch (ActionNonAutoriseeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (UtilisateurPasTrouveException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("UTILISATEUR_NOT_FOUND", e.getMessage())));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_001", e.getMessage())));
-        }
-    }
-
     @PostMapping("/ententes/{id}/annuler")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> annulerEntente(@PathVariable Long id) {

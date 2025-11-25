@@ -402,11 +402,11 @@ public class EtudiantService {
             throw new ActionNonAutoriseeException();
         }
 
-        verifierOffreAnneeCourante(entente.getOffre());
-
         if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
             throw new StatutEntenteInvalideException();
         }
+
+        verifierOffreAnneeCourante(entente.getOffre());
 
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
 
@@ -427,12 +427,11 @@ public class EtudiantService {
             throw new ActionNonAutoriseeException();
         }
 
-        verifierOffreAnneeCourante(entente.getOffre());
-
         if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
             throw new StatutEntenteInvalideException();
         }
 
+        verifierOffreAnneeCourante(entente.getOffre());
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.REFUSEE);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
 

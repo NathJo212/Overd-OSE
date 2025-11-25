@@ -225,8 +225,7 @@ public class GestionnaireService {
     public List<EtudiantDTO> getCVsEnAttente(int annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
 
-        List<Etudiant> etudiants;
-        etudiants = etudiantRepository.findAllByStatutCVAndAnnee(Etudiant.StatutCV.ATTENTE, annee);
+        List<Etudiant> etudiants = etudiantRepository.findAllByStatutCVAndAnnee(Etudiant.StatutCV.ATTENTE, annee);
 
         return etudiants.stream()
                 .map(etudiant -> {
@@ -350,63 +349,6 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void modifierEntente(Long ententeId, EntenteStageDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteModificationNonAutoriseeException, EntenteNonTrouveException {
-        verifierGestionnaireConnecte();
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
-
-        verifierOffreAnneeCourante(entente.getOffre());
-
-        if (entente.getStatut() == EntenteStage.StatutEntente.SIGNEE || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
-            throw new EntenteModificationNonAutoriseeException();
-        }
-
-
-        // appliquer les changements
-        entente.setTitre(dto.getTitre());
-        entente.setDescription(dto.getDescription());
-        entente.setDateDebut(dto.getDateDebut());
-        entente.setDateFin(dto.getDateFin());
-        entente.setHoraire(dto.getHoraire());
-        entente.setDureeHebdomadaire(dto.getDureeHebdomadaire());
-        entente.setRemuneration(dto.getRemuneration());
-        entente.setResponsabilitesEtudiant(dto.getResponsabilitesEtudiant());
-        entente.setResponsabilitesEmployeur(dto.getResponsabilitesEmployeur());
-        entente.setResponsabilitesCollege(dto.getResponsabilitesCollege());
-        entente.setObjectifs(dto.getObjectifs());
-
-        // reset signatures if modification before final signature
-        entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
-        entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
-        entente.setGestionnaireSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
-        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
-        // clear signature dates and previously generated document
-        entente.setDateSignatureEtudiant(null);
-        entente.setDateSignatureEmployeur(null);
-        entente.setDateSignatureGestionnaire(null);
-        entente.setPdfBase64(null);
-        entente.setDateModification(LocalDateTime.now());
-
-        ententeStageRepository.save(entente);
-
-        // notifications
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(entente.getEtudiant());
-            notifEtudiant.setMessageKey("entente.modified");
-            notifEtudiant.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEtudiant);
-
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(entente.getEmployeur());
-            notifEmployeur.setMessageKey("entente.modified");
-            notifEmployeur.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore notification errors
-        }
-    }
-
-    @Transactional
     public void annulerEntente(Long ententeId) throws ActionNonAutoriseeException, EntenteNonTrouveException {
         verifierGestionnaireConnecte();
 
@@ -503,8 +445,7 @@ public class GestionnaireService {
         EntenteStage entente = ententeStageRepository.findById(ententeId)
                 .orElseThrow(EntenteNonTrouveException::new);
 
-        verifierOffreAnneeCourante(entente.getOffre());
-
+        // Vérifications de statut/signatures d'abord (pour conserver l'ancien ordre des exceptions)
         if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.SIGNEE
                 || entente.getEmployeurSignature() != EntenteStage.SignatureStatus.SIGNEE) {
             throw new StatutEntenteInvalideException();
@@ -514,6 +455,8 @@ public class GestionnaireService {
                 || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
             throw new StatutEntenteInvalideException();
         }
+
+        verifierOffreAnneeCourante(entente.getOffre());
 
         entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
         entente.setGestionnaireSignature(EntenteStage.SignatureStatus.SIGNEE);
@@ -554,12 +497,12 @@ public class GestionnaireService {
         EntenteStage entente = ententeStageRepository.findById(ententeId)
                 .orElseThrow(EntenteNonTrouveException::new);
 
-        verifierOffreAnneeCourante(entente.getOffre());
-
         if (entente.getStatut() == EntenteStage.StatutEntente.SIGNEE
                 || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
             throw new StatutEntenteInvalideException();
         }
+
+        verifierOffreAnneeCourante(entente.getOffre());
 
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setGestionnaireSignature(EntenteStage.SignatureStatus.REFUSEE);

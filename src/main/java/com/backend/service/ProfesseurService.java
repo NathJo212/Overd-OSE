@@ -206,9 +206,6 @@ public class ProfesseurService {
         EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId())
                 .orElseThrow(EntenteNonTrouveException::new);
 
-        // Vérifier que l'entente appartient à une offre de l'année académique courante
-        verifierOffreAnneeCourante(entente.getOffre());
-
         // Vérifier que l'entente est bien signée (finalisée)
         if (entente.getStatut() != EntenteStage.StatutEntente.SIGNEE) {
             throw new EntenteNonFinaliseeException();
@@ -218,6 +215,8 @@ public class ProfesseurService {
         if (evaluationMilieuStageParProfesseurRepository.existsByEntenteId(dto.getEntenteId())) {
             throw new EvaluationDejaExistanteException();
         }
+
+        verifierOffreAnneeCourante(entente.getOffre());
 
         // Vérifier que le professeur est bien le professeur superviseur de l'étudiant
         if (entente.getEtudiant().getProfesseur() == null ||

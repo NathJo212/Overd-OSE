@@ -619,19 +619,15 @@ public class ProfesseurServiceTest {
     @Test
     public void creerEvaluationMilieuStage_professeurNonSuperviseur_lance() {
         Professeur professeur = mock(Professeur.class);
-        when(professeur.getId()).thenReturn(1L);
         when(professeurRepository.existsByEmail("prof@test.com")).thenReturn(true);
         when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
 
         // Autre professeur assigné à l'étudiant
         Professeur autreProfesseur = mock(Professeur.class);
-        when(autreProfesseur.getId()).thenReturn(999L);
 
         Etudiant etudiant = mock(Etudiant.class);
-        when(etudiant.getProfesseur()).thenReturn(autreProfesseur);
 
         EntenteStage entente = mock(EntenteStage.class);
-        when(entente.getEtudiant()).thenReturn(etudiant);
         when(entente.getStatut()).thenReturn(EntenteStage.StatutEntente.SIGNEE);
 
         when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
@@ -654,14 +650,11 @@ public class ProfesseurServiceTest {
         when(professeurRepository.findByEmail("prof@test.com")).thenReturn(professeur);
 
         Etudiant etudiant = mock(Etudiant.class);
-        when(etudiant.getProfesseur()).thenReturn(null); // Pas de professeur assigné
 
         EntenteStage entente = mock(EntenteStage.class);
-        when(entente.getEtudiant()).thenReturn(etudiant);
         when(entente.getStatut()).thenReturn(EntenteStage.StatutEntente.SIGNEE);
 
         when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
-        when(evaluationMilieuStageParProfesseurRepository.existsByEntenteId(100L)).thenReturn(false);
 
         CreerEvaluationMilieuStageDTO dto = new CreerEvaluationMilieuStageDTO();
         dto.setEntenteId(100L);

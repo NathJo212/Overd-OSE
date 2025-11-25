@@ -12,6 +12,6 @@ public interface EtudiantRepository extends CrudRepository<Etudiant, Long> {
     List<Etudiant> findAllByStatutCV(Etudiant.StatutCV statutCV);
     List<Etudiant> findAllByProgEtude(com.backend.modele.Programme progEtude);
 
-    Iterable<? extends Etudiant> findAllByAnnee(int annee);
+    List<Etudiant> findAllByAnnee(int annee);
     List<Etudiant> findAllByStatutCVAndAnnee(Etudiant.StatutCV statutCV, int annee);
 }
