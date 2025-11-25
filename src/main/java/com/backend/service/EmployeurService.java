@@ -258,6 +258,9 @@ public class EmployeurService {
             throw new ActionNonAutoriseeException();
         }
 
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         if (candidature.getConvocationEntrevue() != null) {
             throw new ConvocationDejaExistanteException();
         }
@@ -282,6 +285,9 @@ public class EmployeurService {
                 !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
 
         ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
         if (convocation == null) {
@@ -309,6 +315,9 @@ public class EmployeurService {
                 !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
 
         ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
         if (convocation == null) {
@@ -352,6 +361,10 @@ public class EmployeurService {
                 !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE){
             throw new CandidatureDejaVerifieException();
         }
@@ -370,6 +383,10 @@ public class EmployeurService {
                 || !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE){
             throw new CandidatureDejaVerifieException();
         }
