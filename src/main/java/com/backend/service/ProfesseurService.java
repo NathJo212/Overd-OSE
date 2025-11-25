@@ -176,6 +176,26 @@ public class ProfesseurService {
         }
     }
 
+    private int getAnneeAcademiqueCourante() {
+        java.time.LocalDate now = java.time.LocalDate.now();
+        int year = now.getYear();
+        if (now.getMonthValue() >= 8) {
+            return year + 1;
+        }
+        return year;
+    }
+
+    private void verifierOffreAnneeCourante(Offre offre) throws ActionNonAutoriseeException {
+        if (offre == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        int anneeOffre = offre.getAnnee();
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+        if (anneeOffre != anneeAcademiqueCourante) {
+            throw new ActionNonAutoriseeException();
+        }
+    }
+
     @Transactional
     public void creerEvaluationMilieuStage(CreerEvaluationMilieuStageDTO dto)
             throws ActionNonAutoriseeException, UtilisateurPasTrouveException,
@@ -185,6 +205,9 @@ public class ProfesseurService {
 
         EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId())
                 .orElseThrow(EntenteNonTrouveException::new);
+
+        // Vérifier que l'entente appartient à une offre de l'année académique courante
+        verifierOffreAnneeCourante(entente.getOffre());
 
         // Vérifier que l'entente est bien signée (finalisée)
         if (entente.getStatut() != EntenteStage.StatutEntente.SIGNEE) {

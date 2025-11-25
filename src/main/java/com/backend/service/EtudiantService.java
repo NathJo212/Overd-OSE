@@ -341,6 +341,11 @@ public class EtudiantService {
             throw new StatutCandidatureInvalideException();
         }
 
+        if (candidature.getOffre() == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT);
         candidatureRepository.save(candidature);
 
@@ -397,6 +402,8 @@ public class EtudiantService {
             throw new ActionNonAutoriseeException();
         }
 
+        verifierOffreAnneeCourante(entente.getOffre());
+
         if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
             throw new StatutEntenteInvalideException();
         }
@@ -419,6 +426,8 @@ public class EtudiantService {
         if (entente.getEtudiant() == null || !entente.getEtudiant().getId().equals(etudiant.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        verifierOffreAnneeCourante(entente.getOffre());
 
         if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
             throw new StatutEntenteInvalideException();
@@ -484,5 +493,25 @@ public class EtudiantService {
             }
         }
         throw new EntenteDocumentNonTrouveeException();
+    }
+
+    private int getAnneeAcademiqueCourante() {
+        java.time.LocalDate now = java.time.LocalDate.now();
+        int year = now.getYear();
+        if (now.getMonthValue() >= 8) {
+            return year + 1;
+        }
+        return year;
+    }
+
+    private void verifierOffreAnneeCourante(Offre offre) throws ActionNonAutoriseeException {
+        if (offre == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        int anneeOffre = offre.getAnnee();
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+        if (anneeOffre != anneeAcademiqueCourante) {
+            throw new ActionNonAutoriseeException();
+        }
     }
 }
