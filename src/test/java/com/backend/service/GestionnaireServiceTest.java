@@ -66,9 +66,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveOffre_metAJourStatut() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Offre offre = new Offre();
         offre.setId(1L);
         offre.setStatutApprouve(Offre.StatutApprouve.ATTENTE);
+        offre.setAnnee(anneeActuelle);
         when(offreRepository.findById(1L)).thenReturn(Optional.of(offre));
 
         gestionnaireService.approuveOffre(1L);
@@ -79,9 +83,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveOffre_OffreDejaVerifiee() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Offre offre = new Offre();
         offre.setId(1L);
         offre.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
+        offre.setAnnee(anneeActuelle);
         when(offreRepository.findById(1L)).thenReturn(Optional.of(offre));
 
         assertThrows(OffreDejaVerifieException.class, () -> gestionnaireService.approuveOffre(1L));
@@ -96,9 +103,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseOffre_enregistreMessageRefus() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Offre offre = new Offre();
         offre.setId(2L);
         offre.setStatutApprouve(Offre.StatutApprouve.ATTENTE);
+        offre.setAnnee(anneeActuelle);
         when(offreRepository.findById(2L)).thenReturn(Optional.of(offre));
 
         gestionnaireService.refuseOffre(2L, "Non conforme");
@@ -110,9 +120,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseOffre_OffreDejaVerifiee() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Offre offre = new Offre();
         offre.setId(2L);
         offre.setStatutApprouve(Offre.StatutApprouve.REFUSE);
+        offre.setAnnee(anneeActuelle);
         when(offreRepository.findById(2L)).thenReturn(Optional.of(offre));
 
         assertThrows(OffreDejaVerifieException.class, () -> gestionnaireService.refuseOffre(2L, "msg"));
@@ -212,9 +226,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_metAJourStatut() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.ATTENTE);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
 
@@ -234,8 +252,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_CVNonExistant_cvNull() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(null);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
 
@@ -244,8 +266,11 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_CVNonExistant_cvVide() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[0]);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
 
@@ -254,8 +279,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_CVDejaVerifie_dejaApprouve() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.APPROUVE);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
@@ -265,8 +294,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_CVDejaVerifie_dejaRefuse() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.REFUSE);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
@@ -289,8 +322,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_enregistreMessageRefus() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.ATTENTE);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
@@ -311,8 +348,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_CVNonExistant_cvNull() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(null);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
 
@@ -321,8 +362,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_CVNonExistant_cvVide() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[0]);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
 
@@ -331,9 +376,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_CVDejaVerifie_dejaApprouve() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.APPROUVE);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
 
@@ -342,9 +391,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_CVDejaVerifie_dejaRefuse() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.REFUSE);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
 

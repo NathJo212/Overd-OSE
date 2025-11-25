@@ -91,6 +91,9 @@ public class GestionnaireService {
         checkGestionnaireStageRole();
         Offre offre = offreRepository.findById(id)
                 .orElseThrow(OffreNonExistantException::new);
+
+        verifierOffreAnneeCourante(offre);
+
         if (offre.getStatutApprouve() != Offre.StatutApprouve.ATTENTE){
             throw new OffreDejaVerifieException();
         }
@@ -124,6 +127,9 @@ public class GestionnaireService {
         checkGestionnaireStageRole();
         Offre offre = offreRepository.findById(id)
                 .orElseThrow(OffreNonExistantException::new);
+
+        verifierOffreAnneeCourante(offre);
+
         if (offre.getStatutApprouve() != Offre.StatutApprouve.ATTENTE){
             throw new OffreDejaVerifieException();
         }
@@ -188,6 +194,8 @@ public class GestionnaireService {
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
                 .orElseThrow(CVNonExistantException::new);
 
+        verifierEtudiantAnneeCourante(etudiant);
+
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
             throw new CVNonExistantException();
         }
@@ -207,6 +215,8 @@ public class GestionnaireService {
 
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
                 .orElseThrow(CVNonExistantException::new);
+
+        verifierEtudiantAnneeCourante(etudiant);
 
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
             throw new CVNonExistantException();
@@ -270,6 +280,17 @@ public class GestionnaireService {
         int anneeOffre = offre.getAnnee();
         int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
         if (anneeOffre != anneeAcademiqueCourante) {
+            throw new ActionNonAutoriseeException();
+        }
+    }
+
+    private void verifierEtudiantAnneeCourante(Etudiant etudiant) throws ActionNonAutoriseeException {
+        if (etudiant == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        int anneeEtudiant = etudiant.getAnnee();
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+        if (anneeEtudiant != anneeAcademiqueCourante) {
             throw new ActionNonAutoriseeException();
         }
     }
