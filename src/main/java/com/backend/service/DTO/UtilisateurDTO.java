@@ -26,7 +26,7 @@ public class UtilisateurDTO {
     private String nom;
     private String prenom;
     private ProgrammeDTO progEtude;
-    private String annee;
+    private int annee;
 
     public static UtilisateurDTO toDTO(Utilisateur utilisateur) {
         UtilisateurDTO dto = new UtilisateurDTO();

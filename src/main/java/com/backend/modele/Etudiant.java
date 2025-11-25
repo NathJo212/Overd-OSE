@@ -24,7 +24,7 @@ public class Etudiant extends Utilisateur {
     @Convert(converter = ProgrammeConverter.class)
     private Programme progEtude;
 
-    private String annee;
+    private int annee;
 
     private byte[] cv;
 
@@ -64,16 +64,16 @@ public class Etudiant extends Utilisateur {
      * Si nous sommes en août (mois 8) ou après, retourne l'année suivante.
      * Sinon, retourne l'année actuelle.
      */
-    private String determinerAnnee() {
+    private int determinerAnnee() {
         LocalDate maintenant = LocalDate.now();
         int anneeActuelle = maintenant.getYear();
-        int moisActuel = maintenant.getMonthValue(); // 1-12 (1 = janvier, 8 = août)
+        int moisActuel = maintenant.getMonthValue();
 
         // Si nous sommes en août (8) ou après, utiliser l'année suivante
         if (moisActuel >= 8) {
-            return String.valueOf(anneeActuelle + 1);
+            return anneeActuelle + 1;
         } else {
-            return String.valueOf(anneeActuelle);
+            return anneeActuelle;
         }
     }
 }

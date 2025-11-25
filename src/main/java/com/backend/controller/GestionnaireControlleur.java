@@ -152,7 +152,7 @@ public class GestionnaireControlleur {
     @GetMapping("/CVsEnAttente")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<EtudiantDTO>> getCVsEnAttente(
-            @RequestParam(required = false) String annee) {
+            @RequestParam(required = false) int annee) {
         try {
             List<EtudiantDTO> cvsEnAttente = gestionnaireService.getCVsEnAttente(annee);
             return ResponseEntity.ok(cvsEnAttente);
@@ -307,7 +307,7 @@ public class GestionnaireControlleur {
     @GetMapping("/etudiants")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<EtudiantDTO>> getAllEtudiants(
-            @RequestParam(required = false) String annee) {
+            @RequestParam(required = false) int annee) {
         try {
             List<EtudiantDTO> etudiants = gestionnaireService.getAllEtudiants(annee);
             return ResponseEntity.ok(etudiants);

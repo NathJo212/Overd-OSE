@@ -89,6 +89,10 @@ public class EmployeurService {
             throw new DateInvalideException();
         }
 
+        if (dateLimite != null && dateLimite.isAfter(date_debut)) {
+            throw new DateInvalideException();
+        }
+
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
         Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur, horaire, dureeHebdomadaire, responsabilitesEtudiant, responsabilitesEmployeur, responsabiliteCollege, objectifs);

@@ -113,13 +113,13 @@ public class EtudiantService {
     }
 
     @Transactional
-    public List<OffreDTO> getOffresApprouves() {
-        int anneeAcademique = determinerAnneeAcademique();
+    public List<OffreDTO> getOffresApprouves() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
 
         List<Offre> offres = offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE);
 
         return offres.stream()
-                .filter(offre -> offre.getAnnee() == anneeAcademique)
+                .filter(offre -> offre.getAnnee() == etudiant.getAnnee())
                 .map(offre -> new OffreDTO().toDTO(offre))
                 .toList();
     }
@@ -485,18 +485,4 @@ public class EtudiantService {
         }
         throw new EntenteDocumentNonTrouveeException();
     }
-
-    private int determinerAnneeAcademique() {
-        LocalDate maintenant = LocalDate.now();
-        int anneeActuelle = maintenant.getYear();
-        int moisActuel = maintenant.getMonthValue();
-
-        if (moisActuel >= 8) {
-            return anneeActuelle + 1;
-        } else {
-            return anneeActuelle;
-        }
-    }
-
-
 }

@@ -216,10 +216,14 @@ class EtudiantService {
      */
     async getOffresApprouvees(): Promise<OffreDTO[]> {
         try {
+            const token = this.getAuthToken();
+            if (!token) throw new Error("Vous devez être connecté");
+
             const response = await fetch(`${this.baseUrl}/voirOffres`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
             });
 

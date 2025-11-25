@@ -19,8 +19,7 @@ public class EtudiantDTO {
     private String nom;
     private String prenom;
     private ProgrammeDTO progEtude;
-//    private String session;
-    private String annee;
+    private int annee;
     private byte[] cv;
     private String statutCV;
     private String messageRefusCV;
@@ -38,8 +37,6 @@ public class EtudiantDTO {
         if (etudiant.getProgEtude() != null) {
             dto.setProgEtude(ProgrammeDTO.toDTO(etudiant.getProgEtude()));
         }
-
-//        dto.setSession(etudiant.getSession());
         dto.setAnnee(etudiant.getAnnee());
         dto.setCv(etudiant.getCv());
 
