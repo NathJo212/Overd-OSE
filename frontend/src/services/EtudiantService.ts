@@ -5,8 +5,7 @@ export interface EtudiantData {
     prenom: string;
     nom: string;
     progEtude: string;
-    session: string;
-    annee: string;
+    // Note: session and annee removed - year is auto-calculated in backend
     cv?: string;
     statutCV?: string;
     messageRefusCV?: string;
@@ -189,6 +188,7 @@ class EtudiantService {
         }
     }
 
+    // Updated formatFormDataForAPI - no longer includes session or anneeEtude
     formatFormDataForAPI(formData: {
         prenom: string
         nom: string
@@ -197,8 +197,6 @@ class EtudiantService {
         motDePasse: string
         confirmerMotDePasse: string
         programmeEtudes: string
-        anneeEtude: string
-        session: string
     }): EtudiantData {
         return {
             prenom: formData.prenom,
@@ -206,9 +204,8 @@ class EtudiantService {
             email: formData.email,
             password: formData.motDePasse,
             telephone: formData.telephone,
-            progEtude: formData.programmeEtudes,
-            session: formData.session,
-            annee: formData.anneeEtude
+            progEtude: formData.programmeEtudes
+            // Note: session and annee removed - year is auto-calculated in backend
         };
     }
 

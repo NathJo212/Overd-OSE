@@ -15,8 +15,6 @@ interface FormData {
     motDePasse: string
     confirmerMotDePasse: string
     programmeEtudes: string
-    anneeEtude: string
-    session: string
 }
 
 const InscriptionEtudiant = () => {
@@ -30,9 +28,7 @@ const InscriptionEtudiant = () => {
         telephone: '',
         motDePasse: '',
         confirmerMotDePasse: '',
-        programmeEtudes: '',
-        anneeEtude: '',
-        session: ''
+        programmeEtudes: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -133,12 +129,6 @@ const InscriptionEtudiant = () => {
         }
         if (!formData.programmeEtudes.trim()) {
             validationErrs.push(t('registration:studentRegistration.validation.studyProgramRequired'));
-        }
-        if (!formData.anneeEtude.trim()) {
-            validationErrs.push(t('registration:studentRegistration.validation.studyYearRequired'));
-        }
-        if (!formData.session.trim()) {
-            validationErrs.push(t('registration:studentRegistration.validation.sessionRequired'));
         }
         if (!formData.motDePasse) {
             validationErrs.push(t('registration:studentRegistration.validation.passwordRequired'));
@@ -378,44 +368,9 @@ const InscriptionEtudiant = () => {
                                         ))}
                                     </select>
                                 )}
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
-                                        {t('registration:studentRegistration.fields.studyYear')} *
-                                    </label>
-                                    <select
-                                        name="anneeEtude"
-                                        value={formData.anneeEtude}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
-                                        disabled={loading}
-                                    >
-                                        <option value="">{t('registration:studentRegistration.placeholders.studyYear')}</option>
-                                        <option value="1ère année">{t('registration:studentRegistration.options.studyYears.year1')}</option>
-                                        <option value="2ème année">{t('registration:studentRegistration.options.studyYears.year2')}</option>
-                                        <option value="3ème année">{t('registration:studentRegistration.options.studyYears.year3')}</option>
-                                        <option value="4ème année">{t('registration:studentRegistration.options.studyYears.year4')}</option>
-                                        <option value="5ème année">{t('registration:studentRegistration.options.studyYears.year5')}</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
-                                        {t('registration:studentRegistration.fields.session')} *
-                                    </label>
-                                    <select
-                                        name="session"
-                                        value={formData.session}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
-                                        disabled={loading}
-                                    >
-                                        <option value="">{t('registration:studentRegistration.placeholders.session')}</option>
-                                        <option value="Automne">{t('registration:studentRegistration.options.sessions.fall')}</option>
-                                        <option value="Hiver">{t('registration:studentRegistration.options.sessions.winter')}</option>
-                                        <option value="Été">{t('registration:studentRegistration.options.sessions.summer')}</option>
-                                    </select>
-                                </div>
+                                <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">
+                                    {t('registration:studentRegistration.fields.yearInfo')}
+                                </p>
                             </div>
                         </div>
                         <div className="space-y-4">
@@ -483,9 +438,9 @@ const InscriptionEtudiant = () => {
                                 )}
                             </button>
                             <p className="mt-4 text-center text-sm text-gray-600 dark:text-slate-300">
-                                {t('registration:studentRegistration.backToHome')} ?{' '}
+                                {t('registration:studentRegistration.alreadyHaveAccount')} ?{' '}
                                 <NavLink to="/login" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
-                                    {t('registration:studentRegistration.buttons.createAccount')}
+                                    {t('registration:studentRegistration.signIn')}
                                 </NavLink>
                             </p>
                         </div>
@@ -497,4 +452,3 @@ const InscriptionEtudiant = () => {
 };
 
 export default InscriptionEtudiant;
-
