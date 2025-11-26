@@ -145,6 +145,8 @@ public class EtudiantService {
         Offre offre = offreRepository.findById(offreId)
                 .orElseThrow(OffreNonDisponible::new);
 
+        verifierOffreAnneeCourante(offre);
+
         if (offre.getStatutApprouve() != Offre.StatutApprouve.APPROUVE) {
             throw new OffreNonDisponible();
         }
@@ -260,6 +262,8 @@ public class EtudiantService {
         if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        verifierOffreAnneeCourante(candidature.getOffre());
 
         if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE) {
             throw new CandidatureNonDisponibleException();
@@ -381,6 +385,8 @@ public class EtudiantService {
         if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        verifierOffreAnneeCourante(candidature.getOffre());
 
         if (candidature.getStatut() != Candidature.StatutCandidature.ACCEPTEE) {
             throw new StatutCandidatureInvalideException();

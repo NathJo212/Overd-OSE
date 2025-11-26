@@ -1717,7 +1717,7 @@ public class EmployeurServiceTest {
     @Test
     public void testCreerEvaluation_EntenteNonSignee() {
         // Arrange - mock security context and employeur
-        int anneeTest = getAnneeAcademiqueCourante(); // ADD THIS LINE
+        int anneeTest = getAnneeAcademiqueCourante();
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -1738,7 +1738,7 @@ public class EmployeurServiceTest {
         // Entente non signée
         EntenteStage entente = mock(EntenteStage.class);
         when(entente.getStatut()).thenReturn(EntenteStage.StatutEntente.EN_ATTENTE);
-        when(entente.getOffre()).thenReturn(offre); // ADD THIS LINE
+        when(entente.getOffre()).thenReturn(offre);
 
         when(ententeStageRepository.findById(200L)).thenReturn(Optional.of(entente));
 

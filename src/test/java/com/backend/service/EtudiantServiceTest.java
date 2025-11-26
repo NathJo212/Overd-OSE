@@ -406,6 +406,9 @@ public class EtudiantServiceTest {
 
     @Test
     public void testPostulerOffre_Succes() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = new Etudiant();
         etudiant.setEmail("etudiant@test.com");
         etudiant.setStatutCV(Etudiant.StatutCV.APPROUVE);
@@ -418,6 +421,7 @@ public class EtudiantServiceTest {
         offre.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
         offre.setDateLimite(LocalDate.now().plusDays(5));
         offre.setEmployeur(employeur);
+        offre.setAnnee(anneeActuelle);
 
         MockMultipartFile lettreFile = new MockMultipartFile(
                 "lettreMotivation", "lettre.pdf", "application/pdf",
@@ -620,13 +624,20 @@ public class EtudiantServiceTest {
 
     @Test
     public void testRetirerCandidature_Succes() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         lenient().when(etudiant.getId()).thenReturn(1L);
         lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
 
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeActuelle);
+
         Candidature candidature = new Candidature();
         candidature.setStatut(Candidature.StatutCandidature.EN_ATTENTE);
         candidature.setEtudiant(etudiant);
+        candidature.setOffre(offre);
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
@@ -661,13 +672,20 @@ public class EtudiantServiceTest {
 
     @Test
     public void testRetirerCandidature_StatutInvalide_Throw() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         lenient().when(etudiant.getId()).thenReturn(1L);
         lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
 
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeActuelle);
+
         Candidature candidature = new Candidature();
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
         candidature.setEtudiant(etudiant);
+        candidature.setOffre(offre);
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
@@ -888,14 +906,21 @@ public class EtudiantServiceTest {
     @Test
     void refuserOffreApprouvee_succes() throws Exception {
         // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getId()).thenReturn(1L);
         lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeActuelle);
 
         Candidature candidature = new Candidature();
         candidature.setId(20L);
         candidature.setEtudiant(etudiant);
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+        candidature.setOffre(offre);
 
         lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
@@ -956,13 +981,20 @@ public class EtudiantServiceTest {
     @Test
     void refuserOffreApprouvee_statutInvalide_throw() {
         // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getId()).thenReturn(1L);
         lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
 
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeActuelle);
+
         Candidature candidature = new Candidature();
         candidature.setEtudiant(etudiant);
         candidature.setStatut(Candidature.StatutCandidature.REFUSEE); // Déjà refusée
+        candidature.setOffre(offre);
 
         lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
@@ -1289,4 +1321,64 @@ public class EtudiantServiceTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    public void testGetAnneeAcademiqueCourante() throws Exception {
+        java.lang.reflect.Method method = EtudiantService.class.getDeclaredMethod("getAnneeAcademiqueCourante");
+        method.setAccessible(true);
+
+        int result = (int) method.invoke(etudiantService);
+
+        LocalDate now = LocalDate.now();
+        int expectedYear = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
+        assertEquals(expectedYear, result);
+    }
+
+    @Test
+    public void testVerifierOffreAnneeCourante_OffreNull() throws Exception {
+        // Arrange
+        java.lang.reflect.Method method = EtudiantService.class.getDeclaredMethod("verifierOffreAnneeCourante", Offre.class);
+        method.setAccessible(true);
+
+        // Act & Assert
+        assertThrows(java.lang.reflect.InvocationTargetException.class, () -> {
+            method.invoke(etudiantService, (Offre) null);
+        });
+    }
+
+    @Test
+    public void testVerifierOffreAnneeCourante_AnneeDifferente() throws Exception {
+        // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
+        Offre offre = new Offre();
+        offre.setAnnee(anneeActuelle - 1);
+
+        java.lang.reflect.Method method = EtudiantService.class.getDeclaredMethod("verifierOffreAnneeCourante", Offre.class);
+        method.setAccessible(true);
+
+        // Act & Assert
+        assertThrows(java.lang.reflect.InvocationTargetException.class, () -> {
+            method.invoke(etudiantService, offre);
+        });
+    }
+
+    @Test
+    public void testVerifierOffreAnneeCourante_AnneeCourante() throws Exception {
+        // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
+        Offre offre = new Offre();
+        offre.setAnnee(anneeActuelle);
+
+        java.lang.reflect.Method method = EtudiantService.class.getDeclaredMethod("verifierOffreAnneeCourante", Offre.class);
+        method.setAccessible(true);
+
+        // Act & Assert - Should not throw
+        assertDoesNotThrow(() -> method.invoke(etudiantService, offre));
+    }
+
 }
