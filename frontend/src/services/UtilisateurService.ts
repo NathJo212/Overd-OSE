@@ -151,7 +151,6 @@ class UtilisateurService {
 
         try {
             const payload = JSON.parse(atob(authResponse.token.split('.')[1]));
-            console.log('Payload du JWT:', payload);
 
             if (payload.authorities && Array.isArray(payload.authorities)) {
                 const authority = payload.authorities[0];

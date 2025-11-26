@@ -95,13 +95,11 @@
     },
     "sign": {
       "title": "Confirmer la signature finale",
-      "message": "Êtes-vous sûr de vouloir signer cette entente de stage ? Cette signature finalise officiellement l'entente et valide l'engagement de toutes les parties. Cette action est irréversible.",
-      "requirements": "L'étudiant et l'employeur ont déjà signé cette entente."
+      "message": "Êtes-vous sûr de vouloir signer cette entente de stage ? Cette signature finalise officiellement l'entente et valide l'engagement de toutes les parties. Cette action est irréversible."
     },
     "refuse": {
       "title": "Refuser l'entente",
-      "message": "Êtes-vous sûr de vouloir refuser cette entente de stage ? L'entente sera annulée et archivée. Cette action est irréversible.",
-      "warning": "L'étudiant et l'employeur seront notifiés du refus."
+      "message": "Êtes-vous sûr de vouloir refuser cette entente de stage ? L'entente sera annulée et archivée. Cette action est irréversible."
     },
     "pdf": {
       "title": "Entente de stage signée"
@@ -109,8 +107,8 @@
   },
 
   "success": {
-    "signed": "Entente signée avec succès ! L'étudiant et l'employeur ont été notifiés.",
-    "refused": "Entente refusée avec succès. Les parties concernées ont été notifiées."
+    "signed": "Entente signée avec succès.",
+    "refused": "Entente refusée avec succès."
   },
 
   "errors": {

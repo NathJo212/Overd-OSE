@@ -13,7 +13,7 @@ import {
     Users,
     Building2,
     GraduationCap,
-    Eye
+    Eye, X
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
@@ -193,15 +193,11 @@ const GestionnaireSigneEntente = () => {
         try {
             setActionLoading(true);
             setError('');
-            console.log('Signature de l\'entente ID:', selectedEntente.id);
             await gestionnaireService.signerEntente(selectedEntente.id, token);
-            console.log('Signature réussie, rechargement des ententes...');
             setSuccessMessage(t('success.signed'));
             setShowSignModal(false);
             setSelectedEntente(null);
             await loadEntentes();
-            console.log('Ententes rechargées après signature');
-            setTimeout(() => setSuccessMessage(''), 5000);
         } catch (err: any) {
             console.error('Erreur lors de la signature:', err);
             const responseData = err.response?.data;
@@ -229,7 +225,6 @@ const GestionnaireSigneEntente = () => {
             setShowRefuseModal(false);
             setSelectedEntente(null);
             await loadEntentes();
-            setTimeout(() => setSuccessMessage(''), 5000);
         } catch (err: any) {
             console.error('Erreur lors du refus:', err);
             const responseData = err.response?.data;
@@ -343,9 +338,20 @@ const GestionnaireSigneEntente = () => {
 
                     {/* Messages */}
                     {successMessage && (
-                        <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 flex items-start gap-3">
-                            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                            <p className="text-green-800 dark:text-green-200">{successMessage}</p>
+                        <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 flex items-start gap-3 justify-between">
+                            <div className="flex items-start gap-3">
+                                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                                <p className="text-green-800 dark:text-green-200">{successMessage}</p>
+                            </div>
+                            <div className="ml-4 flex-shrink-0">
+                                <button
+                                    onClick={() => setSuccessMessage('')}
+                                    aria-label={t('buttons.close')}
+                                    className="cursor-pointer text-green-800 dark:text-green-200 hover:text-green-600 dark:hover:text-green-100 rounded-full p-1"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
                     )}
                     {error && (
@@ -729,12 +735,6 @@ const GestionnaireSigneEntente = () => {
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">{t('modals.sign.title')}</h2>
                             </div>
                             <p className="text-gray-700 dark:text-slate-300 mb-4">{t('modals.sign.message')}</p>
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-                                <p className="text-sm text-green-800 flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4" />
-                                    {t('modals.sign.requirements')}
-                                </p>
-                            </div>
                         </div>
                         <div className="p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl flex gap-3">
                             <button
@@ -775,12 +775,6 @@ const GestionnaireSigneEntente = () => {
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">{t('modals.refuse.title')}</h2>
                             </div>
                             <p className="text-gray-700 dark:text-slate-300 mb-4">{t('modals.refuse.message')}</p>
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                                <p className="text-sm text-red-800 flex items-center gap-2">
-                                    <AlertCircle className="w-4 h-4" />
-                                    {t('modals.refuse.warning')}
-                                </p>
-                            </div>
                         </div>
                         <div className="p-6 bg-gray-50 dark:bg-slate-700 rounded-b-2xl flex gap-3">
                             <button

@@ -207,9 +207,6 @@ const CandidaturesRecues = () => {
             setShowApproveModal(false);
             setCandidatureToAction(null);
 
-            // Afficher un message de succès
-            console.log(t("candidaturesrecues:messages.approveSuccess"));
-
         } catch (error: any) {
             console.error('Erreur lors de l\'approbation:', error);
             setError(t("candidaturesrecues:errors.approveError"));
@@ -239,9 +236,6 @@ const CandidaturesRecues = () => {
             setShowRefuseModal(false);
             setCandidatureToAction(null);
             setRefuseReason("");
-
-            // Afficher un message de succès
-            console.log(t("candidaturesrecues:messages.refuseSuccess"));
 
         } catch (error: any) {
             console.error('Erreur lors du refus:', error);
@@ -465,16 +459,11 @@ const CandidaturesRecues = () => {
              const dateTime = new Date(`${convocationFormData.dateEntrevue}T${convocationFormData.heureDebut}:00`);
              const dateHeure = dateTime.toISOString();
 
-             console.log('Date construite:', dateHeure);
-
              const payload = {
                  dateHeure,
                  lieuOuLien: convocationFormData.lieu,
                 message: convocationFormData.message || t('candidaturesrecues:placeholders.messageTemplate', { prenom: selectedCandidature.etudiantPrenom, offre: selectedCandidature.offreTitre })
              };
-
-             console.log('Payload à envoyer:', payload);
-             console.log('Appel de creerConvocation avec candidatureId:', selectedCandidature.id);
 
              await employeurService.creerConvocation(selectedCandidature.id, payload);
              setConvocationSuccess(t('candidaturesrecues:messages.convocationCreated'));

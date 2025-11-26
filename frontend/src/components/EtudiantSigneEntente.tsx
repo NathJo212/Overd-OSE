@@ -9,7 +9,7 @@ import {
     DollarSign,
     AlertCircle,
     FileSignature,
-    ArrowLeft
+    ArrowLeft, X
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
@@ -43,7 +43,6 @@ const EtudiantSigneEntente = () => {
             setLoading(true);
             setError('');
             const data = await etudiantService.getEntentesEnAttente();
-            console.log('Ententes en attente chargées:', data);
             setEntentes(data);
         } catch (err: any) {
             console.error('Erreur lors du chargement des ententes:', err);
@@ -61,8 +60,7 @@ const EtudiantSigneEntente = () => {
             await etudiantService.signerEntente(selectedEntente.id);
             setSuccessMessage(t('success.signed'));
             setShowSignModal(false);
-            setTimeout(() => setSuccessMessage(''), 3000);
-        } catch (err: any) {
+            } catch (err: any) {
             console.error('Erreur lors de la signature:', err);
             setError(err.response?.data?.erreur?.message || t('errors.signError'));
         } finally {
@@ -81,8 +79,6 @@ const EtudiantSigneEntente = () => {
             // Update local state: mark as refused but keep in the list
             setEntentes(prev => prev.map(e => e.id === selectedEntente.id ? { ...e, etudiantSignature: 'REFUSEE', statut: 'REFUSEE' } : e));
             setSelectedEntente(null);
-
-            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err: any) {
             console.error('Erreur lors du refus:', err);
             setError(err.response?.data?.erreur?.message || t('errors.refuseError'));
@@ -174,9 +170,20 @@ const EtudiantSigneEntente = () => {
 
                 {/* Success Message */}
                 {successMessage && (
-                    <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                        <p className="text-green-800 dark:text-green-200">{successMessage}</p>
+                    <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-start gap-3 justify-between">
+                        <div className="flex items-center gap-3">
+                            <CheckCircle className="w-5 h-5 text-green-600" />
+                            <p className="text-green-800 dark:text-green-200">{successMessage}</p>
+                        </div>
+                        <div className="flex-shrink-0 ml-4">
+                            <button
+                                onClick={() => setSuccessMessage('')}
+                                aria-label={t('buttons.close')}
+                                className="cursor-pointer text-green-800 dark:text-green-200 hover:text-green-600 dark:hover:text-green-100 rounded-full p-1"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 )}
 

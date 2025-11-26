@@ -425,7 +425,7 @@ const DashboardGestionnaire = () => {
                             </h2>
                             <button
                                 onClick={cancelRefuse}
-                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                                className="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -461,14 +461,14 @@ const DashboardGestionnaire = () => {
                             <button
                                 onClick={submitRefuse}
                                 disabled={processingId !== null}
-                                className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-red-400 disabled:shadow-none"
+                                className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-red-400 disabled:shadow-none"
                             >
                                 {processingId !== null ? t('internshipmanager:actions.sending') : t('internshipmanager:actions.confirm')}
                             </button>
                             <button
                                 onClick={cancelRefuse}
                                 disabled={processingId !== null}
-                                className="flex-1 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-200 text-gray-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-medium py-3 rounded-xl transition-all duration-200"
+                                className="cursor-pointer flex-1 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-200 text-gray-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-medium py-3 rounded-xl transition-all duration-200"
                             >
                                 {t('internshipmanager:actions.cancel')}
                             </button>

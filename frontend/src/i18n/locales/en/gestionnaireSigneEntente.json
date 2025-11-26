@@ -95,13 +95,11 @@
     },
     "sign": {
       "title": "Confirm Final Signature",
-      "message": "Are you sure you want to sign this internship agreement? This signature officially finalizes the agreement and validates the commitment of all parties. This action is irreversible.",
-      "requirements": "The student and employer have already signed this agreement."
+      "message": "Are you sure you want to sign this internship agreement? This signature officially finalizes the agreement and validates the commitment of all parties. This action is irreversible."
     },
     "refuse": {
       "title": "Refuse Agreement",
-      "message": "Are you sure you want to refuse this internship agreement? The agreement will be cancelled and archived. This action is irreversible.",
-      "warning": "The student and employer will be notified of the refusal."
+      "message": "Are you sure you want to refuse this internship agreement? The agreement will be cancelled and archived. This action is irreversible."
     },
     "pdf": {
       "title": "Signed Internship Agreement"
@@ -109,8 +107,8 @@
   },
 
   "success": {
-    "signed": "Agreement signed successfully! The student and employer have been notified.",
-    "refused": "Agreement refused successfully. The concerned parties have been notified."
+    "signed": "Agreement signed successfully.",
+    "refused": "Agreement refused successfully."
   },
 
   "errors": {
