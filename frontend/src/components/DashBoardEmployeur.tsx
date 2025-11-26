@@ -43,6 +43,8 @@ const DashBoardEmployeur = () => {
     const [selectedConvocation, setSelectedConvocation] = useState<ConvocationEntrevueDTO | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editForm, setEditForm] = useState({ dateHeure: '', lieuOuLien: '', message: '' });
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [convocationToDelete, setConvocationToDelete] = useState<ConvocationEntrevueDTO | null>(null);
 
     // Year context
     const { selectedYear } = useYear();
@@ -167,16 +169,24 @@ const DashBoardEmployeur = () => {
     const handleDeleteConvocation = async (conv: ConvocationEntrevueDTO) => {
         if (isViewingPastYear) return; // Don't allow deleting for past years
 
-        if (!window.confirm(t('employerdashboard:convocations.confirmDelete'))) return;
+        setConvocationToDelete(conv);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteConvocation = async () => {
+        if (!convocationToDelete) return;
 
         try {
-            await employeurService.annulerConvocation(conv.candidatureId);
+            await employeurService.annulerConvocation(convocationToDelete.candidatureId);
             setNotificationMessage(t('employerdashboard:convocations.messages.deleted'));
             setShowNotification(true);
             await loadConvocations();
         } catch (error: any) {
             setNotificationMessage(error.message || t('employerdashboard:convocations.messages.deleteError'));
             setShowNotification(true);
+        } finally {
+            setShowDeleteModal(false);
+            setConvocationToDelete(null);
         }
     };
 
@@ -300,7 +310,13 @@ const DashBoardEmployeur = () => {
                                                 </div>
                                                 <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2 mb-1">
                                                     <Calendar className="w-4 h-4" />
-                                                    {new Date(conv.dateHeure).toLocaleString(i18n?.language?.startsWith('fr') ? 'fr-CA' : 'en-CA')}
+                                                    {new Date(conv.dateHeure).toLocaleString(i18n?.language?.startsWith('fr') ? 'fr-CA' : 'en-CA', {
+                                                        year: 'numeric',
+                                                        month: '2-digit',
+                                                        day: '2-digit',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
                                                 </p>
                                                 <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2">
                                                     <MapPin className="w-4 h-4" />
@@ -466,7 +482,7 @@ const DashBoardEmployeur = () => {
                                         type="datetime-local"
                                         value={editForm.dateHeure}
                                         onChange={(e) => setEditForm({...editForm, dateHeure: e.target.value})}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                                 <div>
@@ -475,7 +491,7 @@ const DashBoardEmployeur = () => {
                                         type="text"
                                         value={editForm.lieuOuLien}
                                         onChange={(e) => setEditForm({...editForm, lieuOuLien: e.target.value})}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                                 <div>
@@ -484,13 +500,13 @@ const DashBoardEmployeur = () => {
                                         value={editForm.message}
                                         onChange={(e) => setEditForm({...editForm, message: e.target.value})}
                                         rows={4}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
                                     />
                                 </div>
                             </div>
-                            <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
+                            <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700/50 rounded-b-xl flex justify-end gap-3">
                                 <button
-                                    className="cursor-pointer px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                                    className="cursor-pointer px-6 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600"
                                     onClick={() => setShowEditModal(false)}
                                 >
                                     {t('employerdashboard:convocations.editModal.cancel')}
@@ -500,6 +516,67 @@ const DashBoardEmployeur = () => {
                                     onClick={handleSaveEdit}
                                 >
                                     {t('employerdashboard:convocations.editModal.save')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Delete Convocation Modal */}
+                {showDeleteModal && convocationToDelete && (
+                    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30 backdrop-blur-sm">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-700">
+                            <div className="bg-red-50 dark:bg-red-900/30 px-6 py-4 rounded-t-xl border-b border-red-100 dark:border-red-800">
+                                <div className="flex items-center">
+                                    <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mr-3">
+                                        <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-red-700 dark:text-red-300">{t('employerdashboard:convocations.deleteModal.title')}</h3>
+                                </div>
+                            </div>
+                            <div className="px-6 py-6">
+                                <p className="text-gray-700 dark:text-slate-200 mb-4">
+                                    {t('employerdashboard:convocations.deleteModal.message')}
+                                </p>
+                                <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-lg border border-gray-200 dark:border-slate-600">
+                                    <p className="font-semibold text-gray-800 dark:text-slate-100 mb-2">
+                                        {convocationToDelete.offreTitre || t('employerdashboard:convocations.defaultTitle')}
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2">
+                                        <Calendar className="w-4 h-4" />
+                                        {new Date(convocationToDelete.dateHeure).toLocaleString(i18n?.language?.startsWith('fr') ? 'fr-CA' : 'en-CA', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </p>
+                                    {convocationToDelete.etudiantNom && convocationToDelete.etudiantPrenom && (
+                                        <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">
+                                            {t('employerdashboard:convocations.student')}: {convocationToDelete.etudiantPrenom} {convocationToDelete.etudiantNom}
+                                        </p>
+                                    )}
+                                </div>
+                                <p className="text-sm text-red-600 dark:text-red-400 mt-4 font-medium">
+                                    {t('employerdashboard:convocations.deleteModal.warning')}
+                                </p>
+                            </div>
+                            <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700/50 rounded-b-xl flex justify-end gap-3">
+                                <button
+                                    className="cursor-pointer px-6 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600"
+                                    onClick={() => {
+                                        setShowDeleteModal(false);
+                                        setConvocationToDelete(null);
+                                    }}
+                                >
+                                    {t('employerdashboard:convocations.deleteModal.cancel')}
+                                </button>
+                                <button
+                                    className="cursor-pointer px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                                    onClick={confirmDeleteConvocation}
+                                >
+                                    {t('employerdashboard:convocations.deleteModal.confirm')}
                                 </button>
                             </div>
                         </div>

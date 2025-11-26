@@ -39,6 +39,7 @@
     "edit": "Modifier",
     "delete": "Annuler",
     "confirmDelete": "Êtes-vous sûr de vouloir annuler cette convocation?",
+    "noReasonProvided": "Aucune raison fournie",
     "messages": {
       "edited": "Convocation modifiée avec succès",
       "deleted": "Convocation annulée avec succès",
@@ -53,8 +54,15 @@
       "cancel": "Annuler",
       "save": "Enregistrer"
     },
-    "convoked" : "Convoqué",
-    "modified" : "Modifié",
-    "cancelled" : "Annulée"
+    "deleteModal": {
+      "title": "Annuler la convocation",
+      "message": "Êtes-vous sûr de vouloir annuler cette convocation ?",
+      "warning": "Cette action est irréversible.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer l'annulation"
+    },
+    "convoked": "Convoqué",
+    "modified": "Modifié",
+    "cancelled": "Annulée"
   }
 }
