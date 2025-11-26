@@ -166,38 +166,49 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testOffrePourEmployeur() throws Exception {
+    public void testGetOffresParEmployeur() throws Exception {
         // Arrange
         int anneeTest = getAnneeAcademiqueCourante();
-        AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer validToken");
-        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(true);
-        when(jwtTokenProvider.getEmailFromJWT(anyString())).thenReturn("employeur@test.com");
 
-        Employeur employeur = new Employeur("employeur@test.com", "pass", "tel", "nom", "contact");
-        when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
+
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Offre offre1 = new Offre("Titre 1", "Description 1", LocalDate.of(anneeTest, 1, 1), LocalDate.of(anneeTest, 6, 1), Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 5, 1), employeur);
         Offre offre2 = new Offre("Titre 2", "Description 2", LocalDate.of(anneeTest, 2, 1), LocalDate.of(anneeTest, 7, 1), Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 6, 1), employeur);
         when(offreRepository.findOffreByEmployeurId(employeur.getId())).thenReturn(java.util.List.of(offre1, offre2));
 
         // Act
-        var result = employeurService.OffrePourEmployeur(utilisateur, anneeTest);
+        var result = employeurService.getOffresParEmployeur(anneeTest);
 
         // Assert
-        verify(jwtTokenProvider, times(1)).isEmployeur(anyString(), any());
-        verify(employeurRepository, times(1)).findByEmail("employeur@test.com");
+        verify(employeurRepository, times(1)).findByEmail(email);
         verify(offreRepository, times(1)).findOffreByEmployeurId(employeur.getId());
         assertEquals(2, result.size());
     }
 
     @Test
-    public void testOffrePourEmployeur_NonEmployeur() {
+    public void testGetOffresParEmployeur_NonEmployeur() {
         // Arrange
-        AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer fakeToken");
-        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(false);
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ETUDIANT")
+        );
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.OffrePourEmployeur(utilisateur, getAnneeAcademiqueCourante()));
+        assertThrows(ActionNonAutoriseeException.class, () ->
+                employeurService.getOffresParEmployeur(getAnneeAcademiqueCourante())
+        );
     }
 
     @Test

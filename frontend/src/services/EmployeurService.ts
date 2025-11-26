@@ -363,15 +363,18 @@ class EmployeurService {
         }
     }
 
-    async getOffresParEmployeur(token: string): Promise<any[]> {
+    async getOffresParEmployeur(token: string, year?: number): Promise<any[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/OffresParEmployeur`, {
-                method: 'POST',
+            const url = year
+                ? `${this.baseUrl}/OffresParEmployeur?annee=${year}`
+                : `${this.baseUrl}/OffresParEmployeur`;
+
+            const response = await fetch(url, {
+                method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ token }),
+                    'Content-Type': 'application/json',
+                }
             });
 
             const data = await response.json();

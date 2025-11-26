@@ -58,7 +58,8 @@ const DashBoardEmployeur = () => {
         } else {
             const token = sessionStorage.getItem("authToken");
             if (token) {
-                employeurService.getOffresParEmployeur(token)
+                // Load offers with selected year
+                employeurService.getOffresParEmployeur(token, selectedYear)
                     .then(offres => setOffres(offres))
                     .catch(() => setNotificationMessage(t("employerdashboard:errors.loadOffers")));
             }
@@ -86,7 +87,7 @@ const DashBoardEmployeur = () => {
 
             return () => clearTimeout(timer);
         }
-    }, [navigate, showNotification, t, selectedYear]);
+    }, [navigate, showNotification, t, selectedYear]); // Added selectedYear to dependencies
 
     const loadConvocations = async () => {
         try {

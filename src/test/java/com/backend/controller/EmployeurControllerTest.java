@@ -216,11 +216,13 @@ class EmployeurControllerTest {
 
 
     @Test
-    @DisplayName("POST /OSEemployeur/OffresParEmployeur retourne 200 et liste d'offres avec employeur existant")
+    @DisplayName("GET /OSEemployeur/OffresParEmployeur retourne 200 et liste d'offres avec employeur existant")
     void getAllOffresParEmployeur() throws Exception {
         // Arrange
-        AuthResponseDTO authResponse = new AuthResponseDTO("Bearer validToken");
-        int currentYear = LocalDate.now().getYear();
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
+        int defaultYear = currentMonth >= 8 ? currentYear + 1 : currentYear;
 
         OffreDTO offre1 = new OffreDTO();
         offre1.setId(1L);
@@ -232,13 +234,12 @@ class EmployeurControllerTest {
         offre2.setTitre("Stage Marketing");
         offre2.setDescription("Stage en marketing digital");
 
-        when(employeurService.OffrePourEmployeur(any(AuthResponseDTO.class), eq(currentYear)))
+        when(employeurService.getOffresParEmployeur(eq(defaultYear)))
                 .thenReturn(java.util.List.of(offre1, offre2));
 
         // Act & Assert
-        mockMvc.perform(post("/OSEemployeur/OffresParEmployeur")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authResponse)))
+        mockMvc.perform(get("/OSEemployeur/OffresParEmployeur")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -248,19 +249,20 @@ class EmployeurControllerTest {
     }
 
     @Test
-    @DisplayName("POST /OSEemployeur/OffresParEmployeur retourne 401 si utilisateur non autorisé")
+    @DisplayName("GET /OSEemployeur/OffresParEmployeur retourne 401 si utilisateur non autorisé")
     void getAllOffresParEmployeur_nonEmployeur() throws Exception {
         // Arrange
-        AuthResponseDTO authResponse = new AuthResponseDTO("Bearer fakeToken");
-        int currentYear = LocalDate.now().getYear();
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
+        int defaultYear = currentMonth >= 8 ? currentYear + 1 : currentYear;
 
         doThrow(new ActionNonAutoriseeException())
-                .when(employeurService).OffrePourEmployeur(any(AuthResponseDTO.class), eq(currentYear));
+                .when(employeurService).getOffresParEmployeur(eq(defaultYear));
 
         // Act & Assert
-        mockMvc.perform(post("/OSEemployeur/OffresParEmployeur")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authResponse)))
+        mockMvc.perform(get("/OSEemployeur/OffresParEmployeur")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 

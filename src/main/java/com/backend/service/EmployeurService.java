@@ -120,14 +120,8 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<OffreDTO> OffrePourEmployeur(AuthResponseDTO utilisateur, int annee) throws ActionNonAutoriseeException {
-        String token = utilisateur.getToken();
-        boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
-        if (!isEmployeur) {
-            throw new ActionNonAutoriseeException();
-        }
-        String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
-        Employeur employeur = employeurRepository.findByEmail(email);
+    public List<OffreDTO> getOffresParEmployeur(int annee) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
         List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
 
         // Filter by year

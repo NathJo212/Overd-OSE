@@ -75,17 +75,24 @@ public class EmployeurController {
         }
     }
 
-    @PostMapping("/OffresParEmployeur")
+    @GetMapping("/OffresParEmployeur")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<List<OffreDTO>> getAllOffresParEmployeur(
-            @RequestBody AuthResponseDTO utilisateur,
             @RequestParam(required = false) Integer annee) {
         try {
-            // Use current year if no year is provided
-            int year = (annee != null) ? annee : LocalDate.now().getYear();
-            List<OffreDTO> offres = employeurService.OffrePourEmployeur(utilisateur, year);
+            // Use current academic year if no year is provided
+            LocalDate now = LocalDate.now();
+            int currentYear = now.getYear();
+            int currentMonth = now.getMonthValue();
+            int defaultYear = currentMonth >= 8 ? currentYear + 1 : currentYear;
+
+            int year = (annee != null) ? annee : defaultYear;
+
+            List<OffreDTO> offres = employeurService.getOffresParEmployeur(year);
             return ResponseEntity.ok(offres);
         } catch (ActionNonAutoriseeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (UtilisateurPasTrouveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
