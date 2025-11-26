@@ -195,15 +195,21 @@ public class ProfesseurServiceTest {
 
     @Test
     public void getMesEtudiants_retourneListeEtudiants() throws Exception {
+        // Calculate current academic year
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etu1 = mock(Etudiant.class);
         when(etu1.getEmail()).thenReturn("etu1@test.com");
         when(etu1.getNom()).thenReturn("Martin");
         when(etu1.getPrenom()).thenReturn("Sophie");
+        when(etu1.getAnnee()).thenReturn(anneeActuelle);
 
         Etudiant etu2 = mock(Etudiant.class);
         when(etu2.getEmail()).thenReturn("etu2@test.com");
         when(etu2.getNom()).thenReturn("Tremblay");
         when(etu2.getPrenom()).thenReturn("Jean");
+        when(etu2.getAnnee()).thenReturn(anneeActuelle);
 
         Professeur professeur = mock(Professeur.class);
         when(professeur.getEtudiantList()).thenReturn(asList(etu1, etu2));
