@@ -4,6 +4,8 @@
     "title": "Inscription Employeur",
     "subtitle": "Créez votre compte employeur pour publier des offres de stage.",
     "redirecting": "Redirection...",
+    "alreadyHaveAccount": "Vous avez déjà un compte",
+    "signIn": "Se connecter",
 
     "sections": {
       "companyInfo": "Informations de l'entreprise",
@@ -67,6 +69,8 @@
     "title": "Inscription Étudiant",
     "subtitle": "Créez votre compte étudiant pour accéder aux offres de stage.",
     "redirecting": "Redirection...",
+    "alreadyHaveAccount": "Vous avez déjà un compte",
+    "signIn": "Se connecter",
 
     "sections": {
       "personalInfo": "Informations personnelles",
@@ -80,8 +84,7 @@
       "email": "Adresse courriel",
       "phoneNumber": "Numéro de téléphone",
       "studyProgram": "Programme d'études",
-      "studyYear": "Année d'étude",
-      "session": "Session",
+      "yearInfo": "L'année académique sera déterminée automatiquement lors de votre inscription.",
       "password": "Mot de passe",
       "confirmPassword": "Confirmer le mot de passe"
     },
@@ -92,8 +95,6 @@
       "email": "jean.dupont@example.com",
       "phoneNumber": "123 123 1234",
       "studyProgram": "Sélectionnez votre programme",
-      "studyYear": "Sélectionnez...",
-      "session": "Sélectionnez...",
       "password": "Votre mot de passe sécurisé",
       "confirmPassword": "Confirmez votre mot de passe"
     },
@@ -105,8 +106,6 @@
       "emailInvalid": "L'adresse courriel n'est pas valide",
       "phoneRequired": "Le numéro de téléphone est requis",
       "studyProgramRequired": "Le programme d'études est requis",
-      "studyYearRequired": "L'année d'étude est requise",
-      "sessionRequired": "La session est requise",
       "passwordRequired": "Le mot de passe est requis",
       "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
       "passwordUppercase": "Le mot de passe doit contenir au moins une majuscule",
@@ -126,21 +125,6 @@
     "buttons": {
       "createAccount": "Créer mon compte étudiant",
       "creating": "Création en cours..."
-    },
-
-    "options": {
-      "studyYears": {
-        "year1": "1ère année",
-        "year2": "2ème année",
-        "year3": "3ème année",
-        "year4": "4ème année",
-        "year5": "5ème année"
-      },
-      "sessions": {
-        "fall": "Automne",
-        "winter": "Hiver",
-        "summer": "Été"
-      }
     }
   }
 }

@@ -1,17 +1,19 @@
 {
-      "employerRegistration": {
-      "backToHome": "Back to home",
-      "title": "Employer Registration",
-      "subtitle": "Create your employer account to post internship offers.",
-      "redirecting": "Redirecting...",
+  "employerRegistration": {
+    "backToHome": "Back to home",
+    "title": "Employer Registration",
+    "subtitle": "Create your employer account to post internship offers.",
+    "redirecting": "Redirecting...",
+    "alreadyHaveAccount": "Already have an account",
+    "signIn": "Sign in",
 
-      "sections": {
+    "sections": {
       "companyInfo": "Company Information",
       "contactPerson": "Contact Person",
       "accountSecurity": "Account Security"
-      },
+    },
 
-      "fields": {
+    "fields": {
       "companyName": "Company Name",
       "companyAddress": "Company Address",
       "contactFirstName": "Contact First Name",
@@ -20,10 +22,10 @@
       "phoneNumber": "Phone Number",
       "password": "Password",
       "confirmPassword": "Confirm Password"
-      },
+    },
 
-      "placeholders": {
-      "companyName": "e.g: TechCorp Inc.",
+    "placeholders": {
+      "companyName": "e.g., TechCorp Inc.",
       "companyAddress": "123 Main Street, Montreal, QC",
       "contactFirstName": "Marie",
       "contactLastName": "Martin",
@@ -31,9 +33,9 @@
       "phoneNumber": "514 123 4567",
       "password": "Your secure password",
       "confirmPassword": "Confirm your password"
-      },
+    },
 
-      "validation": {
+    "validation": {
       "companyNameRequired": "Company name is required",
       "companyAddressRequired": "Company address is required",
       "contactFirstNameRequired": "Contact first name is required",
@@ -47,26 +49,28 @@
       "passwordNumber": "Password must contain at least one number",
       "passwordSpecialChar": "Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>)",
       "passwordMismatch": "Passwords do not match",
-      "passwordValid": "Valid password"
-      },
+      "passwordValid": "Password is valid"
+    },
 
-      "messages": {
+    "messages": {
       "accountCreated": "Account created successfully!",
-      "accountCreatedAndLoggedIn": "Account created and automatic login successful!",
+      "accountCreatedAndLoggedIn": "Account created and automatically logged in!",
       "accountCreatedPleaseLogin": "Account created! Please log in.",
       "unknownError": "An unknown error occurred"
-      },
+    },
 
-      "buttons": {
+    "buttons": {
       "createAccount": "Create my account",
       "creating": "Creating..."
-      }
-    },
+    }
+  },
   "studentRegistration": {
     "backToHome": "Back to home",
     "title": "Student Registration",
     "subtitle": "Create your student account to access internship offers.",
     "redirecting": "Redirecting...",
+    "alreadyHaveAccount": "Already have an account",
+    "signIn": "Sign in",
 
     "sections": {
       "personalInfo": "Personal Information",
@@ -80,20 +84,17 @@
       "email": "Email Address",
       "phoneNumber": "Phone Number",
       "studyProgram": "Study Program",
-      "studyYear": "Year of Study",
-      "session": "Session",
+      "yearInfo": "The academic year will be determined automatically upon registration.",
       "password": "Password",
       "confirmPassword": "Confirm Password"
     },
 
     "placeholders": {
       "firstName": "John",
-      "lastName": "Smith",
-      "email": "john.smith@example.com",
+      "lastName": "Doe",
+      "email": "john.doe@example.com",
       "phoneNumber": "123 123 1234",
       "studyProgram": "Select your program",
-      "studyYear": "Select...",
-      "session": "Select...",
       "password": "Your secure password",
       "confirmPassword": "Confirm your password"
     },
@@ -105,20 +106,18 @@
       "emailInvalid": "Email address is not valid",
       "phoneRequired": "Phone number is required",
       "studyProgramRequired": "Study program is required",
-      "studyYearRequired": "Year of study is required",
-      "sessionRequired": "Session is required",
       "passwordRequired": "Password is required",
       "passwordMinLength": "Password must contain at least 8 characters",
       "passwordUppercase": "Password must contain at least one uppercase letter",
       "passwordNumber": "Password must contain at least one number",
       "passwordSpecialChar": "Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>)",
       "passwordMismatch": "Passwords do not match",
-      "passwordValid": "Valid password"
+      "passwordValid": "Password is valid"
     },
 
     "messages": {
       "accountCreated": "Account created successfully!",
-      "accountCreatedAndLoggedIn": "Account created and automatic login successful!",
+      "accountCreatedAndLoggedIn": "Account created and automatically logged in!",
       "accountCreatedPleaseLogin": "Account created! Please log in.",
       "unknownError": "An unknown error occurred"
     },
@@ -126,21 +125,6 @@
     "buttons": {
       "createAccount": "Create my student account",
       "creating": "Creating..."
-    },
-
-    "options": {
-      "studyYears": {
-        "year1": "1st year",
-        "year2": "2nd year",
-        "year3": "3rd year",
-        "year4": "4th year",
-        "year5": "5th year"
-      },
-      "sessions": {
-        "fall": "Fall",
-        "winter": "Winter",
-        "summer": "Summer"
-      }
     }
   }
 }
