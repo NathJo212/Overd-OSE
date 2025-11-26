@@ -109,10 +109,10 @@ const CreerOffreStage = () => {
             const startMonth = startDate.getMonth(); // 0-indexed
 
             if (startYear !== academicYear) {
-                validationErrors.push(`La date de début doit être en ${academicYear}`);
+                validationErrors.push(t("offercreate:errors.startDateYearMismatch", { year: academicYear }));
             }
             if (startMonth < 0 || startMonth > 5) { // January (0) to June (5)
-                validationErrors.push(`La date de début doit être entre janvier et juin ${academicYear}`);
+                validationErrors.push(t("offercreate:errors.startDateMonthRange", { year: academicYear }));
             }
         }
 
@@ -122,10 +122,10 @@ const CreerOffreStage = () => {
             const endMonth = endDate.getMonth();
 
             if (endYear !== academicYear) {
-                validationErrors.push(`La date de fin doit être en ${academicYear}`);
+                validationErrors.push(t("offercreate:errors.endDateYearMismatch", { year: academicYear }));
             }
             if (endMonth < 0 || endMonth > 5) {
-                validationErrors.push(`La date de fin doit être entre janvier et juin ${academicYear}`);
+                validationErrors.push(t("offercreate:errors.endDateMonthRange", { year: academicYear }));
             }
         }
 
@@ -134,7 +134,7 @@ const CreerOffreStage = () => {
             const startDate = new Date(formData.date_debut);
             const endDate = new Date(formData.date_fin);
             if (endDate < startDate) {
-                validationErrors.push("La date de fin doit être après la date de début");
+                validationErrors.push(t("offercreate:errors.endDateBeforeStartDate"));
             }
         }
 
@@ -234,11 +234,10 @@ const CreerOffreStage = () => {
                         <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
                             <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">
-                                Année académique : {academicYear}
+                                {t("offercreate:academicYear.title", { year: academicYear })}
                             </h3>
                             <p className="text-sm text-blue-800 dark:text-blue-300">
-                                Les stages doivent se dérouler entre <strong>janvier et juin {academicYear}</strong>.
-                                Veuillez sélectionner des dates dans cette période.
+                                {t("offercreate:academicYear.description", { year: academicYear })}
                             </p>
                         </div>
                     </div>
