@@ -20,9 +20,9 @@ import {
 } from "lucide-react";
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
-import YearBanner from "./YearBanner.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
 import { useTranslation } from "react-i18next";
-import { useYear } from "./YearContext";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 const DashboardGestionnaire = () => {
     const { t } = useTranslation(["internshipmanager"]);

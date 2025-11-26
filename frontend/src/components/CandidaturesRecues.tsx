@@ -22,8 +22,8 @@ import {
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
-import YearBanner from "./YearBanner.tsx";
-import { useYear } from "./YearContext";
+import YearBanner from "./YearBanner/YearBanner.tsx";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 interface CandidatureRecue {
     id: number;

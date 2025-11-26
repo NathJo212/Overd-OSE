@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next";
 import UtilisateurService from "../services/UtilisateurService.ts";
 import {UserCheck, Users, GraduationCap, Search, X, CheckCircle, AlertCircle, UserCog, ArrowLeft} from "lucide-react";
 import NavBar from "./NavBar.tsx";
-import YearBanner from "./YearBanner.tsx";
-import { useYear } from "./YearContext";
+import YearBanner from "./YearBanner/YearBanner.tsx";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 export default function GestionnaireAttribueEtudiant() {
     const { t } = useTranslation(["gestionnaireAttribueEtudiant"]);

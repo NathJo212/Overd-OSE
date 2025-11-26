@@ -9,11 +9,11 @@ import {
     ArrowLeft,
 } from "lucide-react";
 import NavBar from "./NavBar.tsx";
-import YearBanner from "./YearBanner.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import { gestionnaireService, type CandidatureEligibleDTO, type EntenteStageDTO, type OffreDTO } from "../services/GestionnaireService";
-import { useYear } from "./YearContext";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 const EntentesStageGestionnaire = () => {
     const { t } = useTranslation(['ententesStageGestionnaire' , 'programmes']);

@@ -3,7 +3,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { YearProvider } from './components/YearContext'
+import { YearProvider } from './components/YearContext/YearContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>

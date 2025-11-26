@@ -8,7 +8,7 @@ import NotificationEtudiant from './NotificationEtudiant.tsx';
 import { useTranslation } from "react-i18next";
 import NotificationEmployeur from "./NotificationEmployeur.tsx";
 import SearchBar from "./SearchBar/SearchBar.tsx";
-import { useYear } from "./YearContext";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 const NavBar = () => {
     const navigate = useNavigate();

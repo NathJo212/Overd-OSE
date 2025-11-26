@@ -17,7 +17,7 @@ import {
 import { gestionnaireService, type OffreDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
-import { useYear } from "./YearContext";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 type FilterType = 'all' | 'expired' | 'refused' | 'approved' | 'pending';
 

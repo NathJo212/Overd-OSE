@@ -153,7 +153,18 @@ public class UtilisateurService {
         }
     }
 
+    private int getAnneeAcademiqueCourante() {
+        java.time.LocalDate now = java.time.LocalDate.now();
+        int year = now.getYear();
+        if (now.getMonthValue() >= 8) {
+            return year + 1;
+        }
+        return year;
+    }
+
     private List<EtudiantDTO> searchEtudiants(String searchTerm) {
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+
         List<Etudiant> etudiants;
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
             etudiants = (List<Etudiant>) etudiantRepository.findAll();
@@ -166,6 +177,7 @@ public class UtilisateurService {
                     .collect(Collectors.toList());
         }
         return etudiants.stream()
+                .filter(e -> e.getAnnee() == anneeAcademiqueCourante)
                 .map(e -> new EtudiantDTO().toDTO(e))
                 .collect(Collectors.toList());
     }

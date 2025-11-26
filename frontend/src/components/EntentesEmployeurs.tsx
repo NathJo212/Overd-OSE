@@ -18,8 +18,8 @@ import {
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 import { employeurService, type EntenteStageDTO } from "../services/EmployeurService";
-import YearBanner from "./YearBanner.tsx";
-import { useYear } from "./YearContext";
+import YearBanner from "./YearBanner/YearBanner.tsx";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 
 const EntentesEmployeurs = () => {

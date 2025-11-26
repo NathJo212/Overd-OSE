@@ -1,6 +1,6 @@
 import { AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useYear } from "./YearContext";
+import { useYear } from "../YearContext/YearContext.tsx";
 
 const YearBanner = () => {
     const { t } = useTranslation(['yearBanner']);

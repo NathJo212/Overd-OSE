@@ -5,8 +5,8 @@ import { employeurService } from "../services/EmployeurService";
 import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap, Clock, Edit, Trash2, RefreshCw } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
-import { useYear } from "./YearContext";
-import YearBanner from "./YearBanner";
+import { useYear } from "./YearContext/YearContext.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
 
 // Helper function to determine academic year
 const getCurrentYear = (): number => {

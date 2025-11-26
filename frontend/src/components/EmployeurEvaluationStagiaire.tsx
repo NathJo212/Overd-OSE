@@ -22,8 +22,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar";
 import employeurService from '../services/EmployeurService';
-import { useYear } from "./YearContext";
-import YearBanner from "./YearBanner";
+import { useYear } from "./YearContext/YearContext.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
 import type {
     EntenteStageDTO,
     EvaluationDTO,

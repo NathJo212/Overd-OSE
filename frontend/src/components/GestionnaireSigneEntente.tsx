@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useYear } from "./YearContext";
+import { useYear } from "./YearContext/YearContext.tsx";
 import { useNavigate } from "react-router-dom";
 import {
     CheckCircle,
@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar.tsx";
-import YearBanner from "./YearBanner.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
 import { gestionnaireService } from '../services/GestionnaireService.ts';
 import type { EntenteStageDTO } from '../services/GestionnaireService.ts';
 import UtilisateurService from "../services/UtilisateurService.ts";
