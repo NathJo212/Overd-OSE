@@ -82,11 +82,14 @@ public class ProfesseurService {
 
     @Transactional
     public List<EtudiantDTO> getMesEtudiants(Long professeurId) throws UtilisateurPasTrouveException {
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+
         Professeur professeur = professeurRepository.findById(professeurId)
                 .orElseThrow(UtilisateurPasTrouveException::new);
 
         return professeur.getEtudiantList()
                 .stream()
+                .filter(e -> e.getAnnee() == anneeAcademiqueCourante)
                 .map(e -> new EtudiantDTO().toDTO(e))
                 .toList();
     }
@@ -251,7 +254,10 @@ public class ProfesseurService {
                 evaluationMilieuStageParProfesseurRepository.findAllByProfesseurId(professeur.getId());
 
         return evaluations.stream()
-                .map(e -> new EvaluationMilieuStageDTO().toDTO(e))
+                .map(e -> {
+                    new EvaluationMilieuStageDTO();
+                    return EvaluationMilieuStageDTO.toDTO(e);
+                })
                 .toList();
     }
 
@@ -270,7 +276,8 @@ public class ProfesseurService {
             throw new ActionNonAutoriseeException();
         }
 
-        return new EvaluationMilieuStageDTO().toDTO(evaluation);
+        new EvaluationMilieuStageDTO();
+        return EvaluationMilieuStageDTO.toDTO(evaluation);
     }
 
     @Transactional
