@@ -216,10 +216,13 @@ class EmployeurControllerTest {
 
 
     @Test
-    @DisplayName("POST /OSEemployeur/OffresParEmployeur retourne 200 et liste d'offres avec employeur existant")
+    @DisplayName("GET /OSEemployeur/OffresParEmployeur retourne 200 et liste d'offres avec employeur existant")
     void getAllOffresParEmployeur() throws Exception {
         // Arrange
-        AuthResponseDTO authResponse = new AuthResponseDTO("Bearer validToken");
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
+        int defaultYear = currentMonth >= 8 ? currentYear + 1 : currentYear;
 
         OffreDTO offre1 = new OffreDTO();
         offre1.setId(1L);
@@ -231,13 +234,12 @@ class EmployeurControllerTest {
         offre2.setTitre("Stage Marketing");
         offre2.setDescription("Stage en marketing digital");
 
-        when(employeurService.OffrePourEmployeur(any(AuthResponseDTO.class)))
+        when(employeurService.getOffresParEmployeur(eq(defaultYear)))
                 .thenReturn(java.util.List.of(offre1, offre2));
 
         // Act & Assert
-        mockMvc.perform(post("/OSEemployeur/OffresParEmployeur")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authResponse)))
+        mockMvc.perform(get("/OSEemployeur/OffresParEmployeur")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -247,18 +249,20 @@ class EmployeurControllerTest {
     }
 
     @Test
-    @DisplayName("POST /OSEemployeur/OffresParEmployeur retourne 401 si utilisateur non autorisé")
+    @DisplayName("GET /OSEemployeur/OffresParEmployeur retourne 401 si utilisateur non autorisé")
     void getAllOffresParEmployeur_nonEmployeur() throws Exception {
         // Arrange
-        AuthResponseDTO authResponse = new AuthResponseDTO("Bearer fakeToken");
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
+        int defaultYear = currentMonth >= 8 ? currentYear + 1 : currentYear;
 
         doThrow(new ActionNonAutoriseeException())
-                .when(employeurService).OffrePourEmployeur(any(AuthResponseDTO.class));
+                .when(employeurService).getOffresParEmployeur(eq(defaultYear));
 
         // Act & Assert
-        mockMvc.perform(post("/OSEemployeur/OffresParEmployeur")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authResponse)))
+        mockMvc.perform(get("/OSEemployeur/OffresParEmployeur")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -266,13 +270,14 @@ class EmployeurControllerTest {
     @DisplayName("GET /OSEemployeur/candidatures retourne 200 et liste de candidatures")
     void getAllCandidatures_success_returnsOkAndList() throws Exception {
         // Arrange
+        int currentYear = LocalDate.now().getYear();
         CandidatureDTO candidature1 = new CandidatureDTO();
         candidature1.setId(1L);
 
         CandidatureDTO candidature2 = new CandidatureDTO();
         candidature2.setId(2L);
 
-        when(employeurService.getCandidaturesPourEmployeur())
+        when(employeurService.getCandidaturesPourEmployeur(currentYear))
                 .thenReturn(java.util.List.of(candidature1, candidature2));
 
         // Act & Assert
@@ -290,8 +295,9 @@ class EmployeurControllerTest {
     @DisplayName("GET /OSEemployeur/candidatures retourne 403 si non autorisé")
     void getAllCandidatures_nonAutorise_returnsForbidden() throws Exception {
         // Arrange
+        int currentYear = LocalDate.now().getYear();
         doThrow(new ActionNonAutoriseeException())
-                .when(employeurService).getCandidaturesPourEmployeur();
+                .when(employeurService).getCandidaturesPourEmployeur(currentYear);
 
         // Act & Assert
         mockMvc.perform(get("/OSEemployeur/candidatures")
@@ -303,7 +309,8 @@ class EmployeurControllerTest {
     @DisplayName("GET /OSEemployeur/candidatures retourne 500 sur erreur interne")
     void getAllCandidatures_internalError_returnsInternalServerError() throws Exception {
         // Arrange
-        when(employeurService.getCandidaturesPourEmployeur())
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getCandidaturesPourEmployeur(currentYear))
                 .thenThrow(new RuntimeException("Erreur interne"));
 
         // Act & Assert
@@ -620,11 +627,12 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/convocations retourne 200 et liste de convocations")
     void getConvocationsPourEmployeur_success_returnsOkAndList() throws Exception {
+        int currentYear = LocalDate.now().getYear();
         ConvocationEntrevueDTO conv1 = new ConvocationEntrevueDTO();
         ConvocationEntrevueDTO conv2 = new ConvocationEntrevueDTO();
-        when(employeurService.getConvocationsPourEmployeur()).thenReturn(java.util.List.of(conv1, conv2));
+        when(employeurService.getConvocationsPourEmployeur(currentYear)).thenReturn(java.util.List.of(conv1, conv2));
         mockMvc.perform(get("/OSEemployeur/convocations")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -634,18 +642,20 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/convocations retourne 403 si action non autorisée")
     void getConvocationsPourEmployeur_actionNonAutorisee_returnsForbidden() throws Exception {
-        when(employeurService.getConvocationsPourEmployeur()).thenThrow(new ActionNonAutoriseeException());
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getConvocationsPourEmployeur(currentYear)).thenThrow(new ActionNonAutoriseeException());
         mockMvc.perform(get("/OSEemployeur/convocations")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @DisplayName("GET /OSEemployeur/convocations retourne 500 sur erreur interne")
     void getConvocationsPourEmployeur_internalError_returnsInternalServerError() throws Exception {
-        when(employeurService.getConvocationsPourEmployeur()).thenThrow(new RuntimeException("Erreur interne"));
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getConvocationsPourEmployeur(currentYear)).thenThrow(new RuntimeException("Erreur interne"));
         mockMvc.perform(get("/OSEemployeur/convocations")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError());
     }
 
@@ -929,13 +939,14 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/ententes retourne 200 et liste d'ententes")
     void getEntentes_success_returnsOkAndList() throws Exception {
+        int currentYear = LocalDate.now().getYear();
         EntenteStageDTO entente1 = new EntenteStageDTO();
         entente1.setId(1L);
 
         EntenteStageDTO entente2 = new EntenteStageDTO();
         entente2.setId(2L);
 
-        when(employeurService.getEntentesPourEmployeur())
+        when(employeurService.getEntentesPourEmployeur(currentYear))
                 .thenReturn(java.util.List.of(entente1, entente2));
 
         mockMvc.perform(get("/OSEemployeur/ententes")
@@ -951,7 +962,8 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/ententes retourne 403 si action non autorisée")
     void getEntentes_actionNonAutorisee_returnsForbidden() throws Exception {
-        when(employeurService.getEntentesPourEmployeur())
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getEntentesPourEmployeur(currentYear))
                 .thenThrow(new ActionNonAutoriseeException());
 
         mockMvc.perform(get("/OSEemployeur/ententes")
@@ -962,7 +974,8 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/ententes retourne 403 si utilisateur pas trouvé")
     void getEntentes_utilisateurPasTrouve_returnsForbidden() throws Exception {
-        when(employeurService.getEntentesPourEmployeur())
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getEntentesPourEmployeur(currentYear))
                 .thenThrow(new UtilisateurPasTrouveException());
 
         mockMvc.perform(get("/OSEemployeur/ententes")
@@ -973,7 +986,8 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/ententes retourne 500 sur erreur interne")
     void getEntentes_internalError_returnsInternalServerError() throws Exception {
-        when(employeurService.getEntentesPourEmployeur())
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getEntentesPourEmployeur(currentYear))
                 .thenThrow(new RuntimeException("Erreur interne"));
 
         mockMvc.perform(get("/OSEemployeur/ententes")
@@ -984,13 +998,14 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/ententes/en-attente retourne 200 et liste d'ententes en attente")
     void getEntentesEnAttente_success_returnsOkAndList() throws Exception {
+        int currentYear = LocalDate.now().getYear();
         EntenteStageDTO entente1 = new EntenteStageDTO();
         entente1.setId(1L);
 
         EntenteStageDTO entente2 = new EntenteStageDTO();
         entente2.setId(2L);
 
-        when(employeurService.getEntentesEnAttente())
+        when(employeurService.getEntentesEnAttente(currentYear))
                 .thenReturn(java.util.List.of(entente1, entente2));
 
         mockMvc.perform(get("/OSEemployeur/ententes/en-attente")
@@ -1006,7 +1021,8 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/ententes/en-attente retourne 403 si action non autorisée")
     void getEntentesEnAttente_actionNonAutorisee_returnsForbidden() throws Exception {
-        when(employeurService.getEntentesEnAttente())
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getEntentesEnAttente(currentYear))
                 .thenThrow(new ActionNonAutoriseeException());
 
         mockMvc.perform(get("/OSEemployeur/ententes/en-attente")
@@ -1017,7 +1033,8 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/ententes/en-attente retourne 401 si utilisateur pas trouvé")
     void getEntentesEnAttente_utilisateurPasTrouve_returnsUnauthorized() throws Exception {
-        when(employeurService.getEntentesEnAttente())
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getEntentesEnAttente(currentYear))
                 .thenThrow(new UtilisateurPasTrouveException());
 
         mockMvc.perform(get("/OSEemployeur/ententes/en-attente")
@@ -1028,7 +1045,8 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/ententes/en-attente retourne 500 sur erreur interne")
     void getEntentesEnAttente_internalError_returnsInternalServerError() throws Exception {
-        when(employeurService.getEntentesEnAttente())
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getEntentesEnAttente(currentYear))
                 .thenThrow(new RuntimeException("Erreur interne"));
 
         mockMvc.perform(get("/OSEemployeur/ententes/en-attente")
@@ -1274,9 +1292,10 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/evaluations retourne 200 et liste")
     void getEvaluations_success_returnsOkAndList() throws Exception {
+        int currentYear = LocalDate.now().getYear();
         EvaluationDTO e1 = new EvaluationDTO(); e1.setId(1L);
         EvaluationDTO e2 = new EvaluationDTO(); e2.setId(2L);
-        when(employeurService.getEvaluationsPourEmployeur()).thenReturn(java.util.List.of(e1, e2));
+        when(employeurService.getEvaluationsPourEmployeur(currentYear)).thenReturn(java.util.List.of(e1, e2));
 
         mockMvc.perform(get("/OSEemployeur/evaluations"))
                 .andExpect(status().isOk())
@@ -1287,7 +1306,8 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/evaluations retourne 403 si non autorisé ou utilisateur pas trouvé")
     void getEvaluations_nonAutorise_returnsForbidden() throws Exception {
-        when(employeurService.getEvaluationsPourEmployeur()).thenThrow(new ActionNonAutoriseeException());
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getEvaluationsPourEmployeur(currentYear)).thenThrow(new ActionNonAutoriseeException());
 
         mockMvc.perform(get("/OSEemployeur/evaluations"))
                 .andExpect(status().isForbidden());
@@ -1296,7 +1316,8 @@ class EmployeurControllerTest {
     @Test
     @DisplayName("GET /OSEemployeur/evaluations retourne 500 sur erreur interne")
     void getEvaluations_internalError_returnsInternalServerError() throws Exception {
-        when(employeurService.getEvaluationsPourEmployeur()).thenThrow(new RuntimeException("boom"));
+        int currentYear = LocalDate.now().getYear();
+        when(employeurService.getEvaluationsPourEmployeur(currentYear)).thenThrow(new RuntimeException("boom"));
 
         mockMvc.perform(get("/OSEemployeur/evaluations"))
                 .andExpect(status().isInternalServerError());

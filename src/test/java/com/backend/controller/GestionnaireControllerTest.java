@@ -198,7 +198,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/offresEnAttente retourne 200 et liste")
     void getOffresAttente_success() throws Exception {
-        when(gestionnaireService.getOffresAttente()).thenReturn(Collections.emptyList());
+        when(gestionnaireService.getOffresAttente(null)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/OSEGestionnaire/offresEnAttente"))
                 .andExpect(status().isOk())
@@ -208,7 +208,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/offresEnAttente retourne 401 si non autorisé")
     void getOffresAttente_nonAutorise() throws Exception {
-        when(gestionnaireService.getOffresAttente()).thenThrow(new ActionNonAutoriseeException());
+        when(gestionnaireService.getOffresAttente(null)).thenThrow(new ActionNonAutoriseeException());
 
         mockMvc.perform(get("/OSEGestionnaire/offresEnAttente"))
                 .andExpect(status().isUnauthorized());
@@ -217,7 +217,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/offresEnAttente retourne 500 si erreur serveur")
     void getOffresAttente_erreurServeur() throws Exception {
-        when(gestionnaireService.getOffresAttente()).thenThrow(new RuntimeException("Erreur"));
+        when(gestionnaireService.getOffresAttente(null)).thenThrow(new RuntimeException("Erreur"));
 
         mockMvc.perform(get("/OSEGestionnaire/offresEnAttente"))
                 .andExpect(status().isInternalServerError());
@@ -378,9 +378,10 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/CVsEnAttente retourne 200 et liste")
     void getCVsEnAttente_success() throws Exception {
-        when(gestionnaireService.getCVsEnAttente()).thenReturn(Collections.emptyList());
+        when(gestionnaireService.getCVsEnAttente(anyInt())).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/OSEGestionnaire/CVsEnAttente"))
+        mockMvc.perform(get("/OSEGestionnaire/CVsEnAttente")
+                        .param("annee", "2024"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
@@ -388,18 +389,20 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/CVsEnAttente retourne 401 si non autorisé")
     void getCVsEnAttente_nonAutorise() throws Exception {
-        when(gestionnaireService.getCVsEnAttente()).thenThrow(new ActionNonAutoriseeException());
+        when(gestionnaireService.getCVsEnAttente(anyInt())).thenThrow(new ActionNonAutoriseeException());
 
-        mockMvc.perform(get("/OSEGestionnaire/CVsEnAttente"))
+        mockMvc.perform(get("/OSEGestionnaire/CVsEnAttente")
+                        .param("annee", "2024"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @DisplayName("GET /OSEGestionnaire/CVsEnAttente retourne 500 si erreur serveur")
     void getCVsEnAttente_erreurServeur() throws Exception {
-        when(gestionnaireService.getCVsEnAttente()).thenThrow(new RuntimeException("Erreur"));
+        when(gestionnaireService.getCVsEnAttente(anyInt())).thenThrow(new RuntimeException("Erreur"));
 
-        mockMvc.perform(get("/OSEGestionnaire/CVsEnAttente"))
+        mockMvc.perform(get("/OSEGestionnaire/CVsEnAttente")
+                        .param("annee", "2024"))
                 .andExpect(status().isInternalServerError());
     }
 
@@ -408,7 +411,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/visualiserOffres retourne 200 et liste de toutes les offres")
     void getAllOffres_success() throws Exception {
-        when(gestionnaireService.getAllOffres()).thenReturn(Collections.emptyList());
+        when(gestionnaireService.getAllOffres(null)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/OSEGestionnaire/visualiserOffres"))
                 .andExpect(status().isOk())
@@ -419,7 +422,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/visualiserOffres retourne 401 si non autorisé")
     void getAllOffres_nonAutorise() throws Exception {
-        when(gestionnaireService.getAllOffres()).thenThrow(new ActionNonAutoriseeException());
+        when(gestionnaireService.getAllOffres(null)).thenThrow(new ActionNonAutoriseeException());
 
         mockMvc.perform(get("/OSEGestionnaire/visualiserOffres"))
                 .andExpect(status().isUnauthorized());
@@ -428,7 +431,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/visualiserOffres retourne 500 si erreur serveur")
     void getAllOffres_erreurServeur() throws Exception {
-        when(gestionnaireService.getAllOffres()).thenThrow(new RuntimeException("Erreur interne"));
+        when(gestionnaireService.getAllOffres(null)).thenThrow(new RuntimeException("Erreur interne"));
 
         mockMvc.perform(get("/OSEGestionnaire/visualiserOffres"))
                 .andExpect(status().isInternalServerError());
@@ -442,7 +445,7 @@ class GestionnaireControllerTest {
         com.backend.service.DTO.CandidatureDTO dto2 = new com.backend.service.DTO.CandidatureDTO();
         dto2.setId(2L);
 
-        when(gestionnaireService.getCandidaturesEligiblesEntente()).thenReturn(Arrays.asList(dto1, dto2));
+        when(gestionnaireService.getCandidaturesEligiblesEntente(null)).thenReturn(Arrays.asList(dto1, dto2));
 
         mockMvc.perform(get("/OSEGestionnaire/candidaturesEligiblesEntente"))
                 .andExpect(status().isOk())
@@ -453,7 +456,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/candidaturesEligiblesEntente retourne 401 si non autorisé")
     void getCandidaturesEligiblesEntente_nonAutorise() throws Exception {
-        when(gestionnaireService.getCandidaturesEligiblesEntente()).thenThrow(new ActionNonAutoriseeException());
+        when(gestionnaireService.getCandidaturesEligiblesEntente(null)).thenThrow(new ActionNonAutoriseeException());
 
         mockMvc.perform(get("/OSEGestionnaire/candidaturesEligiblesEntente"))
                 .andExpect(status().isUnauthorized());
@@ -508,34 +511,6 @@ class GestionnaireControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /OSEGestionnaire/ententes/{id} modifie une entente")
-    void modifierEntente_success() throws Exception {
-        com.backend.service.DTO.EntenteStageDTO dto = new com.backend.service.DTO.EntenteStageDTO();
-        dto.setTitre("NouveauTitre");
-
-        doNothing().when(gestionnaireService).modifierEntente(eq(20L), any());
-
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/20")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Entente modifiée avec succès"));
-    }
-
-    @Test
-    @DisplayName("PUT /OSEGestionnaire/ententes/{id} retourne 409 si entente non trouvée")
-    void modifierEntente_ententeNonTrouvee() throws Exception {
-        com.backend.service.DTO.EntenteStageDTO dto = new com.backend.service.DTO.EntenteStageDTO();
-        doThrow(new EntenteNonTrouveException()).when(gestionnaireService).modifierEntente(eq(999L), any());
-
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/OSEGestionnaire/ententes/999")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.erreur").exists());
-    }
-
-    @Test
     @DisplayName("POST /OSEGestionnaire/ententes/{id}/annuler annule une entente")
     void annulerEntente_success() throws Exception {
         doNothing().when(gestionnaireService).annulerEntente(30L);
@@ -558,7 +533,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/ententes retourne 200 et liste")
     void getEntentesActives_success() throws Exception {
-        when(gestionnaireService.getEntentesActives()).thenReturn(Collections.emptyList());
+        when(gestionnaireService.getEntentesActives(null)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/OSEGestionnaire/ententes"))
                 .andExpect(status().isOk())
@@ -678,63 +653,68 @@ class GestionnaireControllerTest {
         when(etu2.getNom()).thenReturn("Tremblay");
         when(etu2.getPrenom()).thenReturn("Jean");
 
-        when(gestionnaireService.getAllEtudiants()).thenReturn(Arrays.asList(etu1, etu2));
+        when(gestionnaireService.getAllEtudiants(anyInt())).thenReturn(Arrays.asList(etu1, etu2));
 
-        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+        mockMvc.perform(get("/OSEGestionnaire/etudiants")
+                        .param("annee", "2024"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].email").value("sophie@student.com"))
                 .andExpect(jsonPath("$[1].email").value("jean@student.com"));
 
-        verify(gestionnaireService).getAllEtudiants();
+        verify(gestionnaireService).getAllEtudiants(anyInt());
     }
 
     @Test
     @DisplayName("GET /OSEGestionnaire/etudiants retourne 200 avec liste vide")
     void getAllEtudiants_listeVide() throws Exception {
-        when(gestionnaireService.getAllEtudiants()).thenReturn(Collections.emptyList());
+        when(gestionnaireService.getAllEtudiants(anyInt())).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+        mockMvc.perform(get("/OSEGestionnaire/etudiants")
+                        .param("annee", "2024"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()").value(0))
                 .andExpect(jsonPath("$").isArray());
 
-        verify(gestionnaireService).getAllEtudiants();
+        verify(gestionnaireService).getAllEtudiants(anyInt());
     }
 
     @Test
     @DisplayName("GET /OSEGestionnaire/etudiants retourne 401 si non autorisé")
     void getAllEtudiants_nonAutorise() throws Exception {
-        when(gestionnaireService.getAllEtudiants()).thenThrow(new ActionNonAutoriseeException());
+        when(gestionnaireService.getAllEtudiants(anyInt())).thenThrow(new ActionNonAutoriseeException());
 
-        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+        mockMvc.perform(get("/OSEGestionnaire/etudiants")
+                        .param("annee", "2024"))
                 .andExpect(status().isUnauthorized());
 
-        verify(gestionnaireService).getAllEtudiants();
+        verify(gestionnaireService).getAllEtudiants(anyInt());
     }
 
     @Test
     @DisplayName("GET /OSEGestionnaire/etudiants retourne 404 si utilisateur non trouvé")
     void getAllEtudiants_userNotFound() throws Exception {
-        when(gestionnaireService.getAllEtudiants()).thenThrow(new UtilisateurPasTrouveException());
+        when(gestionnaireService.getAllEtudiants(anyInt())).thenThrow(new UtilisateurPasTrouveException());
 
-        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+        mockMvc.perform(get("/OSEGestionnaire/etudiants")
+                        .param("annee", "2024"))
                 .andExpect(status().isNotFound());
 
-        verify(gestionnaireService).getAllEtudiants();
+        verify(gestionnaireService).getAllEtudiants(anyInt());
     }
 
     @Test
     @DisplayName("GET /OSEGestionnaire/etudiants retourne 500 si erreur serveur")
     void getAllEtudiants_erreurServeur() throws Exception {
-        when(gestionnaireService.getAllEtudiants()).thenThrow(new RuntimeException("Erreur interne"));
+        when(gestionnaireService.getAllEtudiants(anyInt())).thenThrow(new RuntimeException("Erreur interne"));
 
-        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+        mockMvc.perform(get("/OSEGestionnaire/etudiants")
+                        .param("annee", "2024"))
                 .andExpect(status().isInternalServerError());
 
-        verify(gestionnaireService).getAllEtudiants();
+        verify(gestionnaireService).getAllEtudiants(anyInt());
     }
 
     @Test
@@ -749,15 +729,16 @@ class GestionnaireControllerTest {
         when(etu.getNom()).thenReturn("Test");
         when(etu.getProfesseur()).thenReturn(prof);
 
-        when(gestionnaireService.getAllEtudiants()).thenReturn(Arrays.asList(etu));
+        when(gestionnaireService.getAllEtudiants(anyInt())).thenReturn(Arrays.asList(etu));
 
-        mockMvc.perform(get("/OSEGestionnaire/etudiants"))
+        mockMvc.perform(get("/OSEGestionnaire/etudiants")
+                        .param("annee", "2024"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].email").value("etudiant@test.com"))
                 .andExpect(jsonPath("$[0].professeur.email").value("prof@college.com"));
 
-        verify(gestionnaireService).getAllEtudiants();
+        verify(gestionnaireService).getAllEtudiants(anyInt());
     }
 
 // ========== Tests pour getAllProfesseurs ==========
@@ -938,7 +919,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/ententes/pretes retourne 200 et liste")
     void getEntentesPretes_success() throws Exception {
-        when(gestionnaireService.getEntentesEnAttente()).thenReturn(Collections.emptyList());
+        when(gestionnaireService.getEntentesEnAttente(null)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/OSEGestionnaire/ententes/pretes"))
                 .andExpect(status().isOk())
@@ -948,7 +929,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/ententes/pretes retourne 401 si non autorisé")
     void getEntentesPretes_nonAutorise() throws Exception {
-        when(gestionnaireService.getEntentesEnAttente()).thenThrow(new ActionNonAutoriseeException());
+        when(gestionnaireService.getEntentesEnAttente(null)).thenThrow(new ActionNonAutoriseeException());
 
         mockMvc.perform(get("/OSEGestionnaire/ententes/pretes"))
                 .andExpect(status().isUnauthorized());
@@ -957,7 +938,7 @@ class GestionnaireControllerTest {
     @Test
     @DisplayName("GET /OSEGestionnaire/ententes/pretes retourne 500 si erreur serveur")
     void getEntentesPretes_erreurServeur() throws Exception {
-        when(gestionnaireService.getEntentesEnAttente()).thenThrow(new RuntimeException("Erreur"));
+        when(gestionnaireService.getEntentesEnAttente(null)).thenThrow(new RuntimeException("Erreur"));
 
         mockMvc.perform(get("/OSEGestionnaire/ententes/pretes"))
                 .andExpect(status().isInternalServerError());
@@ -1074,6 +1055,16 @@ class GestionnaireControllerTest {
 
         mockMvc.perform(get("/OSEGestionnaire/ententes/3/documents"))
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("GET /OSEGestionnaire/ententes/fini retourne 200 et liste")
+    void getEntentesFini_success() throws Exception {
+        when(gestionnaireService.getEntentesFini(null)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/OSEGestionnaire/ententes/fini"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
 }

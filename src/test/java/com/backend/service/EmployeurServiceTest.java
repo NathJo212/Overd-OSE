@@ -79,6 +79,16 @@ public class EmployeurServiceTest {
     @Mock
     private EvaluationEtudiantParEmployeurRepository evaluationRepository;
 
+    // Helper method to get current academic year
+    private int getAnneeAcademiqueCourante() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        if (now.getMonthValue() >= 8) {
+            return year + 1;
+        }
+        return year;
+    }
+
     @Test
     public void testCreationEmployeur() throws MotPasseInvalideException, EmailDejaUtiliseException {
         // Arrange
@@ -139,7 +149,8 @@ public class EmployeurServiceTest {
 
         employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2024, 5, 1), null, null, null, null, null, "allo");
+                ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2023, 12, 1), null, null, null, null, null, "allo");
+
 
         verify(offreRepository, times(1)).save(any(Offre.class));
     }
@@ -155,37 +166,49 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    public void testOffrePourEmployeur() throws Exception {
+    public void testGetOffresParEmployeur() throws Exception {
         // Arrange
-        AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer validToken");
-        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(true);
-        when(jwtTokenProvider.getEmailFromJWT(anyString())).thenReturn("employeur@test.com");
+        int anneeTest = getAnneeAcademiqueCourante();
 
-        Employeur employeur = new Employeur("employeur@test.com", "pass", "tel", "nom", "contact");
-        when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
+        String email = "employeur@test.com";
+        Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
 
-        Offre offre1 = new Offre("Titre 1", "Description 1", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1), Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 5, 1), employeur);
-        Offre offre2 = new Offre("Titre 2", "Description 2", LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1), Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 6, 1), employeur);
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("EMPLOYEUR")
+        );
+        when(authentication.getName()).thenReturn(email);
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(employeurRepository.findByEmail(email)).thenReturn(employeur);
+
+        Offre offre1 = new Offre("Titre 1", "Description 1", LocalDate.of(anneeTest, 1, 1), LocalDate.of(anneeTest, 6, 1), Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 5, 1), employeur);
+        Offre offre2 = new Offre("Titre 2", "Description 2", LocalDate.of(anneeTest, 2, 1), LocalDate.of(anneeTest, 7, 1), Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 6, 1), employeur);
         when(offreRepository.findOffreByEmployeurId(employeur.getId())).thenReturn(java.util.List.of(offre1, offre2));
 
         // Act
-        var result = employeurService.OffrePourEmployeur(utilisateur);
+        var result = employeurService.getOffresParEmployeur(anneeTest);
 
         // Assert
-        verify(jwtTokenProvider, times(1)).isEmployeur(anyString(), any());
-        verify(employeurRepository, times(1)).findByEmail("employeur@test.com");
+        verify(employeurRepository, times(1)).findByEmail(email);
         verify(offreRepository, times(1)).findOffreByEmployeurId(employeur.getId());
         assertEquals(2, result.size());
     }
 
     @Test
-    public void testOffrePourEmployeur_NonEmployeur() {
+    public void testGetOffresParEmployeur_NonEmployeur() {
         // Arrange
-        AuthResponseDTO utilisateur = new AuthResponseDTO("Bearer fakeToken");
-        when(jwtTokenProvider.isEmployeur(anyString(), any())).thenReturn(false);
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ETUDIANT")
+        );
+        when(authentication.getAuthorities()).thenReturn((Collection) authorities);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
 
         // Act & Assert
-        assertThrows(ActionNonAutoriseeException.class, () -> employeurService.OffrePourEmployeur(utilisateur));
+        assertThrows(ActionNonAutoriseeException.class, () ->
+                employeurService.getOffresParEmployeur(getAnneeAcademiqueCourante())
+        );
     }
 
     @Test
@@ -249,6 +272,7 @@ public class EmployeurServiceTest {
     @Test
     public void testGetCandidaturesPourEmployeur_Succes() throws Exception {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
 
@@ -263,15 +287,15 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
 
         Offre offre1 = new Offre("Titre 1", "Description 1",
-                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 5, 1), employeur);
+                LocalDate.of(anneeTest, 1, 1), LocalDate.of(anneeTest, 6, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 5, 1), employeur);
 
         Offre offre2 = new Offre("Titre 2", "Description 2",
-                LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1),
-                Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 6, 1), employeur);
+                LocalDate.of(anneeTest, 2, 1), LocalDate.of(anneeTest, 7, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 6, 1), employeur);
 
         Candidature candidature1 = new Candidature(etudiant, offre1, null);
         Candidature candidature2 = new Candidature(etudiant, offre2, null);
@@ -283,7 +307,7 @@ public class EmployeurServiceTest {
                 .thenReturn(Arrays.asList(offre1, offre2));
 
         // Act
-        List<CandidatureDTO> result = employeurService.getCandidaturesPourEmployeur();
+        List<CandidatureDTO> result = employeurService.getCandidaturesPourEmployeur(anneeTest);
 
         // Assert
         assertNotNull(result);
@@ -294,6 +318,7 @@ public class EmployeurServiceTest {
     @Test
     public void testGetCandidaturesPourEmployeur_AucuneCandidature() throws Exception {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
 
@@ -308,14 +333,14 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Offre offre = new Offre("Titre", "Description",
-                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                Programme.P420_B0, "lieu", "rem", LocalDate.of(2024, 5, 1), employeur);
+                LocalDate.of(anneeTest, 1, 1), LocalDate.of(anneeTest, 6, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 5, 1), employeur);
 
         when(offreRepository.findOffreByEmployeurId(employeur.getId()))
                 .thenReturn(Collections.singletonList(offre));
 
         // Act
-        List<CandidatureDTO> result = employeurService.getCandidaturesPourEmployeur();
+        List<CandidatureDTO> result = employeurService.getCandidaturesPourEmployeur(anneeTest);
 
         // Assert
         assertNotNull(result);
@@ -339,7 +364,7 @@ public class EmployeurServiceTest {
         lenient().when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
 
         Offre offre = new Offre("Titre", "Description",
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
@@ -401,7 +426,7 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
 
         String cvChiffre = "cvChiffreTest";
         etudiant.setCv(cvChiffre.getBytes(StandardCharsets.UTF_8));
@@ -472,7 +497,7 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
         etudiant.setCv("cvChiffre".getBytes());
 
         Offre offre = mock(Offre.class);
@@ -506,7 +531,7 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
         // Pas de CV
 
         Offre offre = mock(Offre.class);
@@ -540,7 +565,7 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
 
         Offre offre = mock(Offre.class);
         when(offre.getEmployeur()).thenReturn(employeur);
@@ -611,7 +636,7 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
 
         Offre offre = mock(Offre.class);
         when(offre.getEmployeur()).thenReturn(autreEmployeur);
@@ -644,7 +669,7 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
 
         Offre offre = mock(Offre.class);
         when(offre.getEmployeur()).thenReturn(employeur);
@@ -685,6 +710,7 @@ public class EmployeurServiceTest {
     @Test
     public void testCreerConvocation_Succes() throws Exception {
         // Arrange - Mock Security Context
+        int anneeTest = getAnneeAcademiqueCourante();
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -706,9 +732,11 @@ public class EmployeurServiceTest {
 
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        // Mock candidature and offre
+        // Mock candidature and offre with current year
         Offre offre = new Offre();
         offre.setEmployeur(employeur);
+        offre.setDate_debut(LocalDate.of(anneeTest, 1, 1));
+        offre.setAnnee(anneeTest);
 
         Candidature candidature = new Candidature();
         candidature.setOffre(offre);
@@ -755,6 +783,7 @@ public class EmployeurServiceTest {
     @Test
     public void testCreerConvocation_DejaExistante() throws Exception {
         // Arrange - Mock Security Context
+        int anneeTest = getAnneeAcademiqueCourante();
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -777,6 +806,8 @@ public class EmployeurServiceTest {
         // Mock candidature with existing convocation
         Offre offre = new Offre();
         offre.setEmployeur(employeur);
+        offre.setDate_debut(LocalDate.of(anneeTest, 1, 1));
+        offre.setAnnee(anneeTest);
 
         Candidature candidature = new Candidature();
         candidature.setOffre(offre);
@@ -798,6 +829,7 @@ public class EmployeurServiceTest {
     @Test
     public void testModifierConvocation_Succes() throws Exception {
         // Arrange - Mock Security Context
+        int anneeTest = getAnneeAcademiqueCourante();
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -817,9 +849,11 @@ public class EmployeurServiceTest {
 
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        // Mock candidature
+        // Mock candidature with current year offre
         Offre offre = new Offre();
         offre.setEmployeur(employeur);
+        offre.setDate_debut(LocalDate.of(anneeTest, 1, 1));
+        offre.setAnnee(anneeTest);
 
         Candidature candidature = new Candidature();
         candidature.setOffre(offre);
@@ -868,6 +902,7 @@ public class EmployeurServiceTest {
     @Test
     public void testAnnulerConvocation_Succes() throws Exception {
         // Arrange - Mock Security Context
+        int anneeTest = getAnneeAcademiqueCourante();
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -887,9 +922,11 @@ public class EmployeurServiceTest {
 
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
-        // Mock candidature
+        // Mock candidature with current year offre
         Offre offre = new Offre();
         offre.setEmployeur(employeur);
+        offre.setDate_debut(LocalDate.of(anneeTest, 1, 1));
+        offre.setAnnee(anneeTest);
 
         Candidature candidature = new Candidature();
         candidature.setOffre(offre);
@@ -929,6 +966,7 @@ public class EmployeurServiceTest {
     @Test
     public void testGetConvocationsPourEmployeur_Succes() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = new Employeur(email, "pass1234A!", "tel", "nom", "contact");
         Collection<GrantedAuthority> authorities = Collections.singletonList(
@@ -941,6 +979,7 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeTest);
         List<Offre> offres = List.of(offre);
         Candidature candidature = new Candidature();
         candidature.setOffre(offre);
@@ -951,7 +990,7 @@ public class EmployeurServiceTest {
         when(offreRepository.findAllByEmployeur(employeur)).thenReturn(offres);
         when(candidatureRepository.findAllByOffreIn(offres)).thenReturn(candidatures);
         // Act
-        List<ConvocationEntrevueDTO> result = employeurService.getConvocationsPourEmployeur();
+        List<ConvocationEntrevueDTO> result = employeurService.getConvocationsPourEmployeur(anneeTest);
 
         // Assert
         assertNotNull(result);
@@ -961,6 +1000,7 @@ public class EmployeurServiceTest {
     @Test
     public void testApprouverCandidature_Succes() {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
         when(employeur.getId()).thenReturn(1L);
@@ -976,6 +1016,7 @@ public class EmployeurServiceTest {
 
         Offre offre = mock(Offre.class);
         when(offre.getEmployeur()).thenReturn(employeur);
+        when(offre.getAnnee()).thenReturn(anneeTest);
 
         Candidature candidature = new Candidature();
         candidature.setId(10L);
@@ -1045,6 +1086,7 @@ public class EmployeurServiceTest {
     @Test
     public void testApprouverCandidature_DejaVerifie() {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
         when(employeur.getId()).thenReturn(1L);
@@ -1060,6 +1102,7 @@ public class EmployeurServiceTest {
 
         Offre offre = mock(Offre.class);
         when(offre.getEmployeur()).thenReturn(employeur);
+        when(offre.getAnnee()).thenReturn(anneeTest);
 
         Candidature candidature = new Candidature();
         candidature.setId(13L);
@@ -1075,6 +1118,7 @@ public class EmployeurServiceTest {
     @Test
     public void testRefuserCandidature_Succes() {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
         when(employeur.getId()).thenReturn(1L);
@@ -1090,6 +1134,7 @@ public class EmployeurServiceTest {
 
         Offre offre = mock(Offre.class);
         when(offre.getEmployeur()).thenReturn(employeur);
+        when(offre.getAnnee()).thenReturn(anneeTest);
 
         Candidature candidature = new Candidature();
         candidature.setId(14L);
@@ -1160,6 +1205,7 @@ public class EmployeurServiceTest {
     @Test
     public void testRefuserCandidature_DejaVerifie() {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
         when(employeur.getId()).thenReturn(1L);
@@ -1175,6 +1221,7 @@ public class EmployeurServiceTest {
 
         Offre offre = mock(Offre.class);
         when(offre.getEmployeur()).thenReturn(employeur);
+        when(offre.getAnnee()).thenReturn(anneeTest);
 
         Candidature candidature = new Candidature();
         candidature.setId(15L);
@@ -1320,6 +1367,7 @@ public class EmployeurServiceTest {
     @Test
     public void testGetEntentesPourEmployeur_Succes() throws Exception {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
 
@@ -1332,23 +1380,28 @@ public class EmployeurServiceTest {
         SecurityContextHolder.setContext(securityContext);
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
+        Offre offre = new Offre("Titre", "Desc", LocalDate.of(anneeTest, 1, 1), LocalDate.of(anneeTest, 6, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 5, 1), employeur);
+
         EntenteStage entente1 = new EntenteStage();
         entente1.setEmployeur(employeur);
         entente1.setTitre("Entente 1");
-        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        entente1.setOffre(offre);
+        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0);
         entente1.setEtudiant(etu1);
 
         EntenteStage entente2 = new EntenteStage();
         entente2.setEmployeur(employeur);
         entente2.setTitre("Entente 2");
-        Etudiant etu2 = new Etudiant("etu2@test.com", "pass", "tel", "Marie", "Curie", Programme.P420_B0, "Automne", "2024");
+        entente2.setOffre(offre);
+        Etudiant etu2 = new Etudiant("etu2@test.com", "pass", "tel", "Marie", "Curie", Programme.P420_B0);
         entente2.setEtudiant(etu2);
 
         when(ententeStageRepository.findByEmployeurAndArchivedFalse(employeur))
                 .thenReturn(Arrays.asList(entente1, entente2));
 
         // Act
-        var result = employeurService.getEntentesPourEmployeur();
+        var result = employeurService.getEntentesPourEmployeur(anneeTest);
 
         // Assert
         assertNotNull(result);
@@ -1359,6 +1412,7 @@ public class EmployeurServiceTest {
     @Test
     public void testGetEntentesEnAttente_Succes() throws Exception {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = new Employeur(email, "pass", "tel", "nom", "contact");
 
@@ -1371,11 +1425,15 @@ public class EmployeurServiceTest {
         SecurityContextHolder.setContext(securityContext);
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
+        Offre offre = new Offre("Titre", "Desc", LocalDate.of(anneeTest, 1, 1), LocalDate.of(anneeTest, 6, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 5, 1), employeur);
+
         EntenteStage entente1 = new EntenteStage();
         entente1.setEmployeur(employeur);
         entente1.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
+        entente1.setOffre(offre);
 
-        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0);
         entente1.setEtudiant(etu1);
 
         when(ententeStageRepository.findByEmployeurAndEmployeurSignatureAndArchivedFalse(
@@ -1383,7 +1441,7 @@ public class EmployeurServiceTest {
                 .thenReturn(Collections.singletonList(entente1));
 
         // Act
-        var result = employeurService.getEntentesEnAttente();
+        var result = employeurService.getEntentesEnAttente(anneeTest);
 
         // Assert
         assertNotNull(result);
@@ -1409,7 +1467,7 @@ public class EmployeurServiceTest {
         EntenteStage entente = new EntenteStage();
         entente.setEmployeur(employeur);
         entente.setTitre("Test Entente");
-        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        Etudiant etu1 = new Etudiant("etu1@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0);
         entente.setEtudiant(etu1);
 
         when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
@@ -1453,6 +1511,7 @@ public class EmployeurServiceTest {
     @Test
     public void testSignerEntente_Succes() throws Exception {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
         when(employeur.getId()).thenReturn(1L);
@@ -1467,12 +1526,16 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
+
+        Offre offre = new Offre("Titre", "Desc", LocalDate.of(anneeTest, 1, 1), LocalDate.of(anneeTest, 6, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 5, 1), employeur);
 
         EntenteStage entente = new EntenteStage();
         entente.setEmployeur(employeur);
         entente.setEtudiant(etudiant);
         entente.setTitre("Entente Test");
+        entente.setOffre(offre);
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
 
@@ -1518,6 +1581,7 @@ public class EmployeurServiceTest {
     @Test
     public void testRefuserEntente_Succes() throws Exception {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         String email = "employeur@test.com";
         Employeur employeur = mock(Employeur.class);
         when(employeur.getId()).thenReturn(1L);
@@ -1532,12 +1596,16 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(email)).thenReturn(employeur);
 
         Etudiant etudiant = new Etudiant("etudiant@test.com", "pass", "tel",
-                "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+                "Jean", "Dupont", Programme.P420_B0);
+
+        Offre offre = new Offre("Titre", "Desc", LocalDate.of(anneeTest, 1, 1), LocalDate.of(anneeTest, 6, 1),
+                Programme.P420_B0, "lieu", "rem", LocalDate.of(anneeTest, 5, 1), employeur);
 
         EntenteStage entente = new EntenteStage();
         entente.setEmployeur(employeur);
         entente.setEtudiant(etudiant);
         entente.setTitre("Entente Test");
+        entente.setOffre(offre);
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
 
         when(ententeStageRepository.findById(1L)).thenReturn(Optional.of(entente));
@@ -1583,6 +1651,7 @@ public class EmployeurServiceTest {
     @Test
     public void testCreerEvaluation_Succes() throws Exception {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -1602,10 +1671,14 @@ public class EmployeurServiceTest {
         when(etudiant.getPrenom()).thenReturn("Jean");
         when(etudiant.getNom()).thenReturn("Dupont");
 
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeTest);
+
         EntenteStage entente = mock(EntenteStage.class);
         when(entente.getEtudiant()).thenReturn(etudiant);
         when(entente.getStatut()).thenReturn(EntenteStage.StatutEntente.SIGNEE);
         when(entente.getId()).thenReturn(100L);
+        when(entente.getOffre()).thenReturn(offre);
 
         when(ententeStageRepository.findById(100L)).thenReturn(Optional.of(entente));
         when(evaluationRepository.existsByEntenteId(anyLong())).thenReturn(false);
@@ -1655,6 +1728,7 @@ public class EmployeurServiceTest {
     @Test
     public void testCreerEvaluation_EntenteNonSignee() {
         // Arrange - mock security context and employeur
+        int anneeTest = getAnneeAcademiqueCourante();
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -1668,10 +1742,14 @@ public class EmployeurServiceTest {
         Employeur employeur = mock(Employeur.class);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
+        // Mock the Offre with current year - ADD THESE LINES
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeTest);
 
         // Entente non signée
         EntenteStage entente = mock(EntenteStage.class);
         when(entente.getStatut()).thenReturn(EntenteStage.StatutEntente.EN_ATTENTE);
+        when(entente.getOffre()).thenReturn(offre);
 
         when(ententeStageRepository.findById(200L)).thenReturn(Optional.of(entente));
 
@@ -1687,6 +1765,7 @@ public class EmployeurServiceTest {
     @Test
     public void testGetEvaluationsPourEmployeur_Succes() throws Exception {
         // Arrange
+        int anneeTest = getAnneeAcademiqueCourante();
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -1702,13 +1781,21 @@ public class EmployeurServiceTest {
         when(employeur.getId()).thenReturn(1L);
         when(employeurRepository.findByEmail("employeur@test.com")).thenReturn(employeur);
 
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeTest);
+
+        EntenteStage entente = mock(EntenteStage.class);
+        when(entente.getOffre()).thenReturn(offre);
+
         EvaluationEtudiantParEmployeur eval1 = new EvaluationEtudiantParEmployeur();
+        eval1.setEntente(entente);
         EvaluationEtudiantParEmployeur eval2 = new EvaluationEtudiantParEmployeur();
+        eval2.setEntente(entente);
 
         doReturn(List.of(eval1, eval2)).when(evaluationRepository).findAllByEmployeurId(anyLong());
 
         // Act
-        List<EvaluationDTO> result = employeurService.getEvaluationsPourEmployeur();
+        List<EvaluationDTO> result = employeurService.getEvaluationsPourEmployeur(anneeTest);
 
         // Assert
         assertNotNull(result);
@@ -1805,6 +1892,66 @@ public class EmployeurServiceTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> employeurService.getEvaluationPdf(52L));
+    }
+
+    @Test
+    public void testGetAnneeAcademiqueCourante() throws Exception {
+        // Test the private method using reflection
+        java.lang.reflect.Method method = EmployeurService.class.getDeclaredMethod("getAnneeAcademiqueCourante");
+        method.setAccessible(true);
+
+        int result = (int) method.invoke(employeurService);
+
+        LocalDate now = LocalDate.now();
+        int expectedYear = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
+        assertEquals(expectedYear, result);
+    }
+
+    @Test
+    public void testVerifierOffreAnneeCourante_OffreNull() throws Exception {
+        // Arrange
+        java.lang.reflect.Method method = EmployeurService.class.getDeclaredMethod("verifierOffreAnneeCourante", Offre.class);
+        method.setAccessible(true);
+
+        // Act & Assert
+        assertThrows(java.lang.reflect.InvocationTargetException.class, () -> {
+            method.invoke(employeurService, (Offre) null);
+        });
+    }
+
+    @Test
+    public void testVerifierOffreAnneeCourante_AnneeDifferente() throws Exception {
+        // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
+        Offre offre = new Offre();
+        offre.setAnnee(anneeActuelle - 1); // Previous year
+
+        java.lang.reflect.Method method = EmployeurService.class.getDeclaredMethod("verifierOffreAnneeCourante", Offre.class);
+        method.setAccessible(true);
+
+        // Act & Assert
+        assertThrows(java.lang.reflect.InvocationTargetException.class, () -> {
+            method.invoke(employeurService, offre);
+        });
+    }
+
+    @Test
+    public void testVerifierOffreAnneeCourante_AnneeCourante() throws Exception {
+        // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
+        Offre offre = new Offre();
+        offre.setAnnee(anneeActuelle);
+
+        java.lang.reflect.Method method = EmployeurService.class.getDeclaredMethod("verifierOffreAnneeCourante", Offre.class);
+        method.setAccessible(true);
+
+        // Act & Assert - Should not throw
+        assertDoesNotThrow(() -> method.invoke(employeurService, offre));
     }
 
 }

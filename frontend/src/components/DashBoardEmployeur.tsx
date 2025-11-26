@@ -4,6 +4,16 @@ import { employeurService } from "../services/EmployeurService";
 import { Building, Calendar, MapPin, CheckCircle, X, GraduationCap, Clock, Edit, Trash2, RefreshCw, FileSignature, Bell } from 'lucide-react';
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
+import { useYear } from "./YearContext/YearContext.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
+
+// Helper function to determine academic year
+const getCurrentYear = (): number => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    return currentMonth >= 7 ? currentYear + 1 : currentYear;
+};
 
 interface ConvocationEntrevueDTO {
     id?: number;
@@ -34,6 +44,13 @@ const DashBoardEmployeur = () => {
     const [selectedConvocation, setSelectedConvocation] = useState<ConvocationEntrevueDTO | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editForm, setEditForm] = useState({ dateHeure: '', lieuOuLien: '', message: '' });
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [convocationToDelete, setConvocationToDelete] = useState<ConvocationEntrevueDTO | null>(null);
+
+    // Year context
+    const { selectedYear } = useYear();
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -63,6 +80,17 @@ const DashBoardEmployeur = () => {
                 .catch(() => setNotificationMessage(t("employerdashboard:errors.loadOffers")));
         }
         loadConvocations().then();
+        } else {
+            const token = sessionStorage.getItem("authToken");
+            if (token) {
+                // Load offers with selected year
+                employeurService.getOffresParEmployeur(token, selectedYear)
+                    .then(offres => setOffres(offres))
+                    .catch(() => setNotificationMessage(t("employerdashboard:errors.loadOffers")));
+            }
+            loadConvocations().then();
+            return;
+        }
 
         const fromRegistration = sessionStorage.getItem('fromRegistration');
         const fromLogin = sessionStorage.getItem('fromLogin');
@@ -86,12 +114,12 @@ const DashBoardEmployeur = () => {
 
             return () => clearTimeout(timer);
         }
-    }, [navigate, showNotification, t]);
+    }, [navigate, showNotification, t, selectedYear]); // Added selectedYear to dependencies
 
     const loadConvocations = async () => {
         try {
             setLoadingConvocations(true);
-            const convs = await employeurService.getConvocations();
+            const convs = await employeurService.getConvocations(selectedYear);
             setConvocations(convs || []);
         } catch (e) {
             console.error('Erreur chargement convocations:', e);
@@ -140,6 +168,8 @@ const DashBoardEmployeur = () => {
     };
 
     const handleEditConvocation = (conv: ConvocationEntrevueDTO) => {
+        if (isViewingPastYear) return; // Don't allow editing for past years
+
         setSelectedConvocation(conv);
         setEditForm({
             dateHeure: conv.dateHeure,
@@ -150,7 +180,7 @@ const DashBoardEmployeur = () => {
     };
 
     const handleSaveEdit = async () => {
-        if (!selectedConvocation) return;
+        if (!selectedConvocation || isViewingPastYear) return;
 
         try {
             await employeurService.modifierConvocation(selectedConvocation.candidatureId, editForm);
@@ -165,16 +195,33 @@ const DashBoardEmployeur = () => {
     };
 
     const handleDeleteConvocation = async (conv: ConvocationEntrevueDTO) => {
-        if (!window.confirm(t('employerdashboard:convocations.confirmDelete'))) return;
+        if (isViewingPastYear) return; // Don't allow deleting for past years
+
+        setConvocationToDelete(conv);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteConvocation = async () => {
+        if (!convocationToDelete) return;
 
         try {
-            await employeurService.annulerConvocation(conv.candidatureId);
+            await employeurService.annulerConvocation(convocationToDelete.candidatureId);
             setNotificationMessage(t('employerdashboard:convocations.messages.deleted'));
             setShowNotification(true);
             await loadConvocations();
         } catch (error: any) {
             setNotificationMessage(error.message || t('employerdashboard:convocations.messages.deleteError'));
             setShowNotification(true);
+        } finally {
+            setShowDeleteModal(false);
+            setConvocationToDelete(null);
+        }
+    };
+
+    const handleCreateOfferClick = (e: React.MouseEvent) => {
+        if (isViewingPastYear) {
+            e.preventDefault();
+            return;
         }
     };
 
@@ -203,180 +250,171 @@ const DashBoardEmployeur = () => {
     return (
         <div className="bg-gray-50 dark:bg-slate-900 min-h-screen">
             <NavBar/>
-
-            {showNotification && (
-                <div className="fixed top-24 right-4 z-50 max-w-md w-full animate-slide-in">
-                    <div className={`${getNotificationColor()} border rounded-xl p-4 shadow-lg`}>
-                        <div className="flex items-start">
-                            <div className="flex-shrink-0">
-                                {getNotificationIcon()}
-                            </div>
-                            <div className="ml-3 flex-1">
-                                <p className="text-sm font-medium">
-                                    {notificationMessage}
-                                </p>
-                            </div>
-                            <div className="ml-4 flex-shrink-0">
-                                <button
-                                    type="button"
-                                    onClick={handleCloseNotification}
-                                    className="cursor-pointer rounded-md inline-flex hover:opacity-70 focus:outline-none"
-                                >
-                                    <X className="h-5 w-5" />
-                                </button>
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-slate-900 dark:to-slate-800 p-4">
+                {showNotification && (
+                    <div className="fixed top-4 right-4 z-50 max-w-md w-full">
+                        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-900/40 rounded-lg p-4 shadow-lg">
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0">
+                                    <CheckCircle className="h-5 w-5 text-green-400 dark:text-green-300" />
+                                </div>
+                                <div className="ml-3 flex-1">
+                                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                                        {notificationMessage}
+                                    </p>
+                                </div>
+                                <div className="ml-4 flex-shrink-0">
+                                    <button
+                                        type="button"
+                                        onClick={handleCloseNotification}
+                                        className="cursor-pointer bg-green-50 dark:bg-green-900/30 rounded-md inline-flex text-green-400 dark:text-green-300 hover:text-green-500 dark:hover:text-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                    >
+                                        <span className="sr-only">{t('employerdashboard:modal.close')}</span>
+                                        <X className="h-5 w-5" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                        {t('employerdashboard:title')}{userFullName && `, ${userFullName}`}!
-                    </h1>
-                    <p className="text-gray-600 dark:text-slate-300">
-                        {t('employerdashboard:subtitle') || ''}
-                    </p>
-                </div>
+                <div className="max-w-4xl mx-auto">
+                    {/* Year Banner */}
+                    {isViewingPastYear && (
+                        <div className="mb-6">
+                            <YearBanner />
+                        </div>
+                    )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                    <NavLink
-                        to="/offre-stage"
-                        className="group bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-blue-400/50 transition-all duration-300 transform hover:scale-105 p-6"
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="bg-white/20 rounded-xl p-3 flex items-center justify-center">
-                                <Building className="w-8 h-8" />
-                            </div>
-                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <span className="text-xs font-bold">→</span>
+                    {/* Header */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 mb-8 text-center border border-transparent dark:border-slate-700">
+                        <div className="flex justify-center mb-4">
+                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                                <Building className="w-8 h-8 text-blue-600" />
                             </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2">{t("employerdashboard:createOffer")}</h3>
-                        <p className="text-blue-100 text-sm">{t('employerdashboard:createOfferSubtitle') || ''}</p>
-                    </NavLink>
-
-                    <NavLink
-                        to="/candidatures-recues"
-                        className="group bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-purple-400/50 transition-all duration-300 transform hover:scale-105 p-6"
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <Calendar className="w-10 h-10" />
-                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <span className="text-xs font-bold">→</span>
-                            </div>
+                        <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100 mb-6">
+                            {t("employerdashboard:title")}
+                        </h1>
+                        <div className="flex flex-wrap gap-4 justify-center">
+                            <NavLink
+                                to={isViewingPastYear ? "#" : "/offre-stage"}
+                                onClick={handleCreateOfferClick}
+                                className={`inline-block font-semibold py-3 px-8 rounded-lg transition-colors duration-300 ${
+                                    isViewingPastYear
+                                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed opacity-50'
+                                        : 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105'
+                                }`}
+                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
+                            >
+                                {t("employerdashboard:createOffer")}
+                            </NavLink>
+                            <NavLink to="/candidatures-recues" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                                {t("employerdashboard:myApplications")}
+                            </NavLink>
+                            <NavLink to="/mes-ententes" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                                {t("employerdashboard:myAgreements")}
+                            </NavLink>
+                            <NavLink to="/evaluation-stagiaire" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 transform hover:scale-105">
+                                {t("employerdashboard:evaluateInterns")}
+                            </NavLink>
                         </div>
-                        <h3 className="text-xl font-bold mb-2">{t("employerdashboard:myApplications")}</h3>
-                        <p className="text-purple-100 text-sm">{t('employerdashboard:applicationsSubtitle') || ''}</p>
-                    </NavLink>
-
-                    <NavLink
-                        to="/mes-ententes"
-                        className="group bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-green-400/50 transition-all duration-300 transform hover:scale-105 p-6"
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <FileSignature className="w-10 h-10" />
-                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <span className="text-xs font-bold">→</span>
-                            </div>
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">{t("employerdashboard:myAgreements")}</h3>
-                        <p className="text-green-100 text-sm">{t('employerdashboard:agreementsSubtitle') || ''}</p>
-                    </NavLink>
-
-                    <NavLink
-                        to="/evaluation-stagiaire"
-                        className="group bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-amber-400/50 transition-all duration-300 transform hover:scale-105 p-6"
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <GraduationCap className="w-10 h-10" />
-                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <span className="text-xs font-bold">→</span>
-                            </div>
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">{t("employerdashboard:evaluateInterns")}</h3>
-                        <p className="text-amber-100 text-sm">{t('employerdashboard:evaluateSubtitle') || ''}</p>
-                    </NavLink>
-                </div>
-
-                <div className="mb-8">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">
-                                {t('employerdashboard:convocations.title')}
-                            </h2>
-                            <p className="text-gray-600 dark:text-slate-300">{t('employerdashboard:convocations.subtitle') || ''}</p>
-                        </div>
-                        <button
-                            onClick={loadConvocations}
-                            className="cursor-pointer text-sm text-gray-500 dark:text-slate-300 hover:text-gray-700 dark:hover:text-slate-100 flex items-center gap-2"
-                            disabled={loadingConvocations}
-                        >
-                            <RefreshCw className={`w-4 h-4 ${loadingConvocations ? 'animate-spin' : ''}`} />
-                            {t('employerdashboard:convocations.refresh')}
-                        </button>
                     </div>
 
-                    {loadingConvocations ? (
-                        <div className="text-center py-8 text-gray-600 dark:text-slate-300">{t('employerdashboard:convocations.loading')}</div>
-                    ) : convocations.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Clock className="w-16 h-16 text-gray-400 dark:text-slate-600 mx-auto mb-4" />
-                            <p className="text-gray-500 dark:text-slate-400">{t('employerdashboard:convocations.noneTitle')}</p>
+                    {/* Convocations Section */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 mb-8 border border-transparent dark:border-slate-700">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-2xl font-semibold text-gray-800 dark:text-slate-100">{t('employerdashboard:convocations.title')}</h2>
+                            <button
+                                onClick={loadConvocations}
+                                className="cursor-pointer text-sm text-gray-500 dark:text-slate-300 hover:text-gray-700 dark:hover:text-slate-100 flex items-center gap-2"
+                                disabled={loadingConvocations}
+                            >
+                                <RefreshCw className={`w-4 h-4 ${loadingConvocations ? 'animate-spin' : ''}`} />
+                                {t('employerdashboard:convocations.refresh')}
+                            </button>
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {convocations.map(conv => (
-                                <div
-                                    key={conv.id}
-                                    className={`relative bg-white dark:bg-slate-800 p-6 rounded-2xl border ${conv.statut === 'CONVOQUEE' ? 'ring-1 ring-green-100' : conv.statut === 'MODIFIE' ? 'ring-1 ring-yellow-100' : conv.statut === 'ANNULEE' ? 'ring-1 ring-red-100' : 'ring-1 ring-slate-50'} shadow-sm hover:shadow-lg transform hover:-translate-y-1 transition-all`}
-                                >
-                                    <div className="absolute -top-3 left-4">
-                                        {getConvocationStatusBadge(conv.statut)}
-                                    </div>
 
-                                    <div className="flex items-start gap-4">
-                                        <div className="flex-shrink-0">
-                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/30 dark:to-slate-800 flex items-center justify-center">
-                                                <Calendar className="w-6 h-6 text-blue-600" />
-                                            </div>
-                                        </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between">
-                                                <div className="min-w-0">
-                                                    <p className="text-sm text-gray-500 dark:text-slate-400">{new Date(conv.dateHeure).toLocaleDateString()} · {new Date(conv.dateHeure).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                                                    {conv.offreTitre && <p className="text-md font-semibold text-gray-900 dark:text-slate-100 truncate">{conv.offreTitre}</p>}
-                                                </div>
-                                                <div className="ml-4 text-right flex flex-col gap-2">
-                                                    {conv.statut !== 'ANNULEE' && (
-                                                        <>
-                                                            <button
-                                                                onClick={() => handleEditConvocation(conv)}
-                                                                aria-label={t('employerdashboard:convocations.edit') || 'Edit'}
-                                                                className="cursor-pointer inline-flex items-center gap-3 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition transform hover:-translate-y-1"
-                                                            >
-                                                                <Edit className="w-4 h-4" />
-                                                                {t('employerdashboard:convocations.edit')}
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDeleteConvocation(conv)}
-                                                                aria-label={t('employerdashboard:convocations.delete') || 'Delete'}
-                                                                className="cursor-pointer inline-flex items-center gap-3 px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition transform hover:-translate-y-1"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                                {t('employerdashboard:convocations.delete')}
-                                                            </button>
-                                                        </>
+                        {loadingConvocations ? (
+                            <div className="text-center py-8 text-gray-600 dark:text-slate-300">{t('employerdashboard:convocations.loading')}</div>
+                        ) : convocations.length === 0 ? (
+                            <div className="text-center py-12">
+                                <Clock className="w-16 h-16 text-gray-400 dark:text-slate-600 mx-auto mb-4" />
+                                <p className="text-gray-500 dark:text-slate-400">{t('employerdashboard:convocations.noneTitle')}</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {convocations.map(conv => (
+                                    <div key={conv.id} className={`border-2 rounded-xl p-6 ${
+                                        isViewingPastYear ? 'border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700/50 opacity-75' : 'border-blue-200 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/20'
+                                    }`}>
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <div className="flex items-center mb-2">
+                                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
+                                                        {conv.offreTitre || t('employerdashboard:convocations.defaultTitle')}
+                                                    </h3>
+                                                    {conv.statut && (
+                                                        <div className="ml-4">{getConvocationStatusBadge(conv.statut)}</div>
                                                     )}
                                                 </div>
+                                                <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2 mb-1">
+                                                    <Calendar className="w-4 h-4" />
+                                                    {new Date(conv.dateHeure).toLocaleString(i18n?.language?.startsWith('fr') ? 'fr-CA' : 'en-CA', {
+                                                        year: 'numeric',
+                                                        month: '2-digit',
+                                                        day: '2-digit',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </p>
+                                                <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2">
+                                                    <MapPin className="w-4 h-4" />
+                                                    {conv.lieuOuLien}
+                                                </p>
+                                                {conv.etudiantNom && conv.etudiantPrenom && (
+                                                    <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-2">
+                                                        {t('employerdashboard:convocations.student')}: {conv.etudiantPrenom} {conv.etudiantNom}
+                                                    </p>
+                                                )}
+                                                <p className="text-sm text-gray-700 dark:text-slate-200 mt-3">{conv.message}</p>
                                             </div>
-
-                                            <div className="mt-3 text-sm text-gray-600 dark:text-slate-300 flex flex-col gap-2">
-                                                <div className="flex items-center gap-2">
-                                                    <MapPin className="w-4 h-4 text-gray-400" />
-                                                    <span className="truncate">{conv.lieuOuLien || t('employerdashboard:convocations.locationUnknown')}</span>
+                                            {conv.statut != "ANNULEE" && !isViewingPastYear && (
+                                                <div className="flex flex-col gap-2 ml-4">
+                                                    <button
+                                                        onClick={() => handleEditConvocation(conv)}
+                                                        className="cursor-pointer px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                        {t('employerdashboard:convocations.edit')}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteConvocation(conv)}
+                                                        className="cursor-pointer px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                        {t('employerdashboard:convocations.delete')}
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {conv.statut != "ANNULEE" && isViewingPastYear && (
+                                                <div className="flex flex-col gap-2 ml-4">
+                                                    <button
+                                                        disabled
+                                                        className="px-3 py-2 bg-gray-400 text-gray-200 rounded-md text-sm cursor-not-allowed opacity-50 flex items-center gap-1"
+                                                        title={t('yearBanner:warning')}
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                        {t('employerdashboard:convocations.edit')}
+                                                    </button>
+                                                    <button
+                                                        disabled
+                                                        className="px-3 py-2 bg-gray-400 text-gray-200 rounded-md text-sm cursor-not-allowed opacity-50 flex items-center gap-1"
+                                                        title={t('yearBanner:warning')}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                        {t('employerdashboard:convocations.delete')}
+                                                    </button>
                                                 </div>
                                                 {conv.etudiantPrenom && conv.etudiantNom && (
                                                     <div className="flex items-center gap-2">
@@ -488,59 +526,120 @@ const DashBoardEmployeur = () => {
                 </div>
             </div>
 
-            {/* Edit Convocation Modal */}
-            {showEditModal && (
-                <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-700">
-                        <div className="bg-blue-50 dark:bg-blue-900/30 px-6 py-4 rounded-t-xl border-b border-blue-100 dark:border-blue-800">
-                            <h3 className="text-xl font-semibold text-blue-700 dark:text-blue-300">{t('employerdashboard:convocations.editModal.title')}</h3>
-                        </div>
-                        <div className="px-6 py-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.dateTime')}</label>
-                                <input
-                                    type="datetime-local"
-                                    value={editForm.dateHeure}
-                                    onChange={(e) => setEditForm({...editForm, dateHeure: e.target.value})}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                />
+                {/* Edit Convocation Modal */}
+                {showEditModal && (
+                    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30 backdrop-blur-sm">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-700">
+                            <div className="bg-blue-50 dark:bg-blue-900/30 px-6 py-4 rounded-t-xl border-b border-blue-100 dark:border-blue-800">
+                                <h3 className="text-xl font-semibold text-blue-700 dark:text-blue-300">{t('employerdashboard:convocations.editModal.title')}</h3>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.location')}</label>
-                                <input
-                                    type="text"
-                                    value={editForm.lieuOuLien}
-                                    onChange={(e) => setEditForm({...editForm, lieuOuLien: e.target.value})}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                />
+                            <div className="px-6 py-6 space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.dateTime')}</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={editForm.dateHeure}
+                                        onChange={(e) => setEditForm({...editForm, dateHeure: e.target.value})}
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.location')}</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.lieuOuLien}
+                                        onChange={(e) => setEditForm({...editForm, lieuOuLien: e.target.value})}
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.message')}</label>
+                                    <textarea
+                                        value={editForm.message}
+                                        onChange={(e) => setEditForm({...editForm, message: e.target.value})}
+                                        rows={4}
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.message')}</label>
-                                <textarea
-                                    value={editForm.message}
-                                    onChange={(e) => setEditForm({...editForm, message: e.target.value})}
-                                    rows={4}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                />
+                            <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700/50 rounded-b-xl flex justify-end gap-3">
+                                <button
+                                    className="cursor-pointer px-6 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600"
+                                    onClick={() => setShowEditModal(false)}
+                                >
+                                    {t('employerdashboard:convocations.editModal.cancel')}
+                                </button>
+                                <button
+                                    className="cursor-pointer px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    onClick={handleSaveEdit}
+                                >
+                                    {t('employerdashboard:convocations.editModal.save')}
+                                </button>
                             </div>
-                        </div>
-                        <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
-                            <button
-                                className="cursor-pointer px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-                                onClick={() => setShowEditModal(false)}
-                            >
-                                {t('employerdashboard:convocations.editModal.cancel')}
-                            </button>
-                            <button
-                                className="cursor-pointer px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                onClick={handleSaveEdit}
-                            >
-                                {t('employerdashboard:convocations.editModal.save')}
-                            </button>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+
+                {/* Delete Convocation Modal */}
+                {showDeleteModal && convocationToDelete && (
+                    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30 backdrop-blur-sm">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-700">
+                            <div className="bg-red-50 dark:bg-red-900/30 px-6 py-4 rounded-t-xl border-b border-red-100 dark:border-red-800">
+                                <div className="flex items-center">
+                                    <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mr-3">
+                                        <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-red-700 dark:text-red-300">{t('employerdashboard:convocations.deleteModal.title')}</h3>
+                                </div>
+                            </div>
+                            <div className="px-6 py-6">
+                                <p className="text-gray-700 dark:text-slate-200 mb-4">
+                                    {t('employerdashboard:convocations.deleteModal.message')}
+                                </p>
+                                <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-lg border border-gray-200 dark:border-slate-600">
+                                    <p className="font-semibold text-gray-800 dark:text-slate-100 mb-2">
+                                        {convocationToDelete.offreTitre || t('employerdashboard:convocations.defaultTitle')}
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2">
+                                        <Calendar className="w-4 h-4" />
+                                        {new Date(convocationToDelete.dateHeure).toLocaleString(i18n?.language?.startsWith('fr') ? 'fr-CA' : 'en-CA', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </p>
+                                    {convocationToDelete.etudiantNom && convocationToDelete.etudiantPrenom && (
+                                        <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">
+                                            {t('employerdashboard:convocations.student')}: {convocationToDelete.etudiantPrenom} {convocationToDelete.etudiantNom}
+                                        </p>
+                                    )}
+                                </div>
+                                <p className="text-sm text-red-600 dark:text-red-400 mt-4 font-medium">
+                                    {t('employerdashboard:convocations.deleteModal.warning')}
+                                </p>
+                            </div>
+                            <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700/50 rounded-b-xl flex justify-end gap-3">
+                                <button
+                                    className="cursor-pointer px-6 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600"
+                                    onClick={() => {
+                                        setShowDeleteModal(false);
+                                        setConvocationToDelete(null);
+                                    }}
+                                >
+                                    {t('employerdashboard:convocations.deleteModal.cancel')}
+                                </button>
+                                <button
+                                    className="cursor-pointer px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                                    onClick={confirmDeleteConvocation}
+                                >
+                                    {t('employerdashboard:convocations.deleteModal.confirm')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
             {/* Refusal Reason Modal */}
             {showModal && (
@@ -580,4 +679,3 @@ const DashBoardEmployeur = () => {
 };
 
 export default DashBoardEmployeur;
-

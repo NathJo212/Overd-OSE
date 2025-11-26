@@ -31,6 +31,8 @@ public class Offre {
     private LocalDate date_debut;
     private LocalDate date_fin;
 
+    private int annee;
+
     @Convert(converter = ProgrammeConverter.class)
     private Programme progEtude;
 
@@ -65,6 +67,7 @@ public class Offre {
         this.description = description;
         this.date_debut = date_debut;
         this.date_fin = date_fin;
+        this.annee = date_debut != null ? date_debut.getYear() : 0;
         this.progEtude = progEtude;
         this.lieuStage = lieuStage;
         this.remuneration = remuneration;
@@ -84,6 +87,7 @@ public class Offre {
         this.description = description;
         this.date_debut = date_debut;
         this.date_fin = date_fin;
+        this.annee = date_debut != null ? date_debut.getYear() : 0;
         this.progEtude = progEtude;
         this.lieuStage = lieuStage;
         this.remuneration = remuneration;

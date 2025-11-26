@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import UtilisateurService from "../services/UtilisateurService.ts";
 import {UserCheck, Users, GraduationCap, Search, X, CheckCircle, AlertCircle, UserCog, ArrowLeft} from "lucide-react";
 import NavBar from "./NavBar.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 export default function GestionnaireAttribueEtudiant() {
     const { t } = useTranslation(["gestionnaireAttribueEtudiant"]);
@@ -15,6 +17,20 @@ export default function GestionnaireAttribueEtudiant() {
     const [selectedProf, setSelectedProf] = useState<Record<number, number>>({});
     const [loading, setLoading] = useState(true);
     const [assigning, setAssigning] = useState<number | null>(null);
+    const { selectedYear } = useYear();
+
+    // Calculer l'année actuelle (année académique)
+    const getCurrentYear = (): number => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth(); // 0-11 (0 = janvier, 7 = août)
+
+        // Si nous sommes en août (mois 7) ou après, retourner l'année suivante
+        return currentMonth >= 7 ? currentYear + 1 : currentYear;
+    };
+
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
 
     // Alert states
     const [alert, setAlert] = useState<{
@@ -45,7 +61,7 @@ export default function GestionnaireAttribueEtudiant() {
 
             try {
                 const [etudiantsData, profsData] = await Promise.all([
-                    gestionnaireService.getAllEtudiants(token),
+                    gestionnaireService.getAllEtudiants(token, String(selectedYear)),
                     gestionnaireService.getAllProfesseurs(token),
                 ]);
                 setEtudiants(etudiantsData);
@@ -61,9 +77,11 @@ export default function GestionnaireAttribueEtudiant() {
             }
         };
         fetchData();
-    }, [token, t, navigate]);
+    }, [token, t, navigate, selectedYear]);
 
     const handleAssign = async (etudiantId: number) => {
+        if (isViewingPastYear) return; // Empêcher l'action si on regarde une année passée
+
         const professeurId = selectedProf[etudiantId];
         if (!professeurId) {
             setAlert({
@@ -91,13 +109,11 @@ export default function GestionnaireAttribueEtudiant() {
                 message: t("assignSuccess") || "Professeur assigné avec succès!"
             });
 
-            // Refresh the students list
-            const updatedEtudiants = await gestionnaireService.getAllEtudiants(token);
+            const updatedEtudiants = await gestionnaireService.getAllEtudiants(token, String(selectedYear));
             setEtudiants(updatedEtudiants);
         } catch (error: any) {
             console.error("Assignment error:", error);
 
-            // Handle specific error messages from backend
             let errorMessage = t("assignError") || "Erreur lors de l'assignation";
             if (error.response?.data?.erreur) {
                 errorMessage = error.response.data.erreur.message || errorMessage;
@@ -128,12 +144,10 @@ export default function GestionnaireAttribueEtudiant() {
 
     // Get current teacher name for a student
     const getCurrentTeacher = (etudiant: EtudiantDTO) => {
-        // First check if the etudiant has a professeur property (from backend)
         if (etudiant.professeur) {
             return `${etudiant.professeur.prenom} ${etudiant.professeur.nom}`;
         }
 
-        // Fallback: Check if etudiantList exists on any professor
         const assignedProf = professeurs.find(prof =>
             prof.etudiantList?.some(e => e.id === etudiant.id)
         );
@@ -178,6 +192,9 @@ export default function GestionnaireAttribueEtudiant() {
                     </p>
                 </div>
 
+                {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
+                <YearBanner />
+
                 {/* Alert Messages */}
                 {alert && (
                     <div className={`mb-6 p-4 rounded-xl shadow-md flex items-center gap-3 ${
@@ -200,7 +217,7 @@ export default function GestionnaireAttribueEtudiant() {
                             className={`p-1 rounded-lg transition-colors ${
                                 alert.type === 'success'
                                     ? 'cursor-pointer hover:bg-green-100 dark:hover:bg-green-800/30'
-                                    : 'cursor-pointerhover:bg-red-100 dark:hover:bg-red-800/30'
+                                    : 'cursor-pointer hover:bg-red-100 dark:hover:bg-red-800/30'
                             }`}
                         >
                             <X className="w-4 h-4" />
@@ -208,7 +225,7 @@ export default function GestionnaireAttribueEtudiant() {
                     </div>
                 )}
 
-                {/* Global Student Search Bar */}
+                {/* Global Student Search Bar - Always enabled */}
                 <div className="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-slate-700">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
@@ -288,22 +305,22 @@ export default function GestionnaireAttribueEtudiant() {
                                                 <div className="flex items-center gap-2">
                                                     <UserCog className="w-4 h-4 text-blue-600" />
                                                     <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
-                                                            {currentTeacher}
-                                                        </span>
+                                                        {currentTeacher}
+                                                    </span>
                                                 </div>
                                             ) : (
                                                 <span className="text-sm text-gray-400 italic">
-                                                        {t("noTeacher") || "Aucun professeur"}
-                                                    </span>
+                                                    {t("noTeacher") || "Aucun professeur"}
+                                                </span>
                                             )}
                                         </td>
                                         <td className="p-4 text-gray-600 dark:text-slate-300">
-                                                <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-md text-sm">
-                                                    {t(`programmes:${etudiant.progEtude}`) || etudiant.progEtude || "N/A"}
-                                                </span>
+                                            <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-md text-sm">
+                                                {t(`programmes:${etudiant.progEtude}`) || etudiant.progEtude || "N/A"}
+                                            </span>
                                         </td>
                                         <td className="p-4">
-                                            {/* Teacher select dropdown */}
+                                            {/* Teacher select dropdown - Disabled when viewing past year */}
                                             <select
                                                 value={selectedProf[etudiant.id!] ? String(selectedProf[etudiant.id!]) : ""}
                                                 onChange={(e) =>
@@ -312,8 +329,9 @@ export default function GestionnaireAttribueEtudiant() {
                                                         [etudiant.id!]: parseInt(e.target.value, 10)
                                                     })
                                                 }
-                                                className="w-full border border-gray-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
-                                                disabled={assigning === etudiant.id}
+                                                className="w-full border border-gray-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                disabled={assigning === etudiant.id || isViewingPastYear}
+                                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                             >
                                                 <option value="">
                                                     {t("selectOption") || "-- Sélectionner --"}
@@ -328,12 +346,13 @@ export default function GestionnaireAttribueEtudiant() {
                                         <td className="p-4 text-center">
                                             <button
                                                 onClick={() => handleAssign(etudiant.id!)}
-                                                disabled={assigning === etudiant.id}
+                                                disabled={assigning === etudiant.id || isViewingPastYear}
                                                 className={`${
                                                     hasTeacher
-                                                        ? 'cursor-pointer bg-orange-600 hover:bg-orange-700'
-                                                        : 'cursor-pointer bg-blue-600 hover:bg-blue-700'
-                                                } disabled:bg-gray-400 dark:disabled:bg-slate-600 text-white px-4 py-2 rounded-xl shadow transition-all duration-200 flex items-center gap-2 mx-auto`}
+                                                        ? 'bg-orange-600 hover:bg-orange-700'
+                                                        : 'bg-blue-600 hover:bg-blue-700'
+                                                } disabled:bg-gray-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50 text-white px-4 py-2 rounded-xl shadow transition-all duration-200 flex items-center gap-2 mx-auto cursor-pointer`}
+                                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                             >
                                                 {assigning === etudiant.id ? (
                                                     <>

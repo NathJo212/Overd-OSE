@@ -53,7 +53,7 @@ public class EtudiantService {
 
     @Transactional
     public void creerEtudiant(String email, String password, String telephone,
-                              String prenom, String nom, ProgrammeDTO progEtude, String session, String annee) throws MotPasseInvalideException, EmailDejaUtiliseException {
+                              String prenom, String nom, ProgrammeDTO progEtude) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean etudiantExistant = utilisateurRepository.existsByEmail(email);
         if (etudiantExistant) {
             throw new EmailDejaUtiliseException();
@@ -63,7 +63,7 @@ public class EtudiantService {
             throw new MotPasseInvalideException();
         }
         String hashedPassword = passwordEncoder.encode(password);
-        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, prenom, nom, Programme.toModele(progEtude), session, annee);
+        Etudiant etudiant = new Etudiant(email, hashedPassword, telephone, prenom, nom, Programme.toModele(progEtude));
         etudiantRepository.save(etudiant);
     }
 
@@ -113,12 +113,17 @@ public class EtudiantService {
     }
 
     @Transactional
-    public List<OffreDTO> getOffresApprouves() {
+    public List<OffreDTO> getOffresApprouves() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Etudiant etudiant = getEtudiantConnecte();
+
         List<Offre> offres = offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE);
+
         return offres.stream()
+                .filter(offre -> offre.getAnnee() == etudiant.getAnnee())
                 .map(offre -> new OffreDTO().toDTO(offre))
                 .toList();
     }
+
 
     public StatutCvDTO getInfosCvEtudiantConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Etudiant etudiant = getEtudiantConnecte();
@@ -139,6 +144,8 @@ public class EtudiantService {
 
         Offre offre = offreRepository.findById(offreId)
                 .orElseThrow(OffreNonDisponible::new);
+
+        verifierOffreAnneeCourante(offre);
 
         if (offre.getStatutApprouve() != Offre.StatutApprouve.APPROUVE) {
             throw new OffreNonDisponible();
@@ -256,6 +263,8 @@ public class EtudiantService {
             throw new ActionNonAutoriseeException();
         }
 
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE) {
             throw new CandidatureNonDisponibleException();
         }
@@ -336,6 +345,11 @@ public class EtudiantService {
             throw new StatutCandidatureInvalideException();
         }
 
+        if (candidature.getOffre() == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT);
         candidatureRepository.save(candidature);
 
@@ -372,6 +386,8 @@ public class EtudiantService {
             throw new ActionNonAutoriseeException();
         }
 
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         if (candidature.getStatut() != Candidature.StatutCandidature.ACCEPTEE) {
             throw new StatutCandidatureInvalideException();
         }
@@ -396,6 +412,8 @@ public class EtudiantService {
             throw new StatutEntenteInvalideException();
         }
 
+        verifierOffreAnneeCourante(entente.getOffre());
+
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
 
         entente.setDateSignatureEtudiant(LocalDate.now());
@@ -419,6 +437,7 @@ public class EtudiantService {
             throw new StatutEntenteInvalideException();
         }
 
+        verifierOffreAnneeCourante(entente.getOffre());
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.REFUSEE);
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
 
@@ -481,5 +500,23 @@ public class EtudiantService {
         throw new EntenteDocumentNonTrouveeException();
     }
 
+    private int getAnneeAcademiqueCourante() {
+        java.time.LocalDate now = java.time.LocalDate.now();
+        int year = now.getYear();
+        if (now.getMonthValue() >= 8) {
+            return year + 1;
+        }
+        return year;
+    }
 
+    private void verifierOffreAnneeCourante(Offre offre) throws ActionNonAutoriseeException {
+        if (offre == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        int anneeOffre = offre.getAnnee();
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+        if (anneeOffre != anneeAcademiqueCourante) {
+            throw new ActionNonAutoriseeException();
+        }
+    }
 }

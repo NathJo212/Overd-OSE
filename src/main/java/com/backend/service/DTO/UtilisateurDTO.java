@@ -26,8 +26,7 @@ public class UtilisateurDTO {
     private String nom;
     private String prenom;
     private ProgrammeDTO progEtude;
-    private String session;
-    private String annee;
+    private int annee;
 
     public static UtilisateurDTO toDTO(Utilisateur utilisateur) {
         UtilisateurDTO dto = new UtilisateurDTO();
@@ -44,7 +43,6 @@ public class UtilisateurDTO {
                 dto.setNom(etudiant.getNom());
                 dto.setPrenom(etudiant.getPrenom());
                 dto.setProgEtude(ProgrammeDTO.toDTO(etudiant.getProgEtude()));
-                dto.setSession(etudiant.getSession());
                 dto.setAnnee(etudiant.getAnnee());
             }
             case Professeur professeur -> {

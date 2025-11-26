@@ -61,6 +61,26 @@ public class EmployeurService {
         this.gestionnaireRepository = gestionnaireRepository;
     }
 
+    private int getAnneeAcademiqueCourante() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        if (now.getMonthValue() >= 8) {
+            return year + 1;
+        }
+        return year;
+    }
+
+    private void verifierOffreAnneeCourante(Offre offre) throws ActionNonAutoriseeException {
+        if (offre == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        int anneeOffre = offre.getAnnee();
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+        if (anneeOffre != anneeAcademiqueCourante) {
+            throw new ActionNonAutoriseeException();
+        }
+    }
+
     @Transactional
     public void creerEmployeur(String email, String password, String telephone, String nomEntreprise, String contact) throws MotPasseInvalideException, EmailDejaUtiliseException {
         boolean employeurExistant = utilisateurRepository.existsByEmail(email);
@@ -89,6 +109,10 @@ public class EmployeurService {
             throw new DateInvalideException();
         }
 
+        if (dateLimite != null && dateLimite.isAfter(date_debut)) {
+            throw new DateInvalideException();
+        }
+
         String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
         Employeur employeur = employeurRepository.findByEmail(email);
         Offre offre = new Offre(titre, description, date_debut, date_fin, Programme.toModele(progEtude), lieuStage, remuneration, dateLimite, employeur, horaire, dureeHebdomadaire, responsabilitesEtudiant, responsabilitesEmployeur, responsabiliteCollege, objectifs);
@@ -96,17 +120,16 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<OffreDTO> OffrePourEmployeur(AuthResponseDTO utilisateur) throws ActionNonAutoriseeException {
-        String token = utilisateur.getToken();
-        boolean isEmployeur = jwtTokenProvider.isEmployeur(token, jwtTokenProvider);
-        if (!isEmployeur) {
-            throw new ActionNonAutoriseeException();
-        }
-        String email = jwtTokenProvider.getEmailFromJWT(token.startsWith("Bearer ") ? token.substring(7) : token);
-        Employeur employeur = employeurRepository.findByEmail(email);
+    public List<OffreDTO> getOffresParEmployeur(int annee) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+        Employeur employeur = getEmployeurConnecte();
         List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
+
+        // Filter by year
         OffreDTO offreDTO = new OffreDTO();
-        return offres.stream().map(offreDTO::toDTO).toList();
+        return offres.stream()
+                .filter(offre -> offre.getAnnee() == annee)
+                .map(offreDTO::toDTO)
+                .toList();
     }
 
     public Employeur getEmployeurConnecte() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
@@ -130,13 +153,18 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<CandidatureDTO> getCandidaturesPourEmployeur()
+    public List<CandidatureDTO> getCandidaturesPourEmployeur(int annee)
             throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
         List<Offre> offres = offreRepository.findOffreByEmployeurId(employeur.getId());
 
+        // Filter offers by year
+        List<Offre> offresParAnnee = offres.stream()
+                .filter(offre -> offre.getAnnee() == annee)
+                .toList();
+
         List<Candidature> candidatures = new ArrayList<>();
-        for (Offre offre : offres) {
+        for (Offre offre : offresParAnnee) {
             candidatures.addAll(offre.getCandidatures());
         }
 
@@ -224,6 +252,9 @@ public class EmployeurService {
             throw new ActionNonAutoriseeException();
         }
 
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         if (candidature.getConvocationEntrevue() != null) {
             throw new ConvocationDejaExistanteException();
         }
@@ -248,6 +279,9 @@ public class EmployeurService {
                 !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
 
         ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
         if (convocation == null) {
@@ -276,6 +310,9 @@ public class EmployeurService {
             throw new ActionNonAutoriseeException();
         }
 
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         ConvocationEntrevue convocation = candidature.getConvocationEntrevue();
         if (convocation == null) {
             throw new CandidatureNonTrouveeException();
@@ -286,12 +323,17 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<ConvocationEntrevueDTO> getConvocationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<ConvocationEntrevueDTO> getConvocationsPourEmployeur(int annee) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
         List<Offre> offres = offreRepository.findAllByEmployeur(employeur);
 
-        List<Candidature> candidatures = candidatureRepository.findAllByOffreIn(offres);
+        // Filter offers by year
+        List<Offre> offresParAnnee = offres.stream()
+                .filter(offre -> offre.getAnnee() == annee)
+                .toList();
+
+        List<Candidature> candidatures = candidatureRepository.findAllByOffreIn(offresParAnnee);
 
         List<ConvocationEntrevueDTO> convocations = new ArrayList<>();
         for (Candidature candidature : candidatures) {
@@ -313,6 +355,10 @@ public class EmployeurService {
                 !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE){
             throw new CandidatureDejaVerifieException();
         }
@@ -331,6 +377,10 @@ public class EmployeurService {
                 || !candidature.getOffre().getEmployeur().getId().equals(employeur.getId())) {
             throw new ActionNonAutoriseeException();
         }
+
+        // Vérifier que l'offre est de l'année courante
+        verifierOffreAnneeCourante(candidature.getOffre());
+
         if (candidature.getStatut() != Candidature.StatutCandidature.EN_ATTENTE){
             throw new CandidatureDejaVerifieException();
         }
@@ -382,18 +432,25 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<EntenteStageDTO> getEntentesPourEmployeur(int annee)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
         List<EntenteStage> ententes = ententeStageRepository.findByEmployeurAndArchivedFalse(employeur);
 
-        return ententes.stream()
+        // Filter by year through the Offre
+        List<EntenteStage> ententesParAnnee = ententes.stream()
+                .filter(entente -> entente.getOffre() != null && entente.getOffre().getAnnee() == annee)
+                .toList();
+
+        return ententesParAnnee.stream()
                 .map(entente -> new EntenteStageDTO().toDTO(entente))
                 .toList();
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesEnAttente() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<EntenteStageDTO> getEntentesEnAttente(int annee)
+            throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
 
         List<EntenteStage> ententes = ententeStageRepository.findByEmployeurAndEmployeurSignatureAndArchivedFalse(
@@ -401,7 +458,12 @@ public class EmployeurService {
                 EntenteStage.SignatureStatus.EN_ATTENTE
         );
 
-        return ententes.stream()
+        // Filter by year through the Offre
+        List<EntenteStage> ententesParAnnee = ententes.stream()
+                .filter(entente -> entente.getOffre() != null && entente.getOffre().getAnnee() == annee)
+                .toList();
+
+        return ententesParAnnee.stream()
                 .map(e -> new EntenteStageDTO().toDTO(e))
                 .toList();
     }
@@ -429,6 +491,8 @@ public class EmployeurService {
             throw new ActionNonAutoriseeException();
         }
 
+        verifierOffreAnneeCourante(entente.getOffre());
+
         if (entente.getEmployeurSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
             throw new StatutEntenteInvalideException();
         }
@@ -449,6 +513,8 @@ public class EmployeurService {
             throw new ActionNonAutoriseeException();
         }
 
+        verifierOffreAnneeCourante(entente.getOffre());
+
         if (entente.getEmployeurSignature() != EntenteStage.SignatureStatus.EN_ATTENTE) {
             throw new StatutEntenteInvalideException();
         }
@@ -463,6 +529,8 @@ public class EmployeurService {
     public void creerEvaluation(CreerEvaluationDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteNonTrouveException, EvaluationDejaExistanteException, EntenteNonFinaliseeException, IOException {
         Employeur employeur = getEmployeurConnecte();
         EntenteStage entente = ententeStageRepository.findById(dto.getEntenteId()).orElseThrow(EntenteNonTrouveException::new);
+
+        verifierOffreAnneeCourante(entente.getOffre());
 
         if(entente.getStatut() != EntenteStage.StatutEntente.SIGNEE){
             throw new EntenteNonFinaliseeException();
@@ -489,10 +557,19 @@ public class EmployeurService {
     }
 
     @Transactional
-    public List<EvaluationDTO> getEvaluationsPourEmployeur() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<EvaluationDTO> getEvaluationsPourEmployeur(int annee) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         Employeur employeur = getEmployeurConnecte();
         List<EvaluationEtudiantParEmployeur> evaluations = evaluationRepository.findAllByEmployeurId(employeur.getId());
-        return evaluations.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
+
+        // Filter evaluations by year through the Entente's Offre
+        List<EvaluationEtudiantParEmployeur> evaluationsParAnnee = evaluations.stream()
+                .filter(evaluation -> {
+                    EntenteStage entente = evaluation.getEntente();
+                    return entente != null && entente.getOffre() != null && entente.getOffre().getAnnee() == annee;
+                })
+                .toList();
+
+        return evaluationsParAnnee.stream().map(e -> new EvaluationDTO().toDTO(e)).toList();
     }
 
     @Transactional

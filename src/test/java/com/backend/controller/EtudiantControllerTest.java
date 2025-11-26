@@ -59,8 +59,6 @@ class EtudiantControllerTest {
         etudiant.setPrenom("Jean");
         etudiant.setNom("Dupont");
         etudiant.setProgEtude(ProgrammeDTO.P221_D0);
-        etudiant.setSession("Automne");
-        etudiant.setAnnee("2025");
 
         mockMvc.perform(post("/OSEetudiant/creerCompte")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -75,7 +73,7 @@ class EtudiantControllerTest {
     @DisplayName("POST /OSEetudiant/creerCompte retourne 409 si email déjà utilisé")
     void creerCompte_emailDejaUtilise_returnsConflict() throws Exception {
         doThrow(new EmailDejaUtiliseException())
-                .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class), anyString(), anyString());
+                .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class));
 
         EtudiantDTO etudiant = new EtudiantDTO();
         etudiant.setEmail("test@etudiant.com");
@@ -84,8 +82,6 @@ class EtudiantControllerTest {
         etudiant.setPrenom("Alice");
         etudiant.setNom("Martin");
         etudiant.setProgEtude(ProgrammeDTO.P388_A1);
-        etudiant.setSession("Hiver");
-        etudiant.setAnnee("2024");
 
         mockMvc.perform(post("/OSEetudiant/creerCompte")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -100,7 +96,7 @@ class EtudiantControllerTest {
     @DisplayName("POST /OSEetudiant/creerCompte retourne 409 si mot de passe invalide")
     void creerCompte_motDePassePasBon_returnsConflict() throws Exception {
         doThrow(new MotPasseInvalideException())
-                .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class), anyString(), anyString());
+                .when(etudiantService).creerEtudiant(anyString(), anyString(), anyString(), anyString(), anyString(), any(ProgrammeDTO.class));
 
         EtudiantDTO etudiant = new EtudiantDTO();
         etudiant.setEmail("test@etudiant.com");
@@ -109,8 +105,6 @@ class EtudiantControllerTest {
         etudiant.setPrenom("Alice");
         etudiant.setNom("Martin");
         etudiant.setProgEtude(ProgrammeDTO.P300_A1_ADMIN);
-        etudiant.setSession("Hiver");
-        etudiant.setAnnee("2024");
 
         mockMvc.perform(post("/OSEetudiant/creerCompte")
                         .contentType(MediaType.APPLICATION_JSON)

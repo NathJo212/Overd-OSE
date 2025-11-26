@@ -15,7 +15,9 @@ import {
 } from "lucide-react";
 import { gestionnaireService, type EtudiantDTO } from "../services/GestionnaireService";
 import NavBar from "./NavBar.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
 import { useTranslation } from "react-i18next";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 const ApprouverRefuserCV = () => {
     const { t } = useTranslation(["cvmanager", "errors"]);
@@ -33,11 +35,25 @@ const ApprouverRefuserCV = () => {
     const [selectedCV, setSelectedCV] = useState<EtudiantDTO | null>(null);
     const [showCVModal, setShowCVModal] = useState(false);
     const token = sessionStorage.getItem("authToken") || "";
+    const { selectedYear } = useYear();
+
+    // Calculer l'année actuelle (année académique)
+    const getCurrentYear = (): number => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth(); // 0-11 (0 = janvier, 7 = août)
+
+        // Si nous sommes en août (mois 7) ou après, retourner l'année suivante
+        return currentMonth >= 7 ? currentYear + 1 : currentYear;
+    };
+
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
 
     const chargerCVs = async () => {
         try {
             setLoading(true);
-            const data = await gestionnaireService.getAllCVsEnAttente(token);
+            const data = await gestionnaireService.getAllCVsEnAttente(token, String(selectedYear));
             setEtudiants(data);
         } catch (e: any) {
             setError(e.message || 'Erreur inconnue');
@@ -57,9 +73,11 @@ const ApprouverRefuserCV = () => {
             return;
         }
         chargerCVs().then();
-    }, [navigate, token]);
+    }, [navigate, token, selectedYear]);
 
     const handleApprove = async (id: number) => {
+        if (isViewingPastYear) return; // Empêcher l'action si on regarde une année passée
+
         setProcessingId(id);
         setActionMessage("");
         setError("");
@@ -81,6 +99,8 @@ const ApprouverRefuserCV = () => {
     };
 
     const handleRefuseClick = (id: number) => {
+        if (isViewingPastYear) return; // Empêcher l'action si on regarde une année passée
+
         setRefuseTargetId(id);
         setRefuseReason("");
         setRefuseError("");
@@ -155,6 +175,9 @@ const ApprouverRefuserCV = () => {
                         </h1>
                         <p className="text-gray-600 dark:text-slate-300">{t("cvmanager:page.manageResumes")}</p>
                     </div>
+
+                    {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
+                    <YearBanner />
 
                     {actionMessage && (
                         <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-400 dark:border-green-900/40 text-green-700 dark:text-green-200 px-4 py-3 rounded-xl">
@@ -240,16 +263,18 @@ const ApprouverRefuserCV = () => {
                                             </button>
                                             <button
                                                 onClick={() => handleApprove(etudiant.id!)}
-                                                disabled={processingId === etudiant.id}
-                                                className="cursor-pointer px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:bg-gray-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                                                disabled={processingId === etudiant.id || isViewingPastYear}
+                                                className="cursor-pointer px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:bg-gray-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+                                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                             >
                                                 <CheckCircle className="h-4 w-4" />
                                                 {processingId === etudiant.id ? t("cvmanager:actions.sending") : t("cvmanager:actions.approve")}
                                             </button>
                                             <button
                                                 onClick={() => handleRefuseClick(etudiant.id!)}
-                                                disabled={processingId === etudiant.id}
-                                                className="cursor-pointer px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                                                disabled={processingId === etudiant.id || isViewingPastYear}
+                                                className="cursor-pointer px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+                                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                             >
                                                 <XCircle className="h-4 w-4" />
                                                 {t("cvmanager:actions.refuse")}
@@ -339,4 +364,3 @@ const ApprouverRefuserCV = () => {
 };
 
 export default ApprouverRefuserCV;
-

@@ -46,6 +46,7 @@
     "edit": "Edit",
     "delete": "Cancel",
     "confirmDelete": "Are you sure you want to cancel this interview?",
+    "noReasonProvided": "No reason provided",
     "messages": {
       "edited": "Interview updated successfully",
       "deleted": "Interview cancelled successfully",
@@ -59,6 +60,13 @@
       "message": "Message",
       "cancel": "Cancel",
       "save": "Save"
+    },
+    "deleteModal": {
+      "title": "Cancel Interview",
+      "message": "Are you sure you want to cancel this interview?",
+      "warning": "This action is irreversible.",
+      "cancel": "Cancel",
+      "confirm": "Confirm Cancellation"
     },
     "convoked": "Convoked",
     "modified": "Modified",

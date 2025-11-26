@@ -36,9 +36,8 @@ public class BackendApplication {
                     "987-654-3210",
                     "Martin",
                     "Durand",
-                    ProgrammeDTO.P420_B0,
-                    "Automne",
-                    "3ème année"
+                    ProgrammeDTO.P420_B0
+//                    "3ème année"
             );
 
 
@@ -48,9 +47,8 @@ public class BackendApplication {
                     "987-654-3210",
                     "George",
                     "Dubois",
-                    ProgrammeDTO.P221_A0,
-                    "Automne",
-                    "3ème année"
+                    ProgrammeDTO.P221_A0
+//                    "3ème année"
             );
 
             gestionnaireService.creerGestionnaire(
@@ -84,12 +82,12 @@ public class BackendApplication {
                     utilisateurTest,
                     "Mon stage",
                     "Stage react",
-                    LocalDate.now().plusWeeks(1),
-                    LocalDate.now().plusMonths(6),
+                    LocalDate.now().plusMonths(3),
+                    LocalDate.now().plusMonths(5),
                     ProgrammeDTO.P420_B0,
                     "Montréal",
                     "15$/h",
-                    LocalDate.now().plusDays(1),
+                    LocalDate.now().plusDays(2),
                     "matinale",
                     20,
                     "Faire le café",
@@ -102,12 +100,12 @@ public class BackendApplication {
                     utilisateurTest,
                     "Développeur Java",
                     "Stage backend sur une application Spring Boot",
-                    LocalDate.now().minusMonths(8),
-                    LocalDate.now().minusMonths(2),
+                    LocalDate.now().plusMonths(2),
+                    LocalDate.now().plusMonths(6),
                     ProgrammeDTO.P420_B0,
                     "Montréal",
                     "15$/h",
-                    LocalDate.now().plusMonths(6),
+                    LocalDate.now().plusDays(2),
                     "soirée",
                     30,
                     "Développer des APIs",

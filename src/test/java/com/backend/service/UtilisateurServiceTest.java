@@ -95,7 +95,7 @@ public class UtilisateurServiceTest {
         String password = "Password123!";
         String token = "jwt.token.here";
 
-        Etudiant etudiant = new Etudiant(email, password, "5149749308", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        Etudiant etudiant = new Etudiant(email, password, "5149749308", "Jean", "Dupont", Programme.P420_B0);
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
@@ -113,8 +113,6 @@ public class UtilisateurServiceTest {
         assertEquals("Jean", result.getUtilisateurDTO().getPrenom());
         assertEquals("Dupont", result.getUtilisateurDTO().getNom());
         assertEquals(ProgrammeDTO.P420_B0, result.getUtilisateurDTO().getProgEtude());
-        assertEquals("Automne", result.getUtilisateurDTO().getSession());
-        assertEquals("2024", result.getUtilisateurDTO().getAnnee());
 
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtTokenProvider, times(1)).generateToken(authentication);
@@ -314,7 +312,7 @@ public class UtilisateurServiceTest {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
 
-        Etudiant etudiant = new Etudiant("etu@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        Etudiant etudiant = new Etudiant("etu@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0);
         Employeur employeur = new Employeur("emp@test.com", "pass", "tel", "Google", "Contact");
         Professeur professeur = new Professeur("prof@test.com", "pass", "tel", "Martin", "Pierre");
         GestionnaireStage gestionnaire = new GestionnaireStage("gest@test.com", "pass", "tel", "Gagnon", "Sophie");
@@ -350,7 +348,7 @@ public class UtilisateurServiceTest {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
 
-        Etudiant etudiant = new Etudiant("jean@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        Etudiant etudiant = new Etudiant("jean@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0);
         when(etudiantRepository.findAll()).thenReturn(Collections.singletonList(etudiant));
 
         // Act
@@ -447,7 +445,7 @@ public class UtilisateurServiceTest {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
 
-        Etudiant etudiant = new Etudiant("etu@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0, "Automne", "2024");
+        Etudiant etudiant = new Etudiant("etu@test.com", "pass", "tel", "Jean", "Dupont", Programme.P420_B0);
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
 
         // Act

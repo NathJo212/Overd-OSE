@@ -211,13 +211,13 @@ public class EtudiantServiceTest {
     @Test
     public void testCreationEtudiant() throws MotPasseInvalideException, EmailDejaUtiliseException {
         // Arrange
-        Etudiant etudiant = new Etudiant( "etudiant@example.com", "Etudiant128&", "987-654-3210", "Martin", "Durand", Programme.P388_A1, "Automne", "2025");
+        Etudiant etudiant = new Etudiant( "etudiant@example.com", "Etudiant128&", "987-654-3210", "Martin", "Durand", Programme.P388_A1);
         when(utilisateurRepository.existsByEmail(etudiant.getEmail())).thenReturn(false);
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("encodedPassword");
         when(etudiantRepository.save(any(Etudiant.class))).thenReturn(etudiant);
 
         //Act
-        etudiantService.creerEtudiant(etudiant.getEmail(), etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P388_A1, etudiant.getSession(), etudiant.getAnnee());
+        etudiantService.creerEtudiant(etudiant.getEmail(), etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P388_A1);
 
         //Assert
         verify(etudiantRepository, times(1)).save(any(Etudiant.class));
@@ -226,13 +226,13 @@ public class EtudiantServiceTest {
     @Test
     public void testCreationEtudiant_MotDePasseInvalide() {
         // Arrange
-        Etudiant etudiant = new Etudiant( "etudiant@example.com", "abc", "987-654-3210", "Martin", "Durand", Programme.P388_A1, "Automne", "2025");
+        Etudiant etudiant = new Etudiant( "etudiant@example.com", "abc", "987-654-3210", "Martin", "Durand", Programme.P388_A1);
         when(utilisateurRepository.existsByEmail(etudiant.getEmail())).thenReturn(false);
 
         // Act & Assert
         assertThrows(
                 MotPasseInvalideException.class,
-                () -> etudiantService.creerEtudiant(etudiant.getEmail(), etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P388_A1, etudiant.getSession(), etudiant.getAnnee())
+                () -> etudiantService.creerEtudiant(etudiant.getEmail(), etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P388_A1)
         );
     }
 
@@ -240,13 +240,13 @@ public class EtudiantServiceTest {
     public void testCreationEtudiant_DeuxComptesMemeEmail() throws MotPasseInvalideException, EmailDejaUtiliseException {
         // Arrange
         String email = "mon@etudiant.com";
-        Etudiant etudiant = new Etudiant(email, "Etudiant128&", "987-654-3210", "Martin", "Durand", Programme.P200_B1, "Automne", "2025");
+        Etudiant etudiant = new Etudiant(email, "Etudiant128&", "987-654-3210", "Martin", "Durand", Programme.P200_B1);
         when(utilisateurRepository.existsByEmail(email)).thenReturn(false);
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("encodedPassword");
         when(etudiantRepository.save(any(Etudiant.class))).thenReturn(etudiant);
 
         // Premier compte créé sans exception
-        etudiantService.creerEtudiant(etudiant.getEmail(), etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P200_B1, etudiant.getSession(), etudiant.getAnnee());
+        etudiantService.creerEtudiant(etudiant.getEmail(), etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P200_B1);
 
         // Simule que l'email existe déjà pour le deuxième compte
         when(utilisateurRepository.existsByEmail(email)).thenReturn(true);
@@ -254,7 +254,7 @@ public class EtudiantServiceTest {
         // Act & Assert
         assertThrows(
                 com.backend.Exceptions.EmailDejaUtiliseException.class,
-                () -> etudiantService.creerEtudiant(email, etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P200_B1, etudiant.getSession(), etudiant.getAnnee())
+                () -> etudiantService.creerEtudiant(email, etudiant.getPassword(), etudiant.getTelephone(), etudiant.getPrenom(), etudiant.getNom(),  ProgrammeDTO.P200_B1)
         );
     }
 
@@ -316,7 +316,7 @@ public class EtudiantServiceTest {
 
 
     @Test
-    public void testGetOffresApprouve() {
+    public void testGetOffresApprouve() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         // Arrange
         Employeur employeur = new Employeur("employeur@example.com", "encodedPassword", "514-123-4567", "Tech Corp", "John Doe");
 
@@ -362,6 +362,13 @@ public class EtudiantServiceTest {
 
         List<Offre> offresApprouvees = List.of(offre1, offre2);
 
+        // Mock de l'étudiant connecté (année 2025) pour que le filtrage fonctionne
+        Etudiant etudiantConnecte = new Etudiant();
+        etudiantConnecte.setEmail("etudiant@test.com");
+        etudiantConnecte.setAnnee(2025);
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiantConnecte);
+
         when(offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE))
                 .thenReturn(offresApprouvees);
 
@@ -376,8 +383,15 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testGetOffresApprouve_AucuneOffre() {
+    public void testGetOffresApprouve_AucuneOffre() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         // Arrange
+        // Mock de l'étudiant connecté (année 2025)
+        Etudiant etudiantConnecte2 = new Etudiant();
+        etudiantConnecte2.setEmail("etudiant@test.com");
+        etudiantConnecte2.setAnnee(2025);
+        when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
+        when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiantConnecte2);
+
         when(offreRepository.findAllByStatutApprouve(Offre.StatutApprouve.APPROUVE))
                 .thenReturn(List.of());
 
@@ -392,6 +406,9 @@ public class EtudiantServiceTest {
 
     @Test
     public void testPostulerOffre_Succes() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = new Etudiant();
         etudiant.setEmail("etudiant@test.com");
         etudiant.setStatutCV(Etudiant.StatutCV.APPROUVE);
@@ -404,6 +421,7 @@ public class EtudiantServiceTest {
         offre.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
         offre.setDateLimite(LocalDate.now().plusDays(5));
         offre.setEmployeur(employeur);
+        offre.setAnnee(anneeActuelle);
 
         MockMultipartFile lettreFile = new MockMultipartFile(
                 "lettreMotivation", "lettre.pdf", "application/pdf",
@@ -606,13 +624,20 @@ public class EtudiantServiceTest {
 
     @Test
     public void testRetirerCandidature_Succes() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         lenient().when(etudiant.getId()).thenReturn(1L);
         lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
 
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeActuelle);
+
         Candidature candidature = new Candidature();
         candidature.setStatut(Candidature.StatutCandidature.EN_ATTENTE);
         candidature.setEtudiant(etudiant);
+        candidature.setOffre(offre);
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
@@ -647,13 +672,20 @@ public class EtudiantServiceTest {
 
     @Test
     public void testRetirerCandidature_StatutInvalide_Throw() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         lenient().when(etudiant.getId()).thenReturn(1L);
         lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
 
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeActuelle);
+
         Candidature candidature = new Candidature();
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
         candidature.setEtudiant(etudiant);
+        candidature.setOffre(offre);
 
         when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
@@ -784,6 +816,12 @@ public class EtudiantServiceTest {
         candidature.setEtudiant(etudiant);
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
 
+        Offre offre = new Offre();
+        LocalDate now = LocalDate.now();
+        int currentAcademicYear = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+        offre.setAnnee(currentAcademicYear);
+        candidature.setOffre(offre);
+
         when(candidatureRepository.findById(10L)).thenReturn(Optional.of(candidature));
 
         // Act
@@ -868,14 +906,21 @@ public class EtudiantServiceTest {
     @Test
     void refuserOffreApprouvee_succes() throws Exception {
         // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getId()).thenReturn(1L);
         lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
+
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeActuelle);
 
         Candidature candidature = new Candidature();
         candidature.setId(20L);
         candidature.setEtudiant(etudiant);
         candidature.setStatut(Candidature.StatutCandidature.ACCEPTEE);
+        candidature.setOffre(offre);
 
         lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
@@ -936,13 +981,20 @@ public class EtudiantServiceTest {
     @Test
     void refuserOffreApprouvee_statutInvalide_throw() {
         // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getId()).thenReturn(1L);
         lenient().when(etudiant.getEmail()).thenReturn("etudiant@test.com");
 
+        Offre offre = mock(Offre.class);
+        when(offre.getAnnee()).thenReturn(anneeActuelle);
+
         Candidature candidature = new Candidature();
         candidature.setEtudiant(etudiant);
-        candidature.setStatut(Candidature.StatutCandidature.REFUSEE); // Statut invalide pour l'action
+        candidature.setStatut(Candidature.StatutCandidature.REFUSEE); // Déjà refusée
+        candidature.setOffre(offre);
 
         lenient().when(etudiantRepository.existsByEmail("etudiant@test.com")).thenReturn(true);
         lenient().when(etudiantRepository.findByEmail("etudiant@test.com")).thenReturn(etudiant);
@@ -971,16 +1023,23 @@ public class EtudiantServiceTest {
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
 
-        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+        // Fournir une offre valide (année académique courante) pour éviter ActionNonAutoriseeException
+        Offre offreForEntente = new Offre();
+        LocalDate now = LocalDate.now();
+        int currentAcademicYear = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+        offreForEntente.setAnnee(currentAcademicYear);
+        entente.setOffre(offreForEntente);
 
-        // Act
-        etudiantService.signerEntente(10L);
+         when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
 
-        // Assert
-        assertEquals(EntenteStage.SignatureStatus.SIGNEE, entente.getEtudiantSignature());
-        assertEquals(EntenteStage.StatutEntente.EN_ATTENTE, entente.getStatut()); // Statut reste EN_ATTENTE car employeur n'a pas signé
-        verify(ententeStageRepository, times(1)).save(entente);
-    }
+         // Act
+         etudiantService.signerEntente(10L);
+
+         // Assert
+         assertEquals(EntenteStage.SignatureStatus.SIGNEE, entente.getEtudiantSignature());
+         assertEquals(EntenteStage.StatutEntente.EN_ATTENTE, entente.getStatut()); // Statut reste EN_ATTENTE car employeur n'a pas signé
+         verify(ententeStageRepository, times(1)).save(entente);
+     }
 
     @Test
     void signerEntente_ententeNonTrouvee_throw() {
@@ -1058,16 +1117,22 @@ public class EtudiantServiceTest {
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
 
-        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+        Offre offreForEntente = new Offre();
+        LocalDate now2 = LocalDate.now();
+        int currentAcademicYear2 = now2.getMonthValue() >= 8 ? now2.getYear() + 1 : now2.getYear();
+        offreForEntente.setAnnee(currentAcademicYear2);
+        entente.setOffre(offreForEntente);
 
-        // Act
-        etudiantService.refuserEntente(10L);
+         when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
 
-        // Assert
-        assertEquals(EntenteStage.SignatureStatus.REFUSEE, entente.getEtudiantSignature());
-        assertEquals(EntenteStage.StatutEntente.ANNULEE, entente.getStatut());
-        verify(ententeStageRepository, times(1)).save(entente);
-    }
+         // Act
+         etudiantService.refuserEntente(10L);
+
+         // Assert
+         assertEquals(EntenteStage.SignatureStatus.REFUSEE, entente.getEtudiantSignature());
+         assertEquals(EntenteStage.StatutEntente.ANNULEE, entente.getStatut());
+         verify(ententeStageRepository, times(1)).save(entente);
+     }
 
     @Test
     void refuserEntente_ententeNonTrouvee_throw() {
@@ -1093,19 +1158,20 @@ public class EtudiantServiceTest {
         Etudiant autreEtudiant = mock(Etudiant.class);
         when(autreEtudiant.getId()).thenReturn(2L);
 
-        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
-        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiantConnecte);
-
         EntenteStage entente = new EntenteStage();
         entente.setEtudiant(autreEtudiant);
 
-        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+        lenient().when(etudiantRepository.existsByEmail(anyString())).thenReturn(true);
+        lenient().when(etudiantRepository.findByEmail(anyString())).thenReturn(etudiantConnecte);
+
+        when(ententeStageRepository.findById(20L)).thenReturn(Optional.of(entente));
 
         // Act & Assert
         assertThrows(ActionNonAutoriseeException.class,
-                () -> etudiantService.refuserEntente(10L));
+                () -> etudiantService.refuserEntente(20L));
         verify(ententeStageRepository, never()).save(any());
     }
+
 
     @Test
     void refuserEntente_statutInvalide_throw() {
@@ -1120,13 +1186,14 @@ public class EtudiantServiceTest {
         entente.setEtudiant(etudiant);
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.REFUSEE); // Déjà refusée
 
-        when(ententeStageRepository.findById(10L)).thenReturn(Optional.of(entente));
+        when(ententeStageRepository.findById(20L)).thenReturn(Optional.of(entente));
 
         // Act & Assert
         assertThrows(StatutEntenteInvalideException.class,
-                () -> etudiantService.refuserEntente(10L));
+                () -> etudiantService.refuserEntente(20L));
         verify(ententeStageRepository, never()).save(any());
     }
+
 
 // Tests for getEntentesEnAttente
 
@@ -1254,4 +1321,64 @@ public class EtudiantServiceTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    public void testGetAnneeAcademiqueCourante() throws Exception {
+        java.lang.reflect.Method method = EtudiantService.class.getDeclaredMethod("getAnneeAcademiqueCourante");
+        method.setAccessible(true);
+
+        int result = (int) method.invoke(etudiantService);
+
+        LocalDate now = LocalDate.now();
+        int expectedYear = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
+        assertEquals(expectedYear, result);
+    }
+
+    @Test
+    public void testVerifierOffreAnneeCourante_OffreNull() throws Exception {
+        // Arrange
+        java.lang.reflect.Method method = EtudiantService.class.getDeclaredMethod("verifierOffreAnneeCourante", Offre.class);
+        method.setAccessible(true);
+
+        // Act & Assert
+        assertThrows(java.lang.reflect.InvocationTargetException.class, () -> {
+            method.invoke(etudiantService, (Offre) null);
+        });
+    }
+
+    @Test
+    public void testVerifierOffreAnneeCourante_AnneeDifferente() throws Exception {
+        // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
+        Offre offre = new Offre();
+        offre.setAnnee(anneeActuelle - 1);
+
+        java.lang.reflect.Method method = EtudiantService.class.getDeclaredMethod("verifierOffreAnneeCourante", Offre.class);
+        method.setAccessible(true);
+
+        // Act & Assert
+        assertThrows(java.lang.reflect.InvocationTargetException.class, () -> {
+            method.invoke(etudiantService, offre);
+        });
+    }
+
+    @Test
+    public void testVerifierOffreAnneeCourante_AnneeCourante() throws Exception {
+        // Arrange
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
+        Offre offre = new Offre();
+        offre.setAnnee(anneeActuelle);
+
+        java.lang.reflect.Method method = EtudiantService.class.getDeclaredMethod("verifierOffreAnneeCourante", Offre.class);
+        method.setAccessible(true);
+
+        // Act & Assert - Should not throw
+        assertDoesNotThrow(() -> method.invoke(etudiantService, offre));
+    }
+
 }

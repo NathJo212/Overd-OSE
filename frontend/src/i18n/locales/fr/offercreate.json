@@ -1,4 +1,8 @@
 {
+  "academicYear": {
+    "title": "Année académique : {{year}}",
+    "description": "Les stages doivent se dérouler entre janvier et juin {{year}}. Veuillez sélectionner des dates dans cette période."
+  },
   "title": "Créer une offre de stage",
   "subtitle": "Remplissez les informations pour publier votre offre",
   "form": {
@@ -24,7 +28,8 @@
     "responsibilitiesCollege": "Responsabilités du collège",
     "responsibilitiesCollegePlaceholder": "Ex: Suivi pédagogique, soutien à l'évaluation",
     "objectives": "Objectifs",
-    "objectivesPlaceholder": "Décrivez les objectifs d'apprentissage"
+    "objectivesPlaceholder": "Décrivez les objectifs d'apprentissage",
+    "dateRange": "Janvier - Juin {{year}}"
   },
   "button": {
     "createOffer": "Créer l'offre",
@@ -41,7 +46,12 @@
     "remunerationRequired": "La rémunération est requise.",
     "deadlineRequired": "La date limite de candidature est requise.",
     "programsLoad": "Erreur lors du chargement des programmes.",
-    "offerCreation": "Erreur lors de la création de l'offre."
+    "offerCreation": "Erreur lors de la création de l'offre.",
+    "startDateYearMismatch": "La date de début doit être en {{year}}",
+    "startDateMonthRange": "La date de début doit être entre janvier et juin {{year}}",
+    "endDateYearMismatch": "La date de fin doit être en {{year}}",
+    "endDateMonthRange": "La date de fin doit être entre janvier et juin {{year}}",
+    "endDateBeforeStartDate": "La date de fin doit être après la date de début"
   },
   "success": {
     "offerCreated": "Offre créée avec succès !",

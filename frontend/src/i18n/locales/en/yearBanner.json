@@ -1,0 +1,5 @@
+{
+  "warning": "You are currently unable to edit any data because you are looking at data from prior years.",
+  "viewingYear": "Viewing year: {{year}}",
+  "currentYear": "Current year: {{year}}"
+}

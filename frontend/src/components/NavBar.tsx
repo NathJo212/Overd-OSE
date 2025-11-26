@@ -1,5 +1,5 @@
 import { useNavigate, NavLink } from "react-router-dom";
-import { LogOut, Menu, X, User, Briefcase, UserCog } from "lucide-react";
+import { LogOut, Menu, X, User, Briefcase, UserCog, Calendar } from "lucide-react";
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
@@ -8,6 +8,7 @@ import NotificationEtudiant from './NotificationEtudiant.tsx';
 import { useTranslation } from "react-i18next";
 import NotificationEmployeur from "./NotificationEmployeur.tsx";
 import SearchBar from "./SearchBar/SearchBar.tsx";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 const NavBar = () => {
     const navigate = useNavigate();
@@ -16,6 +17,14 @@ const NavBar = () => {
     const { t } = useTranslation(['navbar']);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userFullName, setUserFullName] = useState('');
+    const { selectedYear, setSelectedYear } = useYear();
+
+    // Générer les années disponibles (5 ans avant et 5 ans après l'année actuelle)
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+
+    // Afficher le sélecteur d'année seulement pour GESTIONNAIRE et EMPLOYEUR
+    const showYearSelector = role === 'GESTIONNAIRE' || role === 'EMPLOYEUR';
 
     useEffect(() => {
         if (isConnected && role) {
@@ -24,7 +33,6 @@ const NavBar = () => {
                 if (userData) {
                     const user = JSON.parse(userData);
 
-                    // Fonction pour formater le nom du rôle en utilisant i18n
                     const getRoleLabel = (role: string) => {
                         switch (role) {
                             case 'ETUDIANT': return t('navbar:roles.ETUDIANT');
@@ -35,18 +43,15 @@ const NavBar = () => {
                         }
                     };
 
-                    // Pour les employeurs, afficher seulement le rôle
                     if (role === 'EMPLOYEUR') {
                         setUserFullName(getRoleLabel(role));
                     } else {
-                        // Pour les autres rôles (Étudiant, Professeur, Gestionnaire), afficher "Prénom Nom - Rôle"
                         const prenom = user.prenom || '';
                         const nom = user.nom || '';
                         const fullName = `${prenom} ${nom}`.trim();
                         if (fullName) {
                             setUserFullName(`${fullName} - ${getRoleLabel(role)}`);
                         } else {
-                            // Fallback si pas de nom/prénom
                             setUserFullName(getRoleLabel(role));
                         }
                     }
@@ -67,31 +72,54 @@ const NavBar = () => {
             <nav className="bg-gradient-to-r m-4 rounded-2xl from-blue-600 to-blue-700 dark:from-slate-800 dark:to-slate-900 shadow-lg shadow-blue-500/20 dark:shadow-slate-900/40 backdrop-blur-md border border-white/10 dark:border-slate-700">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
-                        {/* Logo, titre et nom utilisateur */}
-                        <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center shadow-md">
-                                    <span className="text-blue-600 dark:text-blue-400 font-bold text-xl">📚</span>
+                        {/* Logo and Year Selector */}
+                        <div className="flex items-center gap-3">
+                            {/* Logo */}
+                            <div className="flex items-center gap-2">
+                                <div className="w-9 h-9 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center shadow-md">
+                                    <span className="text-blue-600 dark:text-blue-400 font-bold text-lg">📚</span>
                                 </div>
-                                <span className="font-bold text-xl text-white tracking-tight">
+                                <span className="font-bold text-lg text-white tracking-tight hidden sm:inline">
                                     Overd-OSE
                                 </span>
                             </div>
 
-                            {/* User name display - Desktop */}
+                            {/* Year Selector - Only for GESTIONNAIRE and EMPLOYEUR */}
+                            {showYearSelector && (
+                                <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 dark:bg-slate-700/40 backdrop-blur-sm rounded-lg border border-white/20 dark:border-slate-600">
+                                    <Calendar className="w-3.5 h-3.5 text-white/80" />
+                                    <select
+                                        value={selectedYear}
+                                        onChange={(e) => setSelectedYear(Number(e.target.value))}
+                                        className="bg-transparent text-white font-medium text-xs border-none outline-none cursor-pointer pr-1"
+                                    >
+                                        {years.map(year => (
+                                            <option key={year} value={year} className="bg-blue-700 dark:bg-slate-800">
+                                                {year}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            {/* User name display - Desktop (only on xl screens) */}
                             {isConnected && userFullName && (
-                                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/10 dark:bg-slate-700/40 backdrop-blur-sm rounded-lg border border-white/20 dark:border-slate-600">
-                                    <User className="w-4 h-4 text-white/80" />
-                                    <span className="text-white/90 font-medium text-sm">
+                                <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 dark:bg-slate-700/40 backdrop-blur-sm rounded-lg border border-white/20 dark:border-slate-600">
+                                    <User className="w-3.5 h-3.5 text-white/80" />
+                                    <span className="text-white/90 font-medium text-xs max-w-[180px] truncate">
                                         {userFullName}
                                     </span>
                                 </div>
                             )}
                         </div>
 
-                        {/* Desktop menu */}
-                        <div className="hidden md:flex items-center space-x-2">
-                            <SearchBar />
+                        {/* Desktop menu - Compact */}
+                        <div className="hidden md:flex items-center gap-1.5">
+                            {/* Compact SearchBar */}
+                            <div className="w-48 lg:w-56">
+                                <SearchBar />
+                            </div>
+
                             <LanguageSelector />
                             <ThemeSelector />
 
@@ -106,10 +134,10 @@ const NavBar = () => {
                             {isConnected && (
                                 <button
                                     onClick={handleLogout}
-                                    className="cursor-pointer bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm text-white px-4 py-2.5 rounded-xl flex items-center gap-2.5 transition-all duration-300 border border-red-400/30 hover:border-red-400/50 shadow-sm hover:shadow-red-500/20 ml-2"
+                                    className="cursor-pointer bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm text-white px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all duration-300 border border-red-400/30 hover:border-red-400/50 shadow-sm hover:shadow-red-500/20"
                                 >
                                     <LogOut className="w-4 h-4" />
-                                    <span className="font-medium">{t('navbar:logout')}</span>
+                                    <span className="font-medium text-sm hidden lg:inline">{t('navbar:logout')}</span>
                                 </button>
                             )}
                         </div>
@@ -134,6 +162,24 @@ const NavBar = () => {
                 {mobileMenuOpen && (
                     <div className="md:hidden bg-blue-700 dark:bg-slate-800 border-t border-white/10 dark:border-slate-700">
                         <div className="px-4 py-4 space-y-3">
+                            {/* Year Selector - Mobile (for GESTIONNAIRE and EMPLOYEUR) */}
+                            {showYearSelector && (
+                                <div className="flex items-center gap-2 px-4 py-3 bg-white/10 dark:bg-slate-700/40 backdrop-blur-sm rounded-lg border border-white/20 dark:border-slate-600 mb-2">
+                                    <Calendar className="w-4 h-4 text-white/80" />
+                                    <select
+                                        value={selectedYear}
+                                        onChange={(e) => setSelectedYear(Number(e.target.value))}
+                                        className="bg-transparent text-white font-medium text-sm border-none outline-none cursor-pointer flex-1"
+                                    >
+                                        {years.map(year => (
+                                            <option key={year} value={year} className="bg-blue-700 dark:bg-slate-800">
+                                                {year}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
                             {/* User name display - Mobile */}
                             {isConnected && userFullName && (
                                 <div className="flex items-center gap-2 px-4 py-3 bg-white/10 dark:bg-slate-700/40 backdrop-blur-sm rounded-lg border border-white/20 dark:border-slate-600 mb-2">

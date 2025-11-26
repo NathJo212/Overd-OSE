@@ -91,6 +91,9 @@ public class GestionnaireService {
         checkGestionnaireStageRole();
         Offre offre = offreRepository.findById(id)
                 .orElseThrow(OffreNonExistantException::new);
+
+        verifierOffreAnneeCourante(offre);
+
         if (offre.getStatutApprouve() != Offre.StatutApprouve.ATTENTE){
             throw new OffreDejaVerifieException();
         }
@@ -124,6 +127,9 @@ public class GestionnaireService {
         checkGestionnaireStageRole();
         Offre offre = offreRepository.findById(id)
                 .orElseThrow(OffreNonExistantException::new);
+
+        verifierOffreAnneeCourante(offre);
+
         if (offre.getStatutApprouve() != Offre.StatutApprouve.ATTENTE){
             throw new OffreDejaVerifieException();
         }
@@ -133,9 +139,16 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<OffreDTO> getOffresAttente() throws ActionNonAutoriseeException {
+    public List<OffreDTO> getOffresAttente(Integer annee) throws ActionNonAutoriseeException {
         checkGestionnaireStageRole();
-        List<Offre> offresEnAttente = offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE);
+
+        List<Offre> offresEnAttente;
+
+        if (annee != null) {
+            offresEnAttente = offreRepository.findByStatutApprouveAndAnnee(Offre.StatutApprouve.ATTENTE, annee);
+        } else {
+            offresEnAttente = offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE);
+        }
 
         return offresEnAttente.stream()
                 .filter(offre -> {
@@ -148,9 +161,16 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<OffreDTO> getAllOffres() throws ActionNonAutoriseeException {
+    public List<OffreDTO> getAllOffres(Integer annee) throws ActionNonAutoriseeException {
         checkGestionnaireStageRole();
-        List<Offre> toutesLesOffres = offreRepository.findAll();
+
+        List<Offre> toutesLesOffres;
+
+        if (annee != null) {
+            toutesLesOffres = offreRepository.findAllByAnnee(annee);
+        } else {
+            toutesLesOffres = offreRepository.findAll();
+        }
 
         return toutesLesOffres.stream()
                 .map(offre -> new OffreDTO().toDTO(offre))
@@ -174,6 +194,8 @@ public class GestionnaireService {
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
                 .orElseThrow(CVNonExistantException::new);
 
+        verifierEtudiantAnneeCourante(etudiant);
+
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
             throw new CVNonExistantException();
         }
@@ -194,6 +216,8 @@ public class GestionnaireService {
         Etudiant etudiant = etudiantRepository.findById(etudiantId)
                 .orElseThrow(CVNonExistantException::new);
 
+        verifierEtudiantAnneeCourante(etudiant);
+
         if (etudiant.getCv() == null || etudiant.getCv().length == 0) {
             throw new CVNonExistantException();
         }
@@ -208,10 +232,11 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<EtudiantDTO> getCVsEnAttente() throws ActionNonAutoriseeException {
+    public List<EtudiantDTO> getCVsEnAttente(int annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
 
-        List<Etudiant> etudiants = etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE);
+        List<Etudiant> etudiants = etudiantRepository.findAllByStatutCVAndAnnee(Etudiant.StatutCV.ATTENTE, annee);
+
         return etudiants.stream()
                 .map(etudiant -> {
                     EtudiantDTO dto = new EtudiantDTO().toDTO(etudiant);
@@ -239,14 +264,55 @@ public class GestionnaireService {
         }
     }
 
+    private int getAnneeAcademiqueCourante() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        if (now.getMonthValue() >= 8) {
+            return year + 1;
+        }
+        return year;
+    }
+
+    private void verifierOffreAnneeCourante(Offre offre) throws ActionNonAutoriseeException {
+        if (offre == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        int anneeOffre = offre.getAnnee();
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+        if (anneeOffre != anneeAcademiqueCourante) {
+            throw new ActionNonAutoriseeException();
+        }
+    }
+
+    private void verifierEtudiantAnneeCourante(Etudiant etudiant) throws ActionNonAutoriseeException {
+        if (etudiant == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        int anneeEtudiant = etudiant.getAnnee();
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+        if (anneeEtudiant != anneeAcademiqueCourante) {
+            throw new ActionNonAutoriseeException();
+        }
+    }
+
     @Transactional
-    public List<CandidatureDTO> getCandidaturesEligiblesEntente() throws ActionNonAutoriseeException {
+    public List<CandidatureDTO> getCandidaturesEligiblesEntente(Integer annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
 
-        // Récupérer les candidatures acceptées par l'étudiant
-        List<Candidature> candidatures = candidatureRepository.findByStatut(
-                Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT
-        );
+        List<Candidature> candidatures;
+
+        if (annee != null) {
+            // Filtrer par année de l'offre si fournie
+            candidatures = candidatureRepository.findByStatutAndOffre_Annee(
+                    Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT,
+                    annee
+            );
+        } else {
+            // Récupérer toutes les candidatures acceptées
+            candidatures = candidatureRepository.findByStatut(
+                    Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT
+            );
+        }
 
         // Filtrer celles qui n'ont pas encore d'entente non archivée
         return candidatures.stream()
@@ -267,6 +333,8 @@ public class GestionnaireService {
         }
 
         Offre offre = offreRepository.findById(dto.getOffreId()).orElseThrow(OffreNonExistantException::new);
+
+        verifierOffreAnneeCourante(offre);
 
         Employeur employeur = offre.getEmployeur();
 
@@ -302,74 +370,32 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void modifierEntente(Long ententeId, EntenteStageDTO dto) throws ActionNonAutoriseeException, UtilisateurPasTrouveException, EntenteModificationNonAutoriseeException, EntenteNonTrouveException {
-        verifierGestionnaireConnecte();
-        EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
-
-        if (entente.getStatut() == EntenteStage.StatutEntente.SIGNEE || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
-            throw new EntenteModificationNonAutoriseeException();
-        }
-
-
-        // appliquer les changements
-        entente.setTitre(dto.getTitre());
-        entente.setDescription(dto.getDescription());
-        entente.setDateDebut(dto.getDateDebut());
-        entente.setDateFin(dto.getDateFin());
-        entente.setHoraire(dto.getHoraire());
-        entente.setDureeHebdomadaire(dto.getDureeHebdomadaire());
-        entente.setRemuneration(dto.getRemuneration());
-        entente.setResponsabilitesEtudiant(dto.getResponsabilitesEtudiant());
-        entente.setResponsabilitesEmployeur(dto.getResponsabilitesEmployeur());
-        entente.setResponsabilitesCollege(dto.getResponsabilitesCollege());
-        entente.setObjectifs(dto.getObjectifs());
-
-        // reset signatures if modification before final signature
-        entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
-        entente.setEmployeurSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
-        entente.setGestionnaireSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
-        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
-        // clear signature dates and previously generated document
-        entente.setDateSignatureEtudiant(null);
-        entente.setDateSignatureEmployeur(null);
-        entente.setDateSignatureGestionnaire(null);
-        entente.setPdfBase64(null);
-        entente.setDateModification(LocalDateTime.now());
-
-        ententeStageRepository.save(entente);
-
-        // notifications
-        try {
-            Notification notifEtudiant = new Notification();
-            notifEtudiant.setUtilisateur(entente.getEtudiant());
-            notifEtudiant.setMessageKey("entente.modified");
-            notifEtudiant.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEtudiant);
-
-            Notification notifEmployeur = new Notification();
-            notifEmployeur.setUtilisateur(entente.getEmployeur());
-            notifEmployeur.setMessageKey("entente.modified");
-            notifEmployeur.setMessageParam(entente.getTitre());
-            notificationRepository.save(notifEmployeur);
-        } catch (Exception e) {
-            // ignore notification errors
-        }
-    }
-
-    @Transactional
     public void annulerEntente(Long ententeId) throws ActionNonAutoriseeException, EntenteNonTrouveException {
         verifierGestionnaireConnecte();
 
         EntenteStage entente = ententeStageRepository.findById(ententeId).orElseThrow(EntenteNonTrouveException::new);
+
+        verifierOffreAnneeCourante(entente.getOffre());
+
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setArchived(true);
         ententeStageRepository.save(entente);
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesActives() throws ActionNonAutoriseeException {
+    public List<EntenteStageDTO> getEntentesActives(Integer annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
-        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+
+        List<EntenteStage> ententes;
+
+        if (annee != null) {
+            // Filtrer par année si fournie
+            ententes = ententeStageRepository.findByArchivedFalseAndOffre_Annee(annee);
+        } else {
+            // Récupérer toutes les ententes non archivées
+            ententes = ententeStageRepository.findByArchivedFalse();
+        }
+
         return ententes.stream().map(e -> new EntenteStageDTO().toDTO(e)).collect(Collectors.toList());
     }
 
@@ -410,11 +436,11 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<EtudiantDTO> getAllEtudiants() throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
+    public List<EtudiantDTO> getAllEtudiants(int annee) throws ActionNonAutoriseeException, UtilisateurPasTrouveException {
         verifierGestionnaireConnecte();
 
         List<EtudiantDTO> etudiants = new ArrayList<>();
-        for (Etudiant etudiant : etudiantRepository.findAll()) {
+        for (Etudiant etudiant : etudiantRepository.findAllByAnnee(annee)) {
             etudiants.add(new EtudiantDTO().toDTO(etudiant));
         }
 
@@ -440,6 +466,7 @@ public class GestionnaireService {
         EntenteStage entente = ententeStageRepository.findById(ententeId)
                 .orElseThrow(EntenteNonTrouveException::new);
 
+        // Vérifications de statut/signatures d'abord (pour conserver l'ancien ordre des exceptions)
         if (entente.getEtudiantSignature() != EntenteStage.SignatureStatus.SIGNEE
                 || entente.getEmployeurSignature() != EntenteStage.SignatureStatus.SIGNEE) {
             throw new StatutEntenteInvalideException();
@@ -449,6 +476,8 @@ public class GestionnaireService {
                 || entente.getStatut() == EntenteStage.StatutEntente.ANNULEE) {
             throw new StatutEntenteInvalideException();
         }
+
+        verifierOffreAnneeCourante(entente.getOffre());
 
         entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
         entente.setGestionnaireSignature(EntenteStage.SignatureStatus.SIGNEE);
@@ -494,6 +523,8 @@ public class GestionnaireService {
             throw new StatutEntenteInvalideException();
         }
 
+        verifierOffreAnneeCourante(entente.getOffre());
+
         entente.setStatut(EntenteStage.StatutEntente.ANNULEE);
         entente.setGestionnaireSignature(EntenteStage.SignatureStatus.REFUSEE);
         entente.setArchived(true);
@@ -501,9 +532,17 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesEnAttente() throws ActionNonAutoriseeException {
+    public List<EntenteStageDTO> getEntentesEnAttente(Integer annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
-        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+
+        List<EntenteStage> ententes;
+
+        if (annee != null) {
+            ententes = ententeStageRepository.findByArchivedFalseAndOffre_Annee(annee);
+        } else {
+            ententes = ententeStageRepository.findByArchivedFalse();
+        }
+
         return ententes.stream()
                 .filter(e -> e.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE
                         && e.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE
@@ -513,9 +552,17 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public List<EntenteStageDTO> getEntentesFini() throws ActionNonAutoriseeException {
+    public List<EntenteStageDTO> getEntentesFini(Integer annee) throws ActionNonAutoriseeException {
         verifierGestionnaireConnecte();
-        List<EntenteStage> ententes = ententeStageRepository.findByArchivedFalse();
+
+        List<EntenteStage> ententes;
+
+        if (annee != null) {
+            ententes = ententeStageRepository.findByArchivedFalseAndOffre_Annee(annee);
+        } else {
+            ententes = ententeStageRepository.findByArchivedFalse();
+        }
+
         return ententes.stream()
                 .filter(e -> e.getEtudiantSignature() == EntenteStage.SignatureStatus.SIGNEE
                         && e.getEmployeurSignature() == EntenteStage.SignatureStatus.SIGNEE

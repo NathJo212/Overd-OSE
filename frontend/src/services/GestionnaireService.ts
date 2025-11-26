@@ -152,8 +152,12 @@ class GestionnaireService {
     }
 
     // ========== GESTION DES OFFRES ==========
-    async getAllOffresDeStages(token: string): Promise<OffreDTO[]> {
-        const response = await fetch(`${this.baseUrl}/offresEnAttente`, {
+    async getAllOffresDeStages(token: string, annee?: number): Promise<OffreDTO[]> {
+        const url = annee
+            ? `${this.baseUrl}/offresEnAttente?annee=${annee}`
+            : `${this.baseUrl}/offresEnAttente`;
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -168,8 +172,12 @@ class GestionnaireService {
         return await response.json();
     }
 
-    async getAllOffres(token: string): Promise<OffreDTO[]> {
-        const response = await fetch(`${this.baseUrl}/visualiserOffres`, {
+    async getAllOffres(token: string, annee?: number): Promise<OffreDTO[]> {
+        const url = annee
+            ? `${this.baseUrl}/visualiserOffres?annee=${annee}`
+            : `${this.baseUrl}/visualiserOffres`;
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -249,9 +257,13 @@ class GestionnaireService {
     }
 
     // ========== GESTION DES CVs ==========
-    async getAllCVsEnAttente(token: string): Promise<EtudiantDTO[]> {
+    async getAllCVsEnAttente(token: string, annee?: string): Promise<EtudiantDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/CVsEnAttente`, {
+            const url = annee
+                ? `${this.baseUrl}/CVsEnAttente?annee=${annee}`
+                : `${this.baseUrl}/CVsEnAttente`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -335,9 +347,13 @@ class GestionnaireService {
         }
     }
 
-    async getCandidaturesEligiblesEntente(token: string): Promise<CandidatureEligibleDTO[]> {
+    async getCandidaturesEligiblesEntente(token: string, annee?: number): Promise<CandidatureEligibleDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/candidaturesEligiblesEntente`, {
+            const url = annee
+                ? `${this.baseUrl}/candidaturesEligiblesEntente?annee=${annee}`
+                : `${this.baseUrl}/candidaturesEligiblesEntente`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -405,9 +421,13 @@ class GestionnaireService {
     }
 
     // ========== GESTION DES ETUDIANTS ET PROFESSEURS ==========
-    async getAllEtudiants(token: string): Promise<EtudiantDTO[]> {
+    async getAllEtudiants(token: string, annee?: string): Promise<EtudiantDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/etudiants`, {
+            const url = annee
+                ? `${this.baseUrl}/etudiants?annee=${annee}`
+                : `${this.baseUrl}/etudiants`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -482,9 +502,13 @@ class GestionnaireService {
      * @param token - Token d'authentification
      * @returns Promise avec la liste de toutes les ententes
      */
-    async getEntentesFini(token: string): Promise<EntenteStageDTO[]> {
+    async getEntentesFini(token: string, annee?: number): Promise<EntenteStageDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/ententes/fini`, {
+            const url = annee
+                ? `${this.baseUrl}/ententes/fini?annee=${annee}`
+                : `${this.baseUrl}/ententes/fini`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -510,9 +534,13 @@ class GestionnaireService {
      * @param token - Token d'authentification
      * @returns Promise avec la liste des ententes prêtes
      */
-    async getEntentesPretes(token: string): Promise<EntenteStageDTO[]> {
+    async getEntentesPretes(token: string, annee?: number): Promise<EntenteStageDTO[]> {
         try {
-            const response = await fetch(`${this.baseUrl}/ententes/pretes`, {
+            const url = annee
+                ? `${this.baseUrl}/ententes/pretes?annee=${annee}`
+                : `${this.baseUrl}/ententes/pretes`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -731,6 +759,40 @@ class GestionnaireService {
             throw new Error('Erreur lors de la récupération des documents de l\'entente');
         }
     }
+
+    /**
+     * Récupère toutes les ententes actives, optionnellement filtrées par année
+     * @param token - Token d'authentification
+     * @param annee - Année optionnelle pour filtrer les ententes
+     * @returns Promise avec la liste de toutes les ententes
+     */
+    async getEntentesActives(token: string, annee?: number): Promise<EntenteStageDTO[]> {
+        try {
+            const url = annee
+                ? `${this.baseUrl}/ententes?annee=${annee}`
+                : `${this.baseUrl}/ententes`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des ententes');
+            }
+
+            return await response.json();
+
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération des ententes:', error);
+            throw new Error('Erreur lors de la récupération des ententes');
+        }
+    }
+
+
 }
 
 export const gestionnaireService = new GestionnaireService();

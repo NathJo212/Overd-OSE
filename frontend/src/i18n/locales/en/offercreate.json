@@ -1,4 +1,8 @@
 {
+  "academicYear": {
+    "title": "Academic Year: {{year}}",
+    "description": "Internships must take place between January and June {{year}}. Please select dates within this period."
+  },
   "title": "Create an Internship Offer",
   "subtitle": "Fill in the information to publish your offer",
   "form": {
@@ -24,7 +28,8 @@
     "responsibilitiesCollege": "College responsibilities",
     "responsibilitiesCollegePlaceholder": "E.g., academic follow-up, evaluation support",
     "objectives": "Objectives",
-    "objectivesPlaceholder": "Describe the learning objectives"
+    "objectivesPlaceholder": "Describe the learning objectives",
+    "dateRange": "January - June {{year}}"
   },
   "button": {
     "createOffer": "Create Offer",
@@ -41,7 +46,12 @@
     "remunerationRequired": "Remuneration is required.",
     "deadlineRequired": "Application deadline is required.",
     "programsLoad": "Error loading programs.",
-    "offerCreation": "Error creating offer."
+    "offerCreation": "Error creating offer.",
+    "startDateYearMismatch": "Start date must be in {{year}}",
+    "startDateMonthRange": "Start date must be between January and June {{year}}",
+    "endDateYearMismatch": "End date must be in {{year}}",
+    "endDateMonthRange": "End date must be between January and June {{year}}",
+    "endDateBeforeStartDate": "End date must be after start date"
   },
   "success": {
     "offerCreated": "Offer created successfully!",

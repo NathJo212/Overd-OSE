@@ -66,9 +66,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveOffre_metAJourStatut() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Offre offre = new Offre();
         offre.setId(1L);
         offre.setStatutApprouve(Offre.StatutApprouve.ATTENTE);
+        offre.setAnnee(anneeActuelle);
         when(offreRepository.findById(1L)).thenReturn(Optional.of(offre));
 
         gestionnaireService.approuveOffre(1L);
@@ -79,9 +83,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveOffre_OffreDejaVerifiee() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Offre offre = new Offre();
         offre.setId(1L);
         offre.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
+        offre.setAnnee(anneeActuelle);
         when(offreRepository.findById(1L)).thenReturn(Optional.of(offre));
 
         assertThrows(OffreDejaVerifieException.class, () -> gestionnaireService.approuveOffre(1L));
@@ -96,9 +103,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseOffre_enregistreMessageRefus() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Offre offre = new Offre();
         offre.setId(2L);
         offre.setStatutApprouve(Offre.StatutApprouve.ATTENTE);
+        offre.setAnnee(anneeActuelle);
         when(offreRepository.findById(2L)).thenReturn(Optional.of(offre));
 
         gestionnaireService.refuseOffre(2L, "Non conforme");
@@ -110,9 +120,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseOffre_OffreDejaVerifiee() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Offre offre = new Offre();
         offre.setId(2L);
         offre.setStatutApprouve(Offre.StatutApprouve.REFUSE);
+        offre.setAnnee(anneeActuelle);
         when(offreRepository.findById(2L)).thenReturn(Optional.of(offre));
 
         assertThrows(OffreDejaVerifieException.class, () -> gestionnaireService.refuseOffre(2L, "msg"));
@@ -141,10 +155,11 @@ public class GestionnaireServiceTest {
                 LocalDate.of(2026, 9, 10),
                 employeur
         );
+        offre.setAnnee(2026);
 
         when(offreRepository.findByStatutApprouve(Offre.StatutApprouve.ATTENTE)).thenReturn(asList(offre));
 
-        var result = gestionnaireService.getOffresAttente();
+        var result = gestionnaireService.getOffresAttente(null);
 
         assertEquals(1, result.size());
         assertEquals("employeur@test.com", result.get(0).getEmployeurDTO().getEmail());
@@ -170,6 +185,7 @@ public class GestionnaireServiceTest {
                 employeur1
         );
         offreApprouvee.setStatutApprouve(Offre.StatutApprouve.APPROUVE);
+        offreApprouvee.setAnnee(2026);
 
         Offre offreEnAttente = new Offre(
                 "Stage en attente",
@@ -183,10 +199,11 @@ public class GestionnaireServiceTest {
                 employeur2
         );
         offreEnAttente.setStatutApprouve(Offre.StatutApprouve.ATTENTE);
+        offreEnAttente.setAnnee(2026);
 
         when(offreRepository.findAll()).thenReturn(asList(offreApprouvee, offreEnAttente));
 
-        var result = gestionnaireService.getAllOffres();
+        var result = gestionnaireService.getAllOffres(null);
 
         assertEquals(2, result.size());
         assertEquals("employeur1@test.com", result.get(0).getEmployeurDTO().getEmail());
@@ -209,9 +226,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_metAJourStatut() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.ATTENTE);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
 
@@ -231,8 +252,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_CVNonExistant_cvNull() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(null);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
 
@@ -241,8 +266,11 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_CVNonExistant_cvVide() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[0]);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
 
@@ -251,8 +279,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_CVDejaVerifie_dejaApprouve() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.APPROUVE);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
@@ -262,8 +294,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void approuveCV_CVDejaVerifie_dejaRefuse() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.REFUSE);
 
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
@@ -286,8 +322,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_enregistreMessageRefus() throws Exception {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
+
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.ATTENTE);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
@@ -308,8 +348,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_CVNonExistant_cvNull() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(null);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
 
@@ -318,8 +362,12 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_CVNonExistant_cvVide() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[0]);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
 
@@ -328,9 +376,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_CVDejaVerifie_dejaApprouve() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.APPROUVE);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
 
@@ -339,9 +391,13 @@ public class GestionnaireServiceTest {
 
     @Test
     public void refuseCV_CVDejaVerifie_dejaRefuse() {
+        LocalDate now = LocalDate.now();
+        int anneeActuelle = now.getMonthValue() >= 8 ? now.getYear() + 1 : now.getYear();
+
         Etudiant etudiant = mock(Etudiant.class);
         when(etudiant.getCv()).thenReturn(new byte[]{1, 2, 3});
         when(etudiant.getStatutCV()).thenReturn(Etudiant.StatutCV.REFUSE);
+        when(etudiant.getAnnee()).thenReturn(anneeActuelle);
 
         when(etudiantRepository.findById(2L)).thenReturn(Optional.of(etudiant));
 
@@ -364,14 +420,16 @@ public class GestionnaireServiceTest {
     public void getCVsEnAttente_retourneListe() throws Exception {
         Etudiant etudiant1 = mock(Etudiant.class);
         when(etudiant1.getEmail()).thenReturn("etudiant1@test.com");
+        when(etudiant1.getAnnee()).thenReturn(2026);
 
         Etudiant etudiant2 = mock(Etudiant.class);
         when(etudiant2.getEmail()).thenReturn("etudiant2@test.com");
+        when(etudiant2.getAnnee()).thenReturn(2026);
 
-        when(etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE))
+        when(etudiantRepository.findAllByStatutCVAndAnnee(Etudiant.StatutCV.ATTENTE, 2026))
                 .thenReturn(asList(etudiant1, etudiant2));
 
-        var result = gestionnaireService.getCVsEnAttente();
+        var result = gestionnaireService.getCVsEnAttente(2026);
 
         assertEquals(2, result.size());
         assertEquals("etudiant1@test.com", result.get(0).getEmail());
@@ -380,10 +438,10 @@ public class GestionnaireServiceTest {
 
     @Test
     public void getCVsEnAttente_listeVide() throws Exception {
-        when(etudiantRepository.findAllByStatutCV(Etudiant.StatutCV.ATTENTE))
+        when(etudiantRepository.findAllByStatutCVAndAnnee(Etudiant.StatutCV.ATTENTE, 2026))
                 .thenReturn(Collections.emptyList());
 
-        var result = gestionnaireService.getCVsEnAttente();
+        var result = gestionnaireService.getCVsEnAttente(2026);
 
         assertTrue(result.isEmpty());
     }
@@ -396,7 +454,7 @@ public class GestionnaireServiceTest {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
 
-        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getCVsEnAttente());
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getCVsEnAttente(2026));
     }
 
 
@@ -408,7 +466,7 @@ public class GestionnaireServiceTest {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
 
-        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getAllOffres());
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getAllOffres(null));
     }
 
     @Test
@@ -419,7 +477,7 @@ public class GestionnaireServiceTest {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
 
-        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getOffresAttente());
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getOffresAttente(null));
     }
 
     @Test
@@ -461,7 +519,7 @@ public class GestionnaireServiceTest {
         when(candidatureRepository.findByStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT))
                 .thenReturn(asList(c1, c2));
 
-        var result = gestionnaireService.getCandidaturesEligiblesEntente();
+        var result = gestionnaireService.getCandidaturesEligiblesEntente(null);
         assertEquals(2, result.size());
     }
     @Test
@@ -482,7 +540,7 @@ public class GestionnaireServiceTest {
         when(candidatureRepository.findByStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT))
                 .thenReturn(asList(c));
 
-        assertThrows(NullPointerException.class, () -> gestionnaireService.getCandidaturesEligiblesEntente());
+        assertThrows(NullPointerException.class, () -> gestionnaireService.getCandidaturesEligiblesEntente(null));
     }
 
     @Test
@@ -506,7 +564,7 @@ public class GestionnaireServiceTest {
         when(candidatureRepository.findByStatut(Candidature.StatutCandidature.ACCEPTEE_PAR_ETUDIANT))
                 .thenReturn(asList(c));
 
-        assertThrows(NullPointerException.class, () -> gestionnaireService.getCandidaturesEligiblesEntente());
+        assertThrows(NullPointerException.class, () -> gestionnaireService.getCandidaturesEligiblesEntente(null));
     }
 
 
@@ -521,6 +579,8 @@ public class GestionnaireServiceTest {
         offre.setEmployeur(employeur);
 
         when(offreRepository.findById(10L)).thenReturn(Optional.of(offre));
+        // garantir que l'offre est pour l'année académique courante
+        offre.setAnnee(2026);
 
         Etudiant etudiant = new Etudiant();
         etudiant.setEmail("etu@test.com");
@@ -566,6 +626,7 @@ public class GestionnaireServiceTest {
         Offre offre = new Offre();
         offre.setId(11L);
         offre.setEmployeur(employeur);
+        offre.setAnnee(2026);
 
         Etudiant etudiant = new Etudiant();
 
@@ -581,50 +642,6 @@ public class GestionnaireServiceTest {
     }
 
     @Test
-    public void modifierEntente_modifieEtSauvegarde() throws Exception {
-        Etudiant etu = new Etudiant();
-        Employeur emp = new Employeur();
-        Offre offre = new Offre();
-
-        EntenteStage entente = new EntenteStage();
-        entente.setId(20L);
-        entente.setEtudiant(etu);
-        entente.setEmployeur(emp);
-        entente.setOffre(offre);
-        entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
-
-        when(ententeStageRepository.findById(20L)).thenReturn(Optional.of(entente));
-
-        EntenteStageDTO dto = new EntenteStageDTO();
-        dto.setTitre("NouveauTitre");
-        dto.setDescription("NouvelleDesc");
-        dto.setDateDebut(LocalDate.now());
-        dto.setDateFin(LocalDate.now().plusDays(10));
-
-        gestionnaireService.modifierEntente(20L, dto);
-
-        verify(ententeStageRepository, atLeastOnce()).save(entente);
-        assertEquals("NouveauTitre", entente.getTitre());
-    }
-
-    @Test
-    public void modifierEntente_ententeNonTrouvee_lance() {
-        when(ententeStageRepository.findById(999L)).thenReturn(Optional.empty());
-        EntenteStageDTO dto = new EntenteStageDTO();
-        assertThrows(EntenteNonTrouveException.class, () -> gestionnaireService.modifierEntente(999L, dto));
-    }
-
-    @Test
-    public void modifierEntente_statutNonModifiable_lance() {
-        EntenteStage entente = new EntenteStage();
-        entente.setId(21L);
-        entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
-        when(ententeStageRepository.findById(21L)).thenReturn(Optional.of(entente));
-        EntenteStageDTO dto = new EntenteStageDTO();
-        assertThrows(EntenteModificationNonAutoriseeException.class, () -> gestionnaireService.modifierEntente(21L, dto));
-    }
-
-    @Test
     public void annulerEntente_archiveEtNotifie() throws Exception {
         Etudiant etu = new Etudiant();
         Employeur emp = new Employeur();
@@ -633,6 +650,10 @@ public class GestionnaireServiceTest {
         entente.setEtudiant(etu);
         entente.setEmployeur(emp);
         entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+        // associer une offre valide d'année académique courante
+        Offre offreAnnule = new Offre();
+        offreAnnule.setAnnee(2026);
+        entente.setOffre(offreAnnule);
 
         when(ententeStageRepository.findById(30L)).thenReturn(Optional.of(entente));
 
@@ -668,7 +689,7 @@ public class GestionnaireServiceTest {
 
         when(ententeStageRepository.findByArchivedFalse()).thenReturn(asList(e1, e2));
 
-        var result = gestionnaireService.getEntentesActives();
+        var result = gestionnaireService.getEntentesActives(null);
         assertEquals(2, result.size());
     }
 
@@ -788,7 +809,6 @@ public class GestionnaireServiceTest {
         verify(etudiantRepository).save(etudiant);
     }
 
-// ========== Tests pour getAllEtudiants ==========
 
     @Test
     public void getAllEtudiants_retourneListeComplete() throws Exception {
@@ -810,9 +830,9 @@ public class GestionnaireServiceTest {
         when(etu3.getPrenom()).thenReturn("Marie");
         when(etu3.getTelephone()).thenReturn("438-555-1234");
 
-        when(etudiantRepository.findAll()).thenReturn(asList(etu1, etu2, etu3));
+        when(etudiantRepository.findAllByAnnee(anyInt())).thenReturn(asList(etu1, etu2, etu3));
 
-        var result = gestionnaireService.getAllEtudiants();
+        var result = gestionnaireService.getAllEtudiants(2026);
 
         assertEquals(3, result.size());
         assertEquals("sophie.martin@student.com", result.get(0).getEmail());
@@ -822,9 +842,8 @@ public class GestionnaireServiceTest {
 
     @Test
     public void getAllEtudiants_listeVide() throws Exception {
-        when(etudiantRepository.findAll()).thenReturn(Collections.emptyList());
-
-        var result = gestionnaireService.getAllEtudiants();
+        when(etudiantRepository.findAllByAnnee(anyInt())).thenReturn(Collections.emptyList());
+        var result = gestionnaireService.getAllEtudiants(2026);
 
         assertTrue(result.isEmpty());
     }
@@ -838,7 +857,7 @@ public class GestionnaireServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         assertThrows(ActionNonAutoriseeException.class,
-                () -> gestionnaireService.getAllEtudiants());
+                () -> gestionnaireService.getAllEtudiants(2026));
     }
 
     @Test
@@ -857,9 +876,9 @@ public class GestionnaireServiceTest {
         when(etu.getTelephone()).thenReturn("514-999-8888");
         when(etu.getProfesseur()).thenReturn(prof);
 
-        when(etudiantRepository.findAll()).thenReturn(asList(etu));
+        when(etudiantRepository.findAllByAnnee(anyInt())).thenReturn(asList(etu));
 
-        var result = gestionnaireService.getAllEtudiants();
+        var result = gestionnaireService.getAllEtudiants(2026);
 
         assertEquals(1, result.size());
         assertNotNull(result.get(0).getProfesseur());
@@ -942,6 +961,9 @@ public class GestionnaireServiceTest {
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
         entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+        Offre offreSigner = new Offre();
+        offreSigner.setAnnee(2026);
+        entente.setOffre(offreSigner);
 
         when(ententeStageRepository.findById(42L)).thenReturn(Optional.of(entente));
 
@@ -959,6 +981,10 @@ public class GestionnaireServiceTest {
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
         entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+        EntenteStage tmpEnt = entente;
+        Offre offre7 = new Offre();
+        offre7.setAnnee(2026);
+        tmpEnt.setOffre(offre7);
 
         when(ententeStageRepository.findById(7L)).thenReturn(Optional.of(entente));
 
@@ -972,6 +998,9 @@ public class GestionnaireServiceTest {
         entente.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
         entente.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
         entente.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        Offre offre8 = new Offre();
+        offre8.setAnnee(2026);
+        entente.setOffre(offre8);
 
         when(ententeStageRepository.findById(8L)).thenReturn(Optional.of(entente));
 
@@ -1000,6 +1029,9 @@ public class GestionnaireServiceTest {
         EntenteStage entente = new EntenteStage();
         entente.setId(50L);
         entente.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+        Offre offre50 = new Offre();
+        offre50.setAnnee(2026);
+        entente.setOffre(offre50);
 
         when(ententeStageRepository.findById(50L)).thenReturn(Optional.of(entente));
 
@@ -1044,10 +1076,13 @@ public class GestionnaireServiceTest {
         e1.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
         e1.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
         e1.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
-   
-        Etudiant etu = mock(Etudiant.class);
-        when(etu.getId()).thenReturn(100L);
-        e1.setEtudiant(etu);
+        // assigner offres valides pour éviter blocage par vérification d'année
+        Offre offreE1 = new Offre(); offreE1.setAnnee(2026); e1.setOffre(offreE1);
+
+        Etudiant etu1 = mock(Etudiant.class);
+        e1.setEtudiant(etu1);
+        when(etu1.getId()).thenReturn(1L);
+
         Employeur emp = mock(Employeur.class);
         e1.setEmployeur(emp);
 
@@ -1056,16 +1091,20 @@ public class GestionnaireServiceTest {
         e2.setEtudiantSignature(EntenteStage.SignatureStatus.EN_ATTENTE);
         e2.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
         e2.setStatut(EntenteStage.StatutEntente.EN_ATTENTE);
+        // assigner offres valides pour éviter blocage par vérification d'année
+        Offre offreE2 = new Offre(); offreE2.setAnnee(2026); e2.setOffre(offreE2);
 
         EntenteStage e3 = new EntenteStage();
         e3.setId(3L);
         e3.setEtudiantSignature(EntenteStage.SignatureStatus.SIGNEE);
         e3.setEmployeurSignature(EntenteStage.SignatureStatus.SIGNEE);
         e3.setStatut(EntenteStage.StatutEntente.SIGNEE);
+        // assigner offres valides pour éviter blocage par vérification d'année
+        Offre offreE3 = new Offre(); offreE3.setAnnee(2026); e3.setOffre(offreE3);
 
         when(ententeStageRepository.findByArchivedFalse()).thenReturn(asList(e1, e2, e3));
 
-        var result = gestionnaireService.getEntentesEnAttente();
+        var result = gestionnaireService.getEntentesEnAttente(null);
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).getId());
     }
@@ -1078,7 +1117,7 @@ public class GestionnaireServiceTest {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
 
-        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getEntentesEnAttente());
+        assertThrows(ActionNonAutoriseeException.class, () -> gestionnaireService.getEntentesEnAttente(null));
     }
 
     @Test

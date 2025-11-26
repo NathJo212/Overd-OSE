@@ -82,11 +82,14 @@ public class ProfesseurService {
 
     @Transactional
     public List<EtudiantDTO> getMesEtudiants(Long professeurId) throws UtilisateurPasTrouveException {
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+
         Professeur professeur = professeurRepository.findById(professeurId)
                 .orElseThrow(UtilisateurPasTrouveException::new);
 
         return professeur.getEtudiantList()
                 .stream()
+                .filter(e -> e.getAnnee() == anneeAcademiqueCourante)
                 .map(e -> new EtudiantDTO().toDTO(e))
                 .toList();
     }
@@ -176,6 +179,26 @@ public class ProfesseurService {
         }
     }
 
+    private int getAnneeAcademiqueCourante() {
+        java.time.LocalDate now = java.time.LocalDate.now();
+        int year = now.getYear();
+        if (now.getMonthValue() >= 8) {
+            return year + 1;
+        }
+        return year;
+    }
+
+    private void verifierOffreAnneeCourante(Offre offre) throws ActionNonAutoriseeException {
+        if (offre == null) {
+            throw new ActionNonAutoriseeException();
+        }
+        int anneeOffre = offre.getAnnee();
+        int anneeAcademiqueCourante = getAnneeAcademiqueCourante();
+        if (anneeOffre != anneeAcademiqueCourante) {
+            throw new ActionNonAutoriseeException();
+        }
+    }
+
     @Transactional
     public void creerEvaluationMilieuStage(CreerEvaluationMilieuStageDTO dto)
             throws ActionNonAutoriseeException, UtilisateurPasTrouveException,
@@ -195,6 +218,8 @@ public class ProfesseurService {
         if (evaluationMilieuStageParProfesseurRepository.existsByEntenteId(dto.getEntenteId())) {
             throw new EvaluationDejaExistanteException();
         }
+
+        verifierOffreAnneeCourante(entente.getOffre());
 
         // Vérifier que le professeur est bien le professeur superviseur de l'étudiant
         if (entente.getEtudiant().getProfesseur() == null ||
@@ -229,7 +254,10 @@ public class ProfesseurService {
                 evaluationMilieuStageParProfesseurRepository.findAllByProfesseurId(professeur.getId());
 
         return evaluations.stream()
-                .map(e -> new EvaluationMilieuStageDTO().toDTO(e))
+                .map(e -> {
+                    new EvaluationMilieuStageDTO();
+                    return EvaluationMilieuStageDTO.toDTO(e);
+                })
                 .toList();
     }
 
@@ -248,7 +276,8 @@ public class ProfesseurService {
             throw new ActionNonAutoriseeException();
         }
 
-        return new EvaluationMilieuStageDTO().toDTO(evaluation);
+        new EvaluationMilieuStageDTO();
+        return EvaluationMilieuStageDTO.toDTO(evaluation);
     }
 
     @Transactional

@@ -22,6 +22,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import NavBar from "./NavBar";
 import employeurService from '../services/EmployeurService';
+import { useYear } from "./YearContext/YearContext.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
 import type {
     EntenteStageDTO,
     EvaluationDTO,
@@ -225,6 +227,17 @@ const EmployeurEvaluationStagiaire = () => {
     const [pdfFilename, setPdfFilename] = useState<string | null>(null);
     const [pdfLoading, setPdfLoading] = useState(false);
 
+    const getCurrentYear = (): number => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        return currentMonth >= 7 ? currentYear + 1 : currentYear;
+    };
+
+    const { selectedYear } = useYear();
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
+
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
         if (role !== "EMPLOYEUR") {
@@ -232,7 +245,7 @@ const EmployeurEvaluationStagiaire = () => {
             return;
         }
         loadData().then();
-    }, [navigate]);
+    }, [navigate, selectedYear]);
 
     // Bloquer le scroll du body quand un modal est ouverte
     useEffect(() => {
@@ -254,7 +267,7 @@ const EmployeurEvaluationStagiaire = () => {
         try {
             setLoadingEntentes(true);
             setError('');
-            const data = await employeurService.getEntentes();
+            const data = await employeurService.getEntentes(selectedYear);
             const ententesSignees = data.filter(
                 e => e.etudiantSignature === 'SIGNEE'
                     && e.employeurSignature === 'SIGNEE'
@@ -272,7 +285,7 @@ const EmployeurEvaluationStagiaire = () => {
     const loadEvaluations = async () => {
         try {
             setLoadingEvaluations(true);
-            const data = await employeurService.getEvaluations();
+            const data = await employeurService.getEvaluations(selectedYear);
             setEvaluations(data);
         } catch (err: any) {
             console.error('Erreur lors du chargement des évaluations:', err);
@@ -287,6 +300,9 @@ const EmployeurEvaluationStagiaire = () => {
     };
 
     const handleOpenEvaluationModal = (entente: EntenteStageDTO) => {
+        if (isViewingPastYear) {
+            return; // Don't open modal for past years
+        }
         setSelectedEntente(entente);
         setCurrentStep(0);
         setFormData({
@@ -1079,6 +1095,8 @@ const EmployeurEvaluationStagiaire = () => {
                     </div>
                 </div>
 
+                {isViewingPastYear && <YearBanner />}
+
                 {/* Error Message */}
                 {error && (
                     <div className="mb-6 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-900/40 rounded-xl p-4 flex items-start gap-3 shadow-sm animate-fade-in">
@@ -1165,8 +1183,13 @@ const EmployeurEvaluationStagiaire = () => {
                                     {ententesAEvaluer.map((entente) => (
                                         <div
                                             key={entente.id}
-                                            className="group border-2 border-gray-200 dark:border-slate-700 rounded-2xl p-6 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-100 transition-all cursor-pointer bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-800 dark:to-slate-800 relative overflow-hidden transform hover:-translate-y-1"
-                                            onClick={() => handleOpenEvaluationModal(entente)}
+                                            className={`group border-2 border-gray-200 dark:border-slate-700 rounded-2xl p-6 transition-all relative overflow-hidden ${
+                                                isViewingPastYear
+                                                    ? 'opacity-50 cursor-not-allowed'
+                                                    : 'hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-100 cursor-pointer transform hover:-translate-y-1'
+                                            } bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-800 dark:to-slate-800`}
+                                            onClick={() => !isViewingPastYear && handleOpenEvaluationModal(entente)}
+                                            title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                         >
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-colors" />
 
@@ -1204,11 +1227,19 @@ const EmployeurEvaluationStagiaire = () => {
                                                 </div>
 
                                                 <button
-                                                    className="cursor-pointer w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl group-hover:scale-105"
+                                                    className={`w-full font-semibold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg ${
+                                                        isViewingPastYear
+                                                            ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                                                            : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 cursor-pointer hover:shadow-xl group-hover:scale-105'
+                                                    } text-white`}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleOpenEvaluationModal(entente);
+                                                        if (!isViewingPastYear) {
+                                                            handleOpenEvaluationModal(entente);
+                                                        }
                                                     }}
+                                                    disabled={isViewingPastYear}
+                                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                                 >
                                                     <Star className="w-5 h-5" />
                                                     {t('ententesList.evaluate')}
@@ -1429,8 +1460,13 @@ const EmployeurEvaluationStagiaire = () => {
                                     <button
                                         type="submit"
                                         onClick={handleSubmitEvaluation}
-                                        disabled={actionLoading}
-                                        className="cursor-pointer flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled={actionLoading || isViewingPastYear}
+                                        className={`flex items-center gap-2 px-8 py-3 font-semibold rounded-xl transition-all shadow-lg ${
+                                            actionLoading || isViewingPastYear
+                                                ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                                                : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 cursor-pointer hover:shadow-xl'
+                                        } text-white`}
+                                        title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                     >
                                         {actionLoading ? (
                                             <>

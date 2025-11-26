@@ -78,9 +78,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/offresEnAttente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<OffreDTO>> offreEnAttente() {
+    public ResponseEntity<List<OffreDTO>> offreEnAttente(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<OffreDTO> offresEnAttente = gestionnaireService.getOffresAttente();
+            List<OffreDTO> offresEnAttente = gestionnaireService.getOffresAttente(annee);
             return ResponseEntity.ok(offresEnAttente);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -91,9 +92,9 @@ public class GestionnaireControlleur {
 
     @GetMapping("/visualiserOffres")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<OffreDTO>> getAllOffres() {
+    public ResponseEntity<List<OffreDTO>> getAllOffres(@RequestParam(required = false) Integer annee) {
         try {
-            List<OffreDTO> toutesLesOffres = gestionnaireService.getAllOffres();
+            List<OffreDTO> toutesLesOffres = gestionnaireService.getAllOffres(annee);
             return ResponseEntity.ok(toutesLesOffres);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -150,9 +151,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/CVsEnAttente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EtudiantDTO>> getCVsEnAttente() {
+    public ResponseEntity<List<EtudiantDTO>> getCVsEnAttente(
+            @RequestParam(required = false) int annee) {
         try {
-            List<EtudiantDTO> cvsEnAttente = gestionnaireService.getCVsEnAttente();
+            List<EtudiantDTO> cvsEnAttente = gestionnaireService.getCVsEnAttente(annee);
             return ResponseEntity.ok(cvsEnAttente);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -163,10 +165,11 @@ public class GestionnaireControlleur {
 
     @GetMapping("/candidaturesEligiblesEntente")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEligiblesEntente() {
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEligiblesEntente(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<CandidatureDTO> candidaturesEligiblesEntente = gestionnaireService.getCandidaturesEligiblesEntente();
-            return ResponseEntity.ok(candidaturesEligiblesEntente);
+            List<CandidatureDTO> candidatures = gestionnaireService.getCandidaturesEligiblesEntente(annee);
+            return ResponseEntity.ok(candidatures);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
@@ -204,24 +207,6 @@ public class GestionnaireControlleur {
         }
     }
 
-    @PutMapping("/ententes/{id}")
-    @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<MessageRetourDTO> modifierEntente(@PathVariable Long id, @RequestBody EntenteStageDTO ententeDTO) {
-        try {
-            gestionnaireService.modifierEntente(id, ententeDTO);
-            return ResponseEntity.status(HttpStatus.OK).body(new MessageRetourDTO("Entente modifiée avec succès", null));
-        } catch (ActionNonAutoriseeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageRetourDTO(null, new ErrorResponse(e.getErrorCode().getCode(), e.getMessage())));
-        } catch (UtilisateurPasTrouveException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("UTILISATEUR_NOT_FOUND", e.getMessage())));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageRetourDTO(null, new ErrorResponse("ERROR_001", e.getMessage())));
-        }
-    }
-
     @PostMapping("/ententes/{id}/annuler")
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<MessageRetourDTO> annulerEntente(@PathVariable Long id) {
@@ -239,9 +224,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/ententes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentes() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentes(
+            @RequestParam(required = false) Integer annee) {
         try {
-            return ResponseEntity.ok(gestionnaireService.getEntentesActives());
+            return ResponseEntity.ok(gestionnaireService.getEntentesActives(annee));
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
@@ -302,9 +288,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/etudiants")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EtudiantDTO>> getAllEtudiants() {
+    public ResponseEntity<List<EtudiantDTO>> getAllEtudiants(
+            @RequestParam(required = false) int annee) {
         try {
-            List<EtudiantDTO> etudiants = gestionnaireService.getAllEtudiants();
+            List<EtudiantDTO> etudiants = gestionnaireService.getAllEtudiants(annee);
             return ResponseEntity.ok(etudiants);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -370,9 +357,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/ententes/pretes")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentesPretesPourSignature() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentesPretesPourSignature(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<EntenteStageDTO> ententes = gestionnaireService.getEntentesEnAttente();
+            List<EntenteStageDTO> ententes = gestionnaireService.getEntentesEnAttente(annee);
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -383,9 +371,10 @@ public class GestionnaireControlleur {
 
     @GetMapping("/ententes/fini")
     @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<List<EntenteStageDTO>> getEntentesFini() {
+    public ResponseEntity<List<EntenteStageDTO>> getEntentesFini(
+            @RequestParam(required = false) Integer annee) {
         try {
-            List<EntenteStageDTO> ententes = gestionnaireService.getEntentesFini();
+            List<EntenteStageDTO> ententes = gestionnaireService.getEntentesFini(annee);
             return ResponseEntity.ok(ententes);
         } catch (ActionNonAutoriseeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

@@ -18,6 +18,8 @@ import {
 import NavBar from "./NavBar.tsx";
 import { useTranslation } from "react-i18next";
 import { employeurService, type EntenteStageDTO } from "../services/EmployeurService";
+import YearBanner from "./YearBanner/YearBanner.tsx";
+import { useYear } from "./YearContext/YearContext.tsx";
 
 
 const EntentesEmployeurs = () => {
@@ -35,6 +37,21 @@ const EntentesEmployeurs = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const [showSignConfirm, setShowSignConfirm] = useState(false);
 
+    const { selectedYear } = useYear();
+
+    // Calculer l'année actuelle (année académique)
+    const getCurrentYear = (): number => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth(); // 0-11 (0 = janvier, 7 = août)
+
+        // Si nous sommes en août (mois 7) ou après, retourner l'année suivante
+        return currentMonth >= 7 ? currentYear + 1 : currentYear;
+    };
+
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
+
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
         if (role !== "EMPLOYEUR") {
@@ -42,13 +59,13 @@ const EntentesEmployeurs = () => {
             return;
         }
         loadEntentes().then();
-    }, [navigate]);
+    }, [navigate, selectedYear]);
 
     const loadEntentes = async () => {
         try {
             setLoading(true);
             setError("");
-            const data = await employeurService.getEntentes();
+            const data = await employeurService.getEntentes(selectedYear);
             setEntentes(data);
         } catch (err: any) {
             setError(err.message || t("ententesemployeurs:errors.loadError"));
@@ -58,6 +75,7 @@ const EntentesEmployeurs = () => {
     };
 
     const handleEntenteClick = (entente: EntenteStageDTO) => {
+        if (isViewingPastYear) return; // Prevent opening modal for past years
         setSelectedEntente(entente);
         setShowModal(true);
     };
@@ -201,6 +219,9 @@ const EntentesEmployeurs = () => {
                     </button>
                 </div>
 
+                {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
+                <YearBanner />
+
                 {/* Messages de succès */}
                 {successMessage && (
                     <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
@@ -226,6 +247,8 @@ const EntentesEmployeurs = () => {
                         </div>
                     </div>
                 )}
+
+
 
                 {/* État de chargement */}
                 {loading ? (
@@ -263,7 +286,12 @@ const EntentesEmployeurs = () => {
                                 <div
                                     key={entente.id}
                                     onClick={() => handleEntenteClick(entente)}
-                                    className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400/40 transition-all duration-300 p-6 border border-slate-200 dark:border-slate-700 cursor-pointer group"
+                                    className={`bg-white dark:bg-slate-800 rounded-2xl shadow-lg transition-all duration-300 p-6 border border-slate-200 dark:border-slate-700 ${
+                                        isViewingPastYear
+                                            ? 'opacity-50 cursor-not-allowed'
+                                            : 'hover:shadow-xl hover:shadow-blue-400/40 cursor-pointer group'
+                                    }`}
+                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                 >
                                     {/* Badge et date */}
                                     <div className="flex flex-col items-start mb-4 gap-1">
@@ -477,7 +505,7 @@ const EntentesEmployeurs = () => {
                                     <FileText className="w-5 h-5" />
                                     {t('buttons.viewPdf')}
                                 </button>
-                            ) : selectedEntente.employeurSignature === 'EN_ATTENTE' ? (
+                            ) : selectedEntente.employeurSignature === 'EN_ATTENTE' && !isViewingPastYear ? (
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <button
                                         onClick={closeModal}
@@ -487,16 +515,22 @@ const EntentesEmployeurs = () => {
                                     </button>
                                     <button
                                         onClick={handleRefuserClick}
-                                        disabled={actionLoading}
-                                        className="cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                        disabled={actionLoading || isViewingPastYear}
+                                        className={`cursor-pointer flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${
+                                            isViewingPastYear ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
+                                        title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                     >
                                         <XCircle className="w-5 h-5" />
                                         {t("ententesemployeurs:actions.refuse")}
                                     </button>
                                     <button
                                         onClick={() => setShowSignConfirm(true)}
-                                        disabled={actionLoading}
-                                        className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                        disabled={actionLoading || isViewingPastYear}
+                                        className={`cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${
+                                            isViewingPastYear ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
+                                        title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                     >
                                         <FileSignature className="w-5 h-5" />
                                         {t("ententesemployeurs:actions.sign")}
