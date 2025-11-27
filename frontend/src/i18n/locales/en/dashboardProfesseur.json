@@ -89,6 +89,20 @@
       "shifts": "Shifts"
     },
 
+    "step": {
+      "company": "Company identification",
+      "student": "Student identification",
+      "evaluation": "Evaluation",
+      "observations": "General observations"
+    },
+
+    "back": "Back",
+    "next": "Next",
+    "forward": "Next",
+    "previous": "Back",
+    "forward": "Next",
+    "previous": "Back",
+
     "company": {
       "name": "Company name",
       "contact": "Contact person",
