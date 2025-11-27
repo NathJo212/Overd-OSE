@@ -7,9 +7,11 @@ import type { OffreStageDTO } from "../services/EmployeurService";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
 import { useTranslation } from 'react-i18next';
+import { useYear } from "./YearContext/YearContext.tsx";
+import YearBanner from "./YearBanner/YearBanner.tsx";
 
 // Helper function to determine academic year
-const getAcademicYear = (): number => {
+const getCurrentYear = (): number => {
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth(); // 0-indexed (0 = January, 7 = August)
@@ -22,6 +24,9 @@ const CreerOffreStage = () => {
     const { t: tErrors } = useTranslation('errors');
     const { t: tProgrammes } = useTranslation('programmes');
     const navigate = useNavigate();
+    const { selectedYear } = useYear();
+    const currentYear = getCurrentYear();
+    const isViewingPastYear = selectedYear < currentYear;
 
     useEffect(() => {
         const role = sessionStorage.getItem("userType");
@@ -62,8 +67,8 @@ const CreerOffreStage = () => {
     const [programmes, setProgrammes] = useState<string[]>([]);
     const [loadingProgrammes, setLoadingProgrammes] = useState(true);
 
-    // Get academic year for the internship
-    const academicYear = getAcademicYear();
+    // Get academic year for the internship - use selectedYear from context
+    const academicYear = selectedYear;
     const minDate = `${academicYear}-01-01`; // January 1st of academic year
     const maxDate = `${academicYear}-06-30`; // June 30th of academic year
 
@@ -143,6 +148,9 @@ const CreerOffreStage = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (isViewingPastYear) return; // Don't submit if viewing past year
+
         setErrors([]);
         setSuccessMessage("");
 
@@ -228,15 +236,39 @@ const CreerOffreStage = () => {
                     </p>
                 </div>
 
+                {/* Year Banner */}
+                {isViewingPastYear && (
+                    <div className="mb-6">
+                        <YearBanner />
+                    </div>
+                )}
+
+
                 {/* Academic Year Info Banner */}
-                <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-400 rounded-xl p-4">
+                <div className={`mb-6 border-l-4 rounded-xl p-4 ${
+                    isViewingPastYear
+                        ? 'bg-gray-50 dark:bg-gray-800/20 border-gray-400 dark:border-gray-600'
+                        : 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 dark:border-blue-400'
+                }`}>
                     <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                        <Info className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                            isViewingPastYear
+                                ? 'text-gray-600 dark:text-gray-400'
+                                : 'text-blue-600 dark:text-blue-400'
+                        }`} />
                         <div className="flex-1">
-                            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">
+                            <h3 className={`text-sm font-semibold mb-1 ${
+                                isViewingPastYear
+                                    ? 'text-gray-900 dark:text-gray-200'
+                                    : 'text-blue-900 dark:text-blue-200'
+                            }`}>
                                 {t("offercreate:academicYear.title", { year: academicYear })}
                             </h3>
-                            <p className="text-sm text-blue-800 dark:text-blue-300">
+                            <p className={`text-sm ${
+                                isViewingPastYear
+                                    ? 'text-gray-700 dark:text-gray-300'
+                                    : 'text-blue-800 dark:text-blue-300'
+                            }`}>
                                 {t("offercreate:academicYear.description", { year: academicYear })}
                             </p>
                         </div>
@@ -273,7 +305,11 @@ const CreerOffreStage = () => {
                 )}
 
                 {/* Formulaire */}
-                <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-blue-400 transition-all duration-300 p-8 border border-slate-200 dark:border-slate-700">
+                <form onSubmit={handleSubmit} className={`bg-white dark:bg-slate-800 rounded-2xl shadow-lg transition-all duration-300 p-8 border ${
+                    isViewingPastYear
+                        ? 'border-gray-300 dark:border-gray-600 opacity-75'
+                        : 'border-slate-200 dark:border-slate-700 hover:shadow-xl hover:shadow-blue-400'
+                }`}>
                     <div className="space-y-6">
                         {/* Titre */}
                         <div>
@@ -286,8 +322,9 @@ const CreerOffreStage = () => {
                                 name="titre"
                                 value={formData.titre}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
-                                disabled={loading}
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
+                                disabled={loading || isViewingPastYear}
+                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                             />
                         </div>
 
@@ -301,9 +338,10 @@ const CreerOffreStage = () => {
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
                                 rows={5}
-                                disabled={loading}
+                                disabled={loading || isViewingPastYear}
+                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                             />
                         </div>
 
@@ -321,11 +359,12 @@ const CreerOffreStage = () => {
                                     onChange={handleChange}
                                     min={minDate}
                                     max={maxDate}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
-                                    disabled={loading}
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
+                                    disabled={loading || isViewingPastYear}
+                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                 />
                                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                                    Janvier - Juin {academicYear}
+                                    {t("offercreate:form.dateRange", { year: academicYear })}
                                 </p>
                             </div>
                             <div>
@@ -340,11 +379,12 @@ const CreerOffreStage = () => {
                                     onChange={handleChange}
                                     min={formData.date_debut || minDate}
                                     max={maxDate}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
-                                    disabled={loading}
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
+                                    disabled={loading || isViewingPastYear}
+                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                 />
                                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                                    Janvier - Juin {academicYear}
+                                    {t("offercreate:form.dateRange", { year: academicYear })}
                                 </p>
                             </div>
                         </div>
@@ -368,8 +408,9 @@ const CreerOffreStage = () => {
                                     name="progEtude"
                                     value={formData.progEtude}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
-                                    disabled={loading}
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
+                                    disabled={loading || isViewingPastYear}
+                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                 >
                                     <option value="">{t("offercreate:form.selectProgram")}</option>
                                     {programmes.map(key => (
@@ -391,8 +432,9 @@ const CreerOffreStage = () => {
                                     name="lieuStage"
                                     value={formData.lieuStage}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
-                                    disabled={loading}
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
+                                    disabled={loading || isViewingPastYear}
+                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                 />
                             </div>
                             <div>
@@ -405,9 +447,10 @@ const CreerOffreStage = () => {
                                     name="remuneration"
                                     value={formData.remuneration}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
                                     placeholder="Ex: 20$/h"
-                                    disabled={loading}
+                                    disabled={loading || isViewingPastYear}
+                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                 />
                             </div>
                         </div>
@@ -423,9 +466,10 @@ const CreerOffreStage = () => {
                                     name="horaire"
                                     value={formData.horaire as string}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
                                     placeholder={t("offercreate:form.schedulePlaceholder")}
-                                    disabled={loading}
+                                    disabled={loading || isViewingPastYear}
+                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                 />
                             </div>
                             <div>
@@ -437,9 +481,10 @@ const CreerOffreStage = () => {
                                     name="dureeHebdomadaire"
                                     value={formData.dureeHebdomadaire as any}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
                                     placeholder={t("offercreate:form.weeklyHoursPlaceholder")}
-                                    disabled={loading}
+                                    disabled={loading || isViewingPastYear}
+                                    title={isViewingPastYear ? t('yearBanner:warning') : ''}
                                 />
                             </div>
                         </div>
@@ -453,10 +498,11 @@ const CreerOffreStage = () => {
                                 name="responsabilitesEtudiant"
                                 value={formData.responsabilitesEtudiant}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
                                 rows={3}
-                                disabled={loading}
+                                disabled={loading || isViewingPastYear}
                                 placeholder={t("offercreate:form.responsibilitiesStudentPlaceholder")}
+                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                             />
                         </div>
                         <div>
@@ -467,10 +513,11 @@ const CreerOffreStage = () => {
                                 name="responsabilitesEmployeur"
                                 value={formData.responsabilitesEmployeur}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
                                 rows={3}
-                                disabled={loading}
+                                disabled={loading || isViewingPastYear}
                                 placeholder={t("offercreate:form.responsibilitiesEmployerPlaceholder")}
+                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                             />
                         </div>
                         <div>
@@ -481,10 +528,11 @@ const CreerOffreStage = () => {
                                 name="responsabilitesCollege"
                                 value={formData.responsabilitesCollege}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
                                 rows={3}
-                                disabled={loading}
+                                disabled={loading || isViewingPastYear}
                                 placeholder={t("offercreate:form.responsibilitiesCollegePlaceholder")}
+                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                             />
                         </div>
 
@@ -497,10 +545,11 @@ const CreerOffreStage = () => {
                                 name="objectifs"
                                 value={formData.objectifs}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
                                 rows={3}
-                                disabled={loading}
+                                disabled={loading || isViewingPastYear}
                                 placeholder={t("offercreate:form.objectivesPlaceholder")}
+                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                             />
                         </div>
 
@@ -515,16 +564,22 @@ const CreerOffreStage = () => {
                                 name="dateLimite"
                                 value={formData.dateLimite}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
-                                disabled={loading}
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
+                                disabled={loading || isViewingPastYear}
+                                title={isViewingPastYear ? t('yearBanner:warning') : ''}
                             />
                         </div>
 
                         {/* Bouton de soumission */}
                         <button
                             type="submit"
-                            disabled={loading || loadingProgrammes}
-                            className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none flex items-center justify-center gap-2"
+                            disabled={loading || loadingProgrammes || isViewingPastYear}
+                            className={`w-full font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${
+                                isViewingPastYear
+                                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                    : 'cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white shadow-lg hover:shadow-xl hover:shadow-blue-400 disabled:shadow-none'
+                            }`}
+                            title={isViewingPastYear ? t('yearBanner:warning') : ''}
                         >
                             {loading ? (
                                 <>
