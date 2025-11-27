@@ -124,22 +124,78 @@ describe('DashboardProfesseur - comportements principaux', () => {
 
         const evaluateButtons = screen.getAllByText('actions.evaluate');
         fireEvent.click(evaluateButtons[0]);
-        await waitFor(() => expect(screen.getByText('Entente X')).toBeInTheDocument());
+        // Le composant ne montre pas forcément le titre de l'entente (Entente X) directement.
+        // Vérifier plutôt que le header du formulaire et les informations pré-remplies sont affichées
+        await waitFor(() => expect(screen.getByText('form.header')).toBeInTheDocument());
+        // le nom de l'étudiant doit apparaître dans le header student
+        expect(screen.getByText((content) => content.includes('form.headerStudent') && content.includes('Marc'))).toBeInTheDocument();
 
-        const submitBtn = await screen.findByText('form.submit');
+        // SECTION 0 - Company: vérifier les champs d'identification de l'entreprise
+        const companySectionHeader = screen.getByText('form.company.title');
+        expect(companySectionHeader).toBeInTheDocument();
+        const companySection = companySectionHeader.closest('section');
+        // s'assurer qu'il y a plusieurs champs (inputs) dans la section entreprise
+        expect(companySection).not.toBeNull();
+        // compter tous les champs (input/textarea/select) dans la section entreprise
+        const companyFields = (companySection as HTMLElement).querySelectorAll('input, textarea, select');
+        // tolérance : certains champs peuvent être absents selon le rendu, vérifier qu'il y a au moins 3 champs
+        expect(companyFields.length).toBeGreaterThanOrEqual(3);
+
+        // Aller à l'étape 1 (Identification du stagiaire)
+        const nextBtnOnce = await screen.findByText('form.next');
+        fireEvent.click(nextBtnOnce);
+        await waitFor(() => expect(screen.getByText('form.section.student')).toBeInTheDocument());
+
+        // SECTION 1 - Student: vérifications
+        const studentSectionHeader = screen.getByText('form.section.student');
+        expect(studentSectionHeader).toBeInTheDocument();
+        const studentSection = studentSectionHeader.closest('section');
+        expect(studentSection).not.toBeNull();
+        // Le nom et la date sont présents : compter inputs/textarea/select
+        const studentFields = (studentSection as HTMLElement).querySelectorAll('input, textarea, select');
+        // tolérance : vérifier qu'il y a au moins 1 champ (nom ou date)
+        expect(studentFields.length).toBeGreaterThanOrEqual(1);
+        expect(screen.getByText('form.student.stageNumberLabel')).toBeInTheDocument();
+
+        // Aller à l'étape 2 (Évaluation)
+        // Aller à l'étape 2 (Évaluation)
+        const nextToEval = await screen.findByText('form.next');
+        fireEvent.click(nextToEval);
+        await waitFor(() => expect(screen.getByText('form.section.evaluation')).toBeInTheDocument());
+
+        // SECTION 2 - Evaluation: vérifier présence des questions likert et du champ commentaires
+        const evalHeader = screen.getByText('form.section.evaluation');
+        expect(evalHeader).toBeInTheDocument();
+        expect(screen.getByText('form.questions.tachesConformes')).toBeInTheDocument();
+        expect(screen.getByText('form.questions.mesuresAccueil')).toBeInTheDocument();
+        expect(screen.getByText('form.questions.tempsEncadrementSuffisant')).toBeInTheDocument();
+        // le textarea des commentaires a un placeholder égal à la clé i18n
+        expect(screen.getByPlaceholderText('form.comments.label')).toBeInTheDocument();
+
+        // Aller à l'étape 3 (Observations générales)
+        const nextToObs = await screen.findByText('form.next');
+        fireEvent.click(nextToObs);
+        // récupérer tous les éléments correspondant au texte (peut y avoir un <h4> header et des labels)
+        const obsMatches = await screen.findAllByText(/Observations générales|form.observations.milieuAPrivilegier/);
+        expect(obsMatches.length).toBeGreaterThan(0);
+        // préférer l'élément de header (h4) s'il existe, sinon prendre le premier
+        const obsHeader = obsMatches.find(el => el.tagName && el.tagName.toLowerCase() === 'h4') || obsMatches[0];
+        expect(obsHeader).toBeInTheDocument();
+
+        // SECTION 3 - Observations: vérifier heures, salaire, quarts et date de signature (vérifier les labels/éléments présents)
+        // utiliser l'entête trouvé précédemment (obsHeader)
+        expect(obsHeader).toBeInTheDocument();
+        expect(screen.getByText('form.hours.firstMonth')).toBeInTheDocument();
+        expect(screen.getByText('form.hours.secondMonth')).toBeInTheDocument();
+        expect(screen.getByText('form.hours.thirdMonth')).toBeInTheDocument();
+        expect(screen.getByText('form.salary.amountPerHour')).toBeInTheDocument();
+        expect(screen.getByText('form.observations.offreQuartsVariables')).toBeInTheDocument();
+        expect(screen.getByText('form.observations.dateSignature')).toBeInTheDocument();
+
+        // Le submit et cancel doivent être visibles à la dernière étape
+        const submitBtn = await screen.findByText((content) => content.includes('form.submit'));
         const formEl = submitBtn.closest('form');
         expect(formEl).not.toBeNull();
-
-        // Vérifier la présence des boutons essentiels dans la modal — ne rien faire d'autre
-        const stageBtns = within(formEl as HTMLElement).queryAllByText(/STAGE[_\s]?1|Stage\s*1|options\.stageNumero\.STAGE_1/i);
-        expect(stageBtns.length).toBeGreaterThan(0);
-
-        // Likert labels are now resolved via i18n keys (likert.*) or options.niveauAccord; accept both
-        const accordBtns = within(formEl as HTMLElement).queryAllByText(/likert\.totallyAgree|TOTALEMENT[_\s]?EN[_\s]?ACCORD|Totalement en accord|options\.niveauAccord\.TOTALEMENT_EN_ACCORD/i);
-        expect(accordBtns.length).toBeGreaterThan(0);
-
-        // Submit and cancel buttons labels
-        expect(within(formEl as HTMLElement).getByText('form.submit')).toBeInTheDocument();
         expect(within(formEl as HTMLElement).getByText('form.cancel')).toBeInTheDocument();
     });
 

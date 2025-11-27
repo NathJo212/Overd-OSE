@@ -1267,21 +1267,50 @@ const DashboardProfesseur = () => {
 
                                     {/* Navigation buttons */}
                                     <div className="flex items-center justify-between pt-2">
-                                        <button type="button" disabled={currentStep === 0} onClick={() => setCurrentStep(s => Math.max(0, s - 1))} className="px-4 py-2 border rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-100">{t('form.back') || 'Back'}</button>
-                                        {currentStep < 3 ? (
-                                            <button type="button" onClick={() => setCurrentStep(s => Math.min(3, s + 1))} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">{t('form.next') || 'Next'}</button>
-                                        ) : (
-                                            <div className="flex gap-4">
-                                                <button type="submit" disabled={submittingEvaluation} className="cursor-pointer  bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg">
-                                                    {submittingEvaluation ? (
-                                                        <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> {t('form.submitting')}</span>
-                                                    ) : (
-                                                        t('form.submit')
-                                                    )}
+                                        <div className="flex-1">
+                                            {currentStep > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCurrentStep(s => Math.max(0, s - 1))}
+                                                    className="cursor-pointer px-4 py-2 border rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-100"
+                                                >
+                                                    {t('form.back') || 'Back'}
                                                 </button>
-                                                <button type="button" onClick={() => { resetModalState(); setCurrentStep(0); }} className="px-6 py-3 border rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-100">{t('form.cancel')}</button>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            {currentStep < 3 ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCurrentStep(s => Math.min(3, s + 1))}
+                                                    className="cursor-pointer px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+                                                >
+                                                    {t('form.next') || 'Next'}
+                                                </button>
+                                            ) : (
+                                                <div className="flex gap-4">
+                                                    <button
+                                                        type="submit"
+                                                        disabled={submittingEvaluation}
+                                                        className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg"
+                                                    >
+                                                        {submittingEvaluation ? (
+                                                            <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> {t('form.submitting')}</span>
+                                                        ) : (
+                                                            t('form.submit')
+                                                        )}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => { resetModalState(); setCurrentStep(0); }}
+                                                        className="cursor-pointer px-6 py-3 border rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-100"
+                                                    >
+                                                        {t('form.cancel')}
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </form>
                             )}
@@ -1300,7 +1329,7 @@ const DashboardProfesseur = () => {
                                     window.URL.revokeObjectURL(pdfUrl);
                                     setPdfUrl(null);
                                 }}
-                                className="p-2 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg"
+                                className="cursor-pointer p-2 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg"
                                 aria-label={t('details.close')}
                             >
                                 <X className="w-5 h-5 text-gray-700 dark:text-slate-300" />
