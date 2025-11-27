@@ -1,21 +1,12 @@
 import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
-import { Briefcase, MapPin, DollarSign, Calendar, GraduationCap, FileText, CheckCircle, X, ArrowLeft, Info} from "lucide-react";
+import { Briefcase, MapPin, DollarSign, Calendar, GraduationCap, FileText, CheckCircle, X, ArrowLeft} from "lucide-react";
 import { employeurService } from "../services/EmployeurService";
 import utilisateurService from "../services/UtilisateurService";
 import type { OffreStageDTO } from "../services/EmployeurService";
 import NavBar from "./NavBar.tsx";
 import * as React from "react";
 import { useTranslation } from 'react-i18next';
-
-// Helper function to determine academic year
-const getAcademicYear = (): number => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); // 0-indexed (0 = January, 7 = August)
-    // If August (7) or later, next year's internships
-    return currentMonth >= 7 ? currentYear + 1 : currentYear;
-};
 
 const CreerOffreStage = () => {
     const { t } = useTranslation(["offercreate"]);
@@ -62,11 +53,6 @@ const CreerOffreStage = () => {
     const [programmes, setProgrammes] = useState<string[]>([]);
     const [loadingProgrammes, setLoadingProgrammes] = useState(true);
 
-    // Get academic year for the internship
-    const academicYear = getAcademicYear();
-    const minDate = `${academicYear}-01-01`; // January 1st of academic year
-    const maxDate = `${academicYear}-06-30`; // June 30th of academic year
-
     const token = sessionStorage.getItem("authToken") || "";
 
     useEffect(() => {
@@ -101,43 +87,6 @@ const CreerOffreStage = () => {
         if (!formData.lieuStage.trim()) validationErrors.push(t("offercreate:errors.internshipLocationRequired"));
         if (!formData.remuneration.trim()) validationErrors.push(t("offercreate:errors.remunerationRequired"));
         if (!formData.dateLimite) validationErrors.push(t("offercreate:errors.deadlineRequired"));
-
-        // Validate dates are within January-June of academic year
-        if (formData.date_debut) {
-            const startDate = new Date(formData.date_debut);
-            const startYear = startDate.getFullYear();
-            const startMonth = startDate.getMonth(); // 0-indexed
-
-            if (startYear !== academicYear) {
-                validationErrors.push(t("offercreate:errors.startDateYearMismatch", { year: academicYear }));
-            }
-            if (startMonth < 0 || startMonth > 5) { // January (0) to June (5)
-                validationErrors.push(t("offercreate:errors.startDateMonthRange", { year: academicYear }));
-            }
-        }
-
-        if (formData.date_fin) {
-            const endDate = new Date(formData.date_fin);
-            const endYear = endDate.getFullYear();
-            const endMonth = endDate.getMonth();
-
-            if (endYear !== academicYear) {
-                validationErrors.push(t("offercreate:errors.endDateYearMismatch", { year: academicYear }));
-            }
-            if (endMonth < 0 || endMonth > 5) {
-                validationErrors.push(t("offercreate:errors.endDateMonthRange", { year: academicYear }));
-            }
-        }
-
-        // Validate end date is after start date
-        if (formData.date_debut && formData.date_fin) {
-            const startDate = new Date(formData.date_debut);
-            const endDate = new Date(formData.date_fin);
-            if (endDate < startDate) {
-                validationErrors.push(t("offercreate:errors.endDateBeforeStartDate"));
-            }
-        }
-
         return validationErrors;
     };
 
@@ -228,21 +177,6 @@ const CreerOffreStage = () => {
                     </p>
                 </div>
 
-                {/* Academic Year Info Banner */}
-                <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-400 rounded-xl p-4">
-                    <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">
-                                {t("offercreate:academicYear.title", { year: academicYear })}
-                            </h3>
-                            <p className="text-sm text-blue-800 dark:text-blue-300">
-                                {t("offercreate:academicYear.description", { year: academicYear })}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
                 {/* Messages */}
                 {errors.length > 0 && (
                     <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-xl p-4">
@@ -286,7 +220,7 @@ const CreerOffreStage = () => {
                                 name="titre"
                                 value={formData.titre}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                 disabled={loading}
                             />
                         </div>
@@ -301,13 +235,13 @@ const CreerOffreStage = () => {
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                 rows={5}
                                 disabled={loading}
                             />
                         </div>
 
-                        {/* Dates with restrictions */}
+                        {/* Dates */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
@@ -319,14 +253,9 @@ const CreerOffreStage = () => {
                                     name="date_debut"
                                     value={formData.date_debut}
                                     onChange={handleChange}
-                                    min={minDate}
-                                    max={maxDate}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                     disabled={loading}
                                 />
-                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                                    Janvier - Juin {academicYear}
-                                </p>
                             </div>
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
@@ -338,14 +267,9 @@ const CreerOffreStage = () => {
                                     name="date_fin"
                                     value={formData.date_fin}
                                     onChange={handleChange}
-                                    min={formData.date_debut || minDate}
-                                    max={maxDate}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                     disabled={loading}
                                 />
-                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                                    Janvier - Juin {academicYear}
-                                </p>
                             </div>
                         </div>
 
@@ -391,7 +315,7 @@ const CreerOffreStage = () => {
                                     name="lieuStage"
                                     value={formData.lieuStage}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                     disabled={loading}
                                 />
                             </div>
@@ -405,7 +329,7 @@ const CreerOffreStage = () => {
                                     name="remuneration"
                                     value={formData.remuneration}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                     placeholder="Ex: 20$/h"
                                     disabled={loading}
                                 />
@@ -423,7 +347,7 @@ const CreerOffreStage = () => {
                                     name="horaire"
                                     value={formData.horaire as string}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                     placeholder={t("offercreate:form.schedulePlaceholder")}
                                     disabled={loading}
                                 />
@@ -437,7 +361,7 @@ const CreerOffreStage = () => {
                                     name="dureeHebdomadaire"
                                     value={formData.dureeHebdomadaire as any}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                     placeholder={t("offercreate:form.weeklyHoursPlaceholder")}
                                     disabled={loading}
                                 />
@@ -453,7 +377,7 @@ const CreerOffreStage = () => {
                                 name="responsabilitesEtudiant"
                                 value={formData.responsabilitesEtudiant}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                 rows={3}
                                 disabled={loading}
                                 placeholder={t("offercreate:form.responsibilitiesStudentPlaceholder")}
@@ -467,7 +391,7 @@ const CreerOffreStage = () => {
                                 name="responsabilitesEmployeur"
                                 value={formData.responsabilitesEmployeur}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                 rows={3}
                                 disabled={loading}
                                 placeholder={t("offercreate:form.responsibilitiesEmployerPlaceholder")}
@@ -481,7 +405,7 @@ const CreerOffreStage = () => {
                                 name="responsabilitesCollege"
                                 value={formData.responsabilitesCollege}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                 rows={3}
                                 disabled={loading}
                                 placeholder={t("offercreate:form.responsibilitiesCollegePlaceholder")}
@@ -497,7 +421,7 @@ const CreerOffreStage = () => {
                                 name="objectifs"
                                 value={formData.objectifs}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                 rows={3}
                                 disabled={loading}
                                 placeholder={t("offercreate:form.objectivesPlaceholder")}
@@ -515,7 +439,7 @@ const CreerOffreStage = () => {
                                 name="dateLimite"
                                 value={formData.dateLimite}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-white/60 text-gray-900 dark:text-slate-100"
                                 disabled={loading}
                             />
                         </div>

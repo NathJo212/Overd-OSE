@@ -81,10 +81,20 @@
       "shifts": "Quarts"
     },
 
+    "step": {
+      "company": "Identification de l'entreprise",
+      "student": "Identification du stagiaire",
+      "evaluation": "Évaluation",
+      "observations": "Observations générales"
+    },
+
+    "back": "Précédent",
+    "next": "Suivant",
+    "forward": "Suivant",
+    "previous": "Précédent",
+
     "company": {
       "name": "Nom de l'entreprise",
-      "contact": "Personne contact",
-      "address": "Adresse",
       "city": "Ville",
       "postal": "Code postal",
       "phone": "Téléphone",
