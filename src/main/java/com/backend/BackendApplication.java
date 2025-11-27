@@ -76,7 +76,6 @@ public class BackendApplication {
             );
 
             AuthResponseDTO utilisateurTest = utilisateurService.authentifierUtilisateur("mon@employeur.com", "Employeur123%");
-            System.out.println("Employeur contact: " + utilisateurTest.getUtilisateurDTO().getContact());
 
             employeurService.creerOffreDeStage(
                     utilisateurTest,
@@ -113,26 +112,6 @@ public class BackendApplication {
                     "Faire respecter les droits de l'étudiant",
                     "Approfondir la programmation backend"
             );
-
-            employeurService.creerOffreDeStage(
-                    utilisateurTest,
-                    "Java",
-                    "Test",
-                    LocalDate.now(),
-                    LocalDate.now().plusMonths(4),
-                    ProgrammeDTO.P420_B0,
-                    "Quebec",
-                    "18$/h",
-                    LocalDate.now().minusDays(10),
-                    "flexible",
-                    25,
-                    "Coder en Java",
-                    "Développer des applications en Java",
-                    "Veiller à l'apprentissage de l'étudiant",
-                    "Mettre en pratique la programmation orientée objet"
-            );
-
-
         };
     }
 }

@@ -114,46 +114,48 @@ const NavBar = () => {
                         </div>
 
                         {/* Desktop menu - Compact */}
-                        <div className="hidden md:flex items-center gap-1.5">
-                            {/* Compact SearchBar */}
-                            <div className="w-48 lg:w-56">
-                                <SearchBar />
-                            </div>
+                        <div className="flex">
+                            <div className="hidden md:flex items-center gap-1.5">
+                                {/* Compact SearchBar */}
+                                <div className="w-48 lg:w-56">
+                                    <SearchBar />
+                                </div>
 
-                            <LanguageSelector />
-                            <ThemeSelector />
+                                <LanguageSelector />
+                                <ThemeSelector />
 
-                            {isConnected && role === 'ETUDIANT' && (
-                                <NotificationEtudiant />
-                            )}
-
-                            {isConnected && role === 'EMPLOYEUR' && (
-                                <NotificationEmployeur />
-                            )}
-
-                            {isConnected && (
-                                <button
-                                    onClick={handleLogout}
-                                    className="cursor-pointer bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm text-white px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all duration-300 border border-red-400/30 hover:border-red-400/50 shadow-sm hover:shadow-red-500/20"
-                                >
-                                    <LogOut className="w-4 h-4" />
-                                    <span className="font-medium text-sm hidden lg:inline">{t('navbar:logout')}</span>
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Mobile menu button */}
-                        <div className="md:hidden">
-                            <button
-                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="cursor-pointer text-white p-2 rounded-lg hover:bg-white/10 dark:hover:bg-slate-700 transition-colors"
-                            >
-                                {mobileMenuOpen ? (
-                                    <X className="w-6 h-6" />
-                                ) : (
-                                    <Menu className="w-6 h-6" />
+                                {isConnected && (
+                                    <button
+                                        onClick={handleLogout}
+                                        className="cursor-pointer bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm text-white px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all duration-300 border border-red-400/30 hover:border-red-400/50 shadow-sm hover:shadow-red-500/20"
+                                    >
+                                        <LogOut className="w-4 h-4" />
+                                        <span className="font-medium text-sm hidden lg:inline">{t('navbar:logout')}</span>
+                                    </button>
                                 )}
-                            </button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {isConnected && role === 'ETUDIANT' && (
+                                    <NotificationEtudiant />
+                                )}
+
+                                {isConnected && role === 'EMPLOYEUR' && (
+                                    <NotificationEmployeur />
+                                )}
+                            </div>
+                            {/* Mobile menu button */}
+                            <div className="md:hidden">
+                                <button
+                                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                    className="cursor-pointer text-white p-2 rounded-lg hover:bg-white/10 dark:hover:bg-slate-700 transition-colors"
+                                >
+                                    {mobileMenuOpen ? (
+                                        <X className="w-6 h-6" />
+                                    ) : (
+                                        <Menu className="w-6 h-6" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -202,20 +204,6 @@ const NavBar = () => {
                             <div className="flex flex-col items-center gap-2">
                                 <ThemeSelector />
                             </div>
-
-                            {/* Notification bell for mobile students */}
-                            {isConnected && role === 'ETUDIANT' && (
-                                <div className="px-4">
-                                    <NotificationEtudiant />
-                                </div>
-                            )}
-
-                            {/* Notification bell for mobile employers */}
-                            {isConnected && role === 'EMPLOYEUR' && (
-                                <div className="px-4">
-                                    <NotificationEmployeur />
-                                </div>
-                            )}
 
                             {isConnected && (
                                 <button
