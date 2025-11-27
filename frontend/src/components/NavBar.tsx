@@ -1,5 +1,5 @@
-import { useNavigate, NavLink } from "react-router-dom";
-import { LogOut, Menu, X, User, UserCog, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Menu, X, User, Calendar } from "lucide-react";
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
@@ -86,7 +86,7 @@ const NavBar = () => {
 
                             {/* Year Selector - Only for GESTIONNAIRE and EMPLOYEUR */}
                             {showYearSelector && (
-                                <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 dark:bg-slate-700/40 backdrop-blur-sm rounded-lg border border-white/20 dark:border-slate-600">
+                                <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 dark:bg-slate-700/40 backdrop-blur-sm rounded-lg border border-white/20 dark:border-slate-600">
                                     <Calendar className="w-3.5 h-3.5 text-white/80" />
                                     <select
                                         value={selectedYear}

@@ -176,6 +176,9 @@ const DashboardGestionnaire = () => {
                     </p>
                 </div>
 
+                {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
+                <YearBanner />
+
                 {/* Navigation en cartes - Ces cartes ne sont PAS affectées par l'année */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {/* CVs des étudiants */}
@@ -262,9 +265,6 @@ const DashboardGestionnaire = () => {
                         <div className="h-px bg-gray-300 dark:bg-slate-700 flex-1"></div>
                     </div>
                 </div>
-
-                {/* YearBanner - affiche l'avertissement si on regarde une année passée */}
-                <YearBanner />
 
                 {/* Messages */}
                 {actionMessage && (
