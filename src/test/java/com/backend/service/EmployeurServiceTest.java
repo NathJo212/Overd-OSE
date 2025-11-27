@@ -148,8 +148,8 @@ public class EmployeurServiceTest {
         when(employeurRepository.findByEmail(anyString())).thenReturn(employeur);
 
         employeurService.creerOffreDeStage(utilisateur, "titre", "desc",
-                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1),
-                ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(2023, 12, 1), null, null, null, null, null, "allo");
+                LocalDate.of(getAnneeAcademiqueCourante(), 1, 6), LocalDate.of(getAnneeAcademiqueCourante(), 6, 1),
+                ProgrammeDTO.P410_A1, "lieu", "rem", LocalDate.of(getAnneeAcademiqueCourante(), 1, 1), null, null, null, null, null, "allo");
 
 
         verify(offreRepository, times(1)).save(any(Offre.class));
