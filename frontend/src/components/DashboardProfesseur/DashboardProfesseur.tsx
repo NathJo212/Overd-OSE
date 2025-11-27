@@ -901,7 +901,7 @@ const DashboardProfesseur = () => {
                             ) : (
                                 <div className="space-y-4">
                                     {ententesStudent.map((entente) => {
-                                        const isSigned = entente.etudiantSignature === 'SIGNEE' && entente.employeurSignature === 'SIGNEE';
+                                        const isSigned = entente.etudiantSignature === 'SIGNEE' && entente.employeurSignature === 'SIGNEE' && entente.statut === 'SIGNEE';
                                         const statut = isSigned ? statutsStage[entente.id] : null;
 
                                         return (

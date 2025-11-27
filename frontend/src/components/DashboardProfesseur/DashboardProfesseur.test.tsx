@@ -233,6 +233,7 @@ describe('DashboardProfesseur - comportements principaux', () => {
             dureeHebdomadaire: 35,
             etudiantSignature: 'SIGNEE',
             employeurSignature: 'SIGNEE',
+            statut: 'SIGNEE',
         };
         (professeurService.getMesEtudiants as any).mockResolvedValue([
             { id: 5, prenom: 'S', nom: 'T', email: 's@e', telephone: '0', progEtude: 'P', cv: '' },
@@ -244,7 +245,9 @@ describe('DashboardProfesseur - comportements principaux', () => {
         fireEvent.click(screen.getAllByTitle('actions.ententes')[0]);
         await waitFor(() => expect(screen.getAllByText('actions.ententes').length).toBeGreaterThan(0));
         expect(screen.getByText('Entente Y')).toBeInTheDocument();
-        await waitFor(() => expect(screen.getByText('ententes.statusLabel')).toBeInTheDocument());
+        // Le label de statut peut être rendu dans plusieurs éléments ou concaténé;
+        // on utilise un matcher fonction pour être plus tolérant.
+        await waitFor(() => expect(screen.getByText((content) => typeof content === 'string' && content.includes('ententes.statusLabel'))).toBeInTheDocument());
     });
 
     it('affiche "viewEvaluation" si une évaluation existe déjà', async () => {

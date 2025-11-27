@@ -76,7 +76,6 @@ const EntentesEtudiants = () => {
             // refresh from server to ensure consistency
             await loadEntentes();
 
-            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err: any) {
             console.error('Erreur lors de la signature:', err);
             setError(err.response?.data?.erreur?.message || t('errors.signError'));
@@ -99,7 +98,6 @@ const EntentesEtudiants = () => {
 
             await loadEntentes();
 
-            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err: any) {
             console.error('Erreur lors du refus:', err);
             setError(err.response?.data?.erreur?.message || t('errors.refuseError'));
@@ -136,6 +134,11 @@ const EntentesEtudiants = () => {
             URL.revokeObjectURL(pdfUrl);
             setPdfUrl(null);
         }
+    };
+
+    // Nouveau: fermer message de succès via icône X
+    const closeSuccessMessage = () => {
+        setSuccessMessage('');
     };
 
     const getSignatureStatusBadge = (statut?: string) => {
@@ -218,7 +221,10 @@ const EntentesEtudiants = () => {
                 {successMessage && (
                     <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-center gap-3">
                         <CheckCircle className="w-5 h-5 text-green-600" />
-                        <p className="text-green-800 dark:text-green-200">{successMessage}</p>
+                        <p className="text-green-800 dark:text-green-200 flex-1">{successMessage}</p>
+                        <button onClick={closeSuccessMessage} aria-label={t('buttons.close') || 'Close'} className="text-green-700 hover:text-green-900 dark:text-green-200">
+                            <X className="w-5 h-5" />
+                        </button>
                     </div>
                 )}
 
