@@ -19,9 +19,8 @@ const NavBar = () => {
     const [userFullName, setUserFullName] = useState('');
     const { selectedYear, setSelectedYear } = useYear();
 
-    // Générer les années disponibles (5 ans avant et 5 ans après l'année actuelle)
     const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+    const years = Array.from({ length: 7 }, (_, i) => currentYear - 5 + i);
 
     // Afficher le sélecteur d'année seulement pour GESTIONNAIRE et EMPLOYEUR
     const showYearSelector = role === 'GESTIONNAIRE' || role === 'EMPLOYEUR';
