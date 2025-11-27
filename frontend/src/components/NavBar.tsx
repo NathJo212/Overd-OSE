@@ -1,5 +1,5 @@
 import { useNavigate, NavLink } from "react-router-dom";
-import { LogOut, Menu, X, User, Briefcase, UserCog, Calendar } from "lucide-react";
+import { LogOut, Menu, X, User, UserCog, Calendar } from "lucide-react";
 import { useState, useEffect } from "react";
 import utilisateurService from "../services/UtilisateurService";
 import LanguageSelector from './LanguageSelector';
@@ -162,6 +162,7 @@ const NavBar = () => {
                 {mobileMenuOpen && (
                     <div className="md:hidden bg-blue-700 dark:bg-slate-800 border-t border-white/10 dark:border-slate-700">
                         <div className="px-4 py-4 space-y-3">
+
                             {/* Year Selector - Mobile (for GESTIONNAIRE and EMPLOYEUR) */}
                             {showYearSelector && (
                                 <div className="flex items-center gap-2 px-4 py-3 bg-white/10 dark:bg-slate-700/40 backdrop-blur-sm rounded-lg border border-white/20 dark:border-slate-600 mb-2">
@@ -188,32 +189,11 @@ const NavBar = () => {
                                 </div>
                             )}
 
-                            {/* Liens pour GESTIONNAIRE (Mobile) */}
-                            {isConnected && role === 'GESTIONNAIRE' && (
-                                <div className="flex flex-col space-y-2">
-                                    <NavLink
-                                        to="/gestionnaire/tableau-de-bord"
-                                        className={({ isActive }) =>
-                                            `flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200
-                                            ${isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/10'}`
-                                        }
-                                    >
-                                        <Briefcase className="w-5 h-5" />
-                                        <span className="font-medium">{t('navbar:dashboard')}</span>
-                                    </NavLink>
 
-                                    <NavLink
-                                        to="/gestionnaire/utilisateurs"
-                                        className={({ isActive }) =>
-                                            `flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200
-                                            ${isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/10'}`
-                                        }
-                                    >
-                                        <UserCog className="w-5 h-5" />
-                                        <span className="font-medium">{t('navbar:users')}</span>
-                                    </NavLink>
-                                </div>
-                            )}
+                            {/* SearchBar - Mobile */}
+                            <div className="mb-3">
+                                <SearchBar />
+                            </div>
 
                             <div className="flex flex-col items-center gap-2">
                                 <LanguageSelector />
@@ -227,6 +207,13 @@ const NavBar = () => {
                             {isConnected && role === 'ETUDIANT' && (
                                 <div className="px-4">
                                     <NotificationEtudiant />
+                                </div>
+                            )}
+
+                            {/* Notification bell for mobile employers */}
+                            {isConnected && role === 'EMPLOYEUR' && (
+                                <div className="px-4">
+                                    <NotificationEmployeur />
                                 </div>
                             )}
 
