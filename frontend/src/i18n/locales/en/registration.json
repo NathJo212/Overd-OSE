@@ -84,7 +84,6 @@
       "email": "Email Address",
       "phoneNumber": "Phone Number",
       "studyProgram": "Study Program",
-      "yearInfo": "The academic year will be determined automatically upon registration.",
       "password": "Password",
       "confirmPassword": "Confirm Password"
     },

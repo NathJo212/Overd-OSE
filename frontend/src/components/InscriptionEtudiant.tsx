@@ -368,9 +368,6 @@ const InscriptionEtudiant = () => {
                                         ))}
                                     </select>
                                 )}
-                                <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">
-                                    {t('registration:studentRegistration.fields.yearInfo')}
-                                </p>
                             </div>
                         </div>
                         <div className="space-y-4">

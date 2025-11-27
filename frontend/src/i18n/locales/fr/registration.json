@@ -84,7 +84,6 @@
       "email": "Adresse courriel",
       "phoneNumber": "Numéro de téléphone",
       "studyProgram": "Programme d'études",
-      "yearInfo": "L'année académique sera déterminée automatiquement lors de votre inscription.",
       "password": "Mot de passe",
       "confirmPassword": "Confirmer le mot de passe"
     },

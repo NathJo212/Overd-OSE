@@ -474,6 +474,12 @@ const InscriptionEmployeur = () => {
                                 t('registration:employerRegistration.buttons.createAccount')
                             )}
                         </button>
+                        <p className="mt-4 text-center text-sm text-gray-600 dark:text-slate-300">
+                            {t('registration:employerRegistration.alreadyHaveAccount')} ?{' '}
+                            <NavLink to="/login" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                                {t('registration:employerRegistration.signIn')}
+                            </NavLink>
+                        </p>
                     </form>
                 </div>
             </div>
