@@ -89,7 +89,7 @@ public class BackendApplication {
                     LocalDate.now().plusDays(2),
                     "matinale",
                     20,
-                    "Faire le café",
+                    "Faire du bon code",
                     "Apprendre React",
                     "Encourager l'étudiant",
                     "Découvrir le développement front-end en React"
