@@ -32,6 +32,7 @@ import type {
     AppreciationGlobale,
     EntrepriseProchainStageChoix
 } from '../services/EmployeurService';
+
 // Composant pour les boutons radio Likert
 interface LikertRadioProps {
     name: string;
@@ -171,12 +172,12 @@ const EmployeurEvaluationStagiaire = () => {
     // Wizard state
     const [currentStep, setCurrentStep] = useState(0);
     const steps = [
-        { label: 'Superviseur', icon: <User className="w-6 h-6" /> },
-        { label: 'Productivité', icon: <TrendingUp className="w-6 h-6" /> },
-        { label: 'Qualité', icon: <ClipboardCheck className="w-6 h-6" /> },
-        { label: 'Relations', icon: <Users className="w-6 h-6" /> },
-        { label: 'Habiletés', icon: <Lightbulb className="w-6 h-6" /> },
-        { label: 'Global', icon: <Star className="w-6 h-6" /> }
+        { label: t('steps.supervisor'), icon: <User className="w-6 h-6" /> },
+        { label: t('steps.productivity'), icon: <TrendingUp className="w-6 h-6" /> },
+        { label: t('steps.quality'), icon: <ClipboardCheck className="w-6 h-6" /> },
+        { label: t('steps.relations'), icon: <Users className="w-6 h-6" /> },
+        { label: t('steps.skills'), icon: <Lightbulb className="w-6 h-6" /> },
+        { label: t('steps.global'), icon: <Star className="w-6 h-6" /> }
     ];
 
     // Form data
@@ -541,7 +542,7 @@ const EmployeurEvaluationStagiaire = () => {
     };
 
     const formatDate = (dateString: string | undefined): string => {
-        if (!dateString) return 'N/A';
+        if (!dateString) return t('common.notAvailable');
         try {
             const date = new Date(dateString);
             return date.toLocaleDateString('fr-CA');
@@ -551,6 +552,54 @@ const EmployeurEvaluationStagiaire = () => {
     };
 
     const ententesAEvaluer = ententes.filter(e => !isEntenteEvaluated(e.id));
+
+    // Helper function to get color classes for appreciation globale
+    const getAppreciationColorClasses = (value: string, isSelected: boolean) => {
+        const colorMap: Record<string, { border: string; bg: string }> = {
+            'HABILETES_DEPASSENT_DE_BEAUCOUP_LES_ATTENTES': {
+                border: isSelected ? 'border-green-500' : 'border-gray-200',
+                bg: isSelected ? 'bg-green-50 dark:bg-green-900/20' : 'bg-white dark:bg-slate-800'
+            },
+            'HABILETES_DEPASSENT_LES_ATTENTES': {
+                border: isSelected ? 'border-blue-500' : 'border-gray-200',
+                bg: isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-white dark:bg-slate-800'
+            },
+            'HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES': {
+                border: isSelected ? 'border-indigo-500' : 'border-gray-200',
+                bg: isSelected ? 'bg-indigo-50 dark:bg-indigo-900/20' : 'bg-white dark:bg-slate-800'
+            },
+            'HABILETES_REPONDENT_PARTIELLEMENT_AUX_ATTENTES': {
+                border: isSelected ? 'border-yellow-500' : 'border-gray-200',
+                bg: isSelected ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-white dark:bg-slate-800'
+            },
+            'HABILETES_NE_REPONDENT_PAS_AUX_ATTENTES': {
+                border: isSelected ? 'border-red-500' : 'border-gray-200',
+                bg: isSelected ? 'bg-red-50 dark:bg-red-900/20' : 'bg-white dark:bg-slate-800'
+            }
+        };
+
+        return colorMap[value] || { border: 'border-gray-200', bg: 'bg-white dark:bg-slate-800' };
+    };
+
+    // Helper function for entreprise accueillir prochain stage colors
+    const getEnterpriseChoixColorClasses = (value: string, isSelected: boolean) => {
+        const colorMap: Record<string, { border: string; bg: string }> = {
+            'OUI': {
+                border: isSelected ? 'border-green-500' : 'border-gray-200',
+                bg: isSelected ? 'bg-green-50 dark:bg-green-900/20' : 'bg-white dark:bg-slate-800'
+            },
+            'PEUT_ETRE': {
+                border: isSelected ? 'border-yellow-500' : 'border-gray-200',
+                bg: isSelected ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-white dark:bg-slate-800'
+            },
+            'NON': {
+                border: isSelected ? 'border-red-500' : 'border-gray-200',
+                bg: isSelected ? 'bg-red-50 dark:bg-red-900/20' : 'bg-white dark:bg-slate-800'
+            }
+        };
+
+        return colorMap[value] || { border: 'border-gray-200', bg: 'bg-white dark:bg-slate-800' };
+    };
 
     // Render step content
     const renderStepContent = () => {
@@ -565,7 +614,7 @@ const EmployeurEvaluationStagiaire = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{t('modal.supervisor.title')}</h3>
-                                    <p className="text-sm text-gray-600 dark:text-slate-300">Informations sur le superviseur du stage</p>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.supervisor.subtitle')}</p>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-slate-800 rounded-xl p-6">
@@ -917,7 +966,7 @@ const EmployeurEvaluationStagiaire = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{t('modal.globalAssessment.title')}</h3>
-                                    <p className="text-sm text-gray-600 dark:text-slate-300">Évaluation globale et commentaires finaux</p>
+                                    <p className="text-sm text-gray-600 dark:text-slate-300">{t('modal.globalAssessment.subtitle')}</p>
                                 </div>
                             </div>
 
@@ -928,33 +977,35 @@ const EmployeurEvaluationStagiaire = () => {
                                     </label>
                                     <div className="space-y-3">
                                         {[
-                                            { value: 'HABILETES_DEPASSENT_DE_BEAUCOUP_LES_ATTENTES', labelKey: 'exceedExpectationsGreatly', color: 'green' },
-                                            { value: 'HABILETES_DEPASSENT_LES_ATTENTES', labelKey: 'exceedExpectations', color: 'blue' },
-                                            { value: 'HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES', labelKey: 'fullyMeetExpectations', color: 'indigo' },
-                                            { value: 'HABILETES_REPONDENT_PARTIELLEMENT_AUX_ATTENTES', labelKey: 'partiallyMeetExpectations', color: 'yellow' },
-                                            { value: 'HABILETES_NE_REPONDENT_PAS_AUX_ATTENTES', labelKey: 'doNotMeetExpectations', color: 'red' }
-                                        ].map((option) => (
-                                            <label
-                                                key={option.value}
-                                                className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                                                    formData.appreciationGlobale === option.value
-                                                        ? `border-${option.color}-500 bg-${option.color}-50 shadow-md`
-                                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                                }`}
-                                            >
-                                                <input
-                                                    type="radio"
-                                                    name="appreciationGlobale"
-                                                    value={option.value}
-                                                    checked={formData.appreciationGlobale === option.value}
-                                                    onChange={(e) => setFormData({...formData, appreciationGlobale: e.target.value as AppreciationGlobale})}
-                                                    className="w-5 h-5 text-indigo-600"
-                                                />
-                                                <span className="ml-3 text-sm font-semibold text-gray-800 dark:text-slate-200">
-                                                    {t(`modal.globalAssessment.${option.labelKey}`)}
-                                                </span>
-                                            </label>
-                                        ))}
+                                            { value: 'HABILETES_DEPASSENT_DE_BEAUCOUP_LES_ATTENTES', labelKey: 'exceedExpectationsGreatly' },
+                                            { value: 'HABILETES_DEPASSENT_LES_ATTENTES', labelKey: 'exceedExpectations' },
+                                            { value: 'HABILETES_REPONDENT_PLEINEMENT_AUX_ATTENTES', labelKey: 'fullyMeetExpectations' },
+                                            { value: 'HABILETES_REPONDENT_PARTIELLEMENT_AUX_ATTENTES', labelKey: 'partiallyMeetExpectations' },
+                                            { value: 'HABILETES_NE_REPONDENT_PAS_AUX_ATTENTES', labelKey: 'doNotMeetExpectations' }
+                                        ].map((option) => {
+                                            const isSelected = formData.appreciationGlobale === option.value;
+                                            const colorClasses = getAppreciationColorClasses(option.value, isSelected);
+                                            return (
+                                                <label
+                                                    key={option.value}
+                                                    className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${colorClasses.border} ${colorClasses.bg} ${
+                                                        isSelected ? 'shadow-md' : 'hover:border-gray-300 dark:hover:border-slate-600'
+                                                    }`}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="appreciationGlobale"
+                                                        value={option.value}
+                                                        checked={isSelected}
+                                                        onChange={(e) => setFormData({...formData, appreciationGlobale: e.target.value as AppreciationGlobale})}
+                                                        className="w-5 h-5 text-indigo-600"
+                                                    />
+                                                    <span className="ml-3 text-sm font-semibold text-gray-800 dark:text-slate-200">
+                                                        {t(`modal.globalAssessment.${option.labelKey}`)}
+                                                    </span>
+                                                </label>
+                                            );
+                                        })}
                                     </div>
                                 </div>
 
@@ -1008,32 +1059,34 @@ const EmployeurEvaluationStagiaire = () => {
                                             </label>
                                             <div className="grid grid-cols-3 gap-3">
                                                 {[
-                                                    { value: 'OUI', labelKey: 'yes', color: 'green', emoji: '✓' },
-                                                    { value: 'PEUT_ETRE', labelKey: 'maybe', color: 'yellow', emoji: '?' },
-                                                    { value: 'NON', labelKey: 'no', color: 'red', emoji: '✗' }
-                                                ].map((option) => (
-                                                    <label
-                                                        key={option.value}
-                                                        className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                                                            formData.entrepriseAccueillirProchainStage === option.value
-                                                                ? `border-${option.color}-500 bg-${option.color}-50 shadow-md`
-                                                                : 'border-gray-200 hover:border-gray-300'
-                                                        }`}
-                                                    >
-                                                        <input
-                                                            type="radio"
-                                                            name="entrepriseAccueillirProchainStage"
-                                                            value={option.value}
-                                                            checked={formData.entrepriseAccueillirProchainStage === option.value}
-                                                            onChange={(e) => setFormData({...formData, entrepriseAccueillirProchainStage: e.target.value as EntrepriseProchainStageChoix})}
-                                                            className="sr-only"
-                                                        />
-                                                        <span className="text-2xl mb-2">{option.emoji}</span>
-                                                        <span className="text-sm font-bold text-gray-800 dark:text-slate-200">
-                                                            {t(`modal.finalSection.${option.labelKey}`)}
-                                                        </span>
-                                                    </label>
-                                                ))}
+                                                    { value: 'OUI', labelKey: 'yes', emoji: '✓' },
+                                                    { value: 'PEUT_ETRE', labelKey: 'maybe', emoji: '?' },
+                                                    { value: 'NON', labelKey: 'no', emoji: '✗' }
+                                                ].map((option) => {
+                                                    const isSelected = formData.entrepriseAccueillirProchainStage === option.value;
+                                                    const colorClasses = getEnterpriseChoixColorClasses(option.value, isSelected);
+                                                    return (
+                                                        <label
+                                                            key={option.value}
+                                                            className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all ${colorClasses.border} ${colorClasses.bg} ${
+                                                                isSelected ? 'shadow-md' : 'hover:border-gray-300 dark:hover:border-slate-600'
+                                                            }`}
+                                                        >
+                                                            <input
+                                                                type="radio"
+                                                                name="entrepriseAccueillirProchainStage"
+                                                                value={option.value}
+                                                                checked={isSelected}
+                                                                onChange={(e) => setFormData({...formData, entrepriseAccueillirProchainStage: e.target.value as EntrepriseProchainStageChoix})}
+                                                                className="sr-only"
+                                                            />
+                                                            <span className="text-2xl mb-2">{option.emoji}</span>
+                                                            <span className="text-sm font-bold text-gray-800 dark:text-slate-200">
+                                                                {t(`modal.finalSection.${option.labelKey}`)}
+                                                            </span>
+                                                        </label>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
 
@@ -1203,10 +1256,10 @@ const EmployeurEvaluationStagiaire = () => {
                                                             {t('ententesList.student')}
                                                         </p>
                                                         <h3 className="font-bold text-lg text-gray-900 dark:text-slate-100 truncate mb-1">
-                                                            {entente.etudiantNomComplet || 'N/A'}
+                                                            {entente.etudiantNomComplet || t('common.notAvailable')}
                                                         </h3>
                                                         <p className="text-sm text-gray-600 dark:text-slate-300 truncate">
-                                                            {entente.etudiantEmail || 'N/A'}
+                                                            {entente.etudiantEmail || t('common.notAvailable')}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -1221,7 +1274,7 @@ const EmployeurEvaluationStagiaire = () => {
                                                     <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700">
                                                         <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                                         <p className="text-sm text-gray-600 dark:text-slate-300">
-                                                            {formatDate(entente.dateDebut)} → {formatDate(entente.dateFin)}
+                                                            {formatDate(entente.dateDebut)} {t('ententesList.to')} {formatDate(entente.dateFin)}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -1306,7 +1359,7 @@ const EmployeurEvaluationStagiaire = () => {
                                                     {entente && (
                                                         <>
                                                             <h3 className="font-bold text-lg text-gray-900 dark:text-slate-100 mb-2">
-                                                                {entente.etudiantNomComplet || 'N/A'}
+                                                                {entente.etudiantNomComplet || t('common.notAvailable')}
                                                             </h3>
                                                             <p className="text-sm text-gray-600 dark:text-slate-300 mb-6 line-clamp-2">
                                                                 {entente.titre}
@@ -1403,11 +1456,11 @@ const EmployeurEvaluationStagiaire = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                     <div className="flex items-center gap-2">
                                         <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.name')}:</span>
-                                        <span className="text-gray-600 dark:text-slate-300">{selectedEntente.etudiantNomComplet || 'N/A'}</span>
+                                        <span className="text-gray-600 dark:text-slate-300">{selectedEntente.etudiantNomComplet || t('common.notAvailable')}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.email')}:</span>
-                                        <span className="text-gray-600 dark:text-slate-300">{selectedEntente.etudiantEmail || 'N/A'}</span>
+                                        <span className="text-gray-600 dark:text-slate-300">{selectedEntente.etudiantEmail || t('common.notAvailable')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 md:col-span-2">
                                         <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.internshipTitle')}:</span>
@@ -1415,7 +1468,7 @@ const EmployeurEvaluationStagiaire = () => {
                                     </div>
                                     <div className="flex items-center gap-2 md:col-span-2">
                                         <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.period')}:</span>
-                                        <span className="text-gray-600 dark:text-slate-300">{formatDate(selectedEntente.dateDebut)} → {formatDate(selectedEntente.dateFin)}</span>
+                                        <span className="text-gray-600 dark:text-slate-300">{formatDate(selectedEntente.dateDebut)} {t('modal.to')} {formatDate(selectedEntente.dateFin)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1435,7 +1488,7 @@ const EmployeurEvaluationStagiaire = () => {
                                 className="cursor-pointer flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <ChevronLeft className="w-5 h-5" />
-                                Précédent
+                                {t('modal.navigation.previous')}
                             </button>
 
                             <div className="flex items-center gap-2">
@@ -1453,7 +1506,7 @@ const EmployeurEvaluationStagiaire = () => {
                                         onClick={handleNext}
                                         className="cursor-pointer flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
                                     >
-                                        Suivant
+                                        {t('modal.navigation.next')}
                                         <ChevronRight className="w-5 h-5" />
                                     </button>
                                 ) : (
@@ -1525,16 +1578,16 @@ const EmployeurEvaluationStagiaire = () => {
                                         <div className="space-y-3 text-sm">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.name')}:</span>
-                                                <span className="text-gray-600 dark:text-slate-300">{entente.etudiantNomComplet || 'N/A'}</span>
+                                                <span className="text-gray-600 dark:text-slate-300">{entente.etudiantNomComplet || t('common.notAvailable')}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className="font-semibold text-gray-700 dark:text-slate-200">{t('modal.email')}:</span>
-                                                <span className="text-gray-600 dark:text-slate-300">{entente.etudiantEmail || 'N/A'}</span>
+                                                <span className="text-gray-600 dark:text-slate-300">{entente.etudiantEmail || t('common.notAvailable')}</span>
                                             </div>
                                             <div className="mt-4 pt-4 border-t border-blue-200 dark:border-slate-700">
                                                 <p className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-2">{t('detailsModal.internshipInfo')}</p>
                                                 <p className="font-semibold text-gray-800 dark:text-slate-100 mb-1">{entente.titre}</p>
-                                                <p className="text-gray-600 dark:text-slate-300">{formatDate(entente.dateDebut)} → {formatDate(entente.dateFin)}</p>
+                                                <p className="text-gray-600 dark:text-slate-300">{formatDate(entente.dateDebut)} {t('modal.to')} {formatDate(entente.dateFin)}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -1627,7 +1680,7 @@ const EmployeurEvaluationStagiaire = () => {
                         </div>
                     </div>
                 </div>
-            )}
+                )}
         </div>
     );
 };

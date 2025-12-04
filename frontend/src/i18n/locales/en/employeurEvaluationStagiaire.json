@@ -5,6 +5,15 @@
   "refresh": "Refresh",
   "loading": "Loading...",
 
+  "steps": {
+    "supervisor": "Supervisor",
+    "productivity": "Productivity",
+    "quality": "Quality",
+    "relations": "Relations",
+    "skills": "Skills",
+    "global": "Global"
+  },
+
   "tabs": {
     "toEvaluate": "To Evaluate",
     "evaluated": "Evaluated"
@@ -48,6 +57,7 @@
 
     "supervisor": {
       "title": "Supervisor Information",
+      "subtitle": "Information about the internship supervisor",
       "name": "Supervisor Name",
       "namePlaceholder": "e.g., John Smith",
       "function": "Position",
@@ -104,6 +114,7 @@
 
     "globalAssessment": {
       "title": "Overall Assessment of the Intern",
+      "subtitle": "Overall evaluation and final comments",
       "exceedExpectationsGreatly": "The demonstrated skills greatly exceed expectations",
       "exceedExpectations": "The demonstrated skills exceed expectations",
       "fullyMeetExpectations": "The demonstrated skills fully meet expectations",
@@ -131,6 +142,11 @@
       "commentsPlaceholder": "Add your comments here..."
     },
 
+    "navigation": {
+      "previous": "Previous",
+      "next": "Next"
+    },
+
     "actions": {
       "cancel": "Cancel",
       "submit": "Submit Evaluation",
@@ -154,6 +170,10 @@
   "messages": {
     "success": "Evaluation submitted successfully!",
     "successDescription": "The evaluation has been saved."
+  },
+
+  "common": {
+    "notAvailable": "N/A"
   },
 
   "errors": {

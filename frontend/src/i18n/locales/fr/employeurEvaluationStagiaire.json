@@ -5,6 +5,15 @@
   "refresh": "Actualiser",
   "loading": "Chargement...",
 
+  "steps": {
+    "supervisor": "Superviseur",
+    "productivity": "Productivité",
+    "quality": "Qualité",
+    "relations": "Relations",
+    "skills": "Habiletés",
+    "global": "Global"
+  },
+
   "tabs": {
     "toEvaluate": "À évaluer",
     "evaluated": "Évaluées"
@@ -48,6 +57,7 @@
 
     "supervisor": {
       "title": "Informations du superviseur",
+      "subtitle": "Informations sur le superviseur du stage",
       "name": "Nom du superviseur",
       "namePlaceholder": "Ex: Jean Dupont",
       "function": "Fonction",
@@ -104,6 +114,7 @@
 
     "globalAssessment": {
       "title": "Appréciation globale du stagiaire",
+      "subtitle": "Évaluation globale et commentaires finaux",
       "exceedExpectationsGreatly": "Les habiletés démontrées dépassent de beaucoup les attentes",
       "exceedExpectations": "Les habiletés démontrées dépassent les attentes",
       "fullyMeetExpectations": "Les habiletés démontrées répondent pleinement aux attentes",
@@ -131,6 +142,11 @@
       "commentsPlaceholder": "Ajoutez vos commentaires ici..."
     },
 
+    "navigation": {
+      "previous": "Précédent",
+      "next": "Suivant"
+    },
+
     "actions": {
       "cancel": "Annuler",
       "submit": "Soumettre l'évaluation",
@@ -154,6 +170,10 @@
   "messages": {
     "success": "Évaluation soumise avec succès !",
     "successDescription": "L'évaluation a été enregistrée."
+  },
+
+  "common": {
+    "notAvailable": "N/A"
   },
 
   "errors": {
