@@ -29,6 +29,15 @@
     "connecting": "Connecting..."
   },
 
+  "testAccounts": {
+    "title": "Test accounts — development only:",
+    "loginAsEmployer": "Login as Employer",
+    "loginAsStudent": "Login as Student",
+    "loginAsManager": "Login as Manager",
+    "loginAsTeacher": "Login as Teacher",
+    "warning": "For testing only — do not use in production."
+  },
+
   "noAccount": "Don't have an account?",
   "signUp": "Sign up",
   "securityNote": "Your information is protected and secure"

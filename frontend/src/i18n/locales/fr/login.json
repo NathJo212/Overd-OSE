@@ -29,6 +29,15 @@
     "connecting": "Connexion en cours..."
   },
 
+  "testAccounts": {
+    "title": "Comptes de test — développement seulement :",
+    "loginAsEmployer": "Se connecter en tant qu'Employeur",
+    "loginAsStudent": "Se connecter en tant qu'Étudiant",
+    "loginAsManager": "Se connecter en tant que Gestionnaire",
+    "loginAsTeacher": "Se connecter en tant que Professeur",
+    "warning": "Pour tests seulement — ne pas utiliser en production."
+  },
+
   "noAccount": "Pas encore de compte ?",
   "signUp": "S'inscrire",
   "securityNote": "Vos informations sont protégées et sécurisées"

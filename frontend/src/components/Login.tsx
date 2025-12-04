@@ -291,7 +291,7 @@ const Login = () => {
 
                     {/* Quick-login buttons (dev only) */}
                     <div className="mt-6">
-                        <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Comptes de test — développement seulement :</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">{t('login:testAccounts.title')}</p>
                         <div className="flex gap-2 flex-wrap">
                             <button
                                 type="button"
@@ -299,7 +299,7 @@ const Login = () => {
                                 onClick={() => handleTestLogin('EMPLOYEUR')}
                                 className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
                             >
-                                Se connecter en tant qu'Employeur
+                                {t('login:testAccounts.loginAsEmployer')}
                             </button>
                             <button
                                 type="button"
@@ -307,7 +307,7 @@ const Login = () => {
                                 onClick={() => handleTestLogin('ETUDIANT')}
                                 className="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
                             >
-                                Se connecter en tant qu'Étudiant
+                                {t('login:testAccounts.loginAsStudent')}
                             </button>
                             <button
                                 type="button"
@@ -315,7 +315,7 @@ const Login = () => {
                                 onClick={() => handleTestLogin('GESTIONNAIRE')}
                                 className="cursor-pointer flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
                             >
-                                Se connecter en tant que Gestionnaire
+                                {t('login:testAccounts.loginAsManager')}
                             </button>
                             <button
                                 type="button"
@@ -323,10 +323,10 @@ const Login = () => {
                                 onClick={() => handleTestLogin('PROFESSEUR')}
                                 className="cursor-pointer flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-3 rounded-xl transition-colors disabled:bg-slate-300"
                             >
-                                Se connecter en tant que Professeur
+                                {t('login:testAccounts.loginAsTeacher')}
                             </button>
                         </div>
-                        <p className="text-xs text-rose-600 mt-2">Pour tests seulement — ne pas utiliser en production.</p>
+                        <p className="text-xs text-rose-600 mt-2">{t('login:testAccounts.warning')}</p>
                     </div>
 
 
