@@ -10,6 +10,7 @@
   "searchTeacher": "Search a teacher...",
   "noStudentsFound": "No students found for this search",
   "noStudents": "No students available",
+  "studentsFound": "{{count}} student(s) found",
   "student": "Student",
   "currentTeacher": "Current Teacher",
   "teacher": "Teacher",

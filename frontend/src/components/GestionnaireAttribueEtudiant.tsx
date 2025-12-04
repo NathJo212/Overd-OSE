@@ -245,9 +245,7 @@ export default function GestionnaireAttribueEtudiant() {
                             </button>
                         )}
                     </div>
-                    <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">
-                        {filteredEtudiants.length} étudiant(s) trouvé(s)
-                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{t('studentsFound', { count: filteredEtudiants.length })}</p>
                 </div>
 
                 {/* Table */}

@@ -1,5 +1,5 @@
 {
-  "backToDashboard": "Retout au tableau de bord",
+  "backToDashboard": "Retour au tableau de bord",
   "title": "Assigner des Professeurs aux Étudiants",
   "subtitle": "Assignez un professeur superviseur à chaque étudiant",
   "error": "Erreur de connexion",
@@ -10,6 +10,7 @@
   "searchTeacher": "Rechercher un professeur...",
   "noStudentsFound": "Aucun étudiant trouvé pour cette recherche",
   "noStudents": "Aucun étudiant disponible",
+  "studentsFound": "{{count}} étudiant(s) trouvé(s)",
   "student": "Étudiant",
   "currentTeacher": "Professeur Actuel",
   "teacher": "Professeur",
