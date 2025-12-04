@@ -413,11 +413,27 @@ const DashBoardEmployeur = () => {
 
             {/* Refusal Reason Modal */}
             {showModal && (
-                <div className="fixed inset-0 flex items-center justify-center p-4 z-50" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
-                    <div className="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4">
-                        <div className="bg-red-50 px-6 py-4 rounded-t-xl border-b border-red-100"><div className="flex items-center justify-center"><div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-3"><X className="w-6 h-6 text-red-600" /></div><h3 className="text-xl font-semibold text-red-700">{t("employerdashboard:modal.refusedTitle")}</h3></div></div>
-                        <div className="px-6 py-6"><p className="text-gray-600 text-sm mb-2">{t("employerdashboard:modal.refusedReason")}</p><div className="bg-gray-50 p-4 rounded-lg border"><p className="text-gray-800 leading-relaxed">{modalReason}</p></div></div>
-                        <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end"><button className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200" onClick={() => { setShowModal(false); setModalReason(''); }}>{t("employerdashboard:modal.close")}</button></div>
+                <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-700">
+                        <div className="bg-red-50 dark:bg-red-900/30 px-6 py-4 rounded-t-xl border-b border-red-100 dark:border-red-800">
+                            <div className="flex items-center">
+                                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mr-3">
+                                    <X className="w-5 h-5 text-red-600 dark:text-red-400" />
+                                </div>
+                                <h3 className="text-xl font-semibold text-red-700 dark:text-red-300">{t("employerdashboard:modal.refusedTitle")}</h3>
+                            </div>
+                        </div>
+                        <div className="px-6 py-6">
+                            <p className="text-gray-600 dark:text-slate-300 text-sm mb-3 font-medium">{t("employerdashboard:modal.refusedReason")}</p>
+                            <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-lg border border-gray-200 dark:border-slate-600">
+                                <p className="text-gray-800 dark:text-slate-100 leading-relaxed">{modalReason}</p>
+                            </div>
+                        </div>
+                        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700/50 rounded-b-xl flex justify-end">
+                            <button className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md" onClick={() => { setShowModal(false); setModalReason(''); }}>
+                                {t("employerdashboard:modal.close")}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
