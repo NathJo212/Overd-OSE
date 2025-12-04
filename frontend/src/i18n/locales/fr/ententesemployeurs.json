@@ -71,7 +71,7 @@
   },
   "refuseModal": {
     "title": "Refuser l'entente",
-    "message": "Veuillez indiquer la raison du refus de cette entente :",
+    "message": "Êtes-vous certain de vouloir refuser cette entente de stage? Cette action est irréversible.",
     "placeholder": "Raison du refus...",
     "cancel": "Annuler",
     "confirm": "Confirmer le refus",

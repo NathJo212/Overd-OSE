@@ -71,7 +71,7 @@
   },
   "refuseModal": {
     "title": "Refuse Agreement",
-    "message": "Please indicate the reason for refusing this agreement:",
+    "message": "Are you sure you want to refuse this internship agreement? This action is irreversible.",
     "placeholder": "Reason for refusal...",
     "cancel": "Cancel",
     "confirm": "Confirm Refusal",

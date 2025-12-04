@@ -381,19 +381,19 @@ const DashBoardEmployeur = () => {
                         <div className="px-6 py-6 space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.dateTime')}</label>
-                                <input type="datetime-local" value={editForm.dateHeure} onChange={(e) => setEditForm({...editForm, dateHeure: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                                <input type="datetime-local" value={editForm.dateHeure} onChange={(e) => setEditForm({...editForm, dateHeure: e.target.value})} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.location')}</label>
-                                <input type="text" value={editForm.lieuOuLien} onChange={(e) => setEditForm({...editForm, lieuOuLien: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                                <input type="text" value={editForm.lieuOuLien} onChange={(e) => setEditForm({...editForm, lieuOuLien: e.target.value})} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">{t('employerdashboard:convocations.editModal.message')}</label>
-                                <textarea value={editForm.message} onChange={(e) => setEditForm({...editForm, message: e.target.value})} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                                <textarea value={editForm.message} onChange={(e) => setEditForm({...editForm, message: e.target.value})} rows={4} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
                             </div>
                         </div>
-                        <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
-                            <button className="cursor-pointer px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100" onClick={() => { setShowEditModal(false); resetEditModalState(); }}>{t('employerdashboard:convocations.editModal.cancel')}</button>
+                        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700/50 rounded-b-xl flex justify-end gap-3">
+                            <button className="cursor-pointer px-6 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600" onClick={() => { setShowEditModal(false); resetEditModalState(); }}>{t('employerdashboard:convocations.editModal.cancel')}</button>
                             <button className="cursor-pointer px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onClick={handleSaveEdit}>{t('employerdashboard:convocations.editModal.save')}</button>
                         </div>
                     </div>
@@ -426,4 +426,3 @@ const DashBoardEmployeur = () => {
 };
 
 export default DashBoardEmployeur;
-
